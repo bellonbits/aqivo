@@ -1,0 +1,17 @@
+{% extends "shell.html" %}
+{% from "sections/_m.html" import pcard with context %}
+{% block content %}
+<section class="sx-sec" style="padding-top:28px"><div class="wrap">
+  <h1 style="font-size:clamp(30px,5vw,42px)">Search</h1>
+  <form method="get" action="{{ root }}/search" class="sortbar" role="search"><input class="search" id="sq" name="q" value="{{ q }}" placeholder="Search products, services, categories" aria-label="Search" autocomplete="off" autofocus style="max-width:520px" data-suggest="/api/v1/public/{{ business.slug }}/search"><button class="btn primary" type="submit">Search</button></form>
+  <div id="recent" class="chips" aria-label="Recent searches"></div><div id="sugg" class="sres" role="listbox" aria-label="Suggestions"></div>
+  {% if q %}
+    {% if ccards %}<h2 style="font-size:20px;margin-top:22px">Categories</h2><div class="chips">{% for c in ccards %}<a class="chip" href="{{ c.url }}" style="text-decoration:none;display:inline-flex;align-items:center">{{ c.name }}</a>{% endfor %}</div>{% endif %}
+    {% if pcards %}<h2 style="font-size:20px;margin-top:22px">Products</h2><div class="pgrid" style="--cols:4">{% for it in pcards %}{{ pcard(it, true, true) }}{% endfor %}</div>{% endif %}
+    {% if scards %}<h2 style="font-size:20px;margin-top:22px">Services</h2><div class="pgrid" style="--cols:4">{% for it in scards %}{{ pcard(it, true, true) }}{% endfor %}</div>{% endif %}
+    {% if not (pcards or scards or ccards) %}<p class="sub" style="margin-top:22px">Nothing matched “{{ q }}”. Try another word, or have a look at these.</p>
+      {% if popular %}<div class="pgrid" style="--cols:4">{% for it in popular %}{{ pcard(it, true, true) }}{% endfor %}</div>{% endif %}{% endif %}
+  {% elif popular %}<h2 style="font-size:20px;margin-top:22px">Popular</h2><div class="pgrid" style="--cols:4">{% for it in popular %}{{ pcard(it, true, true) }}{% endfor %}</div>{% endif %}
+</div></section>
+{% endblock %}
+{% block scripts %}<script src="/static/search.js" defer></script>{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "shell.html" %}
+{% from "sections/_m.html" import pcard with context %}
+{% block content %}
+{% if kind == 'products' %}{% include "shop/_crumbs.html" %}{% endif %}
+<section class="sx-sec" style="padding-top:28px"><div class="wrap">
+  <h1 style="font-size:clamp(30px,5vw,46px);margin-bottom:6px">{{ page_title }}</h1>
+  {% if current and current.description %}<p class="sub">{{ current.description }}</p>{% endif %}
+  {% if kind == 'products' %}
+  <div class="chips" style="margin:14px 0"><a class="chip" href="{{ root }}/products" aria-pressed="{{ 'true' if not current else 'false' }}" style="text-decoration:none;display:inline-flex;align-items:center">All</a>{% for c in cat_chips %}<a class="chip" href="{{ c.url }}" aria-pressed="{{ 'true' if c.active else 'false' }}" style="text-decoration:none;display:inline-flex;align-items:center">{{ c.name }}</a>{% endfor %}</div>
+  {% if children %}<p class="sub">In this category: {% for c in children %}<a href="{{ c.url }}">{{ c.name }}</a>{{ ', ' if not loop.last }}{% endfor %}</p>{% endif %}
+  <form class="sortbar" method="get" action="{{ root }}{{ base_path }}"><input class="search" name="q" value="{{ q }}" placeholder="Search {{ business.name }}" aria-label="Search" style="max-width:320px">
+    <select name="sort" aria-label="Sort" onchange="this.form.submit()">{% for k, l in sorts.items() %}<option value="{{ k }}" {{ 'selected' if k == sort }}>{{ l }}</option>{% endfor %}</select><button class="btn" type="submit">Search</button></form>
+  {% endif %}
+  {% if cards %}<div class="pgrid" style="--cols:4">{% for it in cards %}{{ pcard(it, true, true) }}{% endfor %}</div>
+  {% else %}<p class="sub" style="margin-top:24px">{{ 'Nothing here yet.' if not q else 'No products match “' ~ q ~ '”.' }}</p>{% endif %}
+  {% if has_prev or has_next %}<div class="pager">{% if has_prev %}<a class="btn" href="{{ root }}{{ base_path }}?page={{ page_no - 1 }}{{ '&q=' ~ q|urlencode if q }}&sort={{ sort }}">← Previous</a>{% endif %}{% if has_next %}<a class="btn" href="{{ root }}{{ base_path }}?page={{ page_no + 1 }}{{ '&q=' ~ q|urlencode if q }}&sort={{ sort }}">Next →</a>{% endif %}</div>{% endif %}
+</div></section>
+{% endblock %}

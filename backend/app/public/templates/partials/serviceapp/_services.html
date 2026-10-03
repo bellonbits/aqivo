@@ -1,0 +1,7 @@
+<section id="services" class="sv-list"><div class="wrap">{% if c.title %}<h2>{{ c.title }}</h2>{% endif %}
+<div class="sv-cards">{% for sv in services %}<article class="sv-card p{{ loop.index0 % 5 }}" data-item data-name="{{ sv.name|lower }}" data-category="{{ sv.category_name }}">
+  <div class="sv-body"><span class="sv-badge" aria-hidden="true">{{ sv.name[:1] }}</span><h3><a href="{{ root }}/services/{{ sv.slug }}" style="text-decoration:none;color:inherit">{{ sv.name }}</a></h3>
+    {% if sv.description %}<p>{{ sv.description }}</p>{% endif %}
+    <div class="sv-meta"><span>{{ sv.duration_minutes }} min</span>{% if settings.show_prices %}<b>{{ sv.price|money(sv.currency) }}</b>{% endif %}</div>
+    {% if bookings_on %}<a class="sv-book" href="#booking" data-pick="{{ sv.id }}">Book now</a>{% elif wa_services[sv.id|string] %}<a class="sv-book" href="{{ wa_services[sv.id|string] }}" data-track="WHATSAPP_CLICK" data-service="{{ sv.id }}">Book now</a>{% endif %}</div>
+  {% if product_images[sv.id|string] %}<img src="{{ product_images[sv.id|string] }}" alt="{{ sv.name }}" loading="lazy" width="320" height="320">{% endif %}</article>{% endfor %}</div></div></section>

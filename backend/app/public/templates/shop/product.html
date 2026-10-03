@@ -1,0 +1,42 @@
+{% extends "shell.html" %}
+{% from "sections/_m.html" import pcard with context %}
+{% block content %}
+{% include "shop/_crumbs.html" %}
+{% set p = product %}
+<div class="wrap pdp" data-pdp>
+  <div class="gal">
+    <div class="main">{% if images %}<img id="pdp-main" src="{{ images[0] }}" alt="{{ p.name }}" width="900" height="900" fetchpriority="high">{% else %}<span class="ph" style="font:700 80px var(--fd);color:color-mix(in srgb,var(--ink) 25%,transparent)">{{ p.name[:1] }}</span>{% endif %}</div>
+    {% if images|length > 1 %}<div class="thumbs">{% for im in images %}<button type="button" data-thumb="{{ im }}" aria-pressed="{{ 'true' if loop.first else 'false' }}" aria-label="Photo {{ loop.index }}"><img src="{{ im }}" alt="" loading="lazy" width="68" height="68"></button>{% endfor %}</div>{% endif %}
+  </div>
+  <div>
+    {% if category %}<p class="sub" style="margin:0 0 6px"><a href="{{ root }}/categories/{{ category.slug }}">{{ category.name }}</a></p>{% endif %}
+    <h1>{{ p.name }}</h1>
+    {% if review_summary.count %}<p style="margin:6px 0"><span class="stars">{{ review_summary.average|stars }}</span> <a href="#reviews" style="color:var(--muted)">{{ review_summary.average }} ({{ review_summary.count }})</a></p>{% endif %}
+    {% if settings.show_prices %}<div class="price"><span id="pdp-price">{{ p.price|money(p.currency) }}</span>{% if p.compare_at_price and p.compare_at_price > p.price %}<s id="pdp-compare">{{ p.compare_at_price|money(p.currency) }}</s>{% else %}<s id="pdp-compare" hidden></s>{% endif %}</div>{% endif %}
+    {% if p.short_description %}<p class="sub">{{ p.short_description }}</p>{% endif %}
+    {% for o in (p.options or []) %}<div class="opt"><b>{{ o.name }}</b><div class="opts" role="group" aria-label="{{ o.name }}">{% for v in o['values'] %}<button type="button" data-opt="{{ o.name }}" data-val="{{ v }}" aria-pressed="false">{{ v }}</button>{% endfor %}</div></div>{% endfor %}
+    <p class="stock {{ 'out' if sold_out else ('low' if low else '') }}" id="pdp-stock" role="status">{% if sold_out %}Sold out{% elif low %}Only a few left{% elif total_stock is not none %}In stock{% endif %}</p>
+    {% if settings.cart_enabled %}<div class="buy">
+      <div class="qty" role="group" aria-label="Quantity"><button type="button" data-q="-1" aria-label="Fewer">−</button><span id="pdp-qty">1</span><button type="button" data-q="1" aria-label="More">+</button></div>
+      <button type="button" class="btn primary" id="pdp-add" data-kind="product" data-id="{{ p.id }}" data-name="{{ p.name }}" data-image="{{ images[0] if images else '' }}" data-price="{{ p.price }}" {% if sold_out %}disabled{% endif %}>{{ 'Sold out' if sold_out else 'Add to bag' }}</button>
+      <button type="button" class="btn" id="pdp-buy" {% if sold_out %}disabled{% endif %}>Buy now</button>
+    </div>{% endif %}
+    <p id="pdp-msg" class="msg err" role="alert" hidden></p>
+    {% if ask_wa %}<p><a class="btn wa" href="{{ ask_wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener" style="width:100%">Ask about this on WhatsApp</a></p>{% endif %}
+    {% if p.description %}<div style="margin-top:22px"><h2 style="font-size:20px">Details</h2><p style="white-space:pre-line;color:var(--muted)">{{ p.description }}</p></div>{% endif %}
+    {% if p.sku or p.tags %}<p class="d" style="color:var(--muted);font-size:14px">{% if p.sku %}SKU {{ p.sku }}{% endif %}{% if p.tags %}{{ ' · ' if p.sku }}{{ p.tags|join(', ') }}{% endif %}</p>{% endif %}
+    <div class="share"><button type="button" class="chip" id="pdp-save" data-pid="{{ p.id }}" style="min-height:32px" aria-pressed="false">♡ Save</button><a href="{{ share_wa }}" target="_blank" rel="noopener">Share on WhatsApp</a><button type="button" class="chip" data-copy="{{ share_url }}" style="min-height:32px">Copy link</button></div>
+  </div>
+</div>
+<script type="application/json" id="pdp-data">{{ vjson|safe }}</script>
+{% if reviews or review_token %}<section id="reviews" class="sx-sec"><div class="wrap"><h2>Reviews</h2>
+{% if review_summary.count %}<p class="sub"><span class="stars">{{ review_summary.average|stars }}</span> {{ review_summary.average }} from {{ review_summary.count }} review{{ '' if review_summary.count == 1 else 's' }}</p>{% endif %}
+<div class="reviews">{% for r in reviews %}<figure class="card" style="margin:0"><div class="stars" aria-label="{{ r.rating }} out of 5">{{ r.rating|stars }}</div><blockquote style="margin:10px 0 0">{{ r.comment }}</blockquote><figcaption class="who">{{ r.author_name }} {% if r.verified %}<span class="ver">· Verified purchase</span>{% endif %}</figcaption>{% if r.response %}<div class="resp"><strong>Reply from {{ business.name }}:</strong> {{ r.response }}</div>{% endif %}</figure>{% endfor %}</div>
+{% if review_token %}<form id="review-form" class="book" novalidate data-token="{{ review_token }}" data-product="{{ p.id }}" style="margin-top:24px"><h3>Review this product</h3>
+<div class="slots" id="stars" role="radiogroup" aria-label="Rating">{% for i in range(1, 6) %}<button type="button" role="radio" aria-checked="false" data-v="{{ i }}" aria-label="{{ i }} star">{{ i }}★</button>{% endfor %}</div>
+<label>Your name <input name="name" required maxlength="120"></label><label>Comment <textarea name="comment" rows="3" maxlength="1500"></textarea></label>
+<input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true"><button class="btn primary" type="submit">Submit review</button><div id="review-msg" role="status"></div></form>{% endif %}
+</div></section>{% endif %}
+{% if related %}<section class="sx-sec"><div class="wrap"><h2>You may also like</h2><div class="pgrid" style="--cols:4">{% for it in related %}{{ pcard(it, true, true) }}{% endfor %}</div></div></section>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="/static/product.js" defer></script>{% endblock %}

@@ -1,0 +1,5 @@
+<section class="sx-sec"><div class="wrap"><h2>{{ c.title }}</h2>
+{% if c.show_summary and summary.count %}<p class="sub"><span class="stars">{{ summary.average|stars }}</span> {{ summary.average }} from {{ summary.count }} verified review{{ '' if summary.count == 1 else 's' }}</p>{% endif %}
+<div class="reviews">{% for r in d.reviews %}<figure class="card" style="margin:0"><div class="stars" aria-label="{{ r.rating }} out of 5">{{ r.rating|stars }}</div><blockquote style="margin:10px 0 0">{{ r.comment }}</blockquote><figcaption class="who">{{ r.author_name }} {% if r.verified %}<span class="ver">· Verified customer</span>{% endif %}</figcaption>
+{% if r.response %}<div class="resp"><strong>Reply from {{ business.name }}:</strong> {{ r.response }}</div>{% endif %}</figure>{% endfor %}</div>
+<p style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="{{ urls.review }}">Leave a review</a>{% if google_review_url %}<a class="btn" href="{{ google_review_url }}" target="_blank" rel="noopener">Review us on Google</a>{% endif %}</p></div></section>

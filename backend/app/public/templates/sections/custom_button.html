@@ -1,0 +1,2 @@
+{% set a = act(c.action, c.url) %}<section class="sx-sec" style="padding:24px 0"><div class="wrap" style="text-align:{{ c.align or 'center' }}">
+<a class="btn {{ 'primary' if c.variant == 'primary' else ('wa' if c.variant == 'whatsapp' else '') }}" href="{{ a.href }}"{% if a.track %} data-track="{{ a.track }}"{% endif %}{% if a.ext %} target="_blank" rel="noopener"{% endif %}>{{ c.label }}</a></div></section>

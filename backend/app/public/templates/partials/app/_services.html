@@ -1,0 +1,7 @@
+{% from "partials/_macros.html" import add_btn %}
+<section id="services"><div class="wrap"><h2>{{ c.title }}</h2>{% if c.subtitle %}<p class="sub">{{ c.subtitle }}</p>{% endif %}
+{% if categories %}<div class="chips" style="margin-bottom:18px"><button class="chip" aria-pressed="true" data-cat="">All</button>{% for cat in categories %}<button class="chip" aria-pressed="false" data-cat="{{ cat.name }}">{{ cat.name }}</button>{% endfor %}</div>{% endif %}
+<div class="cats">{% for sv in services %}<article class="svc-card" data-item data-name="{{ sv.name|lower }}" data-category="{{ sv.category_name }}">
+{% if product_images[sv.id|string] %}<img src="{{ product_images[sv.id|string] }}" alt="{{ sv.name }}" loading="lazy" width="320" height="336">{% else %}<div class="ph"></div>{% endif %}
+<b>{{ sv.name }}</b><small>{{ sv.duration_minutes }} min</small>
+<div class="row"><span class="p">{% if settings.show_prices %}{{ sv.price|money(sv.currency) }}{% endif %}</span>{% if settings.cart_enabled %}{{ add_btn(sv, "Add") }}{% elif bookings_on %}<a class="btn" href="#booking" data-pick="{{ sv.id }}" style="min-height:38px;font-size:13px">Book</a>{% elif wa_services[sv.id|string] %}<a class="btn" href="{{ wa_services[sv.id|string] }}" data-track="WHATSAPP_CLICK" data-service="{{ sv.id }}" style="min-height:38px;font-size:13px">Book</a>{% endif %}</div></article>{% endfor %}</div></div></section>

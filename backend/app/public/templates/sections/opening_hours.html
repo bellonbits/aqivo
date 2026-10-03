@@ -1,0 +1,2 @@
+<section class="sx-sec"><div class="wrap"><h2>{{ c.title }}</h2>{% if open_now is not none %}<p class="sub"><span class="dot {{ '' if open_now else 'closed' }}"></span>{{ 'Open now' if open_now else 'Closed now' }}</p>{% endif %}
+<div class="hrs">{% for h in hours %}<div><span>{{ h.day }}</span><span>{{ h.text }}</span></div>{% endfor %}</div></div></section>

@@ -1,0 +1,5 @@
+<div class="sticky">
+{% if bookings_on %}<a class="btn primary" href="{{ root or '/' }}#booking">Book</a>{% endif %}
+{% if wa %}<a class="btn wa" href="{{ wa }}" data-track="WHATSAPP_CLICK">WhatsApp</a>{% endif %}
+{% if business.phone %}<a class="btn" href="tel:{{ business.phone }}" data-track="PHONE_CLICK">Call</a>{% endif %}
+</div>

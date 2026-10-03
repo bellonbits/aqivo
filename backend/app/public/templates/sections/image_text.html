@@ -1,0 +1,6 @@
+{% set a = act(c.button.action if c.button else 'auto', c.button.url if c.button else None) %}
+<section class="sx-sec"><div class="wrap split {{ c.side or 'left' }}">
+  {% if c.image_url %}<div class="im2"><img src="{{ c.image_url }}" alt="" loading="lazy" decoding="async" width="800" height="600"></div>{% endif %}
+  <div>{% if c.title %}<h2>{{ c.title }}</h2>{% endif %}{% if c.body %}<p class="sub" style="max-width:56ch;white-space:pre-line">{{ c.body }}</p>{% endif %}
+  {% if c.button and c.button.label %}<a class="btn primary" href="{{ a.href }}"{% if a.track %} data-track="{{ a.track }}"{% endif %}{% if a.ext %} target="_blank" rel="noopener"{% endif %}>{{ c.button.label }}</a>{% endif %}</div>
+</div></section>

@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  body {
+    background-color: #f7f6f2 !important;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Dedicated Topbar for Order Confirmation Page -->
+<header class="take-checkout-topbar">
+  <div class="take-checkout-topbar-inner">
+    <a href="{{ root or '/' }}" class="take-checkout-brand" aria-label="Back to {{ business.name }}">
+      {% if business.logo_url %}
+        <img src="{{ business.logo_url }}" alt="{{ business.name }}" class="take-checkout-brand-logo">
+      {% else %}
+        <span class="take-checkout-brand-avatar">{{ business.name[:1]|upper }}</span>
+      {% endif %}
+      <div class="take-checkout-brand-info">
+        <span class="take-checkout-brand-name">{{ business.name }}</span>
+        <span class="take-checkout-brand-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check" aria-hidden="true"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>
+          Official Store
+        </span>
+      </div>
+    </a>
+
+    <div class="take-checkout-trust-pill">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      <span>Order #{{ order.number }}</span>
+    </div>
+
+    <a href="{{ root or '/' }}" class="take-checkout-back-btn" aria-label="Back to store">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      <span>Back to shop</span>
+    </a>
+  </div>
+</header>
+
+<div class="take-order-bg-wrapper">
+  <!-- Note banner above ticket -->
+  <div class="take-receipt-seller-note">
+    Your order has been sent to <strong>{{ business.name }}</strong>. Preparing your items now.
+  </div>
+
+  <main class="take-receipt-container" id="take-order">
+    <!-- The Complete Official Receipt Ticket -->
+    <article class="take-receipt-ticket" aria-label="Order Receipt">
+      <!-- Receipt Header with Logo & Brand -->
+      <header class="take-receipt-head">
+        <!-- Business Logo / Avatar -->
+        <div class="take-receipt-logo-wrap">
+          {% if business.logo_url %}
+            <img src="{{ business.logo_url }}" alt="{{ business.name }}" class="take-receipt-logo-img">
+          {% else %}
+            <span class="take-receipt-logo-avatar">{{ business.name[:1]|upper }}</span>
+          {% endif %}
+        </div>
+
+        <h2 class="take-receipt-business-name">{{ business.name }}</h2>
+        <div class="take-receipt-business-meta">
+          {% if business.city or business.address %}
+            <span>{{ business.city or business.address }}</span>
+          {% endif %}
+          {% if business.phone %}
+            <span>· {{ business.phone }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Celebration Title & Subtitle -->
+        <div class="take-receipt-celebrate-box">
+          <div class="take-receipt-check-circle" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>
+          <h1 class="take-receipt-title">Thank You!</h1>
+          <p class="take-receipt-subtitle">Your order has been placed successfully.</p>
+        </div>
+      </header>
+
+      <!-- Ticket Notch Divider -->
+      <div class="take-receipt-divider-notch" aria-hidden="true"></div>
+
+      <!-- Receipt Body -->
+      <div class="take-receipt-body">
+        <!-- Order Metadata Grid -->
+        <div class="take-receipt-meta-grid">
+          <div class="take-receipt-meta-item">
+            <span class="take-receipt-meta-label">ORDER ID</span>
+            <span class="take-receipt-meta-val">#{{ order.number }}</span>
+          </div>
+          <div class="take-receipt-meta-item">
+            <span class="take-receipt-meta-label">AMOUNT</span>
+            <span class="take-receipt-meta-val amount">{{ order.total|money(order.currency) }}</span>
+          </div>
+          <div class="take-receipt-meta-item">
+            <span class="take-receipt-meta-label">DATE &amp; TIME</span>
+            <span class="take-receipt-meta-val">{{ order.created_at.strftime('%d %b %Y, %H:%M') if order.created_at else 'Recent' }}</span>
+          </div>
+          <div class="take-receipt-meta-item">
+            <span class="take-receipt-meta-label">PAYMENT METHOD</span>
+            <span class="take-receipt-meta-val">{{ 'M-Pesa' if order.payment_method == 'MPESA' else ('Cash on Delivery' if order.payment_method == 'CASH' else ('Bank Transfer' if order.payment_method == 'BANK' else order.payment_method)) }}</span>
+          </div>
+        </div>
+
+        <!-- Payment Status Card -->
+        <div class="take-receipt-status-card {{ order.payment_status|lower }}">
+          <div class="take-receipt-status-icon-circle" aria-hidden="true">
+            {% if order.payment_status == 'PAID' %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+            {% elif order.payment_method == 'MPESA' %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+            {% else %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {% endif %}
+          </div>
+          <div>
+            <div class="take-receipt-status-title">
+              {{ {'UNPAID': 'Payment Pending', 'PENDING': 'Confirming Payment', 'PAID': 'Payment Completed', 'REFUNDED': 'Refunded'}[order.payment_status] }}
+            </div>
+            <div class="take-receipt-status-sub">{{ order.customer_phone or order.customer_name }}</div>
+          </div>
+        </div>
+
+        <!-- Section: Order Items -->
+        <div class="take-receipt-section-header">ITEMS ORDERED ({{ order.items|length }})</div>
+        <div class="take-receipt-items-list">
+          {% for i in order['items'] %}
+          <div class="take-receipt-item-row">
+            <div class="take-receipt-item-thumb">
+              {% if i.image_url %}
+                <img src="{{ i.image_url }}" alt="" width="46" height="46">
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package" style="color:#94a3b8"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <div class="take-receipt-item-name">{{ i.name }}</div>
+              {% if i.variant_title %}<div class="take-receipt-item-sub">└ {{ i.variant_title }}</div>{% endif %}
+              <div class="take-receipt-item-sub">{{ i.quantity }} × {{ i.unit_price|money(order.currency) }}</div>
+            </div>
+            <strong class="take-receipt-item-price">{{ i.line_total|money(order.currency) }}</strong>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Totals Breakdown -->
+        <div class="take-receipt-totals">
+          <div class="take-receipt-total-row"><span>Subtotal</span><span>{{ order.subtotal|money(order.currency) }}</span></div>
+          {% if order.discount > 0 %}
+          <div class="take-receipt-total-row discount"><span>Discount {{ '(' ~ order.discount_code ~ ')' if order.discount_code }}</span><span>−{{ order.discount|money(order.currency) }}</span></div>
+          {% endif %}
+          {% if order.delivery_method == 'DELIVERY' %}
+          <div class="take-receipt-total-row"><span>Delivery fee</span><span>{{ order.delivery_fee|money(order.currency) if order.delivery_fee > 0 else 'Free' }}</span></div>
+          {% endif %}
+          <div class="take-receipt-total-row grand-total"><span>Total</span><strong>{{ order.total|money(order.currency) }}</strong></div>
+        </div>
+
+        <!-- Section: Fulfillment & Customer Details -->
+        <div class="take-receipt-section-header">{{ 'DELIVERY DETAILS' if order.delivery_method == 'DELIVERY' else 'PICKUP DETAILS' }}</div>
+        <div class="take-receipt-info-box">
+          <div class="take-receipt-info-line">
+            <strong>Customer:</strong> {{ order.customer_name }} · {{ order.customer_phone }}
+          </div>
+          <div class="take-receipt-info-line">
+            <strong>Fulfillment:</strong> {{ 'Doorstep Delivery' if order.delivery_method == 'DELIVERY' else 'Store Pickup' }}
+          </div>
+          {% if order.scheduled_for %}
+          <div class="take-receipt-info-line">
+            <strong>Preferred time:</strong> {{ order.scheduled_for.replace('T', ' ') }}
+          </div>
+          {% endif %}
+          {% if order.courier_name %}
+          <div class="take-receipt-info-line">
+            <strong>Courier / Rider:</strong> {{ order.courier_name }}{% if order.courier_phone %} · <a href="tel:{{ order.courier_phone }}">{{ order.courier_phone }}</a>{% endif %}
+          </div>
+          {% endif %}
+          <div class="take-receipt-info-line">
+            <strong>Address / Location:</strong>
+            {% if order.delivery_method == 'DELIVERY' %}
+              {{ order.delivery_zone ~ ' — ' if order.delivery_zone }}{{ order.address }}
+            {% else %}
+              {{ pickup_note or ('Collect from ' ~ business.name ~ (', ' ~ business.address if business.address else '')) }}
+            {% endif %}
+          </div>
+          {% if order.notes %}
+          <div class="take-receipt-info-line">
+            <strong>Notes:</strong> {{ order.notes }}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Payment Instructions & Online Pay Form (if pending) -->
+        {% if order.payment_status != 'PAID' %}
+        <div class="take-card" style="margin-bottom:20px;border-radius:18px;border-color:#e2e8f0">
+          <div class="take-card-title">Payment instructions</div>
+          {% if pay_info %}<p style="margin:8px 0 12px;white-space:pre-line;font-size:13.5px;color:var(--ink)">{{ pay_info.instructions }}</p>{% endif %}
+          {% if can_pay_online %}
+          <div id="pay-box" style="margin-top:12px" data-token="{{ order.token }}" data-poll="{{ 1 if order.payment_status == 'PENDING' and order.payment_method == 'MPESA' and order.payment_provider else 0 }}">
+            <button class="take-btn-action primary" id="pay-now" type="button" style="width:100%;min-height:48px">
+              {{ 'Pay with M-Pesa' if order.payment_method == 'MPESA' else 'Pay online now' }}
+            </button>
+            <p id="pay-msg" role="status" class="take-hint" style="margin:8px 0 0"></p>
+          </div>
+          {% endif %}
+          {% if can_add_ref %}
+          <form id="ref-form" class="take-ref-form" data-token="{{ order.token }}" style="margin-top:14px">
+            <label class="take-label">Already paid? Enter transaction code / receipt reference
+              <div style="display:flex;gap:8px;margin-top:6px">
+                <input name="ref" maxlength="30" placeholder="e.g. SHK4X2Y9ZA" autocomplete="off" class="take-input">
+                <button class="take-promo-btn" type="submit">Verify</button>
+              </div>
+            </label>
+            <div id="ref-msg" role="status" class="take-hint" style="margin-top:6px"></div>
+          </form>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Order Timeline / Status History -->
+        {% if timeline %}
+        <div class="take-card" style="margin-bottom:20px;border-radius:18px;border-color:#e2e8f0">
+          <div class="take-card-title">Order timeline</div>
+          <ul class="tl" style="margin-top:10px">
+            {% for e in timeline %}
+            <li><i></i><div>{{ e.message }}<br><small>{{ e.created_at.strftime('%d %b, %H:%M') }}</small></div></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <!-- Barcode Graphic & Verification Token -->
+        <div class="take-receipt-barcode-box">
+          <svg class="take-receipt-barcode-svg" viewBox="0 0 160 48" preserveAspectRatio="none" aria-hidden="true">
+            <rect x="0" y="0" width="3" height="48" fill="#0f172a"/>
+            <rect x="5" y="0" width="1.5" height="48" fill="#0f172a"/>
+            <rect x="9" y="0" width="4" height="48" fill="#0f172a"/>
+            <rect x="15" y="0" width="2" height="48" fill="#0f172a"/>
+            <rect x="19" y="0" width="1" height="48" fill="#0f172a"/>
+            <rect x="23" y="0" width="3.5" height="48" fill="#0f172a"/>
+            <rect x="29" y="0" width="2" height="48" fill="#0f172a"/>
+            <rect x="33" y="0" width="5" height="48" fill="#0f172a"/>
+            <rect x="40" y="0" width="1.5" height="48" fill="#0f172a"/>
+            <rect x="44" y="0" width="3" height="48" fill="#0f172a"/>
+            <rect x="49" y="0" width="2" height="48" fill="#0f172a"/>
+            <rect x="53" y="0" width="4" height="48" fill="#0f172a"/>
+            <rect x="59" y="0" width="1" height="48" fill="#0f172a"/>
+            <rect x="63" y="0" width="3" height="48" fill="#0f172a"/>
+            <rect x="68" y="0" width="4.5" height="48" fill="#0f172a"/>
+            <rect x="75" y="0" width="2" height="48" fill="#0f172a"/>
+            <rect x="79" y="0" width="1" height="48" fill="#0f172a"/>
+            <rect x="83" y="0" width="3.5" height="48" fill="#0f172a"/>
+            <rect x="89" y="0" width="2" height="48" fill="#0f172a"/>
+            <rect x="94" y="0" width="5" height="48" fill="#0f172a"/>
+            <rect x="101" y="0" width="1.5" height="48" fill="#0f172a"/>
+            <rect x="105" y="0" width="3" height="48" fill="#0f172a"/>
+            <rect x="110" y="0" width="2.5" height="48" fill="#0f172a"/>
+            <rect x="115" y="0" width="4" height="48" fill="#0f172a"/>
+            <rect x="121" y="0" width="1.5" height="48" fill="#0f172a"/>
+            <rect x="125" y="0" width="3" height="48" fill="#0f172a"/>
+            <rect x="130" y="0" width="2" height="48" fill="#0f172a"/>
+            <rect x="134" y="0" width="4" height="48" fill="#0f172a"/>
+            <rect x="141" y="0" width="1" height="48" fill="#0f172a"/>
+            <rect x="145" y="0" width="3.5" height="48" fill="#0f172a"/>
+            <rect x="151" y="0" width="2" height="48" fill="#0f172a"/>
+            <rect x="156" y="0" width="3" height="48" fill="#0f172a"/>
+          </svg>
+          <div class="take-receipt-barcode-serial">BZ-{{ order.token[:12]|upper }}</div>
+        </div>
+      </div>
+
+      <!-- Scalloped Ticket Bottom -->
+      <div class="take-receipt-scallop-edge" aria-hidden="true"></div>
+    </article>
+
+    <!-- Action Buttons Below Ticket -->
+    <div class="take-receipt-actions">
+      {% if order_wa %}
+      <a href="{{ order_wa }}" class="take-btn-send-wa" target="_blank" rel="noopener" data-track="WHATSAPP_CLICK">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+        <span>Send this order on WhatsApp</span>
+      </a>
+      <p class="take-hint" style="text-align:center;margin-top:4px">Send this message to {{ business.name }} to confirm preparation &amp; delivery.</p>
+      {% endif %}
+
+      <div class="take-receipt-btn-row">
+        <button type="button" class="take-receipt-btn-secondary" onclick="window.print()" aria-label="Print or save receipt">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          <span>Print Receipt</span>
+        </button>
+        <a href="{{ root or '/' }}" class="take-receipt-btn-secondary" aria-label="Continue shopping">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left" aria-hidden="true"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+          <span>Back to Store</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer class="take-checkout-minimal-footer">
+  <p>Order processed for <strong>{{ business.name }}</strong> · Powered by <a href="https://aqivo.shop" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;font-weight:600">Aqivo.shop</a></p>
+  <a href="{{ root or '/' }}" class="take-checkout-footer-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left" aria-hidden="true" style="vertical-align:-1px;margin-right:3px"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+    Return to {{ business.name }}
+  </a>
+</footer>
+
+<script>try{localStorage.removeItem("bz-bag2-{{ business.slug }}")}catch(e){}</script>
+{% endblock %}
+{% block scripts %}<script src="/static/order.js" defer></script>{% endblock %}

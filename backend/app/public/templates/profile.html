@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block body %}
+<main id="top"><div class="wrap" style="max-width:640px;padding:40px 0 100px">
+  <header style="text-align:center">
+    {% if logo %}<img src="{{ logo }}" alt="" width="88" height="88" style="width:88px;height:88px;border-radius:50%;object-fit:cover;margin:0 auto 14px">{% endif %}
+    <h1 style="font-size:34px">{{ business.name }}</h1>
+    {% if summary.count %}<p style="margin:8px 0 0"><span class="stars">{{ summary.average|stars }}</span> <strong>{{ summary.average }}</strong> <span style="color:var(--muted)">({{ summary.count }})</span></p>{% endif %}
+    <p style="margin:6px 0;color:var(--muted)">{{ business.category }}{% if business.city %} · {{ business.city }}{% endif %}</p>
+    {% if open_now is not none %}<p style="margin:0;font-size:14px;color:var(--muted)"><span class="dot {{ '' if open_now else 'closed' }}"></span>{{ 'Open now' if open_now else 'Closed now' }}</p>{% endif %}
+    {% if business.description %}<p style="margin:16px 0 0">{{ business.description }}</p>{% endif %}
+  </header>
+  <div style="display:grid;gap:10px;margin:28px 0">
+    {% if wa %}<a class="btn wa" href="{{ wa }}" data-track="WHATSAPP_CLICK">Chat on WhatsApp</a>{% endif %}
+    {% if business.phone %}<a class="btn" href="tel:{{ business.phone }}" data-track="PHONE_CLICK">Call {{ business.phone }}</a>{% endif %}
+    <a class="btn" href="{{ directions }}" data-track="DIRECTIONS_CLICK" target="_blank" rel="noopener">Get directions</a>
+  </div>
+  {% if services %}<h2 style="font-size:24px;margin-top:36px">Services</h2><div class="list" style="margin-top:12px">
+    {% for sv in services %}<div class="svc"><h3>{{ sv.name }}</h3><div class="p">{{ sv.price|money(sv.currency) }}</div>{% if sv.description %}<div class="d">{{ sv.description }}</div>{% endif %}<div class="dur">{{ sv.duration_minutes }} min</div>
+    {% if wa_services[sv.id|string] %}<a class="btn" href="{{ wa_services[sv.id|string] }}" data-track="WHATSAPP_CLICK" data-service="{{ sv.id }}">Book on WhatsApp</a>{% endif %}</div>{% endfor %}</div>{% endif %}
+  {% if gallery %}<h2 style="font-size:24px;margin-top:36px">Gallery</h2><div class="grid" style="margin-top:12px;grid-template-columns:repeat(3,1fr)">{% for g in gallery %}<img src="{{ g.thumb_url or g.url }}" alt="{{ g.caption or business.name }}" loading="lazy" width="400" height="400">{% endfor %}</div>{% endif %}
+  {% if reviews %}<h2 style="font-size:24px;margin-top:36px">Reviews</h2><div class="reviews" style="margin-top:12px">{% for r in reviews %}<figure class="card" style="margin:0"><div class="stars">{{ r.rating|stars }}</div><blockquote style="margin:8px 0 0">{{ r.comment }}</blockquote><figcaption class="who">{{ r.author_name }}{% if r.verified %} <span class="ver">· Verified</span>{% endif %}</figcaption></figure>{% endfor %}</div>{% endif %}
+  <h2 style="font-size:24px;margin-top:36px">Opening hours</h2><div class="hrs" style="margin-top:12px">{% for h in hours %}<div><span>{{ h.day }}</span><span>{{ h.text }}</span></div>{% endfor %}</div>
+  {% if business.address %}<h2 style="font-size:24px;margin-top:36px">Location</h2><p class="sub">{{ business.address }}{{ ', ' if business.city }}{{ business.city }}</p>{% endif %}
+  <p style="margin-top:40px;text-align:center"><a href="{{ urls.review }}">Leave a review</a></p>
+  {% if show_branding %}<p style="text-align:center;color:var(--muted);font-size:13px">Powered by <a href="https://aqivo.shop">Aqivo.shop</a></p>{% endif %}
+</div></main>
+{% endblock %}

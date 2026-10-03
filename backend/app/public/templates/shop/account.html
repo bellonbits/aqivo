@@ -1,0 +1,21 @@
+{% extends "shell.html" %}
+{% block content %}
+<div class="wrap" style="max-width:860px;padding:36px 0 72px" id="acct" data-root="{{ root }}">
+  <h1 style="font-size:clamp(28px,4vw,40px);margin-bottom:6px">Your account</h1>
+  <p class="sub">See your orders and bookings, save products and keep your delivery details. No password — we send you a code.</p>
+  <noscript><p class="msg err">Your account needs JavaScript.</p></noscript>
+  <section id="acct-login" class="card" hidden style="max-width:460px">
+    <form id="otp-req" class="book" novalidate><label>Phone number or email <input name="identifier" autocomplete="username" placeholder="0712 345 678 or you@email.com" required></label>
+      <button class="btn primary" type="submit">Send me a code</button><div class="msg" id="otp-msg" role="status" hidden></div></form>
+    <form id="otp-ver" class="book" novalidate hidden><p class="sub" id="otp-where"></p><label>6-digit code <input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required></label>
+      <label>Your name <small style="color:var(--muted)">(only needed the first time)</small><input name="name" autocomplete="name" maxlength="120"></label>
+      <button class="btn primary" type="submit">Sign in</button><button class="btn" type="button" id="otp-back">Use a different number</button><div class="msg" id="ver-msg" role="status" hidden></div></form>
+  </section>
+  <section id="acct-main" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><p id="hello" style="margin:0;font-weight:700"></p><button class="btn" id="logout" type="button">Sign out</button></div>
+    <div class="chips" style="margin:18px 0" role="tablist"><button class="chip" role="tab" data-tab="orders" aria-pressed="true">Orders</button><button class="chip" role="tab" data-tab="bookings" aria-pressed="false">Bookings</button><button class="chip" role="tab" data-tab="saved" aria-pressed="false">Saved</button><button class="chip" role="tab" data-tab="addresses" aria-pressed="false">Addresses</button><button class="chip" role="tab" data-tab="profile" aria-pressed="false">Profile</button></div>
+    <div id="pane"></div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/account.js" defer></script>{% endblock %}

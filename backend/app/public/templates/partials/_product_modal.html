@@ -1,0 +1,54 @@
+<!-- Take App Style Interactive Product Detail Modal / Bottom Sheet -->
+<div class="take-modal-veil" id="pdp-modal-veil" data-close-pdp hidden></div>
+<div class="take-modal-sheet" id="pdp-modal" role="dialog" aria-modal="true" aria-labelledby="pdp-modal-title" hidden>
+  <button type="button" class="take-modal-close" data-close-pdp aria-label="Close">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="take-modal-scroll">
+    <!-- Gallery only rendered when an image exists -->
+    <div class="take-modal-gallery" id="pdp-modal-gallery" hidden>
+      <img id="pdp-modal-img" src="" alt="" loading="eager" style="display:none">
+      <span class="take-modal-tag" id="pdp-modal-tag" hidden></span>
+    </div>
+    <div class="take-modal-body">
+      <div class="take-modal-header">
+        <h2 id="pdp-modal-title" class="take-modal-title"></h2>
+        <div class="take-modal-price-row">
+          <span id="pdp-modal-price" class="take-modal-price"></span>
+          <s id="pdp-modal-compare" class="take-modal-compare" hidden></s>
+        </div>
+      </div>
+      <p id="pdp-modal-desc" class="take-modal-desc"></p>
+      
+      <!-- Option Groups (Variants / Radios) -->
+      <div id="pdp-modal-options" class="take-modal-section" hidden>
+        <div class="take-modal-section-title">Select options</div>
+        <div id="pdp-modal-options-list" class="take-options-list"></div>
+      </div>
+
+      <!-- Add-ons (Checkboxes) -->
+      <div id="pdp-modal-addons" class="take-modal-section" hidden>
+        <div class="take-modal-section-title">Add-ons</div>
+        <div id="pdp-modal-addons-list" class="take-addons-list"></div>
+      </div>
+
+      <!-- Special notes -->
+      <div class="take-modal-section">
+        <div class="take-modal-section-title">Special instructions <span class="take-subtle-hint">(optional)</span></div>
+        <input type="text" id="pdp-modal-note" class="take-input" placeholder="e.g. Less spicy, dressing on side..." maxlength="140">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Bottom Actions Bar -->
+  <div class="take-modal-foot">
+    <div class="take-qty-stepper" role="group" aria-label="Quantity">
+      <button type="button" class="take-qty-btn" id="pdp-modal-minus" aria-label="Fewer">−</button>
+      <span class="take-qty-val" id="pdp-modal-qty">1</span>
+      <button type="button" class="take-qty-btn" id="pdp-modal-plus" aria-label="More">+</button>
+    </div>
+    <button type="button" class="take-btn-add" id="pdp-modal-add-btn">
+      <span>Add</span> <span class="take-btn-dot">·</span> <strong id="pdp-modal-btn-price"></strong>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,2 @@
+{% from "sections/_m.html" import head, pcard with context %}
+<section class="sx-sec"><div class="wrap">{{ head(c) }}<div class="rail">{% for it in d.cards %}{{ pcard(it, c.show_price, true) }}{% endfor %}</div></div></section>

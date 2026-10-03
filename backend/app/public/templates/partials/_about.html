@@ -1,0 +1,10 @@
+<section id="about" class="store-secondary-section tab-hidden" data-tab-panel="about">
+  <div class="wrap store-catalog-wrap">
+    <div class="store-info-card">
+      <div class="store-card-header">
+        <h2 class="store-card-title">{{ c.title or 'About us' }}</h2>
+      </div>
+      <p class="store-card-text" style="white-space:pre-line">{{ c.body or ('Welcome to ' ~ business.name) }}</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,5 @@
+{% extends "shell.html" %}
+{% block content %}
+{% set c = {'title': 'Book an appointment', 'subtitle': 'Choose a service, a day and a time that suits you.'} %}
+{% if services and bookings_on %}{% include "partials/_booking.html" %}{% else %}<div class="wrap" style="padding:48px 0"><h1>Bookings</h1><p class="sub">Online booking isn't available right now. Message us on WhatsApp to arrange a time.</p></div>{% endif %}
+{% endblock %}

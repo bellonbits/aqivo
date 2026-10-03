@@ -1,0 +1,1 @@
+<nav class="crumbs wrap" aria-label="Breadcrumb"><a href="{{ home_href }}">Home</a> › <a href="{{ root }}/products">Shop</a>{% for c in crumbs %} › {% if loop.last and not product is defined %}<span>{{ c.name }}</span>{% else %}<a href="{{ c.url }}">{{ c.name }}</a>{% endif %}{% endfor %}{% if product is defined %} › <span>{{ product.name }}</span>{% endif %}</nav>

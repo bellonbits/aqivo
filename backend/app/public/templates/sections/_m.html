@@ -1,0 +1,75 @@
+{% macro head(c) -%}{% if c.title %}<h2 class="take-section-title">{{ c.title }}</h2>{% endif %}{% if c.subtitle %}<p class="sub">{{ c.subtitle }}</p>{% endif %}{%- endmacro %}
+
+<!-- Modern Card (From Jess Grocery Shop / Mama Mboga Screenshot) -->
+{% macro store_product_card(it, show_price=true, show_add=true) -%}
+<div class="store-product-card" data-item data-take-pdp data-id="{{ it.id }}" data-kind="{{ it.kind or 'product' }}" data-name="{{ it.name }}" data-price="{{ it.price }}" data-compare="{{ it.compare or '' }}" data-image="{{ it.image or '' }}" data-desc="{{ it.desc or '' }}" data-category="{{ it.category_id or '' }}" data-has-variants="{{ '1' if it.has_variants else '0' }}" data-url="{{ it.url or '' }}">
+  <!-- Media Box with Heart and Floating Add Button -->
+  <div class="store-product-media-box">
+    <!-- Heart Favorite Button -->
+    <button type="button" class="store-fav-btn" aria-label="Favorite {{ it.name }}" data-fav-btn>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    </button>
+
+    <!-- Product Image -->
+    {% if it.image %}
+    <img src="{{ it.image }}" alt="{{ it.name }}" class="store-product-img" loading="lazy" width="200" height="200">
+    {% else %}
+    <div class="store-product-img-ph">{{ it.name[:1] }}</div>
+    {% endif %}
+
+    <!-- Circular Floating Add Button -->
+    {% if show_add %}
+      {% if it.sold_out %}
+      <button type="button" class="store-card-add-btn disabled" disabled aria-label="Sold out"><svg class="lucide lucide-x" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      {% elif it.has_variants %}
+      <button type="button" class="store-card-add-btn" data-take-pdp data-id="{{ it.id }}" aria-label="Choose options for {{ it.name }}">+</button>
+      {% elif settings.cart_enabled %}
+      <button type="button" class="store-card-add-btn" data-add data-kind="{{ it.kind or 'product' }}" data-id="{{ it.id }}" data-name="{{ it.name }}" data-price="{{ it.price }}" data-image="{{ it.image or '' }}" aria-label="Add {{ it.name }} to cart">+</button>
+      {% elif it.wa %}
+      <a class="store-card-add-btn" href="{{ it.wa }}" data-track="WHATSAPP_CLICK" aria-label="Order on WhatsApp">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+      </a>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <!-- Product Details -->
+  <div class="store-product-details">
+    <div class="store-product-title-row">
+      <h3 class="store-product-name">
+        {% if it.url %}<a href="{{ it.url }}" class="store-product-title-link">{{ it.name }}</a>{% else %}{{ it.name }}{% endif %}
+      </h3>
+      <span class="store-product-rating">★ 5</span>
+    </div>
+    
+    <div class="store-product-sub">{{ it.unit or it.desc or (it.duration ~ ' min' if it.kind == 'service' else '1 piece') }}</div>
+    
+    <div class="store-product-price-row">
+      {% if show_price and settings.show_prices %}
+      <span class="store-product-price">{{ it.price|money(it.currency) }}</span>
+      {% if it.compare and it.compare > it.price %}
+      <s class="store-product-compare">{{ it.compare|money(it.currency) }}</s>
+      <span class="take-tag save">Save {{ ((1 - it.price / it.compare) * 100)|round|int }}%</span>
+      {% endif %}
+      {% endif %}
+    </div>
+
+    {% if it.has_variants %}
+      {% if it.url %}
+      <a href="{{ it.url }}" class="store-options-btn" data-take-pdp data-id="{{ it.id }}">Choose options</a>
+      {% else %}
+      <button type="button" class="store-options-btn" data-take-pdp data-id="{{ it.id }}">Choose options</button>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{%- endmacro %}
+
+<!-- Compatibility wrapper -->
+{% macro take_prow(it, show_price=true, show_add=true) -%}
+{{ store_product_card(it, show_price, show_add) }}
+{%- endmacro %}
+
+{% macro pcard(it, show_price=true, show_add=true) -%}
+{{ store_product_card(it, show_price, show_add) }}
+{%- endmacro %}

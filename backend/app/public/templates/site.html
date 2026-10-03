@@ -1,0 +1,8 @@
+{% extends "shell.html" %}
+{% block content %}
+{% for s in sections %}{% set c = s.content %}{% set d = s.data %}
+<div class="sx {{ s.cls }}"{% if s.anchor %} id="{{ s.anchor }}"{% endif %} data-sid="{{ s.id }}" data-type="{{ s.type }}">
+{% if s.empty %}<div class="sx-empty"><b>{{ s.label }}</b> · {{ s.hint }} <i>Only you see this note while editing.</i></div>
+{% else %}{% include ["partials/" ~ layout ~ "/_" ~ s.type ~ ".html", "partials/_" ~ s.type ~ ".html", "sections/" ~ s.type ~ ".html"] %}{% endif %}
+</div>{% endfor %}
+{% endblock %}

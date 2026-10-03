@@ -1,0 +1,3 @@
+<section class="sx-sec"><div class="wrap">{% if c.title %}<h2>{{ c.title }}</h2>{% endif %}<p class="sub">{{ business.address }}{{ ', ' if business.address and business.city }}{{ business.city }}</p>
+<iframe class="mapframe" src="{{ d.map_src }}" title="Map showing {{ business.name }}" loading="lazy" referrerpolicy="no-referrer"></iframe>
+<p style="margin-top:12px"><a class="btn" href="{{ directions }}" data-track="DIRECTIONS_CLICK" target="_blank" rel="noopener">Get directions</a></p></div></section>

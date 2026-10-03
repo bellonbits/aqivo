@@ -1,0 +1,1 @@
+<nav class="nav-links" aria-label="Main">{% for n in nav %}{% if n.children %}<div class="dd"><a href="{{ n.href }}">{{ n.label }}</a><div class="dd-menu">{% for c in n.children %}<a href="{{ c.href }}">{{ c.label }}</a>{% endfor %}</div></div>{% else %}<a href="{{ n.href }}">{{ n.label }}</a>{% endif %}{% endfor %}</nav>

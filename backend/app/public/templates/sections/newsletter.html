@@ -1,0 +1,5 @@
+<section class="sx-sec"><div class="wrap"><h2>{{ c.title }}</h2>{% if c.body %}<p class="sub">{{ c.body }}</p>{% endif %}
+<form class="book lead-form" novalidate><label>Your name <input name="name" required maxlength="120" autocomplete="name"></label>
+<label>Phone or email <input name="contact" required maxlength="120" autocomplete="tel"></label><input type="hidden" name="message" value="Sign-up from the website">
+<input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+<button class="btn primary" type="submit">{{ c.button_text or 'Keep me updated' }}</button><div class="lead-msg" role="status"></div></form></div></section>

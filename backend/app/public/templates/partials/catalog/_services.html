@@ -1,0 +1,5 @@
+{% from "partials/_macros.html" import add_btn %}
+<section id="services" style="padding-top:8px"><div class="wrap"><div class="ct-list">{% for sv in services %}<article class="ct-row" data-item data-name="{{ sv.name|lower }}" data-category="{{ sv.category_name }}">
+<div class="th">{% if product_images[sv.id|string] %}<img src="{{ product_images[sv.id|string] }}" alt="{{ sv.name }}" loading="lazy" width="92" height="92">{% endif %}</div>
+<div class="in"><b>{{ sv.name }}</b><small>{{ sv.description or sv.category_name }}</small>{% if settings.show_prices %}<div class="p">{{ sv.price|money(sv.currency) }}</div>{% endif %}</div>
+{% if settings.cart_enabled %}{{ add_btn(sv, "+") }}{% elif wa_services[sv.id|string] %}<a class="btn" href="{{ wa_services[sv.id|string] }}" data-track="WHATSAPP_CLICK" data-service="{{ sv.id }}" style="min-height:40px;font-size:13px">Ask</a>{% endif %}</article>{% endfor %}</div></div></section>

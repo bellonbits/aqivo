@@ -1,0 +1,4 @@
+<section class="sx-sec"><div class="wrap"><h2>{{ c.title or 'What people say on Google' }}</h2>
+{% if d.g.rating %}<p class="sub"><span class="stars">{{ d.g.rating|stars }}</span> {{ d.g.rating }}{% if d.g.count %} from {{ d.g.count }} Google reviews{% endif %}</p>{% endif %}
+<div class="reviews">{% for r in d.g.reviews %}<figure class="card" style="margin:0"><div class="stars" aria-label="{{ r.rating }} out of 5">{{ r.rating|stars }}</div><blockquote style="margin:10px 0 0">{{ r.text }}</blockquote><figcaption class="who">{{ r.author }} <span class="ver">· {{ r.when }}</span></figcaption></figure>{% endfor %}</div>
+<p style="margin-top:16px;font-size:13px;color:var(--muted)">Reviews from Google{% if d.g.maps_uri %} · <a href="{{ d.g.maps_uri }}" target="_blank" rel="noopener">See all on Google Maps</a>{% endif %}</p></div></section>

@@ -1,0 +1,2 @@
+{% from "sections/_m.html" import head, pcard with context %}
+<section class="sx-sec"><div class="wrap">{{ head(c) }}<div class="pgrid" style="--cols:4">{% for it in d.cards %}{{ pcard(it, true, true) }}{% endfor %}</div></div></section>

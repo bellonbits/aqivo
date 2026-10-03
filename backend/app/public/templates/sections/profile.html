@@ -1,0 +1,10 @@
+<section class="sx-sec"><div class="wrap"><div class="prof">
+  {% if logo %}<img src="{{ logo }}" alt="" width="72" height="72">{% else %}<span class="ini" aria-hidden="true">{{ business.name[:1] }}</span>{% endif %}
+  <div><h2 style="margin:0">{{ c.title or business.name }}</h2>{% if business.tagline %}<p class="sub" style="margin:4px 0 0">{{ business.tagline }}</p>{% endif %}
+  <div class="badges" style="margin-top:8px">
+    {% if c.show_rating and summary.count %}<span><span class="stars" aria-hidden="true">★</span> <strong>{{ summary.average }}</strong> ({{ summary.count }})</span>{% endif %}
+    {% if business.city %}<span>{{ business.city }}</span>{% endif %}
+    {% if c.show_hours and open_now is not none %}<span><span class="dot {{ '' if open_now else 'closed' }}"></span>{{ 'Open now' if open_now else 'Closed now' }}</span>{% endif %}
+  </div></div></div>
+  {% if c.show_social %}{% set links = (business.social_links or {}).items()|selectattr(1)|list %}{% if links %}<div class="social" style="margin-top:16px">{% for k, v in links %}<a href="{{ v }}" rel="noopener me" target="_blank">{{ k }}</a>{% endfor %}</div>{% endif %}{% endif %}
+</div></section>

@@ -1,0 +1,33 @@
+<section id="reviews" class="store-secondary-section tab-hidden" data-tab-panel="reviews">
+  <div class="wrap store-catalog-wrap">
+    <div class="store-info-card">
+      <div class="store-card-header">
+        <h2 class="store-card-title">{{ c.title or 'What customers say' }}</h2>
+        {% if summary and summary.count %}
+        <div class="store-rating-summary">
+          <span class="store-rating-chip"><span class="star-icon">★</span><strong>{{ summary.average }}</strong></span>
+          <span class="store-meta-item">from {{ summary.count }} verified review{{ '' if summary.count == 1 else 's' }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="store-reviews-grid">
+        {% for r in reviews %}
+        <figure class="store-review-card">
+          <div class="store-review-stars" aria-label="{{ r.rating }} out of 5">{{ r.rating|stars }}</div>
+          <blockquote class="store-review-quote">{{ r.comment }}</blockquote>
+          <figcaption class="store-review-author">{{ r.author_name }}{% if r.verified %} <span class="store-verified-badge"><svg class="lucide lucide-check" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:2px"><path d="M20 6 9 17l-5-5"/></svg>Verified</span>{% endif %}</figcaption>
+          {% if r.response %}<div class="store-review-response"><strong>{{ business.name }}:</strong> {{ r.response }}</div>{% endif %}
+        </figure>
+        {% endfor %}
+        {% for t in testimonials %}
+        <figure class="store-review-card">
+          <div class="store-review-stars">★★★★★</div>
+          <blockquote class="store-review-quote">{{ t.quote }}</blockquote>
+          <figcaption class="store-review-author">{{ t.author }}</figcaption>
+        </figure>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

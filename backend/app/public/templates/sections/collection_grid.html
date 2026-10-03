@@ -1,0 +1,3 @@
+{% from "sections/_m.html" import head, pcard with context %}
+<section class="sx-sec"><div class="wrap">{{ head(c) }}<div class="pgrid" style="--cols:{{ c.columns or 4 }}">{% for it in d.cards %}{{ pcard(it, c.show_price, c.show_add) }}{% endfor %}</div>
+{% if d.collection_url %}<p style="margin-top:18px"><a class="btn" href="{{ d.collection_url }}">See the whole collection</a></p>{% endif %}</div></section>

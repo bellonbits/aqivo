@@ -1,0 +1,2 @@
+<section class="sx-sec"><div class="wrap">{% set img %}<img src="{{ c.image_url }}" alt="{{ c.alt or business.name }}" loading="lazy" decoding="async" width="1200" height="600">{% endset %}
+<figure class="fig {{ c.ratio or 'wide' }}">{% if c.link %}<a href="{{ c.link }}">{{ img }}</a>{% else %}{{ img }}{% endif %}{% if c.caption %}<figcaption>{{ c.caption }}</figcaption>{% endif %}</figure></div></section>

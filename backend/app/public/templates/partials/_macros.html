@@ -1,0 +1,4 @@
+{% macro add_btn(sv, label="Add to bag", cls="") -%}
+<button type="button" class="add {{ cls }}" data-add data-kind="service" data-id="{{ sv.id }}" data-name="{{ sv.name }}" data-price="{{ sv.price }}">{{ label }}</button>
+{%- endmacro %}
+{% macro price(sv, settings, cur) -%}{% if settings.show_prices %}{{ sv.price|money(sv.currency) }}{% endif %}{%- endmacro %}

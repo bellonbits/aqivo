@@ -1,0 +1,21 @@
+<section id="location" class="store-secondary-section tab-hidden" data-tab-panel="location">
+  <div class="wrap store-catalog-wrap">
+    <div class="store-info-card">
+      <div class="store-card-header">
+        <div class="store-icon-title">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <h2 class="store-card-title">{{ c.title or 'Find us' }}</h2>
+        </div>
+      </div>
+      <p class="store-card-text">{{ business.address }}{{ ', ' if business.address and business.city }}{{ business.city or '' }}</p>
+      {% if directions %}
+      <div style="margin-top:14px">
+        <a class="store-pill-btn" href="{{ directions }}" data-track="DIRECTIONS_CLICK" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          <span>Get directions</span>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>

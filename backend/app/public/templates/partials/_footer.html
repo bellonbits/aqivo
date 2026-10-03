@@ -1,0 +1,21 @@
+<footer class="take-footer">
+  <div class="wrap take-footer-wrap">
+    {% if show_branding %}
+    <div class="take-branding-row">
+      <a href="https://aqivo.shop" target="_blank" rel="noopener" class="take-branding-pill">
+        <img src="/static/brand/aqivo-mark.png" alt="Aqivo" width="16" height="16" style="height:16px;width:auto;display:inline-block;vertical-align:middle;margin-right:4px;" />
+        <span>Powered by <strong>Aqivo.shop</strong></span>
+      </a>
+    </div>
+    {% endif %}
+    <div class="take-footer-info">
+      <span>© {{ year }} {{ business.name }}</span>
+      <div class="take-footer-links">
+        {% for k, v in (business.social_links or {}).items() if v %}
+        <a href="{{ v }}" rel="noopener me" target="_blank" style="text-transform:capitalize">{{ k }}</a>
+        {% endfor %}
+        <a href="{{ urls.review }}">Leave a review</a>
+      </div>
+    </div>
+  </div>
+</footer>

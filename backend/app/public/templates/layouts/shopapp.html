@@ -1,0 +1,156 @@
+<style>
+/* ============================================================
+   Take App Design System — Unified Storefront Architecture
+   Faithful recreation of https://take.app/
+   Mobile-first, max-width 640px centered, clean card-based UI
+   ============================================================ */
+
+/* Global container reset & centering */
+body {
+  background-color: var(--bg, #f7f8fa);
+  color: var(--ink, #111827);
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 96px;
+}
+
+/* Hide legacy elements that conflict with Take App & hide wa-float */
+.nav:not(.take-nav),
+.sticky:not(#take-cart-bar):not(.take-nav),
+.bag-fab,
+.hero .ctas,
+.hero .photo,
+.wa-float {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .take-nav {
+    display: none !important;
+  }
+  main#top {
+    width: 100% !important;
+    max-width: 560px !important;
+    margin-inline: auto !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .take-nav {
+    display: block !important;
+  }
+  main#top {
+    width: 100% !important;
+    max-width: 1160px !important;
+    margin-inline: auto !important;
+    padding: 0 20px !important;
+    box-sizing: border-box !important;
+  }
+}
+
+.wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+  padding-inline: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Section vertical spacing */
+section,
+.sx-sec {
+  padding: 0 0 14px !important;
+}
+
+/* Hero reset — prevent 2-column grid or giant hero heights */
+.hero,
+.hero.split,
+.hero.centered,
+.hero.overlay {
+  padding: 0 !important;
+}
+
+.hero .wrap,
+.hero.split .wrap {
+  display: block !important;
+  grid-template-columns: unset !important;
+  padding: 0 !important;
+}
+
+.hero .photo {
+  display: none !important;
+}
+
+/* Base card styling for cards and sections */
+.card,
+.take-cat-card,
+.take-contact-card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #eaecf0);
+  border-radius: 18px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+
+/* Take App Branding pill */
+.take-branding-row {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 12px;
+}
+
+.take-branding-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #eaecf0;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.take-branding-pill:hover {
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.take-branding-pill strong {
+  color: #111827;
+  font-weight: 700;
+}
+
+/* Footer info */
+.take-footer {
+  padding: 16px 0 40px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+  border-top: none !important;
+}
+
+.take-footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 8px;
+  font-size: 12.5px;
+}
+
+.take-footer-links a {
+  color: #6b7280;
+  text-decoration: none;
+}
+
+.take-footer-links a:hover {
+  color: #111827;
+}
+</style>

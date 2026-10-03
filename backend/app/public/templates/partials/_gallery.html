@@ -1,0 +1,3 @@
+<section id="gallery"><div class="wrap"><h2>{{ c.title }}</h2><div class="grid">
+{% for g in gallery %}<a href="{{ g.url }}" aria-label="View photo {{ loop.index }}"><img src="{{ g.thumb_url or g.url }}" alt="{{ g.caption or business.name ~ ' photo ' ~ loop.index }}" loading="lazy" decoding="async" width="400" height="400"></a>{% endfor %}
+</div></div></section>

@@ -1,0 +1,4 @@
+<section id="services"><div class="wrap"><h2>{{ c.title }}</h2>{% if c.subtitle %}<p class="sub">{{ c.subtitle }}</p>{% endif %}
+<div class="nv-grid">{% for sv in services %}<article class="nv-card" data-item data-name="{{ sv.name|lower }}" data-category="{{ sv.category_name }}"><div class="im">{% if product_images[sv.id|string] %}<img src="{{ product_images[sv.id|string] }}" alt="{{ sv.name }}" loading="lazy" width="420" height="460">{% endif %}
+{% if settings.cart_enabled %}<button type="button" class="plus" data-add data-kind="service" data-id="{{ sv.id }}" data-name="{{ sv.name }}" data-price="{{ sv.price }}" aria-label="Add {{ sv.name }} to bag">+</button>{% endif %}</div>
+<b>{{ sv.name }}</b>{% if settings.show_prices %}<span>{{ sv.price|money(sv.currency) }}</span>{% endif %}</article>{% endfor %}</div></div></section>

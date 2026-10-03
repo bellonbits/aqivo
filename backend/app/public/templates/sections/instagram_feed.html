@@ -1,0 +1,2 @@
+<section class="sx-sec"><div class="wrap">{% if c.title %}<h2>{{ c.title }}</h2>{% endif %}
+<div class="grid" style="grid-template-columns:repeat({{ c.columns or 3 }},minmax(0,1fr))">{% for p in d.posts %}<a href="{{ p.link }}" target="_blank" rel="noopener" aria-label="{{ p.caption or 'Instagram post' }}"><img src="{{ p.image }}" alt="{{ p.caption }}" loading="lazy" decoding="async" referrerpolicy="no-referrer" width="400" height="400"></a>{% endfor %}</div></div></section>
