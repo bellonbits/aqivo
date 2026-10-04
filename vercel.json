@@ -17,8 +17,64 @@
       "destination": "http://143.198.30.249/static/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/docs",
+      "destination": "http://143.198.30.249/docs"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "http://143.198.30.249/openapi.json"
+    },
+    {
+      "source": "/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/onboarding",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/templates",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:slug",
+      "destination": "http://143.198.30.249/:slug"
+    },
+    {
+      "source": "/:slug/:path*",
+      "destination": "http://143.198.30.249/:slug/:path*"
     }
   ]
 }
