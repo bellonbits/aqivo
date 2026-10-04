@@ -17,6 +17,10 @@ services:
       - "8000"
     ports:
       - "8000:8000"
+    dns:
+      - 1.1.1.1
+    dns_opt:
+      - use-vc
 
   caddy:
     image: caddy:2-alpine
@@ -25,6 +29,10 @@ services:
       - "80:80"
       - "443:443"
       - "443:443/udp"
+    dns:
+      - 1.1.1.1
+    dns_opt:
+      - use-vc
     environment:
       - BASE_DOMAIN=${BASE_DOMAIN:-aqivo.shop}
       - ACME_EMAIL=${ACME_EMAIL:-hello@aqivo.shop}
