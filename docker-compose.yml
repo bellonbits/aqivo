@@ -21,6 +21,8 @@ services:
       - 1.1.1.1
     dns_opt:
       - use-vc
+    extra_hosts:
+      - "pg-22880706-aqivo.f.aivencloud.com:143.110.189.185"
 
   caddy:
     image: caddy:2-alpine
