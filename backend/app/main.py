@@ -49,8 +49,15 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Aqivo API", version="1.0.0", lifespan=lifespan, docs_url=None if settings.is_production else "/api/docs", redoc_url=None,
-              openapi_url=None if settings.is_production else "/api/openapi.json")
+app = FastAPI(
+    title="Aqivo API",
+    version="1.0.0",
+    description="Aqivo E-Commerce & Multi-Tenant Business Platform API",
+    lifespan=lifespan,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+)
 app.add_middleware(GZipMiddleware, minimum_size=800)
 app.add_middleware(SecurityMiddleware)
 app.add_middleware(HostRouterMiddleware)
@@ -59,6 +66,44 @@ app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origin_list, allo
 app.include_router(api_router)
 app.mount("/media", StaticFiles(directory=settings.media_dir, check_dir=False), name="media")
 app.mount("/static", StaticFiles(directory=BASE / "public" / "static"), name="static")
+
+
+@app.get("/", include_in_schema=False)
+def root(request: Request):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        return RedirectResponse(url="/docs", status_code=302)
+    return {
+        "app": "Aqivo API",
+        "status": "online",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "redoc": "/redoc",
+        "openapi": "/openapi.json",
+        "health": "/health",
+        "readiness": "/readiness",
+        "api_v1": "/api/v1",
+    }
+
+
+@app.get("/api", include_in_schema=False)
+def api_root():
+    return {
+        "app": "Aqivo API",
+        "version": "1.0.0",
+        "status": "online",
+        "docs": "/docs",
+        "endpoints": {
+            "v1": "/api/v1",
+            "health": "/health",
+            "readiness": "/readiness",
+        },
+    }
+
+
+@app.get("/api/docs", include_in_schema=False)
+def api_docs_redirect():
+    return RedirectResponse(url="/docs", status_code=302)
 
 
 @app.get("/health", include_in_schema=False)
@@ -200,17 +245,8 @@ def _spa(path: str):
 
 @app.get("/{full_path:path}", include_in_schema=False)
 def catch_all(full_path: str, request: Request, db: Session = Depends(get_db)):
-    if not full_path:
-        accept = request.headers.get("accept", "")
-        if "text/html" in accept:
-            return RedirectResponse(url="/docs")
-        return JSONResponse({
-            "app": "Aqivo API",
-            "status": "online",
-            "version": "1.0.0",
-            "docs": "/docs",
-            "health": "/health"
-        })
+    if not full_path or full_path.strip("/") == "":
+        return root(request)
     parts = [p for p in full_path.split("/") if p]
     first = parts[0].lower() if parts else ""
     if first and first not in RESERVED_SLUGS and not (DIST / full_path).is_file():
