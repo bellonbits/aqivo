@@ -61,8 +61,16 @@ app = FastAPI(
 app.add_middleware(GZipMiddleware, minimum_size=800)
 app.add_middleware(SecurityMiddleware)
 app.add_middleware(HostRouterMiddleware)
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origin_list, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-                   allow_headers=["Authorization", "Content-Type", "X-Business-Id"], max_age=600)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origin_list,
+    allow_origin_regex=settings.cors_origin_regex or None,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Length", "X-Request-Id", "X-Business-Id"],
+    max_age=86400,
+)
 app.include_router(api_router)
 app.mount("/media", StaticFiles(directory=settings.media_dir, check_dir=False), name="media")
 app.mount("/static", StaticFiles(directory=BASE / "public" / "static"), name="static")

@@ -1,4 +1,15 @@
 // Thin fetch client. Access token lives in memory only; the refresh token is an httpOnly cookie.
+const RAW_API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim()
+export const API_BASE_URL = RAW_API_BASE ? RAW_API_BASE.replace(/\/+$/, '') : ''
+
+export function buildApiUrl(path: string): URL {
+  const normalizedPath = `/api/v1${path.startsWith('/') ? path : `/${path}`}`
+  if (API_BASE_URL) {
+    return new URL(`${API_BASE_URL}${normalizedPath}`)
+  }
+  return new URL(normalizedPath, window.location.origin)
+}
+
 let accessToken: string | null = null
 let refreshing: Promise<string | null> | null = null
 let businessOverride: string | null = null
@@ -21,7 +32,7 @@ export class ApiError extends Error {
 
 async function refresh(): Promise<string | null> {
   if (!refreshing) {
-    refreshing = fetch('/api/v1/auth/refresh', { method: 'POST', credentials: 'include' })
+    refreshing = fetch(buildApiUrl('/auth/refresh'), { method: 'POST', credentials: 'include' })
       .then(async (r) => (r.ok ? ((await r.json()) as { access_token: string }).access_token : null))
       .catch(() => null)
       .finally(() => { refreshing = null })
@@ -49,7 +60,7 @@ function toError(status: number, body: unknown): ApiError {
 }
 
 export async function request<T>(path: string, opts: { method?: string; body?: unknown; form?: FormData; query?: Record<string, unknown>; raw?: boolean } = {}, retried = false): Promise<T> {
-  const url = new URL(`/api/v1${path}`, window.location.origin)
+  const url = buildApiUrl(path)
   for (const [k, v] of Object.entries(opts.query ?? {})) {
     if (v === undefined || v === null || v === '') continue
     if (Array.isArray(v)) v.forEach((x) => url.searchParams.append(k, String(x)))

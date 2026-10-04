@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "http://143.198.30.249/api/:path*"
+    },
+    {
+      "source": "/media/:path*",
+      "destination": "http://143.198.30.249/media/:path*"
+    },
+    {
+      "source": "/static/:path*",
+      "destination": "http://143.198.30.249/static/:path*"
+    },
+    {
+      "source": "/((?!api|media|static).*)",
+      "destination": "/frontend/dist/index.html"
+    }
+  ]
+}
