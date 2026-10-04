@@ -4,7 +4,10 @@ export const API_BASE_URL = RAW_API_BASE ? RAW_API_BASE.replace(/\/+$/, '') : ''
 
 export function buildApiUrl(path: string): URL {
   const normalizedPath = `/api/v1${path.startsWith('/') ? path : `/${path}`}`
-  if (API_BASE_URL) {
+  // If the app is loaded over HTTPS but API_BASE_URL is HTTP, browsers block it as Mixed Content.
+  // In that case, use relative path so Vercel's HTTPS proxy (vercel.json) safely handles it!
+  const isMixedContent = typeof window !== 'undefined' && window.location.protocol === 'https:' && API_BASE_URL.startsWith('http://')
+  if (API_BASE_URL && !isMixedContent) {
     return new URL(`${API_BASE_URL}${normalizedPath}`)
   }
   return new URL(normalizedPath, window.location.origin)
