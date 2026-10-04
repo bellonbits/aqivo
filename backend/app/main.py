@@ -200,6 +200,17 @@ def _spa(path: str):
 
 @app.get("/{full_path:path}", include_in_schema=False)
 def catch_all(full_path: str, request: Request, db: Session = Depends(get_db)):
+    if not full_path:
+        accept = request.headers.get("accept", "")
+        if "text/html" in accept:
+            return RedirectResponse(url="/docs")
+        return JSONResponse({
+            "app": "Aqivo API",
+            "status": "online",
+            "version": "1.0.0",
+            "docs": "/docs",
+            "health": "/health"
+        })
     parts = [p for p in full_path.split("/") if p]
     first = parts[0].lower() if parts else ""
     if first and first not in RESERVED_SLUGS and not (DIST / full_path).is_file():
