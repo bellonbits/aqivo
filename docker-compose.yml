@@ -1,0 +1,58 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - MEDIA_DIR=/app/storage
+    volumes:
+      - media_storage:/app/storage
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - BASE_DOMAIN=${BASE_DOMAIN:-aqivo.shop}
+      - ACME_EMAIL=${ACME_EMAIL:-hello@aqivo.shop}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
+  # Optional local postgres container (only starts if running with: docker compose --profile local-db up)
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    profiles:
+      - local-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aqivo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aqivo_secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-aqivo}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aqivo} -d ${POSTGRES_DB:-aqivo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  media_storage:
+  postgres_data:
+  caddy_data:
+  caddy_config:

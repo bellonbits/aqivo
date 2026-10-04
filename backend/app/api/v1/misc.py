@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -19,6 +19,29 @@ from app.core.security import random_token
 
 domains_router = APIRouter(prefix="/domains", tags=["domains"])
 support_router = APIRouter(prefix="/support", tags=["support"])
+
+
+@domains_router.get("/check-caddy", include_in_schema=False)
+def check_caddy_domain(domain: str = "", db: Session = Depends(get_db)):
+    """Used by Caddy's on_demand_tls ask endpoint to verify whether a domain is authorized for automatic TLS certificate issuance."""
+    if not domain:
+        return Response(status_code=400)
+    d_clean = domain.lower().strip()
+    s = get_settings()
+    base = s.base_domain.lower()
+    if d_clean == base or d_clean.endswith("." + base):
+        return Response(status_code=200)
+    exists = db.scalar(
+        select(Domain.id).where(
+            Domain.domain == d_clean,
+            Domain.type == "CUSTOM",
+            Domain.verification_status == "VERIFIED",
+            Domain.status == "ACTIVE",
+        ).limit(1)
+    )
+    if exists:
+        return Response(status_code=200)
+    return Response(status_code=403)
 
 
 class DomainIn(BaseModel):

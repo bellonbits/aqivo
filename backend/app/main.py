@@ -25,8 +25,17 @@ from app.services.site_render import render, render_business, build_context
 
 log = logging.getLogger("bizora")
 settings = get_settings()
+import os
 BASE = Path(__file__).resolve().parent
-DIST = BASE.parent.parent / "frontend" / "dist"
+_dist_env = os.getenv("FRONTEND_DIST_DIR")
+if _dist_env:
+    DIST = Path(_dist_env).resolve()
+elif (BASE.parent.parent / "frontend" / "dist").exists():
+    DIST = BASE.parent.parent / "frontend" / "dist"
+elif (BASE.parent / "dist").exists():
+    DIST = BASE.parent / "dist"
+else:
+    DIST = BASE.parent.parent / "frontend" / "dist"
 
 
 @asynccontextmanager
