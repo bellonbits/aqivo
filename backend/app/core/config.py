@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     access_token_minutes: int = 30
     refresh_token_days: int = 14
     base_domain: str = "aqivo.shop"
-    public_base_url: str = "http://localhost:8000"
-    app_base_url: str = "http://localhost:5173"
+    public_base_url: str = "https://aqivo.shop"
+    app_base_url: str = "https://www.aqivo.shop"
     cors_origins: str = "http://localhost:5173,http://localhost:3000,https://aqivo.shop,https://www.aqivo.shop,https://app.aqivo.shop"
     cors_origin_regex: str = r"^https?://([a-zA-Z0-9-]+\.)*(vercel\.app|aqivo\.shop|localhost|127\.0\.0\.1)(:\d+)?$"
     custom_domain_cname: str = "domains.aqivo.shop"  # where customers point www.theirshop.com

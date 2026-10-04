@@ -59,7 +59,11 @@ def unique_slug(db: Session, base: str) -> str:
 
 def business_urls(business: Business) -> dict:
     s = get_settings()
-    base = s.public_base_url.rstrip("/")
+    domain = s.base_domain if s.base_domain and s.base_domain != "localhost" else "aqivo.shop"
+    if s.public_base_url and "localhost" not in s.public_base_url:
+        base = s.public_base_url.rstrip("/")
+    else:
+        base = f"https://{domain}"
     wa = whatsapp_link(business)
     root = f"https://{business.primary_domain}" if business.primary_domain else f"{base}/{business.slug}"
     return {
@@ -67,8 +71,8 @@ def business_urls(business: Business) -> dict:
         "booking": f"{root}#book",
         "review": f"{root}/review",
         "whatsapp": wa,
-        "subdomain": f"https://{business.slug}.{s.base_domain}",
-        "short": f"{s.base_domain}/{business.slug}",
+        "subdomain": f"https://{business.slug}.{domain}",
+        "short": f"{domain}/{business.slug}",
     }
 
 
@@ -130,9 +134,10 @@ def create_business(db: Session, *, owner: User | None, name: str, industry: str
         db.add(Subscription(business_id=business.id, plan_id=plan.id, status=SubscriptionStatus.TRIAL, currency=country.currency,
                             trial_ends_at=now + timedelta(days=s.trial_days), current_period_start=now))
 
-    db.add(Domain(business_id=business.id, domain=f"{s.base_domain}/{slug}", type="PATH", status="ACTIVE",
+    base_dom = s.base_domain if s.base_domain and s.base_domain != "localhost" else "aqivo.shop"
+    db.add(Domain(business_id=business.id, domain=f"{base_dom}/{slug}", type="PATH", status="ACTIVE",
                   verification_status="VERIFIED", ssl_status="MANAGED"))
-    db.add(Domain(business_id=business.id, domain=f"{slug}.{s.base_domain}", type="SUBDOMAIN", status="ACTIVE",
+    db.add(Domain(business_id=business.id, domain=f"{slug}.{base_dom}", type="SUBDOMAIN", status="ACTIVE",
                   verification_status="VERIFIED", ssl_status="MANAGED"))
     create_website(db, business, template_key)
 

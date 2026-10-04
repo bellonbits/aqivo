@@ -49,7 +49,10 @@ class DomainIn(BaseModel):
 
 
 def _domain_out(d: Domain) -> dict:
-    out = {"id": str(d.id), "domain": d.domain, "type": d.type, "status": d.status, "verification_status": d.verification_status, "ssl_status": d.ssl_status,
+    domain_name = d.domain
+    if "localhost" in domain_name:
+        domain_name = domain_name.replace("localhost", "aqivo.shop")
+    out = {"id": str(d.id), "domain": domain_name, "type": d.type, "status": d.status, "verification_status": d.verification_status, "ssl_status": d.ssl_status,
            "is_primary": d.is_primary, "dns_ok": d.dns_ok, "last_checked_at": d.last_checked_at, "last_error": d.last_error}
     if d.type == "CUSTOM":
         out["verification_token"] = d.verification_token

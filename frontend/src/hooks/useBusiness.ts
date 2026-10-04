@@ -1,13 +1,36 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { BusinessSummary } from '@/types'
+import type { BusinessSummary, Urls } from '@/types'
 
 export const BUSINESS_KEY = ['business', 'me']
+
+export function cleanUrls(urls?: Urls): Urls | undefined {
+  if (!urls) return urls
+  const sanitize = (url?: string | null) => {
+    if (!url) return url
+    return url
+      .replace(/^https?:\/\/localhost(:\d+)?/i, 'https://aqivo.shop')
+      .replace(/^https?:\/\/127\.0\.0\.1(:\d+)?/i, 'https://aqivo.shop')
+      .replace(/^localhost\//i, 'aqivo.shop/')
+      .replace(/^127\.0\.0\.1\//i, 'aqivo.shop/')
+      .replace(/\.localhost$/i, '.aqivo.shop')
+  }
+  return {
+    ...urls,
+    profile: sanitize(urls.profile) || '',
+    booking: sanitize(urls.booking) || '',
+    review: sanitize(urls.review) || '',
+    short: sanitize(urls.short) || '',
+    subdomain: sanitize(urls.subdomain) || '',
+    whatsapp: urls.whatsapp,
+  }
+}
 
 export function useBusiness() {
   const q = useQuery({ queryKey: BUSINESS_KEY, queryFn: () => api.get<BusinessSummary>('/businesses/me'), staleTime: 30_000 })
   const qc = useQueryClient()
-  const has = (feature: string) => !!q.data?.plan.features.includes(feature)
-  const can = (allOwner = false) => !allOwner || !!q.data?.permissions_all
-  return { ...q, business: q.data?.business, summary: q.data, has, can, refresh: () => qc.invalidateQueries({ queryKey: BUSINESS_KEY }) }
+  const summary = q.data ? { ...q.data, urls: cleanUrls(q.data.urls)! } : undefined
+  const has = (feature: string) => !!summary?.plan.features.includes(feature)
+  const can = (allOwner = false) => !allOwner || !!summary?.permissions_all
+  return { ...q, business: summary?.business, summary, has, can, refresh: () => qc.invalidateQueries({ queryKey: BUSINESS_KEY }) }
 }
