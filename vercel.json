@@ -17,8 +17,8 @@
       "destination": "http://143.198.30.249/static/:path*"
     },
     {
-      "source": "/((?!api|media|static).*)",
-      "destination": "/frontend/dist/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
