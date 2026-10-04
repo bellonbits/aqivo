@@ -17,7 +17,7 @@ TTL = 60
 def _lookup(host: str) -> str | None:
     s = get_settings()
     base = s.base_domain.lower()
-    if host == base or host.startswith("localhost") or host.startswith("127."):
+    if host == base or host.startswith("localhost") or host.startswith("127.") or host.replace(".", "").isdigit():
         return None
     hit = _cache.get(host)
     if hit and time.monotonic() - hit[0] < TTL:
@@ -47,7 +47,7 @@ class HostRouterMiddleware:
         if scope["type"] == "http":
             host = dict(scope["headers"]).get(b"host", b"").decode().split(":")[0].lower()
             path = scope["path"]
-            if not path.startswith(("/api", "/static", "/media", "/health", "/readiness")):
+            if not path.startswith(("/api", "/static", "/media", "/health", "/readiness", "/docs", "/redoc", "/openapi.json")):
                 slug = _lookup(host)
                 if slug:
                     scope = {**scope, "path": f"/{slug}{'' if path == '/' else path}", "raw_path": f"/{slug}{'' if path == '/' else path}".encode(), "aqivo_host": slug, "bizora_host": slug}
