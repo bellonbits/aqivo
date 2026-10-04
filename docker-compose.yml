@@ -1,5 +1,6 @@
 services:
   backend:
+    image: aqivo-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
