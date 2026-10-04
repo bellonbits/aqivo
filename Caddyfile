@@ -1,28 +1,4 @@
-{
-    email {$ACME_EMAIL:hello@aqivo.shop}
-    on_demand_tls {
-        ask http://backend:8000/api/v1/domains/check-caddy
-    }
-}
-
-# Main domain and tenant subdomains (*.aqivo.shop)
-{$BASE_DOMAIN:aqivo.shop}, *.{$BASE_DOMAIN:aqivo.shop} {
-    tls {
-        on_demand
-    }
-    reverse_proxy backend:8000 {
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
-        header_up X-Forwarded-Proto {scheme}
-    }
-}
-
-# Custom merchant domains (e.g. www.maryshop.co.ke)
-:443 {
-    tls {
-        on_demand
-    }
+:80 {
     reverse_proxy backend:8000 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
