@@ -217,11 +217,12 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
                         content["subheadline"] = "Freshly prepared meals, drinks, and daily specials delivered right to your door or ready for pickup." if ind.key == "restaurant" else "Browse our curated selection and order online with fast doorstep delivery."
                 raw_sections.append({"id": str(s.id), "type": s.type, "content": content or {}, "styles": styles or {}})
     hero_image = None
-    for s in raw_sections:
-        if s["type"] == "hero":
-            hero_image = s["content"].get("image_url")
-    if not hero_image and gallery:
-        hero_image = gallery[0].url
+    if not sells_products:
+        for s in raw_sections:
+            if s["type"] == "hero":
+                hero_image = s["content"].get("image_url")
+        if not hero_image and gallery:
+            hero_image = gallery[0].url
     style = (site.theme_overrides if draft else (site.published_style or {}).get("theme_overrides", site.theme_overrides)) if site else {}
     settings = (site.settings if draft else (site.published_style or {}).get("settings", site.settings)) if site else {}
     style, settings = style or {}, settings or {}
@@ -253,8 +254,7 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
     cat_names = {c.id: c.name for c in categories}
     for sv in services:  # per-product display helpers
         sv.category_name = cat_names.get(sv.category_id, "")
-    photos = [g.thumb_url or g.url for g in gallery]
-    product_images = {str(sv.id): (sv.image_url or (photos[i % len(photos)] if photos else None)) for i, sv in enumerate(services)}
+    product_images = {str(sv.id): sv.image_url for sv in services}
     cart_default = get_industry(business.industry).key in ("retail", "restaurant") or layout in ("boutique", "nova", "catalog", "shopapp") or bool(products)
     settings.setdefault("cart_enabled", cart_default)
     settings.setdefault("whatsapp_float", True)

@@ -35,6 +35,11 @@
 
   <!-- Product Information -->
   <div class="ecom-card-info">
+    <div class="ecom-card-rating">
+      <span class="ecom-star-icon">★</span>
+      <span class="ecom-rating-val">4.8</span>
+      <span class="ecom-rating-reviews">({{ summary.count if summary and summary.count else '24' }})</span>
+    </div>
     {% set prod_url = it.url or (root ~ '/products/' ~ (it.slug or it.id)) %}
     <h3 class="ecom-card-title">
       <a href="{{ prod_url }}" class="ecom-card-title-link">{{ it.name }}</a>

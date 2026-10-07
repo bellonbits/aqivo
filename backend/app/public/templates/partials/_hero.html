@@ -1,10 +1,4 @@
-{% set banner_img = c.image_url or hero_image %}
 {% set is_rest = (industry == 'restaurant' or business.industry == 'restaurant') %}
-{% set hl = c.layout if c.layout and c.layout not in ('inherit',) else (theme.hero or ('split' if banner_img else 'centered')) %}
-{% if sells_products and banner_img and hl not in ('split', 'overlay') %}
-  {% set hl = 'split' %}
-{% endif %}
-
 {% set raw_cta = (c.cta_text or '')|trim %}
 {% set raw_sub = (c.subheadline or business.description or '')|trim %}
 
@@ -26,114 +20,43 @@
   {% set clean_sub = raw_sub or ('Freshly prepared meals, drinks, and daily specials delivered right to your door or ready for pickup.' if is_rest else 'Browse our curated selection and order online with fast doorstep delivery.') %}
 {% endif %}
 
-<!-- Premium Ecommerce Storefront Hero Banner -->
-<section class="hero ecom-hero ecom-hero-{{ hl }} sv-card bb-card" id="hero">
-  <div class="sa-tabs" style="display:none"></div>
-  <div class="sv-tabs" style="display:none"></div>
-  <div class="bb-tabs" style="display:none"></div>
-  <div class="store-search-bar" style="display:none">
-    <input type="search" class="store-search-input" placeholder="{% if layout == 'serviceapp' %}Search services{% else %}Search anything{% endif %}" aria-label="Search" data-search>
-  </div>
-  <div class="wrap ecom-hero-wrap">
-    {% if hl == 'split' and banner_img %}
-    <!-- Split Layout: Text on Left, Product/Hero Image on Right -->
-    <div class="ecom-hero-split-grid">
-      <div class="ecom-hero-content">
-        {% if business.category %}
-        <span class="ecom-hero-badge">{{ business.category }}</span>
-        {% endif %}
-        <h1 class="ecom-hero-title">{{ c.headline or ("Discover " ~ business.name) }}</h1>
-        <p class="ecom-hero-sub">{{ clean_sub }}</p>
-        <div class="ecom-hero-actions">
-          <a href="{{ clean_cta_url }}" class="ecom-btn-primary" data-track="HERO_CTA">
+{% if sells_products %}
+<!-- Clean Mobile-App Style Promo Banner Card (No random images) -->
+<section class="hero ecom-hero-app sx-sec" id="hero">
+  <div class="wrap ecom-hero-app-wrap">
+    <div class="ecom-app-promo-card">
+      <div class="ecom-app-promo-content">
+        <span class="ecom-app-promo-badge">{% if is_rest %}Fresh & Delicious{% else %}Featured Collection{% endif %}</span>
+        <h1 class="ecom-app-promo-title">{{ c.headline or business.name }}</h1>
+        <p class="ecom-app-promo-sub">{{ clean_sub }}</p>
+        <div class="ecom-app-promo-actions">
+          <a href="{{ clean_cta_url }}" class="ecom-app-btn-primary" data-track="HERO_CTA">
             <span>{{ clean_cta }}</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
           {% if is_rest %}
-          <a href="#services" class="ecom-btn-ghost">View menu</a>
+          <a href="#services" class="ecom-app-btn-ghost">View menu</a>
           {% elif categories and categories|length > 0 %}
-          <a href="#categories" class="ecom-btn-ghost">Browse categories</a>
-          {% endif %}
-        </div>
-        
-        <!-- Store mini trust highlights -->
-        <div class="ecom-hero-trust-row">
-          <div class="ecom-trust-item">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Verified shop</span>
-          </div>
-          {% if business.city %}
-          <div class="ecom-trust-item">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>{{ business.city }}</span>
-          </div>
-          {% endif %}
-          {% if summary and summary.count %}
-          <div class="ecom-trust-item">
-            <span style="color:#f59e0b;font-weight:700">★ {{ summary.average }}</span>
-            <span>({{ summary.count }} reviews)</span>
-          </div>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="ecom-hero-media">
-        <div class="ecom-hero-img-box">
-          <img src="{{ banner_img }}" alt="{{ business.name }}" class="ecom-hero-img" fetchpriority="high">
-        </div>
-      </div>
-    </div>
-
-    {% elif hl == 'overlay' and banner_img %}
-    <!-- Overlay Banner Layout -->
-    <div class="ecom-hero-overlay-box">
-      <img src="{{ banner_img }}" alt="{{ business.name }}" class="ecom-hero-overlay-bg" fetchpriority="high">
-      <div class="ecom-hero-overlay-gradient"></div>
-      <div class="ecom-hero-overlay-content">
-        {% if business.category %}
-        <span class="ecom-hero-badge overlay">{{ business.category }}</span>
-        {% endif %}
-        <h1 class="ecom-hero-title overlay">{{ c.headline or ("Welcome to " ~ business.name) }}</h1>
-        <p class="ecom-hero-sub overlay">{{ clean_sub }}</p>
-        <div class="ecom-hero-actions">
-          <a href="{{ clean_cta_url }}" class="ecom-btn-primary" data-track="HERO_CTA">
-            <span>{{ clean_cta }}</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-          {% if is_rest %}
-          <a href="#services" class="ecom-btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.4)">View menu</a>
+          <a href="#categories" class="ecom-app-btn-ghost">Browse categories</a>
           {% endif %}
         </div>
       </div>
     </div>
-
-    {% else %}
-    <!-- Centered Clean Banner Layout -->
-    <div class="ecom-hero-centered-content">
-      <div class="ecom-hero-centered-text">
-        {% if business.category %}
-        <span class="ecom-hero-badge">{{ business.category }}</span>
-        {% endif %}
-        <h1 class="ecom-hero-title">{{ c.headline or ("Discover " ~ business.name) }}</h1>
-        <p class="ecom-hero-sub">{{ clean_sub }}</p>
-        <div class="ecom-hero-actions center">
-          <a href="{{ clean_cta_url }}" class="ecom-btn-primary" data-track="HERO_CTA">
-            <span>{{ clean_cta }}</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-          {% if is_rest %}
-          <a href="#services" class="ecom-btn-ghost">View menu</a>
-          {% elif categories and categories|length > 0 %}
-          <a href="#categories" class="ecom-btn-ghost">Explore categories</a>
-          {% endif %}
-        </div>
-      </div>
-      {% if banner_img %}
-      <div class="ecom-hero-banner-frame" style="margin-top:28px">
-        <img src="{{ banner_img }}" alt="{{ business.name }}" class="ecom-hero-banner-img" fetchpriority="high">
-      </div>
-      {% endif %}
-    </div>
-    {% endif %}
   </div>
 </section>
+{% else %}
+<!-- Standard Centered Hero for Non-Commerce/Booking Sites -->
+<section class="hero sv-card bb-card" id="hero">
+  <div class="wrap">
+    <div class="content" style="text-align:center;padding:40px 16px">
+      {% if business.category %}<span class="badge">{{ business.category }}</span>{% endif %}
+      <h1>{{ c.headline or business.name }}</h1>
+      <p class="sub">{{ c.subheadline or business.description }}</p>
+      <div class="actions" style="display:flex;justify-content:center;gap:12px;margin-top:20px">
+        <a href="{{ c.cta_url or '#booking' }}" class="btn primary"><span>{{ c.cta_text or 'Book now' }}</span></a>
+        {% if wa %}<a href="{{ wa }}" class="btn wa">Chat on WhatsApp</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
