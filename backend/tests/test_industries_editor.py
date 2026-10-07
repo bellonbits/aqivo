@@ -8,7 +8,7 @@ def test_industry_sets_template_vocabulary_and_schema(make_owner, client):
     site = o.get("/api/v1/websites/me").json()
     assert site["template"]["key"] == "restaurant_01"
     hero = next(s for s in site["sections"] if s["type"] == "hero")
-    assert hero["settings"]["cta_text"] == "Reserve a table"
+    assert hero["settings"]["cta_text"] == "Order online"
     add_service(o, "Nyama Choma", "1800")
     o.post("/api/v1/websites/me/publish")
     assert '"@type": "Restaurant"' in client.get(f"/{o.slug}").text

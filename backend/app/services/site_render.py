@@ -169,6 +169,8 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
 
     products = list(db.scalars(select(Product).where(Product.business_id == business.id, Product.deleted_at.is_(None), Product.status == "ACTIVE")
                                .order_by(Product.position, Product.created_at.desc())))
+    ind = get_industry(business.industry)
+    sells_products = ind.key in ("retail", "restaurant") or bool(products)
     raw_sections: list[dict] = []
     theme: dict = {}
     pages: list = []
@@ -178,9 +180,15 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
         pages = pages_of(db, site)
         cur_page = page or home_page(db, site)
         theme = dict(site.template.theme or {})
-        for s in page_sections(site, cur_page.id):
+        all_psecs = list(page_sections(site, cur_page.id))
+        has_catalog_sec = any(sec.type in ("product_grid", "category_grid", "product_carousel") for sec in all_psecs)
+        for s in all_psecs:
             if not draft and s.published_enabled is None:
                 continue  # added after the last publish: not live yet
+            if sells_products and s.type in ("booking", "booking_cta", "opening_hours"):
+                continue  # Suppress restaurant table reservations and opening hours from modern commerce storefronts
+            if sells_products and s.type == "services" and has_catalog_sec:
+                continue  # Don't show duplicate service row when product grid is active
             enabled = s.enabled if draft else s.published_enabled
             content = s.content if draft else (s.published_content if s.published_content is not None else s.content)
             styles = s.styles if draft else (s.published_styles if s.published_styles is not None else s.styles)

@@ -377,18 +377,17 @@ def compose_types(db: Session, business: Business, base: list[str]) -> list[str]
 
     for t in base:
         if t == "services" and sells_products:
-            # Ecommerce stores lead with categories, product grid, new arrivals carousel, and trust guarantees
+            # Ecommerce and restaurant storefronts lead with categories, product grid, new arrivals carousel, and trust guarantees
             add("category_grid")
             add("product_grid")
             add("product_carousel")
             add("why_us")
-            add("services")
             continue
-        if (t in ("booking", "booking_cta")) and sells_products and not has_services:
-            # Do not inject salon/restaurant booking forms into retail/ecommerce storefronts
+        if (t in ("booking", "booking_cta")) and sells_products:
+            # Do not inject salon/restaurant booking forms into retail/food ordering storefronts
             continue
         if t == "opening_hours" and sells_products:
-            # Don't clutter storefront with opening hours cards unless custom added
+            # Don't clutter storefront with opening hours cards
             continue
         if t == "contact" and "whatsapp_cta" not in base:
             add("whatsapp_cta")

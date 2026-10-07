@@ -89,7 +89,7 @@ def resolve_sections(raw: list[dict], *, db, business, products: list, services:
         empty = False
         raw_cat[0] = c.get("category_id")
         if t in ("product_grid", "product_carousel"):
-            data["cards"] = _by_source(pcards, c, in_cat)
+            data["cards"] = _by_source(pcards or scards, c, in_cat)
             empty = not data["cards"]
         elif t == "offers":
             data["cards"] = [i for i in pcards if i["compare"] and i["price"] is not None and i["compare"] > i["price"]][: int(c.get("limit") or 8)]
@@ -98,6 +98,7 @@ def resolve_sections(raw: list[dict], *, db, business, products: list, services:
             data["cards"] = _by_source(scards, c, in_cat)
             empty = not data["cards"]
         elif t in ("services", "specialists_x"):
+            data["cards"] = scards
             empty = not services
         elif t == "collection_grid":
             from app.models import Collection

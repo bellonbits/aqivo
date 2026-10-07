@@ -1,5 +1,53 @@
-{% from "partials/_macros.html" import add_btn %}
-<section id="services" style="padding-top:8px"><div class="wrap"><div class="ct-list">{% for sv in services %}<article class="ct-row" data-item data-name="{{ sv.name|lower }}" data-category="{{ sv.category_name }}">
-<div class="th">{% if product_images[sv.id|string] %}<img src="{{ product_images[sv.id|string] }}" alt="{{ sv.name }}" loading="lazy" width="92" height="92">{% endif %}</div>
-<div class="in"><b>{{ sv.name }}</b><small>{{ sv.description or sv.category_name }}</small>{% if settings.show_prices %}<div class="p">{{ sv.price|money(sv.currency) }}</div>{% endif %}</div>
-{% if settings.cart_enabled %}{{ add_btn(sv, "+") }}{% elif wa_services[sv.id|string] %}<a class="btn" href="{{ wa_services[sv.id|string] }}" data-track="WHATSAPP_CLICK" data-service="{{ sv.id }}" style="min-height:40px;font-size:13px">Ask</a>{% endif %}</article>{% endfor %}</div></div></section>
+{% from "sections/_m.html" import store_product_card with context %}
+<section id="services" class="ecom-catalog-section sx-sec" style="padding-top:8px">
+  <div class="wrap ecom-catalog-wrap">
+    <div class="ecom-catalog-title-group" style="margin-bottom:16px">
+      <h2 class="ecom-section-title">{% if c.title and c.title != 'Services' %}{{ c.title }}{% else %}Our Menu & Items{% endif %}</h2>
+      {% if c.subtitle %}<p class="ecom-section-sub">{{ c.subtitle }}</p>{% endif %}
+    </div>
+    <div class="ecom-products-grid">
+      {% if d.cards %}
+        {% for it in d.cards %}
+          {{ store_product_card(it) }}
+        {% endfor %}
+      {% else %}
+        {% for sv in services %}
+          <article class="ecom-card" data-item data-id="{{ sv.id }}" data-kind="service" data-name="{{ sv.name }}" data-price="{{ sv.price }}" data-image="{{ product_images[sv.id|string] or '' }}" data-desc="{{ sv.description or '' }}" data-category="{{ sv.category_name or '' }}">
+            <div class="ecom-card-media">
+              {% if product_images[sv.id|string] %}
+              <img src="{{ product_images[sv.id|string] }}" alt="{{ sv.name }}" class="ecom-card-img" loading="lazy" width="280" height="280">
+              {% else %}
+              <div class="ecom-card-ph"><span>{{ sv.name[:1] }}</span></div>
+              {% endif %}
+            </div>
+            <div class="ecom-card-info">
+              <h3 class="ecom-card-title"><span class="ecom-card-title-link">{{ sv.name }}</span></h3>
+              {% if sv.description %}
+              <p class="ecom-card-desc">{{ sv.description }}</p>
+              {% endif %}
+              {% if settings.show_prices %}
+              <div class="ecom-card-price-row">
+                <span class="ecom-card-price">{{ sv.price|money(sv.currency) }}</span>
+              </div>
+              {% endif %}
+              {% if settings.cart_enabled %}
+              <div class="ecom-card-actions">
+                <button type="button" class="ecom-add-btn" data-add="{{ sv.id }}" data-kind="service" data-name="{{ sv.name }}" data-price="{{ sv.price }}" data-image="{{ product_images[sv.id|string] or '' }}">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                  <span>Add to bag</span>
+                </button>
+              </div>
+              {% elif wa_services[sv.id|string] %}
+              <div class="ecom-card-actions">
+                <a href="{{ wa_services[sv.id|string] }}" class="ecom-add-btn" data-track="WHATSAPP_CLICK" data-service="{{ sv.id }}" style="text-decoration:none">
+                  <span>Order on WhatsApp</span>
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>

@@ -1,4 +1,4 @@
-<section id="booking"><div class="wrap two"><div><h2>{{ c.title }}</h2><p class="sub">{{ c.subtitle }}</p>
+<section id="booking" class="sx-sec"><div class="wrap" style="max-width:680px;margin:0 auto"><div><h2>{{ c.title or 'Book an appointment' }}</h2>{% if c.subtitle %}<p class="sub">{{ c.subtitle }}</p>{% endif %}
 <form class="book" id="book-form" novalidate data-currency="{{ business.currency }}">
   <fieldset style="border:0;padding:0;margin:0"><legend style="font-weight:700;font-size:14px;margin-bottom:6px">Service</legend>
   <div class="checks">{% for sv in services %}<label><input type="checkbox" name="service" value="{{ sv.id }}"> <span style="flex:1">{{ sv.name }} <small style="color:var(--muted)">· {{ sv.duration_minutes }} min</small></span> <strong>{{ sv.price|money(sv.currency) }}</strong></label>{% endfor %}</div></fieldset>
@@ -10,5 +10,4 @@
   <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
   <button class="btn primary" type="submit">Request booking</button>
   <div id="book-msg" role="status"></div>
-</form></div>
-<div class="card" style="align-self:start"><h3 style="font-size:22px;margin-bottom:12px">Opening hours</h3><div class="hrs">{% for h in hours %}<div><span>{{ h.day }}</span><span>{{ h.text }}</span></div>{% endfor %}</div></div></div></section>
+</form></div></div></section>
