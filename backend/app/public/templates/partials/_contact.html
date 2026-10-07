@@ -30,7 +30,7 @@
         {% endif %}
       </div>
 
-      {% if leads_on and (c.show_form is none or c.show_form) %}
+      {% if leads_on and (c.show_form is true or (not sells_products and c.show_form is none)) %}
       <form id="lead-form" class="book lead-form store-enquiry-form" style="margin-top:24px" novalidate>
         <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Send an enquiry</h3>
         <label>Your name <input name="name" required maxlength="120" autocomplete="name" class="store-input"></label>

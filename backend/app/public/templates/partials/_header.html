@@ -16,11 +16,17 @@
     <nav class="take-desktop-nav" aria-label="Main navigation">
       {% if nav and nav|length > 0 %}
         {% for n in nav %}
-        <a href="{{ n.href }}" class="take-desktop-link{% if loop.first and (not page or page.is_home) %} active{% elif page and n.href and n.href.endswith('/p/' ~ page.slug) %} active{% endif %}">{{ n.label }}</a>
+          {% set n_lbl = (n.label or '')|trim %}
+          {% if sells_products and (n_lbl|lower in ('book', 'booking', 'bookings', 'book now', 'reservation', 'reservations', 'reserve a table') or (n.href and n.href.endswith('#booking'))) %}
+            {# Suppress booking link for commerce/restaurant #}
+          {% else %}
+            {% set display_label = ('Menu' if (industry == 'restaurant' or business.industry == 'restaurant') else 'Shop') if (sells_products and n_lbl|lower in ('services', 'treatments', 'our services')) else n_lbl %}
+            <a href="{{ n.href }}" class="take-desktop-link{% if loop.first and (not page or page.is_home) %} active{% elif page and n.href and n.href.endswith('/p/' ~ page.slug) %} active{% endif %}">{{ display_label }}</a>
+          {% endif %}
         {% endfor %}
       {% else %}
         <a href="{{ home_href or '#top' }}" class="take-desktop-link active">Home</a>
-        <a href="#shop" class="take-desktop-link">Shop</a>
+        <a href="{% if industry == 'restaurant' or business.industry == 'restaurant' %}#services{% else %}#shop{% endif %}" class="take-desktop-link">{% if industry == 'restaurant' or business.industry == 'restaurant' %}Menu{% else %}Shop{% endif %}</a>
         <a href="#categories" class="take-desktop-link">Categories</a>
         <a href="#about" class="take-desktop-link">About</a>
         <a href="#contact" class="take-desktop-link">Contact</a>
@@ -116,10 +122,16 @@
       <div class="take-menu-section-label">Explore</div>
       {% if nav and nav|length > 0 %}
       {% for n in nav %}
-      <a href="{{ n.href }}" class="take-menu-link" data-close-menu>
-        <span class="take-menu-bullet">•</span>
-        <span>{{ n.label }}</span>
-      </a>
+        {% set n_lbl = (n.label or '')|trim %}
+        {% if sells_products and (n_lbl|lower in ('book', 'booking', 'bookings', 'book now', 'reservation', 'reservations', 'reserve a table') or (n.href and n.href.endswith('#booking'))) %}
+          {# Suppress #}
+        {% else %}
+          {% set display_label = ('Menu' if (industry == 'restaurant' or business.industry == 'restaurant') else 'Shop') if (sells_products and n_lbl|lower in ('services', 'treatments', 'our services')) else n_lbl %}
+          <a href="{{ n.href }}" class="take-menu-link" data-close-menu>
+            <span class="take-menu-bullet">•</span>
+            <span>{{ display_label }}</span>
+          </a>
+        {% endif %}
       {% endfor %}
       {% else %}
       <a href="#about" class="take-menu-link" data-close-menu>

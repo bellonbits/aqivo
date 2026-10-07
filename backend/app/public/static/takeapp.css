@@ -4766,4 +4766,16 @@ footer,
   box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
 }
 
+/* Guard against legacy non-commerce sections */
+#gallery,
+section#gallery,
+.sx[data-type="gallery"],
+#booking,
+section#booking,
+.sx[data-type="booking"],
+.sx[data-type="booking_cta"],
+.sx[data-type="opening_hours"] {
+  display: none !important;
+}
+
 

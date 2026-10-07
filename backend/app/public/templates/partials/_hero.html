@@ -1,5 +1,31 @@
-{% set hl = c.layout if c.layout and c.layout != 'inherit' else (theme.hero or 'split') %}
 {% set banner_img = c.image_url or hero_image %}
+{% set is_rest = (industry == 'restaurant' or business.industry == 'restaurant') %}
+{% set hl = c.layout if c.layout and c.layout not in ('inherit',) else (theme.hero or ('split' if banner_img else 'centered')) %}
+{% if sells_products and banner_img and hl not in ('split', 'overlay') %}
+  {% set hl = 'split' %}
+{% endif %}
+
+{% set raw_cta = (c.cta_text or '')|trim %}
+{% set raw_sub = (c.subheadline or business.description or '')|trim %}
+
+{% if sells_products and (not raw_cta or 'reserve' in raw_cta|lower or 'table' in raw_cta|lower or 'book' in raw_cta|lower or 'appointment' in raw_cta|lower) %}
+  {% set clean_cta = 'Order online' if is_rest else 'Shop now' %}
+{% else %}
+  {% set clean_cta = raw_cta or ('Order online' if is_rest else 'Shop now') %}
+{% endif %}
+
+{% if sells_products and (not c.cta_url or c.cta_url in ('#booking', 'auto', '')) %}
+  {% set clean_cta_url = '#services' if is_rest else '#shop' %}
+{% else %}
+  {% set clean_cta_url = c.cta_url or ('#services' if is_rest else '#shop') %}
+{% endif %}
+
+{% if sells_products and ('party' in raw_sub|lower or 'date and time' in raw_sub|lower or 'pick a date' in raw_sub|lower or 'book an appointment' in raw_sub|lower) %}
+  {% set clean_sub = 'Freshly prepared meals, drinks, and daily specials delivered right to your door or ready for pickup.' if is_rest else 'Browse our curated selection and order online with fast doorstep delivery.' %}
+{% else %}
+  {% set clean_sub = raw_sub or ('Freshly prepared meals, drinks, and daily specials delivered right to your door or ready for pickup.' if is_rest else 'Browse our curated selection and order online with fast doorstep delivery.') %}
+{% endif %}
+
 <!-- Premium Ecommerce Storefront Hero Banner -->
 <section class="hero ecom-hero ecom-hero-{{ hl }} sv-card bb-card" id="hero">
   <div class="sa-tabs" style="display:none"></div>
@@ -10,20 +36,22 @@
   </div>
   <div class="wrap ecom-hero-wrap">
     {% if hl == 'split' and banner_img %}
-    <!-- Split Layout: Text on Left, Product/Fashion Hero Image on Right -->
+    <!-- Split Layout: Text on Left, Product/Hero Image on Right -->
     <div class="ecom-hero-split-grid">
       <div class="ecom-hero-content">
         {% if business.category %}
         <span class="ecom-hero-badge">{{ business.category }}</span>
         {% endif %}
         <h1 class="ecom-hero-title">{{ c.headline or ("Discover " ~ business.name) }}</h1>
-        <p class="ecom-hero-sub">{{ c.subheadline or business.description or "Browse our curated selection and order online with fast doorstep delivery." }}</p>
+        <p class="ecom-hero-sub">{{ clean_sub }}</p>
         <div class="ecom-hero-actions">
-          <a href="{{ c.cta_url or '#shop' }}" class="ecom-btn-primary" data-track="HERO_CTA">
-            <span>{{ c.cta_text or 'Shop now' }}</span>
+          <a href="{{ clean_cta_url }}" class="ecom-btn-primary" data-track="HERO_CTA">
+            <span>{{ clean_cta }}</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
-          {% if categories and categories|length > 0 %}
+          {% if is_rest %}
+          <a href="#services" class="ecom-btn-ghost">View menu</a>
+          {% elif categories and categories|length > 0 %}
           <a href="#categories" class="ecom-btn-ghost">Browse categories</a>
           {% endif %}
         </div>
@@ -66,38 +94,45 @@
         <span class="ecom-hero-badge overlay">{{ business.category }}</span>
         {% endif %}
         <h1 class="ecom-hero-title overlay">{{ c.headline or ("Welcome to " ~ business.name) }}</h1>
-        <p class="ecom-hero-sub overlay">{{ c.subheadline or business.description or "Browse quality products and enjoy seamless online ordering." }}</p>
+        <p class="ecom-hero-sub overlay">{{ clean_sub }}</p>
         <div class="ecom-hero-actions">
-          <a href="{{ c.cta_url or '#shop' }}" class="ecom-btn-primary" data-track="HERO_CTA">
-            <span>{{ c.cta_text or 'Shop collection' }}</span>
+          <a href="{{ clean_cta_url }}" class="ecom-btn-primary" data-track="HERO_CTA">
+            <span>{{ clean_cta }}</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
+          {% if is_rest %}
+          <a href="#services" class="ecom-btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.4)">View menu</a>
+          {% endif %}
         </div>
       </div>
     </div>
 
     {% else %}
-    <!-- Centered Clean Banner Layout (Default fallback) -->
+    <!-- Centered Clean Banner Layout -->
     <div class="ecom-hero-centered-content">
-      {% if banner_img %}
-      <div class="ecom-hero-banner-frame">
-        <img src="{{ banner_img }}" alt="{{ business.name }}" class="ecom-hero-banner-img" fetchpriority="high">
-      </div>
-      {% endif %}
       <div class="ecom-hero-centered-text">
         {% if business.category %}
         <span class="ecom-hero-badge">{{ business.category }}</span>
         {% endif %}
-        <h1 class="ecom-hero-title">{{ c.headline or ("Discover products at " ~ business.name) }}</h1>
-        <p class="ecom-hero-sub">{{ c.subheadline or business.description or "Quality essentials and new arrivals delivered straight to you." }}</p>
+        <h1 class="ecom-hero-title">{{ c.headline or ("Discover " ~ business.name) }}</h1>
+        <p class="ecom-hero-sub">{{ clean_sub }}</p>
         <div class="ecom-hero-actions center">
-          <a href="{{ c.cta_url or '#shop' }}" class="ecom-btn-primary" data-track="HERO_CTA">
-            <span>{{ c.cta_text or 'Shop now' }}</span>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <a href="{{ clean_cta_url }}" class="ecom-btn-primary" data-track="HERO_CTA">
+            <span>{{ clean_cta }}</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
+          {% if is_rest %}
+          <a href="#services" class="ecom-btn-ghost">View menu</a>
+          {% elif categories and categories|length > 0 %}
           <a href="#categories" class="ecom-btn-ghost">Explore categories</a>
+          {% endif %}
         </div>
       </div>
+      {% if banner_img %}
+      <div class="ecom-hero-banner-frame" style="margin-top:28px">
+        <img src="{{ banner_img }}" alt="{{ business.name }}" class="ecom-hero-banner-img" fetchpriority="high">
+      </div>
+      {% endif %}
     </div>
     {% endif %}
   </div>

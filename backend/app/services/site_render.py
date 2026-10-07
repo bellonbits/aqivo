@@ -104,7 +104,7 @@ def _faq_seo(seo: dict, faq: list) -> dict:
     return seo
 
 
-def resolve_nav(site, pages: list, categories: list, *, root: str, collections: list | None = None, draft: bool, has_products: bool, has_services: bool, bookings_on: bool) -> list[dict]:
+def resolve_nav(site, pages: list, categories: list, *, root: str, collections: list | None = None, draft: bool, has_products: bool, has_services: bool, bookings_on: bool, sells_products: bool = False, industry: str = "") -> list[dict]:
     """Turn the stored menu into links for this page. Links to things that don't exist or aren't live are dropped."""
     if site is None:
         return []
@@ -116,15 +116,27 @@ def resolve_nav(site, pages: list, categories: list, *, root: str, collections: 
         from app.services.website import default_navigation
         items = default_navigation(pages)
 
+    if sells_products:
+        cleaned_items = []
+        for it in items:
+            t = it.get("type")
+            lbl = (it.get("label") or "").strip()
+            if t in ("booking", "booking_cta") or lbl.lower() in ("book", "booking", "bookings", "book now", "reservation", "reservations", "reserve a table"):
+                continue  # Never include booking/appointments in commerce or restaurant storefront nav
+            if t == "services" or lbl.lower() in ("services", "treatments", "our services"):
+                lbl = "Menu" if industry == "restaurant" else "Shop"
+            cleaned_items.append({**it, "label": lbl})
+        items = cleaned_items
+
     def href(it: dict) -> str | None:
         t = it.get("type")
         if t == "page":
             p = live.get(str(it.get("ref")))
             return None if p is None else ((root or "/") if p.is_home else f"{root}/p/{p.slug}")
         if t == "products":
-            return f"{root}/products" if has_products else None
+            return f"{root}/#shop" if sells_products else (f"{root}/products" if has_products else None)
         if t == "services":
-            return f"{root}/services" if has_services else None
+            return f"{root}/#services" if sells_products else (f"{root}/services" if has_services else None)
         if t == "category":
             c = cats.get(str(it.get("ref")))
             return f"{root}/categories/{c.slug}" if c else None
@@ -132,7 +144,7 @@ def resolve_nav(site, pages: list, categories: list, *, root: str, collections: 
             c = colls.get(str(it.get("ref")))
             return f"{root}/collections/{c.slug}" if c else None
         if t == "booking":
-            return f"{root}/bookings" if (bookings_on and has_services) else None
+            return f"{root}/bookings" if (bookings_on and has_services and not sells_products) else None
         if t == "contact":
             return f"{root}/#contact"
         if t == "search":
@@ -185,14 +197,24 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
         for s in all_psecs:
             if not draft and s.published_enabled is None:
                 continue  # added after the last publish: not live yet
-            if sells_products and s.type in ("booking", "booking_cta", "opening_hours"):
-                continue  # Suppress restaurant table reservations and opening hours from modern commerce storefronts
+            if sells_products and s.type in ("booking", "booking_cta", "opening_hours", "gallery"):
+                continue  # Suppress restaurant table reservations, opening hours, and standalone gallery from modern commerce storefronts
             if sells_products and s.type == "services" and has_catalog_sec:
                 continue  # Don't show duplicate service row when product grid is active
             enabled = s.enabled if draft else s.published_enabled
             content = s.content if draft else (s.published_content if s.published_content is not None else s.content)
             styles = s.styles if draft else (s.published_styles if s.published_styles is not None else s.styles)
             if enabled:
+                if sells_products and s.type == "hero" and content:
+                    content = dict(content)
+                    cta = (content.get("cta_text") or "").strip()
+                    if not cta or any(w in cta.lower() for w in ("reserve", "table", "book", "appointment")):
+                        content["cta_text"] = "Order online" if ind.key == "restaurant" else "Shop now"
+                    if content.get("cta_url") in ("#booking", None, ""):
+                        content["cta_url"] = "#services" if ind.key == "restaurant" else "#shop"
+                    sub = (content.get("subheadline") or "").strip()
+                    if any(w in sub.lower() for w in ("party", "date and time", "pick a date", "book an appointment")):
+                        content["subheadline"] = "Freshly prepared meals, drinks, and daily specials delivered right to your door or ready for pickup." if ind.key == "restaurant" else "Browse our curated selection and order online with fast doorstep delivery."
                 raw_sections.append({"id": str(s.id), "type": s.type, "content": content or {}, "styles": styles or {}})
     hero_image = None
     for s in raw_sections:
@@ -222,7 +244,8 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
     layout = theme.get("layout", "classic")
     theme.setdefault("bg", "#FFFFFF"); theme.setdefault("ink", "#111111"); theme.setdefault("accent", "#111111")
     theme.setdefault("accent_ink", "#FFFFFF"); theme.setdefault("muted", "#666666"); theme.setdefault("surface", "#FFFFFF")
-    theme.setdefault("border", "#E5E5E5"); theme.setdefault("radius", "12px"); theme.setdefault("hero", "centered")
+    theme.setdefault("border", "#E5E5E5"); theme.setdefault("radius", "12px")
+    theme.setdefault("hero", "split" if sells_products else "centered")
     theme.setdefault("font_display", "'Manrope', system-ui, sans-serif"); theme.setdefault("font_body", "'Manrope', system-ui, sans-serif")
 
     staff = list(db.scalars(select(Staff).where(Staff.business_id == business.id, Staff.deleted_at.is_(None), Staff.is_active.is_(True)).order_by(Staff.created_at)))
@@ -279,7 +302,19 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
     show_branding = not (st.get("hide_branding") and _hf(db, business, "remove_branding"))
     faq = [{"@type": "Question", "name": i["q"], "acceptedAnswer": {"@type": "Answer", "text": i["a"]}} for sc in sections if sc["type"] == "faq" and not sc["empty"] for i in (sc["content"].get("items") or []) if i.get("q") and i.get("a")]
     from app.models import Collection as _Col
-    nav = resolve_nav(site if use_site else None, pages, categories, collections=list(db.scalars(select(_Col).where(_Col.business_id == business.id))), root=root, draft=draft, has_products=bool(products), has_services=bool(services), bookings_on=bookings_on)
+    nav = resolve_nav(
+        site if use_site else None,
+        pages,
+        categories,
+        collections=list(db.scalars(select(_Col).where(_Col.business_id == business.id))),
+        root=root,
+        draft=draft,
+        has_products=bool(products),
+        has_services=bool(services),
+        bookings_on=bookings_on and not sells_products,
+        sells_products=sells_products,
+        industry=ind.key,
+    )
     page_info = None
     if cur_page is not None and not cur_page.is_home:
         pub = cur_page.published or {}
@@ -289,11 +324,12 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
         act=act, products=products, editing=editing, _resolve=resolve, root=root, nav=nav, tracking=tracking, show_branding=show_branding, google_review_url=(business.integrations or {}).get("google_review_url"), page=page_info, home_href=root or "/", search_on=True,
         business=business, website=site, use_site=use_site, sections=sections, theme=theme, services=services,
         gallery=gallery, staff=staff, categories=categories, product_images=product_images, reviews=reviews, testimonials=testimonials, summary=summary, urls=urls,
-        wa=whatsapp_link(business), wa_services=wa_services, bookings_on=bookings_on, leads_on=has_feature(db, business, "leads"), directions=directions,
+        wa=whatsapp_link(business), wa_services=wa_services, bookings_on=bookings_on and not sells_products, leads_on=has_feature(db, business, "leads"), directions=directions,
         hours=hours, open_now=is_open_now(business.opening_hours or {}, business.timezone) if business.opening_hours else None,
         seo=_faq_seo(_page_seo(_seo(business, site if use_site else None, urls, summary, services, hero_image, (published or not use_site) and not draft), page_info, business, urls), faq),
         hero_image=hero_image, draft=draft, country=get_country(business.country_code),
         free_over=(store_cfg.get(business)["delivery"] or {}).get("free_over"), logo=business.logo_url, layout=layout, settings=settings, cur_symbol=SYMBOLS.get(business.currency, business.currency), fonts_url=_fonts_url(fonts_used), year=__import__("datetime").date.today().year,
+        sells_products=sells_products, industry=ind.key,
     )
 
 
