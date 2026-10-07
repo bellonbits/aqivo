@@ -176,6 +176,11 @@
             <strong>Courier / Rider:</strong> {{ order.courier_name }}{% if order.courier_phone %} · <a href="tel:{{ order.courier_phone }}">{{ order.courier_phone }}</a>{% endif %}
           </div>
           {% endif %}
+          {% if order.tracking_url %}
+          <div class="take-receipt-info-line">
+            <strong>Track delivery:</strong> <a href="{{ order.tracking_url }}" target="_blank" rel="noopener">{{ order.tracking_url }}</a>
+          </div>
+          {% endif %}
           <div class="take-receipt-info-line">
             <strong>Address / Location:</strong>
             {% if order.delivery_method == 'DELIVERY' %}
@@ -277,10 +282,7 @@
     <!-- Action Buttons Below Ticket -->
     <div class="take-receipt-actions">
       {% if order_wa %}
-      <a href="{{ order_wa }}" class="take-btn-send-wa" target="_blank" rel="noopener" data-track="WHATSAPP_CLICK">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
-        <span>Send this order on WhatsApp</span>
-      </a>
+      <a href="{{ order_wa }}" class="take-btn-send-wa" target="_blank" rel="noopener" data-track="WHATSAPP_CLICK">Send this order on WhatsApp</a>
       <p class="take-hint" style="text-align:center;margin-top:4px">Send this message to {{ business.name }} to confirm preparation &amp; delivery.</p>
       {% endif %}
 

@@ -1,129 +1,117 @@
-{% from "sections/_m.html" import head, take_prow, store_product_card with context %}
-<section class="store-catalog-section" id="shop" data-tab-panel="products">
-  <div class="wrap store-catalog-wrap">
-    <!-- Catalog Card Container -->
-    <div class="store-catalog-card">
-      <div class="store-catalog-header">
-        <div class="store-catalog-title-group">
-          <h2 class="store-catalog-title">{% if c.title and c.title != 'Shop' %}{{ c.title }}{% else %}{{ business.name }} catalog{% endif %}</h2>
-          <p class="store-catalog-sub">Showing {{ d.cards|length }} fresh product{{ '' if d.cards|length == 1 else 's' }}</p>
+{% from "sections/_m.html" import store_product_card with context %}
+<section class="ecom-catalog-section sx-sec" id="shop">
+  <div class="wrap ecom-catalog-wrap">
+    <!-- Catalog Header: Title, Counts, Sorting, Filter Trigger -->
+    <div class="ecom-catalog-top-bar">
+      <div class="ecom-catalog-title-group">
+        <h2 class="ecom-section-title">
+          {% if c.title and c.title != 'Shop' %}{{ c.title }}{% else %}Featured Products{% endif %}
+        </h2>
+        <p class="ecom-catalog-count-text">
+          <span data-active-filter-label>All items</span> · {{ d.cards|length }} product{{ '' if d.cards|length == 1 else 's' }}
+        </p>
+      </div>
+
+      <div class="ecom-catalog-actions-bar">
+        <!-- Sort Select -->
+        <div class="ecom-sort-box">
+          <label for="catalog-sort" class="ecom-sort-label">Sort:</label>
+          <select id="catalog-sort" class="ecom-sort-select" aria-label="Sort products">
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name">Name: A to Z</option>
+          </select>
         </div>
 
-        <div class="store-catalog-controls">
-          <!-- Mobile Filter Button -->
-          <button type="button" class="store-filter-btn mobile-only" data-toggle-filters aria-label="Toggle filters">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            <span>Filters</span>
+        <!-- Filter Toggle (Mobile) -->
+        <button type="button" class="ecom-filter-toggle-btn mobile-only" data-toggle-filters aria-label="Toggle filters">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          <span>Filter</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Catalog Layout: Optional Sidebar Filters + Product Grid -->
+    <div class="ecom-catalog-layout">
+      <!-- Filter Sidebar (Collapsible on mobile) -->
+      <aside class="ecom-filter-sidebar" id="store-filters">
+        <div class="ecom-filter-sidebar-header mobile-only">
+          <span class="ecom-filter-sidebar-title">Filter Catalog</span>
+          <button type="button" class="ecom-filter-close-btn" data-toggle-filters aria-label="Close filters">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
-
-          <!-- Sort Select -->
-          <div class="store-sort-select-wrapper">
-            <span class="store-sort-label">Sort:</span>
-            <select id="catalog-sort" class="store-sort-select" aria-label="Sort products">
-              <option value="featured">Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="name">Name</option>
-            </select>
-          </div>
         </div>
-      </div>
 
-      <!-- Category Selection Bar with Lucide Icons -->
-      {% if categories and categories|length > 0 %}
-      <div class="store-category-bar" role="tablist" aria-label="Choose category">
-        <button type="button" class="store-cat-chip active" data-cat="" role="tab" aria-selected="true">
-          <svg class="lucide lucide-layout-grid" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-          <span>All Categories</span>
-        </button>
-        {% for cat in categories %}
-        {% if cat.is_visible %}
-        <button type="button" class="store-cat-chip" data-cat="{{ cat.id }}" role="tab" aria-selected="false">
-          {% set cname = cat.name|lower %}
-          {% if 'phone' in cname or 'tech' in cname or 'electric' in cname or 'gadget' in cname %}
-          <svg class="lucide lucide-smartphone" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
-          {% elif 'shirt' in cname or 'cloth' in cname or 'fashion' in cname or 'wear' in cname or 'shoe' in cname %}
-          <svg class="lucide lucide-shirt" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>
-          {% elif 'beauty' in cname or 'care' in cname or 'skin' in cname or 'health' in cname or 'hair' in cname %}
-          <svg class="lucide lucide-sparkles" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
-          {% elif 'food' in cname or 'drink' in cname or 'grocery' in cname or 'eat' in cname or 'snack' in cname %}
-          <svg class="lucide lucide-shopping-bag" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          {% elif 'home' in cname or 'decor' in cname or 'office' in cname or 'house' in cname or 'kitchen' in cname %}
-          <svg class="lucide lucide-home" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          {% else %}
-          <svg class="lucide lucide-tag" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l4.71-4.71c.94-.94.94-2.48 0-3.42L12 2Z"/><line x1="7" x2="7.01" y1="7" y2="7"/></svg>
-          {% endif %}
-          <span>{{ cat.name }}</span>
-        </button>
-        {% endif %}
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      <div class="store-catalog-layout">
-        <!-- Filter Options Sidebar (Desktop visible, mobile collapsible) -->
-        <aside class="store-filter-sidebar" id="store-filters">
-          <h3 class="store-filter-sidebar-title">Filter options</h3>
-          
-          <!-- Category Filter -->
-          {% if categories and categories|length > 0 %}
-          <div class="store-filter-group">
-            <div class="store-filter-group-title">CATEGORY</div>
-            <label class="store-filter-radio">
+        <!-- Categories Filter Group -->
+        {% if categories and categories|length > 0 %}
+        <div class="ecom-filter-group">
+          <h3 class="ecom-filter-group-title">CATEGORIES</h3>
+          <div class="ecom-filter-options">
+            <label class="ecom-filter-radio">
               <input type="radio" name="store_cat_filter" value="" checked data-cat="">
-              <span class="radio-indicator"></span>
-              <span class="radio-label">All</span>
+              <span class="radio-box"></span>
+              <span class="radio-text">All Categories</span>
             </label>
             {% for cat in categories %}
             {% if cat.is_visible %}
-            <label class="store-filter-radio">
+            <label class="ecom-filter-radio">
               <input type="radio" name="store_cat_filter" value="{{ cat.id }}" data-cat="{{ cat.id }}">
-              <span class="radio-indicator"></span>
-              <span class="radio-label">{{ cat.name }}</span>
+              <span class="radio-box"></span>
+              <span class="radio-text">{{ cat.name }}</span>
             </label>
             {% endif %}
             {% endfor %}
           </div>
-          {% endif %}
+        </div>
+        {% endif %}
 
-          <!-- Price Filter -->
-          <div class="store-filter-group">
-            <div class="store-filter-group-title">PRICE</div>
-            <label class="store-filter-radio">
+        <!-- Price Range Filter Group -->
+        <div class="ecom-filter-group">
+          <h3 class="ecom-filter-group-title">PRICE</h3>
+          <div class="ecom-filter-options">
+            <label class="ecom-filter-radio">
               <input type="radio" name="store_price_filter" value="" checked data-price-filter="">
-              <span class="radio-indicator"></span>
-              <span class="radio-label">Any price</span>
+              <span class="radio-box"></span>
+              <span class="radio-text">Any price</span>
             </label>
-            <label class="store-filter-radio">
-              <input type="radio" name="store_price_filter" value="0-50" data-price-filter="0-50">
-              <span class="radio-indicator"></span>
-              <span class="radio-label">Under {{ cur_symbol }} 50</span>
+            <label class="ecom-filter-radio">
+              <input type="radio" name="store_price_filter" value="0-1000" data-price-filter="0-1000">
+              <span class="radio-box"></span>
+              <span class="radio-text">Under {{ cur_symbol }} 1,000</span>
             </label>
-            <label class="store-filter-radio">
-              <input type="radio" name="store_price_filter" value="50-150" data-price-filter="50-150">
-              <span class="radio-indicator"></span>
-              <span class="radio-label">{{ cur_symbol }} 50 - {{ cur_symbol }} 150</span>
+            <label class="ecom-filter-radio">
+              <input type="radio" name="store_price_filter" value="1000-3000" data-price-filter="1000-3000">
+              <span class="radio-box"></span>
+              <span class="radio-text">{{ cur_symbol }} 1,000 - {{ cur_symbol }} 3,000</span>
             </label>
-            <label class="store-filter-radio">
-              <input type="radio" name="store_price_filter" value="150+" data-price-filter="150+">
-              <span class="radio-indicator"></span>
-              <span class="radio-label">Over {{ cur_symbol }} 150</span>
+            <label class="ecom-filter-radio">
+              <input type="radio" name="store_price_filter" value="3000+" data-price-filter="3000+">
+              <span class="radio-box"></span>
+              <span class="radio-text">Over {{ cur_symbol }} 3,000</span>
             </label>
-          </div>
-        </aside>
-
-        <!-- Products Grid Area -->
-        <div class="store-products-area">
-          <div class="store-active-filters-line">
-            Active filters: <span class="active-filter-text" data-active-filter-text>None</span>
-          </div>
-
-          <div class="store-products-grid">
-            {% for it in d.cards %}
-              {{ store_product_card(it) }}
-            {% endfor %}
           </div>
         </div>
+      </aside>
+
+      <!-- Products Grid Area -->
+      <div class="ecom-products-area">
+        <!-- 4 cols desktop / 3 cols tablet / 2 cols mobile -->
+        <div class="ecom-products-grid">
+          {% for it in d.cards %}
+            {{ store_product_card(it) }}
+          {% endfor %}
+        </div>
+
+        {% if not d.cards or d.cards|length == 0 %}
+        <div class="ecom-no-products">
+          <div class="ecom-no-products-icon">
+            <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <p class="ecom-no-products-title">No products found</p>
+          <p class="ecom-no-products-sub">Try selecting another category or resetting filters.</p>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>

@@ -112,6 +112,16 @@ DEMOS += [
        [("Home Cleaning", "Up to 3 bedrooms.", 3500, 180), ("Plumbing Call-out", "Diagnosis and fix.", 2000, 60), ("Electrical Repair", "Sockets, lights, fittings.", 2500, 60)]),
     _d("education", "brightminds", "BrightMinds Learning Centre", "Training Centre", "Thika Road, Nairobi", "0712000021", "Tutoring, computer skills and holiday programmes for learners of all ages.",
        [("Private Tutoring", "Primary and secondary subjects.", 1500, 60), ("Computer Basics Course", "6-week beginner course.", 8000, 90), ("Holiday Programme", "Weekly kids programme.", 6000, 180)]),
+    _d("retail", "twosides", "Two Sides Boutique", "Boutique", "Westlands, Nairobi", "0712000099",
+       "Style for Every Side of You. Contemporary fashion, designer dresses, shoes & accessories.",
+       [("Floral Silk Midi Dress", "Effortless A-line cut with tie belt.", 3500, 15),
+        ("Oversized Linen Blazer", "Tailored relaxed silhouette.", 4200, 15)],
+       accent="#0F172A"),
+    _d("restaurant", "jeffcafe", "Jeff Cafe", "Café & Eatery", "Kilimani, Nairobi", "0712000098",
+       "Fresh meals, made for you. Charcoal grills, artisan burgers, breakfast & fresh juices.",
+       [("Nyama Choma Platter", "Tender grilled goat ribs with kachumbari.", 1800, 25),
+        ("Smash Cheeseburger & Fries", "Double beef patty with cheddar.", 950, 20)],
+       accent="#E2683C"),
 ]
 
 DEMO_PHOTOS.update({d["slug"]: [f"{d['industry'].replace('_', '-')}-{n}" for n in range(1, 7)] for d in DEMOS if d.get("industry")})
@@ -189,15 +199,36 @@ ZURI_PRODUCTS = [  # (name, short, price, compare_at, category path, photo index
     ("Linen Shirt Dress", "Breathable linen for warm days.", 3100, None, ("Women", "Dresses"), 1, 9, False),
 ]
 
+TWOSIDES_PRODUCTS = [
+    ("Oversized Linen Blazer", "Tailored relaxed silhouette with tortoise buttons.", 4200, 5200, ("Women", "Jackets"), 0, 15, True),
+    ("Floral Silk Midi Dress", "Effortless A-line cut with tie belt and flowy hem.", 3500, 4400, ("Women", "Dresses"), 1, 20, True),
+    ("Ribbed Knit Crop Top", "Soft stretch cotton knit, everyday essential.", 1600, 2000, ("Women", "Tops"), 2, 25, True),
+    ("Classic Leather Loafers", "Handcrafted genuine leather with cushioned insole.", 4800, 5800, ("Shoes", "Loafers"), 3, 10, True),
+    ("Gold Layered Chain Necklace", "18k gold plated waterproof jewelry.", 1400, 1800, ("Accessories", "Jewellery"), 4, 30, False),
+    ("Structured Mini Crossbody", "Vegan leather with adjustable shoulder strap.", 2900, 3600, ("Accessories", "Bags"), 5, 12, True),
+    ("Wide Leg Palazzo Trousers", "High-waisted lightweight summer trousers.", 2800, 3400, ("Women", "Trousers"), 0, 18, False),
+    ("Sleeveless Satin Slip Dress", "Bias-cut cowl neckline for evening wear.", 3800, 4800, ("Women", "Dresses"), 1, 14, True),
+]
 
-def ensure_demo_products(db: Session) -> None:
-    """A real product catalogue (nested categories, compare-at prices, stock) for the demo boutique."""
+JEFFCAFE_PRODUCTS = [
+    ("Nyama Choma Platter", "Tender grilled goat ribs with kachumbari, ugali & chili.", 1800, 2100, ("Main Meals", "Grill"), 0, 50, True),
+    ("Smash Cheeseburger & Fries", "Double beef patty, melted cheddar, pickles & special sauce.", 950, 1150, ("Main Meals", "Burgers"), 1, 40, True),
+    ("Loaded Masala Fries", "Crispy spiced fries with melted cheese and cilantro.", 450, 550, ("Snacks", "Sides"), 2, 60, True),
+    ("Cold Pressed Passion Juice", "100% pure passion fruit, freshly extracted daily.", 250, 300, ("Drinks", "Juices"), 3, 80, True),
+    ("Full English Breakfast", "Sausages, eggs, baked beans, toast & grilled tomatoes.", 850, 1000, ("Breakfast", "Hot Breakfast"), 4, 35, True),
+    ("Belgian Waffles & Berries", "Warm fluffy waffles with maple syrup and whipped cream.", 650, 750, ("Breakfast", "Waffles"), 5, 30, False),
+    ("Caramel Iced Latte", "Double shot espresso with silky milk and caramel drizzle.", 400, 480, ("Drinks", "Coffee"), 2, 50, True),
+    ("Crispy Chicken Wings (6pcs)", "Tossed in spicy honey BBQ glaze with garlic dip.", 750, 900, ("Snacks", "Wings"), 1, 45, True),
+]
+
+
+def _populate_store_catalog(db: Session, slug: str, products_list: list, asset_prefix: str, headline: str, subheadline: str) -> None:
     from app.models import Product, ServiceCategory
     from app.services import catalog as cat
-    b = db.scalars(select(Business).where(Business.slug == "zuriboutique", Business.is_demo.is_(True))).first()
+    b = db.scalars(select(Business).where(Business.slug == slug, Business.is_demo.is_(True))).first()
     if not b or db.scalar(select(Product.id).where(Product.business_id == b.id)):
         return
-    for sv in db.scalars(select(Service).where(Service.business_id == b.id)):  # the boutique's old "services" were really products
+    for sv in db.scalars(select(Service).where(Service.business_id == b.id)):
         db.delete(sv)
     for c in db.scalars(select(ServiceCategory).where(ServiceCategory.business_id == b.id)):
         db.delete(c)
@@ -205,25 +236,35 @@ def ensure_demo_products(db: Session) -> None:
     storage = get_storage()
     photos = []
     for n in range(1, 7):
-        src = ASSETS / f"retail-{n}.webp"
-        photos.append(storage.save(f"{b.id}/products/retail-{n}.webp", src.read_bytes()) if src.exists() else None)
+        src = ASSETS / f"{asset_prefix}-{n}.webp"
+        photos.append(storage.save(f"{b.id}/products/{asset_prefix}-{n}.webp", src.read_bytes()) if src.exists() else None)
     cats: dict[tuple, ServiceCategory] = {}
-    for _, _, _, _, path, *_ in ZURI_PRODUCTS:
+    for _, _, _, _, path, *_ in products_list:
         for depth in range(1, len(path) + 1):
             key = path[:depth]
             if key not in cats:
                 cats[key] = ServiceCategory(business_id=b.id, name=key[-1], slug=cat.unique_category_slug(db, b.id, key[-1]), position=len(cats),
                                             parent_id=cats[key[:-1]].id if depth > 1 else None, image_url=photos[len(cats) % 6])
                 db.add(cats[key]); db.flush()
-    for i, (name, short, price, compare, path, ph, stock, featured) in enumerate(ZURI_PRODUCTS):
+    for i, (name, short, price, compare, path, ph, stock, featured) in enumerate(products_list):
         db.add(Product(business_id=b.id, name=name, slug=cat.unique_product_slug(db, b.id, name), short_description=short, description=short, price=price,
                        compare_at_price=compare, currency="KES", category_id=cats[path].id, images=[photos[ph]] if photos[ph] else [], track_stock=True,
-                       stock_qty=stock, featured=featured, position=i, tags=["handmade"]))
+                       stock_qty=stock, featured=featured, position=i, tags=["featured" if featured else "regular"]))
     db.flush()
     db.refresh(b.website)
-    ws.regenerate(db, b.website, b)  # shop-first layout: categories + product grid
+    ws.regenerate(db, b.website, b)
+    for s in b.website.sections:
+        if s.type == "hero":
+            s.content = {**s.content, "headline": headline, "subheadline": subheadline, "cta_text": "Shop now", "cta_action": "shop"}
     ws.publish(db, b.website)
     db.commit()
+
+
+def ensure_demo_products(db: Session) -> None:
+    """Real product catalogues (nested categories, compare-at prices, stock) for demo ecommerce storefronts."""
+    _populate_store_catalog(db, "zuriboutique", ZURI_PRODUCTS, "retail", "Handcrafted Fashion & Gifts", "Curated dresses, accessories and local artisan gifts.")
+    _populate_store_catalog(db, "twosides", TWOSIDES_PRODUCTS, "retail", "Style for Every Side of You", "New season collection is here. Shop trending styles with instant delivery.")
+    _populate_store_catalog(db, "jeffcafe", JEFFCAFE_PRODUCTS, "restaurant", "Fresh meals, made for you", "Hot and delicious meals prepared fresh daily. Order online or via WhatsApp.")
 
 
 def refresh_demo_photos(db: Session) -> None:
@@ -265,26 +306,45 @@ def ensure_service_slugs(db: Session) -> None:
 
 
 def ensure_demo_store(db: Session) -> None:
-    """Variants, a discount code and delivery settings for the demo boutique, so the whole shop flow can be tried."""
+    """Variants, a discount code and delivery settings for demo stores, so the whole shop flow can be tried."""
     from app.models import Discount, Product
     from app.services import inventory as inv
     from app.services import store as store_cfg
+    
+    # 1. Zuri Boutique
     b = db.scalars(select(Business).where(Business.slug == "zuriboutique", Business.is_demo.is_(True))).first()
-    if not b or (b.store_settings or {}).get("demo_seeded"):
-        return
-    b.store_settings = {**store_cfg.clean({"delivery": {"flat_fee": 250, "free_over": 6000, "estimate": "Within Nairobi in 1–2 days",
-                                                        "zones": [{"name": "Nairobi CBD", "fee": 150}, {"name": "Karen & Langata", "fee": 250}, {"name": "Outside Nairobi", "fee": 500}]},
-                                        "payments": {"cash": True, "mpesa": False, "bank": False, "whatsapp": True}, "thank_you": "Thank you! We'll confirm your order on WhatsApp shortly."}),
-                        "demo_seeded": True}
-    for name in ("Summer Wrap Dress", "Linen Shirt Dress", "Ankara Midi Skirt"):
-        p = db.scalars(select(Product).where(Product.business_id == b.id, Product.name == name)).first()
-        if p is not None:
-            vs = inv.sync_variants(db, p, [{"name": "Size", "values": ["S", "M", "L"]}])
-            for v, qty in zip(vs, (6, 8, 0)):
-                v.stock_qty = qty
-            p.stock_qty = 0
-    if not db.scalar(select(Discount.id).where(Discount.business_id == b.id)):
-        db.add(Discount(business_id=b.id, code="WELCOME10", description="10% off your first order", type="PERCENT", value=10))
+    if b and not (b.store_settings or {}).get("demo_seeded"):
+        b.store_settings = {**store_cfg.clean({"delivery": {"flat_fee": 250, "free_over": 6000, "estimate": "Within Nairobi in 1–2 days",
+                                                            "zones": [{"name": "Nairobi CBD", "fee": 150}, {"name": "Karen & Langata", "fee": 250}, {"name": "Outside Nairobi", "fee": 500}]},
+                                            "payments": {"cash": True, "mpesa": False, "bank": False, "whatsapp": True}, "thank_you": "Thank you! We'll confirm your order on WhatsApp shortly."}),
+                            "demo_seeded": True}
+        for name in ("Summer Wrap Dress", "Linen Shirt Dress", "Ankara Midi Skirt"):
+            p = db.scalars(select(Product).where(Product.business_id == b.id, Product.name == name)).first()
+            if p is not None:
+                vs = inv.sync_variants(db, p, [{"name": "Size", "values": ["S", "M", "L"]}])
+                for v, qty in zip(vs, (6, 8, 0)):
+                    v.stock_qty = qty
+                p.stock_qty = 0
+        if not db.scalar(select(Discount.id).where(Discount.business_id == b.id)):
+            db.add(Discount(business_id=b.id, code="WELCOME10", description="10% off your first order", type="PERCENT", value=10))
+
+    # 2. Two Sides Boutique
+    b2 = db.scalars(select(Business).where(Business.slug == "twosides", Business.is_demo.is_(True))).first()
+    if b2 and not (b2.store_settings or {}).get("demo_seeded"):
+        b2.store_settings = {**store_cfg.clean({"delivery": {"flat_fee": 200, "free_over": 5000, "estimate": "Express same-day in Nairobi, 1-2 days countrywide",
+                                                             "zones": [{"name": "Nairobi Express", "fee": 200}, {"name": "Rest of Kenya", "fee": 350}]},
+                                             "payments": {"cash": True, "mpesa": True, "bank": False, "whatsapp": True}, "thank_you": "Order received! Your items will be dispatched shortly."}),
+                             "demo_seeded": True}
+        for name in ("Floral Silk Midi Dress", "Oversized Linen Blazer", "Ribbed Knit Crop Top", "Sleeveless Satin Slip Dress"):
+            p = db.scalars(select(Product).where(Product.business_id == b2.id, Product.name == name)).first()
+            if p is not None:
+                vs = inv.sync_variants(db, p, [{"name": "Size", "values": ["XS", "S", "M", "L"]}])
+                for v, qty in zip(vs, (4, 8, 8, 2)):
+                    v.stock_qty = qty
+                p.stock_qty = 0
+        if not db.scalar(select(Discount.id).where(Discount.business_id == b2.id)):
+            db.add(Discount(business_id=b2.id, code="STYLE20", description="20% off new season styles", type="PERCENT", value=20))
+
     db.commit()
 
 

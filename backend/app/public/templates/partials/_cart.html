@@ -1,89 +1,52 @@
 {% if settings.cart_enabled %}
-<!-- Modern Mobile Bottom Navigation Bar with Center Elevated Green Cart Button -->
+<!-- Modern Mobile Bottom Navigation Bar -->
 <nav class="store-bottom-bar" aria-label="Bottom Navigation">
   <div class="store-bottom-bar-inner">
-    <button type="button" class="store-bar-item active" data-tab-target="products" aria-current="page">
+    <a href="#top" class="store-bar-item active" aria-label="Home">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span>Home</span>
-    </button>
+    </a>
 
-    <button type="button" class="store-bar-item" data-tab-target="reviews" aria-label="Favorites & Reviews">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-      <span>Favorite</span>
-    </button>
+    <a href="#shop" class="store-bar-item" aria-label="Shop Catalog">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+      <span>Shop</span>
+    </a>
 
-    <!-- Elevated Center Green Cart Button -->
+    <!-- Elevated Center Cart Button with Counter -->
     <div class="store-center-cart-slot">
-      <button type="button" class="store-center-cart-btn" data-open-bag aria-label="Open Cart">
+      <button type="button" class="store-center-cart-btn" data-open-bag aria-label="Open Cart Drawer">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
         <span class="store-center-cart-badge" data-bag-count></span>
       </button>
     </div>
 
-    <button type="button" class="store-bar-item" data-open-bag aria-label="Order">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      <span>Order</span>
+    <button type="button" class="store-bar-item" data-open-bag aria-label="Bag & Orders">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span>Bag</span>
     </button>
 
-    <a href="{{ root }}/account" class="store-bar-item" aria-label="Account">
+    <a href="{{ root }}/account" class="store-bar-item" aria-label="My Account">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
       <span>Account</span>
     </a>
   </div>
 </nav>
 
-<!-- Floating Support / Merchant Chat Bubble (Bottom right in screenshot) -->
-{% if wa %}
-<a class="store-chat-bubble" href="{{ wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener" aria-label="Chat with store">
-  <div class="store-chat-avatar">
-    <svg viewBox="0 0 64 64" width="50" height="50" fill="none" style="display:block;border-radius:50%;">
-      <!-- Background Circle with Amber Gradient -->
-      <circle cx="32" cy="32" r="32" fill="#FBBF24"/>
-      <circle cx="32" cy="32" r="30" fill="url(#bubble-grad)"/>
-      <defs>
-        <radialGradient id="bubble-grad" cx="50%" cy="30%" r="70%">
-          <stop offset="0%" stop-color="#FEF08A"/>
-          <stop offset="60%" stop-color="#FDE047"/>
-          <stop offset="100%" stop-color="#F59E0B"/>
-        </radialGradient>
-      </defs>
-      <!-- Sparkle top left -->
-      <path d="M12 16c1.5 0 2-1 2-2 0 1 .5 2 2 2-1.5 0-2 1-2 2 0-1-.5-2-2-2z" fill="#FEF9C3"/>
-      <!-- Sparkle top right -->
-      <path d="M52 14c1.2 0 1.6-.8 1.6-1.6 0 .8.4 1.6 1.6 1.6-1.2 0-1.6.8-1.6 1.6 0-.8-.4-1.6-1.6-1.6z" fill="#FEF9C3"/>
-      <!-- Hair bun -->
-      <circle cx="32" cy="11" r="5" fill="#581c87"/>
-      <ellipse cx="32" cy="22" rx="9.5" ry="10" fill="#581c87"/>
-      <!-- Face -->
-      <ellipse cx="32" cy="24" rx="7.5" ry="8" fill="#fde68a"/>
-      <!-- Eyes & Smile -->
-      <circle cx="29" cy="24" r="1.1" fill="#3b0764"/>
-      <circle cx="35" cy="24" r="1.1" fill="#3b0764"/>
-      <path d="M30 27.5q2 1.5 4 0" stroke="#78350f" stroke-width="1.2" stroke-linecap="round" fill="none"/>
-      <!-- Shirt & Apron -->
-      <path d="M22 36c0-6 4-9 10-9s10 3 10 9v12H22V36z" fill="#3b0764"/>
-      <path d="M25 36h14l-2 12H27z" fill="#ffffff"/>
-      <line x1="27" y1="36" x2="27" y2="48" stroke="#cbd5e1" stroke-width="0.8"/>
-      <line x1="37" y1="36" x2="37" y2="48" stroke="#cbd5e1" stroke-width="0.8"/>
-      <!-- Store Counter -->
-      <rect x="8" y="47" width="48" height="17" rx="3" fill="#451a03"/>
-      <rect x="10" y="48.5" width="44" height="2" fill="#78350f"/>
-      <!-- Produce / Oranges on counter -->
-      <circle cx="18" cy="46" r="4.5" fill="#ea580c"/>
-      <circle cx="25" cy="46.5" r="4" fill="#f97316"/>
-      <circle cx="46" cy="46" r="4.5" fill="#ea580c"/>
-      <circle cx="39" cy="46.5" r="4" fill="#16a34a"/>
-    </svg>
+<!-- Clean Modern Floating WhatsApp Chat Bubble (Only if not already floated) -->
+{% if wa and not settings.whatsapp_float %}
+<a class="store-chat-bubble" href="{{ wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener" aria-label="Chat with store on WhatsApp">
+  <div class="store-chat-avatar-clean">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
   </div>
 </a>
 {% endif %}
 
-<!-- Slide-up Cart Drawer / Sheet -->
+<!-- Slide-out Cart Drawer -->
 <div class="take-modal-veil" data-close-bag hidden></div>
-<aside class="take-cart-sheet" id="bag" role="dialog" aria-label="Your bag" aria-modal="true" hidden>
+<aside class="take-cart-sheet" id="bag" role="dialog" aria-label="Shopping Cart" aria-modal="true" hidden>
   <div class="take-cart-sheet-header">
     <div class="take-cart-sheet-title-group">
-      <h2 class="take-cart-sheet-title">Your order</h2>
+      <h2 class="take-cart-sheet-title">Shopping Bag</h2>
       <span class="take-cart-sheet-subtitle">(<span data-bag-count>0</span> items)</span>
     </div>
     <button type="button" data-close-bag aria-label="Close cart" class="take-modal-close">
@@ -103,25 +66,26 @@
   <div class="take-cart-lines-container">
     <ul class="take-cart-lines" data-bag-lines></ul>
     <div class="take-cart-empty" data-bag-empty>
-      <div class="take-cart-empty-icon" style="color:#9ca3af;display:grid;place-items:center;margin:0 auto 12px">
-        <svg class="lucide lucide-shopping-bag" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <div class="take-cart-empty-icon">
+        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       </div>
       <div class="take-cart-empty-text">Your bag is empty</div>
-      <p class="take-cart-empty-sub">Explore products to add to your order.</p>
+      <p class="take-cart-empty-sub">Explore our catalog to find items you love.</p>
+      <a href="#shop" class="take-btn-continue" data-close-bag>Start Shopping</a>
     </div>
   </div>
 
   <!-- Cart Footer with Totals and Action Buttons -->
   <div class="take-cart-foot" data-bag-foot hidden>
     <div class="take-cart-subtotal-row">
-      <span>Subtotal</span>
+      <span class="subtotal-label">Subtotal</span>
       <strong data-bag-sum class="take-cart-total-val"></strong>
     </div>
 
     <!-- Quick Customer Inputs -->
     <div class="take-cart-quick-inputs">
-      <input type="text" data-bag-name class="take-input" placeholder="Your name *" autocomplete="name" maxlength="80">
-      <input type="tel" data-bag-phone class="take-input" placeholder="WhatsApp number (e.g. 0712 345 678) *" autocomplete="tel" inputmode="tel">
+      <input type="text" data-bag-name class="take-input" placeholder="Your name (optional)" autocomplete="name" maxlength="80">
+      <input type="tel" data-bag-phone class="take-input" placeholder="WhatsApp / Phone number *" autocomplete="tel" inputmode="tel">
     </div>
 
     <!-- Primary Checkout & WhatsApp Order buttons -->
@@ -135,7 +99,7 @@
         <span>{{ settings.order_button_label or 'Order on WhatsApp' }}</span>
       </button>
     </div>
-    <p class="take-cart-hint">Fast checkout · Pay online or on WhatsApp confirmation</p>
+    <p class="take-cart-hint">Safe & secure checkout · Instant order confirmation</p>
   </div>
 </aside>
 {% endif %}

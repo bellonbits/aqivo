@@ -190,6 +190,19 @@
     var lines = bag.querySelector("[data-bag-lines]"); lines.textContent = "";
     Object.keys(items).forEach(function (key) {
       var it = items[key], li = document.createElement("li");
+      li.className = "take-cart-item";
+      if (it.image) {
+        var thumb = document.createElement("img");
+        thumb.className = "take-cart-item-thumb";
+        thumb.src = it.image;
+        thumb.alt = it.name;
+        li.appendChild(thumb);
+      } else {
+        var ph = document.createElement("div");
+        ph.className = "take-cart-item-ph";
+        ph.textContent = (it.name || "P").charAt(0).toUpperCase();
+        li.appendChild(ph);
+      }
       var info = document.createElement("div"); info.className = "take-cart-item-info";
       var nm = document.createElement("div"); nm.className = "take-cart-item-title"; nm.textContent = it.name;
       info.appendChild(nm);
@@ -436,12 +449,12 @@
       return;
     }
 
-    // Navigation Tabs Switching (True Tab Interface)
+    // Navigation Tabs Switching / Smooth Section Navigation
     var tabBtn = e.target.closest("[data-tab-target]");
     if (tabBtn) {
       var target = tabBtn.dataset.tabTarget;
 
-      // 1. Update ALL tab-target elements across page (desktop nav, hero tabs, bottom bar)
+      // 1. Update tab-target active states
       document.querySelectorAll("[data-tab-target]").forEach(function (b) {
         var isSame = b.dataset.tabTarget === target;
         b.classList.toggle("active", isSame);
@@ -450,35 +463,16 @@
         if (b.hasAttribute("aria-current")) b.setAttribute("aria-current", isSame ? "page" : "false");
       });
 
-      // 2. Hide all tab panels
-      document.querySelectorAll("[data-tab-panel]").forEach(function(panel) {
-        panel.classList.add("tab-hidden");
-      });
-
-      // 3. Show targeted panel(s)
-      var targetPanels = document.querySelectorAll('[data-tab-panel="' + target + '"]');
-      if (targetPanels.length > 0) {
-        targetPanels.forEach(function(p) { p.classList.remove("tab-hidden"); });
-        // Scroll to panel top (excluding products which is in-flow)
-        if (target !== "products") {
-          setTimeout(function() {
-            var r = targetPanels[0].getBoundingClientRect();
-            window.scrollTo({ top: Math.max(0, window.scrollY + r.top - 70), behavior: "smooth" });
-          }, 50);
-        }
-      } else if (target === "products") {
-        // Fallback for products if it lacks the attribute
-        var sh = document.getElementById("shop");
-        if (sh) {
-          sh.setAttribute("data-tab-panel", "products");
-          sh.classList.remove("tab-hidden");
-        }
+      // 2. Scroll smoothly to target section
+      var targetEl = document.getElementById(target) || document.querySelector('[data-tab-panel="' + target + '"]');
+      if (target === "products" || target === "shop") {
+        targetEl = document.getElementById("shop") || targetEl;
       }
-
-      // 4. Scroll to top of hero when switching to products
-      if (target === "products") {
-        var heroEl = document.getElementById("top") || document.querySelector(".store-identity-wrap");
-        if (heroEl) window.scrollTo({ top: 0, behavior: "smooth" });
+      if (targetEl) {
+        var r = targetEl.getBoundingClientRect();
+        window.scrollTo({ top: Math.max(0, window.scrollY + r.top - 80), behavior: "smooth" });
+      } else if (target === "home" || target === "top") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
       return;
     }

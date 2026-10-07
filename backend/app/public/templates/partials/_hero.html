@@ -1,101 +1,104 @@
-{% set hl = c.layout if c.layout and c.layout != 'inherit' else theme.hero %}
-<!-- Modern Storefront Hero & Cover Banner -->
-<section class="hero store-hero-section sv-card bb-card" id="hero">
-
-  <!-- ═══ 1. COVER BANNER (Only appears if an image is uploaded/placed) ═══ -->
-  {% if c.image_url or hero_image %}
-  <div class="store-cover-section">
-    <div class="store-cover-img-box">
-      <img src="{{ c.image_url or hero_image }}" alt="{{ business.name }}" class="store-cover-img" fetchpriority="high">
-    </div>
+{% set hl = c.layout if c.layout and c.layout != 'inherit' else (theme.hero or 'split') %}
+{% set banner_img = c.image_url or hero_image %}
+<!-- Premium Ecommerce Storefront Hero Banner -->
+<section class="hero ecom-hero ecom-hero-{{ hl }} sv-card bb-card" id="hero">
+  <div class="sa-tabs" style="display:none"></div>
+  <div class="sv-tabs" style="display:none"></div>
+  <div class="bb-tabs" style="display:none"></div>
+  <div class="store-search-bar" style="display:none">
+    <input type="search" class="store-search-input" placeholder="{% if layout == 'serviceapp' %}Search services{% else %}Search anything{% endif %}" aria-label="Search" data-search>
   </div>
-  {% endif %}
-
-  <!-- ═══ 2. IDENTITY CARD ═══ -->
-  <div class="store-identity-wrap">
-    <div class="store-identity-card">
-
-      <!-- Identity Row: [← back] [avatar] [name + location] [cart btn] -->
-      <div class="store-identity-top">
-
-        <!-- Back Button (mobile only) -->
-        <button type="button" onclick="history.back()" class="store-circle-btn mobile-only" aria-label="Go back">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m15 18-6-6 6-6"/></svg>
-        </button>
-
-        <!-- Store Avatar -->
-        <div class="store-avatar-badge">
-          {% set store_logo = c.logo_url or logo or business.logo_url or business.logo %}
-          {% if store_logo %}
-          <img src="{{ store_logo }}" alt="{{ business.name }}" class="store-avatar-img" width="48" height="48">
-          {% else %}
-          <span class="store-avatar-letter">{{ business.name[:1] }}</span>
+  <div class="wrap ecom-hero-wrap">
+    {% if hl == 'split' and banner_img %}
+    <!-- Split Layout: Text on Left, Product/Fashion Hero Image on Right -->
+    <div class="ecom-hero-split-grid">
+      <div class="ecom-hero-content">
+        {% if business.category %}
+        <span class="ecom-hero-badge">{{ business.category }}</span>
+        {% endif %}
+        <h1 class="ecom-hero-title">{{ c.headline or ("Discover " ~ business.name) }}</h1>
+        <p class="ecom-hero-sub">{{ c.subheadline or business.description or "Browse our curated selection and order online with fast doorstep delivery." }}</p>
+        <div class="ecom-hero-actions">
+          <a href="{{ c.cta_url or '#shop' }}" class="ecom-btn-primary" data-track="HERO_CTA">
+            <span>{{ c.cta_text or 'Shop now' }}</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          {% if categories and categories|length > 0 %}
+          <a href="#categories" class="ecom-btn-ghost">Browse categories</a>
           {% endif %}
         </div>
-
-        <!-- Store Name & Location -->
-        <div class="store-title-info">
-          <h1 class="store-name-title" style="font-size:15px !important;font-weight:700 !important;margin:0 0 2px !important;line-height:1.25 !important;color:var(--store-ink,#111827) !important;white-space:normal !important;word-break:break-word !important;">{{ business.name }}</h1>
-          <div class="store-location-line">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>{{ business.city or business.address or (country.name if country else 'Kenya') }}</span>
+        
+        <!-- Store mini trust highlights -->
+        <div class="ecom-hero-trust-row">
+          <div class="ecom-trust-item">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Verified shop</span>
           </div>
-        </div>
-
-        <!-- Right Actions -->
-        <div class="store-identity-actions">
-          <!-- Desktop buttons -->
-          <button type="button" class="store-pill-btn desktop-only" data-follow-btn>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-            <span>Follow</span>
-          </button>
-          <button type="button" class="store-pill-btn desktop-only" data-share-btn>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            <span>Share</span>
-          </button>
-
-          <!-- Mobile: Dark Cart Button -->
-          {% if settings.cart_enabled %}
-          <button type="button" class="store-hero-cart-btn mobile-only" data-open-bag aria-label="Open cart">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-            <span class="store-hero-cart-badge" data-bag-count aria-label="Cart items"></span>
-          </button>
+          {% if business.city %}
+          <div class="ecom-trust-item">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>{{ business.city }}</span>
+          </div>
+          {% endif %}
+          {% if summary and summary.count %}
+          <div class="ecom-trust-item">
+            <span style="color:#f59e0b;font-weight:700">★ {{ summary.average }}</span>
+            <span>({{ summary.count }} reviews)</span>
+          </div>
           {% endif %}
         </div>
       </div>
 
-      <!-- Ratings & Meta Row -->
-      <div class="store-meta-row">
-        <div class="store-rating-chip">
-          <span class="star-icon">★</span>
-          <strong>{{ summary.average if summary and summary.average else '5.0' }}</strong>
+      <div class="ecom-hero-media">
+        <div class="ecom-hero-img-box">
+          <img src="{{ banner_img }}" alt="{{ business.name }}" class="ecom-hero-img" fetchpriority="high">
         </div>
-        <span class="store-meta-sep">|</span>
-        <span class="store-meta-item">{{ summary.count if summary and summary.count else '2' }} Reviews</span>
-        <span class="store-meta-sep">|</span>
-        <span class="store-meta-item">Delivery available</span>
-      </div>
-
-      <!-- Search Bar -->
-      <div class="store-search-bar">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input type="search" class="store-search-input" placeholder="{% if layout == 'serviceapp' %}Search services{% else %}Search {{ business.name }} products{% endif %}" aria-label="Search" data-search>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="sa-tabs" style="display:none"></div>
-      <div class="sv-tabs" style="display:none"></div>
-      <div class="bb-tabs" style="display:none"></div>
-      <div class="store-nav-tabs-bar" role="tablist" aria-label="Store navigation">
-        <button type="button" class="store-tab-btn active" data-tab-target="products" role="tab" aria-selected="true">Products</button>
-        <button type="button" class="store-tab-btn" data-tab-target="about" role="tab" aria-selected="false">About us</button>
-        <button type="button" class="store-tab-btn" data-tab-target="reviews" role="tab" aria-selected="false">
-          Reviews <span class="store-tab-count">{{ summary.count if summary and summary.count else '2' }}</span>
-        </button>
-        <button type="button" class="store-tab-btn" data-tab-target="location" role="tab" aria-selected="false">Location</button>
-        <button type="button" class="store-tab-btn" data-tab-target="contact" role="tab" aria-selected="false">Contact</button>
       </div>
     </div>
-  </div>
 
+    {% elif hl == 'overlay' and banner_img %}
+    <!-- Overlay Banner Layout -->
+    <div class="ecom-hero-overlay-box">
+      <img src="{{ banner_img }}" alt="{{ business.name }}" class="ecom-hero-overlay-bg" fetchpriority="high">
+      <div class="ecom-hero-overlay-gradient"></div>
+      <div class="ecom-hero-overlay-content">
+        {% if business.category %}
+        <span class="ecom-hero-badge overlay">{{ business.category }}</span>
+        {% endif %}
+        <h1 class="ecom-hero-title overlay">{{ c.headline or ("Welcome to " ~ business.name) }}</h1>
+        <p class="ecom-hero-sub overlay">{{ c.subheadline or business.description or "Browse quality products and enjoy seamless online ordering." }}</p>
+        <div class="ecom-hero-actions">
+          <a href="{{ c.cta_url or '#shop' }}" class="ecom-btn-primary" data-track="HERO_CTA">
+            <span>{{ c.cta_text or 'Shop collection' }}</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {% else %}
+    <!-- Centered Clean Banner Layout (Default fallback) -->
+    <div class="ecom-hero-centered-content">
+      {% if banner_img %}
+      <div class="ecom-hero-banner-frame">
+        <img src="{{ banner_img }}" alt="{{ business.name }}" class="ecom-hero-banner-img" fetchpriority="high">
+      </div>
+      {% endif %}
+      <div class="ecom-hero-centered-text">
+        {% if business.category %}
+        <span class="ecom-hero-badge">{{ business.category }}</span>
+        {% endif %}
+        <h1 class="ecom-hero-title">{{ c.headline or ("Discover products at " ~ business.name) }}</h1>
+        <p class="ecom-hero-sub">{{ c.subheadline or business.description or "Quality essentials and new arrivals delivered straight to you." }}</p>
+        <div class="ecom-hero-actions center">
+          <a href="{{ c.cta_url or '#shop' }}" class="ecom-btn-primary" data-track="HERO_CTA">
+            <span>{{ c.cta_text or 'Shop now' }}</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#categories" class="ecom-btn-ghost">Explore categories</a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </section>

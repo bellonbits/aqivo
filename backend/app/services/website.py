@@ -37,7 +37,11 @@ def default_section_content(stype: str, b: Business) -> dict:
         "text": {"title": "A few words", "body": "Write something here."},
         "rich_text": {"title": "Good to know", "body": "- Add your policies\n- Delivery areas\n- Anything customers often ask"},
         "product_grid": {"title": "Shop", "subtitle": "", "source": "all", "limit": 8},
-        "product_carousel": {"title": "Popular right now", "source": "all", "limit": 10},
+        "product_carousel": {"title": "New Arrivals", "subtitle": "Trending this week", "source": "all", "limit": 10},
+        "why_us": {"title": "Why shop with us", "subtitle": "Our promise to every customer",
+                   "f1_title": "Secure ordering", "f1_desc": "Safe online checkout with instant order confirmation",
+                   "f2_title": "Fast delivery", "f2_desc": "Direct to your doorstep with tracking updates",
+                   "f3_title": "Easy checkout", "f3_desc": "Pay with M-Pesa, card, WhatsApp or cash"},
         "offers": {"title": "On offer", "subtitle": "Reduced prices while stock lasts."},
         "category_grid": {"title": "Browse by category"},
         "service_grid": {"title": ind.services_title, "subtitle": ind.services_subtitle, "source": "all", "limit": 6},
@@ -358,20 +362,37 @@ def compose_types(db: Session, business: Business, base: list[str]) -> list[str]
     Not a template: the result depends on what the business has (products, categories, staff, photos…) and can be
     edited freely afterwards.
     """
+    from app.models import Service
     ind = get_industry(business.industry)
     has_products = bool(db.scalar(select(func.count()).select_from(Product).where(Product.business_id == business.id, Product.deleted_at.is_(None))))
-    sells_products = ind.key == "retail" or has_products
+    has_services = bool(db.scalar(select(func.count()).select_from(Service).where(Service.business_id == business.id, Service.deleted_at.is_(None))))
+    sells_products = ind.key in ("retail", "restaurant") or has_products
     out: list[str] = []
+    seen = set()
+
+    def add(item: str):
+        if item not in seen:
+            seen.add(item)
+            out.append(item)
+
     for t in base:
-        if t == "services" and sells_products and ind.key == "retail":
-            out += ["category_grid", "product_grid", "services"]  # shops lead with products; the service list shows only if they also have services
+        if t == "services" and sells_products:
+            # Ecommerce stores lead with categories, product grid, new arrivals carousel, and trust guarantees
+            add("category_grid")
+            add("product_grid")
+            add("product_carousel")
+            add("why_us")
+            add("services")
             continue
-        if t == "services" and has_products:
-            out += ["services", "product_grid"]
+        if (t in ("booking", "booking_cta")) and sells_products and not has_services:
+            # Do not inject salon/restaurant booking forms into retail/ecommerce storefronts
+            continue
+        if t == "opening_hours" and sells_products:
+            # Don't clutter storefront with opening hours cards unless custom added
             continue
         if t == "contact" and "whatsapp_cta" not in base:
-            out.append("whatsapp_cta")
-        out.append(t)
+            add("whatsapp_cta")
+        add(t)
     return out
 
 

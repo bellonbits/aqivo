@@ -1,2 +1,25 @@
-{% from "sections/_m.html" import head, pcard with context %}
-<section class="sx-sec"><div class="wrap">{{ head(c) }}<div class="rail">{% for it in d.cards %}{{ pcard(it, c.show_price, c.show_add) }}{% endfor %}</div></div></section>
+{% from "sections/_m.html" import pcard with context %}
+<section class="ecom-carousel-section sx-sec" id="featured">
+  <div class="wrap store-catalog-wrap">
+    <div class="ecom-section-header flex-between">
+      <div>
+        <h2 class="ecom-section-title">{{ c.title or 'New Arrivals' }}</h2>
+        {% if c.subtitle %}
+        <p class="ecom-section-sub">{{ c.subtitle }}</p>
+        {% endif %}
+      </div>
+      <a href="#shop" class="ecom-view-all-link">
+        <span>View all</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+      </a>
+    </div>
+
+    <div class="ecom-carousel-rail" tabindex="0" role="region" aria-label="{{ c.title or 'New Arrivals' }}">
+      {% for it in d.cards %}
+      <div class="ecom-carousel-item">
+        {{ pcard(it, c.show_price, c.show_add) }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
