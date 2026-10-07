@@ -197,8 +197,8 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
         for s in all_psecs:
             if not draft and s.published_enabled is None:
                 continue  # added after the last publish: not live yet
-            if sells_products and s.type in ("booking", "booking_cta", "opening_hours", "gallery"):
-                continue  # Suppress restaurant table reservations, opening hours, and standalone gallery from modern commerce storefronts
+            if sells_products and s.type in ("booking", "booking_cta"):
+                continue  # Suppress table reservations from quick-ordering storefronts
             if sells_products and s.type == "services" and has_catalog_sec:
                 continue  # Don't show duplicate service row when product grid is active
             enabled = s.enabled if draft else s.published_enabled
@@ -209,20 +209,19 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
                     content = dict(content)
                     cta = (content.get("cta_text") or "").strip()
                     if not cta or any(w in cta.lower() for w in ("reserve", "table", "book", "appointment")):
-                        content["cta_text"] = "Order online" if ind.key == "restaurant" else "Shop now"
+                        content["cta_text"] = "Order now" if ind.key == "restaurant" else "Shop now"
                     if content.get("cta_url") in ("#booking", None, ""):
                         content["cta_url"] = "#services" if ind.key == "restaurant" else "#shop"
                     sub = (content.get("subheadline") or "").strip()
-                    if any(w in sub.lower() for w in ("party", "date and time", "pick a date", "book an appointment")):
-                        content["subheadline"] = "Freshly prepared meals, drinks, and daily specials delivered right to your door or ready for pickup." if ind.key == "restaurant" else "Browse our curated selection and order online with fast doorstep delivery."
+                    if not sub or any(w in sub.lower() for w in ("party", "date and time", "pick a date", "book an appointment")):
+                        content["subheadline"] = "Freshly prepared meals, coffee & drinks made for your everyday moments." if ind.key == "restaurant" else "Browse our curated selection and order online with fast doorstep delivery."
                 raw_sections.append({"id": str(s.id), "type": s.type, "content": content or {}, "styles": styles or {}})
     hero_image = None
-    if not sells_products:
-        for s in raw_sections:
-            if s["type"] == "hero":
-                hero_image = s["content"].get("image_url")
-        if not hero_image and gallery:
-            hero_image = gallery[0].url
+    for s in raw_sections:
+        if s["type"] == "hero":
+            hero_image = s["content"].get("image_url")
+    if not hero_image:
+        hero_image = "/static/img/restaurant/restaurant-3.webp" if ind.key == "restaurant" else (gallery[0].url if gallery else None)
     style = (site.theme_overrides if draft else (site.published_style or {}).get("theme_overrides", site.theme_overrides)) if site else {}
     settings = (site.settings if draft else (site.published_style or {}).get("settings", site.settings)) if site else {}
     style, settings = style or {}, settings or {}
@@ -234,27 +233,50 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
     if style.get("accent"):
         theme["accent_ink"] = _contrast_ink(style["accent"])
     if style.get("font_display"):
-        theme["font_display"] = FONTS[style["font_display"]]
+        theme["font_display"] = FONTS.get(style["font_display"], style["font_display"])
     if style.get("font_body"):
-        theme["font_body"] = FONTS[style["font_body"]]
+        theme["font_body"] = FONTS.get(style["font_body"], style["font_body"])
     if style.get("hero"):
         theme["hero"] = style["hero"]
     if style.get("radius"):
-        theme["radius"] = RADII[style["radius"]]
-    fonts_used = sorted({n for n, css in FONTS.items() if css in (theme.get("font_display"), theme.get("font_body"))} | {"Manrope"})
+        theme["radius"] = RADII.get(style["radius"], style["radius"])
+    fonts_used = sorted({n for n, css in FONTS.items() if css in (theme.get("font_display"), theme.get("font_body"))} | {"Fraunces", "DM Sans", "Manrope"})
     layout = theme.get("layout", "classic")
-    theme.setdefault("bg", "#FFFFFF"); theme.setdefault("ink", "#111111"); theme.setdefault("accent", "#111111")
-    theme.setdefault("accent_ink", "#FFFFFF"); theme.setdefault("muted", "#666666"); theme.setdefault("surface", "#FFFFFF")
-    theme.setdefault("border", "#E5E5E5"); theme.setdefault("radius", "12px")
-    theme.setdefault("hero", "split" if sells_products else "centered")
-    theme.setdefault("font_display", "'Manrope', system-ui, sans-serif"); theme.setdefault("font_body", "'Manrope', system-ui, sans-serif")
+    if ind.key == "restaurant":
+        theme.setdefault("bg", "#F8F5EF")
+        theme.setdefault("ink", "#171717")
+        theme.setdefault("accent", "#073F2C")
+        theme.setdefault("accent_ink", "#FFFFFF")
+        theme.setdefault("muted", "#5A6560")
+        theme.setdefault("surface", "#FFFFFF")
+        theme.setdefault("border", "#E8E2D5")
+        theme.setdefault("gold", "#C89B5A")
+        theme.setdefault("radius", "16px")
+        theme.setdefault("hero", "split")
+        theme.setdefault("font_display", "'Fraunces', Georgia, serif")
+        theme.setdefault("font_body", "'DM Sans', system-ui, sans-serif")
+    else:
+        theme.setdefault("bg", "#FFFFFF"); theme.setdefault("ink", "#111111"); theme.setdefault("accent", "#111111")
+        theme.setdefault("accent_ink", "#FFFFFF"); theme.setdefault("muted", "#666666"); theme.setdefault("surface", "#FFFFFF")
+        theme.setdefault("border", "#E5E5E5"); theme.setdefault("radius", "12px")
+        theme.setdefault("hero", "split" if sells_products else "centered")
+        theme.setdefault("font_display", "'Manrope', system-ui, sans-serif"); theme.setdefault("font_body", "'Manrope', system-ui, sans-serif")
 
     staff = list(db.scalars(select(Staff).where(Staff.business_id == business.id, Staff.deleted_at.is_(None), Staff.is_active.is_(True)).order_by(Staff.created_at)))
     categories = list(db.scalars(select(ServiceCategory).where(ServiceCategory.business_id == business.id).order_by(ServiceCategory.position)))
     cat_names = {c.id: c.name for c in categories}
     for sv in services:  # per-product display helpers
         sv.category_name = cat_names.get(sv.category_id, "")
-    product_images = {str(sv.id): sv.image_url for sv in services}
+    photos = [g.thumb_url or g.url for g in gallery]
+    _rest_photos = [f"/static/img/restaurant/restaurant-{i}.webp" for i in range(1, 7)]
+    product_images = {}
+    for i, sv in enumerate(services):
+        if sv.image_url:
+            product_images[str(sv.id)] = sv.image_url
+        elif ind.key == "restaurant":
+            product_images[str(sv.id)] = _rest_photos[i % len(_rest_photos)]
+        else:
+            product_images[str(sv.id)] = (photos[i % len(photos)] if photos else None)
     cart_default = get_industry(business.industry).key in ("retail", "restaurant") or layout in ("boutique", "nova", "catalog", "shopapp") or bool(products)
     settings.setdefault("cart_enabled", cart_default)
     settings.setdefault("whatsapp_float", True)
@@ -346,7 +368,7 @@ def template_preview_context(db: Session, business: Business, tpl) -> dict:
     theme = {**ctx["theme"], **tpl.theme}
     layout = tpl.theme.get("layout", "classic")
     theme["layout"] = layout
-    ctx.update(theme=theme, layout=layout, fonts_url=_fonts_url(sorted({n for n, css in FONTS.items() if css in (theme.get("font_display"), theme.get("font_body"))} | {"Manrope"})))
+    ctx.update(theme=theme, layout=layout, fonts_url=_fonts_url(sorted({n for n, css in FONTS.items() if css in (theme.get("font_display"), theme.get("font_body"))} | {"Fraunces", "DM Sans", "Manrope"})))
     existing = {sec["type"]: sec["content"] for sec in ctx["sections"]}
     from app.services.website import compose_types
     raw = [{"id": f"preview-{i}", "type": t, "content": existing.get(t) or default_section_content(t, business), "styles": {}}

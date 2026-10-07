@@ -1,10 +1,36 @@
-<section id="about" class="store-secondary-section" data-tab-panel="about">
-  <div class="wrap store-catalog-wrap">
-    <div class="store-info-card">
-      <div class="store-card-header">
-        <h2 class="store-card-title">{{ c.title or 'About us' }}</h2>
+{% set about_img = c.image_url or '/static/img/restaurant/restaurant-2.webp' %}
+<section id="about" class="cafe-about-section sx-sec" data-tab-panel="about">
+  <div class="wrap cafe-about-wrap">
+    <div class="cafe-about-grid">
+      <!-- Left: Story copy -->
+      <div class="cafe-about-copy">
+        <div class="cafe-section-kicker">OUR STORY</div>
+        <h2 class="cafe-about-title">{{ c.title or ('About ' ~ business.name) }}</h2>
+        <div class="cafe-about-body">
+          <p>{{ c.body or ("Born out of a deep passion for rich Kenyan coffee and authentic dining, " ~ business.name ~ " was created as a welcoming neighbourhood home. Whether you're stopping by for a morning cappuccino, catching up with friends over lunch, or ordering our signature nyama choma feast for dinner, we prepare every dish with heart, heritage, and the freshest local ingredients.") }}</p>
+        </div>
+        <div class="cafe-about-badges">
+          <div class="cafe-about-badge">
+            <span class="badge-dot"></span>
+            <span>100% Fresh Daily</span>
+          </div>
+          <div class="cafe-about-badge">
+            <span class="badge-dot"></span>
+            <span>Locally Sourced</span>
+          </div>
+          <div class="cafe-about-badge">
+            <span class="badge-dot"></span>
+            <span>Crafted With Love</span>
+          </div>
+        </div>
       </div>
-      <p class="store-card-text" style="white-space:pre-line">{{ c.body or ('Welcome to ' ~ business.name) }}</p>
+
+      <!-- Right: Warm Café Photo -->
+      <div class="cafe-about-media">
+        <div class="cafe-about-img-box">
+          <img src="{{ about_img }}" alt="{{ business.name }} story" class="cafe-about-img" loading="lazy">
+        </div>
+      </div>
     </div>
   </div>
 </section>

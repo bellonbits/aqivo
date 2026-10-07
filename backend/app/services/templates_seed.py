@@ -53,9 +53,10 @@ def _t(key, name, industry, description, theme, sections, features):
 
 _STD = SECTION_ORDER
 _MORE = [
-    _t("restaurant_01", "Restaurant & Café", "restaurant", "Modern food & dining storefront with photos, menu categories, cart and WhatsApp checkout.",
-       dict(bg="#FFF8F0", ink="#2A1810", accent="#D9531E", accent_ink="#FFFFFF", muted="#8A6F5E", surface="#FFFFFF", border="#F2E2D2", hero="split", radius="16px", layout="catalog"),
-       ["hero", "category_grid", "product_grid", "product_carousel", "why_us", "reviews", "contact"], ["Menu with photos & prices", "Food ordering with bag", "Category navigation", "Chef specials carousel", "WhatsApp checkout"]),
+    _t("restaurant_01", "Restaurant & Café", "restaurant", "Warm, modern artisanal café storefront with food photos, popular menu, our story, curated gallery, reviews, and WhatsApp ordering.",
+       dict(bg="#F8F5EF", ink="#171717", accent="#073F2C", accent_ink="#FFFFFF", muted="#5A6560", surface="#FFFFFF", border="#E8E2D5", gold="#C89B5A", hero="split", radius="16px", font_display="'Fraunces', Georgia, serif", font_body="'DM Sans', system-ui, sans-serif"),
+       ["hero", "services", "about", "why_us", "gallery", "reviews", "location", "whatsapp_cta", "contact"],
+       ["Popular Menu with food photos & prices", "Split hero with food photo", "Our Story section", "Curated gallery", "Reviews", "Location & hours", "WhatsApp ordering"]),
     _t("real_estate_01", "Real Estate", "real_estate", "Clean and trustworthy. Listings, viewings and enquiries in one place.",
        dict(bg="#F5F7FB", ink="#0F1B33", accent="#1D4ED8", accent_ink="#FFFFFF", muted="#5B6478", surface="#FFFFFF", border="#DDE3EF", hero="split", radius="10px"),
        ["hero", "services", "gallery", "about", "booking", "testimonials", "location", "contact"], ["Listings & services", "Book a viewing", "Property gallery", "Enquiry form", "WhatsApp button"]),

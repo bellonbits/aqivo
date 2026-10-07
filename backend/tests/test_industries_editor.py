@@ -72,3 +72,53 @@ def test_preview_in_other_template_uses_own_data(make_owner):
     html = o.get("/api/v1/websites/me/preview", params={"template": "salon_app_01"}).text
     assert "layout-app" in html and "Silk Press" in html and "Preview Me" in html
     assert o.get("/api/v1/websites/me/preview", params={"template": "nope"}).status_code == 404
+
+
+def test_restaurant_storefront_complete_brand_design(make_owner, client):
+    o = make_owner("jeff@example.com", "Jeff", "Jeff Cafe", industry="restaurant")
+    add_service(o, "Nyama Choma Platter", "1200")
+    o.post("/api/v1/websites/me/publish")
+    html = client.get(f"/{o.slug}").text
+
+    # 1. Typography & Palettes
+    assert "Fraunces" in html
+    assert "DM Sans" in html
+    assert "#073F2C" in html
+    assert "#F8F5EF" in html
+    assert "#C89B5A" in html
+
+    # 2. Split Hero with professional food photograph
+    assert "GOOD FOOD. GOOD MOOD." in html
+    assert "Jeff Cafe" in html
+    assert "restaurant-3.webp" in html
+    assert "View Menu" in html
+
+    # 3. Popular Menu (Dishes with photos, descriptions, KSh prices)
+    assert "Popular Favourites" in html
+    assert "Nyama Choma Platter" in html
+
+    # 4. Our Story
+    assert "OUR STORY" in html
+
+    # 5. Why Choose Us / Our Promise
+    assert "OUR PROMISE" in html or "Why Dine With" in html
+
+    # 6. Moments & Flavours Gallery
+    assert "MOMENTS &amp; FLAVOURS" in html or "MOMENTS & FLAVOURS" in html
+
+    # 7. Customer Reviews / Testimonials
+    assert "What Our Customers Say" in html
+
+    # 8. Location & Opening Hours
+    assert "Visit Jeff Cafe" in html
+    assert "Opening Hours" in html
+    assert "Get Directions" in html
+
+    # 9. WhatsApp CTA
+    assert "Hungry? Let" in html
+    assert "Order on WhatsApp" in html
+
+    # 10. Structured Footer
+    assert "cafe-footer" in html
+    assert "QUICK LINKS" in html
+

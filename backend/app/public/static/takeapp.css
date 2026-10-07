@@ -5082,5 +5082,1107 @@ section#booking,
   }
 }
 
+/* ==========================================================================
+   RESTAURANT & CAFÉ BRAND DESIGN SYSTEM (Warm + Modern + Artisanal)
+   Palette: Background #F8F5EF, Dark Green #073F2C, Gold #C89B5A, Ink #171717
+   Typography: Fraunces (Headings) + DM Sans (Body)
+   ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   01. Header Order Now CTA
+   -------------------------------------------------------------------------- */
+.cafe-nav-order-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #073F2C;
+  color: #FFFFFF !important;
+  font-family: var(--fb, 'DM Sans', system-ui, sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 9px 20px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(7, 63, 44, 0.18);
+  white-space: nowrap;
+}
 
+.cafe-nav-order-btn:hover {
+  background: #0d543c;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(7, 63, 44, 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   02. Hero Section (Split Hero with Professional Food Photograph)
+   -------------------------------------------------------------------------- */
+.cafe-hero {
+  background: #F8F5EF;
+  padding: 80px 0 72px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cafe-hero-wrap {
+  width: min(1200px, 100% - 40px);
+  margin-inline: auto;
+}
+
+.cafe-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 52px;
+  align-items: center;
+}
+
+.cafe-hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(7, 63, 44, 0.08);
+  border: 1px solid rgba(7, 63, 44, 0.14);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #073F2C;
+  margin-bottom: 22px;
+}
+
+.cafe-kicker-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #C89B5A;
+}
+
+.cafe-hero-title {
+  font-family: var(--fd, 'Fraunces', Georgia, serif);
+  font-size: clamp(38px, 5.2vw, 58px);
+  font-weight: 800;
+  line-height: 1.1;
+  color: #171717;
+  letter-spacing: -0.02em;
+  margin: 0 0 18px;
+}
+
+.cafe-hero-lead {
+  font-family: var(--fb, 'DM Sans', system-ui, sans-serif);
+  font-size: clamp(16px, 1.8vw, 19px);
+  line-height: 1.6;
+  color: #4a5550;
+  max-width: 48ch;
+  margin: 0 0 32px;
+}
+
+.cafe-hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.cafe-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #073F2C;
+  color: #FFFFFF !important;
+  border: 1.5px solid #073F2C;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(7, 63, 44, 0.2);
+  transition: all 0.2s ease;
+}
+
+.cafe-btn-primary:hover {
+  background: #0d543c;
+  border-color: #0d543c;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(7, 63, 44, 0.28);
+}
+
+.cafe-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: #073F2C !important;
+  border: 1.5px solid #073F2C;
+  padding: 14px 26px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cafe-btn-secondary:hover {
+  background: #073F2C;
+  color: #FFFFFF !important;
+  transform: translateY(-2px);
+}
+
+.cafe-hero-trust {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 13.5px;
+  color: #5A6560;
+  border-top: 1px solid #E8E2D5;
+  padding-top: 22px;
+}
+
+.cafe-trust-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cafe-hero-media {
+  position: relative;
+}
+
+.cafe-hero-img-frame {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  box-shadow: 0 20px 48px rgba(7, 63, 44, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 3.5px solid #FFFFFF;
+  background: #E8E2D5;
+}
+
+.cafe-hero-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.cafe-hero-img-frame:hover .cafe-hero-photo {
+  transform: scale(1.03);
+}
+
+.cafe-hero-badge-float {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  z-index: 2;
+}
+
+.cafe-hero-badge-float .badge-icon {
+  font-size: 26px;
+}
+
+.cafe-hero-badge-float .badge-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.cafe-hero-badge-float .badge-text strong {
+  font-size: 13.5px;
+  color: #073F2C;
+  font-weight: 800;
+}
+
+.cafe-hero-badge-float .badge-text span {
+  font-size: 12px;
+  color: #5A6560;
+}
+
+/* --------------------------------------------------------------------------
+   03. Section Shared Styles (Kicker, Title, Header)
+   -------------------------------------------------------------------------- */
+.cafe-section-header {
+  margin-bottom: 44px;
+}
+
+.cafe-section-header.center {
+  text-align: center;
+}
+
+.cafe-section-kicker {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #C89B5A;
+  margin-bottom: 8px;
+}
+
+.cafe-section-title {
+  font-family: var(--fd, 'Fraunces', Georgia, serif);
+  font-size: clamp(30px, 3.8vw, 44px);
+  font-weight: 800;
+  color: #073F2C;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+
+.cafe-section-sub {
+  font-size: 16px;
+  color: #5A6560;
+  max-width: 58ch;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+
+/* --------------------------------------------------------------------------
+   04. Popular Menu Section
+   -------------------------------------------------------------------------- */
+.cafe-menu-section {
+  background: #F8F5EF;
+  padding: 92px 0;
+}
+
+.cafe-menu-wrap {
+  width: min(1200px, 100% - 40px);
+  margin-inline: auto;
+}
+
+.cafe-products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.cafe-products-grid .ecom-card {
+  background: #FFFFFF;
+  border: 1px solid #E8E2D5;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.cafe-products-grid .ecom-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(7, 63, 44, 0.09);
+}
+
+.cafe-products-grid .ecom-card-media {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  background: #F3EEE6;
+}
+
+.cafe-products-grid .ecom-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.cafe-products-grid .ecom-card:hover .ecom-card-img {
+  transform: scale(1.05);
+}
+
+.cafe-products-grid .ecom-card-info {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cafe-products-grid .ecom-card-title {
+  font-family: var(--fd, 'Fraunces', Georgia, serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: #171717;
+  margin: 4px 0 6px;
+  line-height: 1.3;
+}
+
+.cafe-products-grid .ecom-card-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cafe-products-grid .ecom-card-desc {
+  font-size: 13.5px;
+  color: #5A6560;
+  line-height: 1.45;
+  margin: 0 0 14px;
+  flex: 1;
+}
+
+.cafe-products-grid .ecom-card-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: auto;
+  margin-bottom: 14px;
+}
+
+.cafe-products-grid .ecom-card-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: #073F2C;
+}
+
+.cafe-products-grid .ecom-btn-cart {
+  background: #073F2C;
+  color: #FFFFFF;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 700;
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease, transform 0.1s ease;
+  text-decoration: none;
+  width: 100%;
+}
+
+.cafe-products-grid .ecom-btn-cart:hover {
+  background: #0d543c;
+  transform: translateY(-1px);
+}
+
+.cafe-products-grid .ecom-btn-cart.wa {
+  background: #25D366;
+  color: #053b1a;
+}
+
+.cafe-products-grid .ecom-btn-cart.wa:hover {
+  background: #20ba5a;
+}
+
+.cafe-menu-footer-action {
+  text-align: center;
+  margin-top: 44px;
+}
+
+.cafe-view-full-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #073F2C;
+  color: #FFFFFF !important;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 32px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(7, 63, 44, 0.2);
+  transition: all 0.2s ease;
+}
+
+.cafe-view-full-btn:hover {
+  background: #0d543c;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(7, 63, 44, 0.28);
+}
+
+/* --------------------------------------------------------------------------
+   05. About Section (Our Story)
+   -------------------------------------------------------------------------- */
+.cafe-about-section {
+  background: #FFFFFF;
+  padding: 92px 0;
+  border-top: 1px solid #E8E2D5;
+  border-bottom: 1px solid #E8E2D5;
+}
+
+.cafe-about-wrap {
+  width: min(1200px, 100% - 40px);
+  margin-inline: auto;
+}
+
+.cafe-about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.cafe-about-title {
+  font-family: var(--fd, 'Fraunces', Georgia, serif);
+  font-size: clamp(28px, 3.5vw, 42px);
+  font-weight: 800;
+  color: #073F2C;
+  letter-spacing: -0.01em;
+  margin: 0 0 18px;
+}
+
+.cafe-about-body p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #404b46;
+  margin: 0 0 26px;
+}
+
+.cafe-about-badges {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cafe-about-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #F8F5EF;
+  border: 1px solid #E8E2D5;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #073F2C;
+}
+
+.cafe-about-badge .badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C89B5A;
+}
+
+.cafe-about-img-box {
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+  border: 3.5px solid #F8F5EF;
+  background: #E8E2D5;
+}
+
+.cafe-about-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --------------------------------------------------------------------------
+   06. Gallery Section (Moments & Flavours)
+   -------------------------------------------------------------------------- */
+.cafe-gallery-section {
+  background: #F8F5EF;
+  padding: 92px 0;
+}
+
+.cafe-gallery-wrap {
+  width: min(1200px, 100% - 40px);
+  margin-inline: auto;
+}
+
+.cafe-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.cafe-gallery-item {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: #E8E2D5;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cafe-gallery-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.cafe-gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.cafe-gallery-item:hover .cafe-gallery-img {
+  transform: scale(1.04);
+}
+
+.cafe-gallery-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   07. Location / Opening Hours Section (Visit Jeff Café)
+   -------------------------------------------------------------------------- */
+.cafe-location-section {
+  background: #FFFFFF;
+  padding: 92px 0;
+  border-top: 1px solid #E8E2D5;
+}
+
+.cafe-location-wrap {
+  width: min(1200px, 100% - 40px);
+  margin-inline: auto;
+}
+
+.cafe-location-card {
+  background: #F8F5EF;
+  border: 1px solid #E8E2D5;
+  border-radius: 28px;
+  padding: 48px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.04);
+}
+
+.cafe-location-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.cafe-location-title {
+  font-family: var(--fd, 'Fraunces', Georgia, serif);
+  font-size: clamp(28px, 3.5vw, 38px);
+  font-weight: 800;
+  color: #073F2C;
+  margin: 0 0 12px;
+}
+
+.cafe-location-desc {
+  font-size: 15.5px;
+  color: #5A6560;
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+.cafe-info-list {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.cafe-info-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.cafe-info-icon {
+  font-size: 22px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1px solid #E8E2D5;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.cafe-info-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #073F2C;
+  margin-bottom: 2px;
+}
+
+.cafe-info-text span,
+.cafe-info-text a {
+  display: block;
+  font-size: 14px;
+  color: #404b46;
+  text-decoration: none;
+}
+
+.cafe-info-text a:hover {
+  color: #073F2C;
+  text-decoration: underline;
+}
+
+.cafe-location-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cafe-location-visual {
+  position: relative;
+}
+
+.cafe-location-img-box {
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  border: 3.5px solid #FFFFFF;
+  background: #E8E2D5;
+  position: relative;
+}
+
+.cafe-location-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cafe-location-pin-badge {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: rgba(7, 63, 44, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   08. WhatsApp CTA Section (Hungry? Let's get your order started)
+   -------------------------------------------------------------------------- */
+.cafe-cta-section {
+  background: #F8F5EF;
+  padding: 72px 0;
+}
+
+.cafe-cta-wrap {
+  width: min(1200px, 100% - 40px);
+  margin-inline: auto;
+}
+
+.cafe-cta-card {
+  background: linear-gradient(135deg, #073F2C 0%, #0c4d37 100%);
+  border-radius: 28px;
+  padding: 56px 40px;
+  text-align: center;
+  color: #FFFFFF;
+  box-shadow: 0 16px 44px rgba(7, 63, 44, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.cafe-cta-kicker {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #C89B5A;
+  margin-bottom: 12px;
+}
+
+.cafe-cta-title {
+  font-family: var(--fd, 'Fraunces', Georgia, serif);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  margin: 0 0 14px;
+}
+
+.cafe-cta-desc {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #d0e4da;
+  max-width: 54ch;
+  margin: 0 auto 32px;
+}
+
+.cafe-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #25D366;
+  color: #053b1a !important;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 15px 36px;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
+  transition: all 0.2s ease;
+}
+
+.cafe-cta-btn:hover {
+  background: #2bf075;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(37, 211, 102, 0.45);
+}
+
+/* --------------------------------------------------------------------------
+   09. Contact Section (Direct Actions + Small Enquiry Form)
+   -------------------------------------------------------------------------- */
+.cafe-contact-section {
+  background: #FFFFFF;
+  padding: 92px 0;
+  border-top: 1px solid #E8E2D5;
+}
+
+.cafe-contact-wrap {
+  width: min(900px, 100% - 40px);
+  margin-inline: auto;
+}
+
+.cafe-contact-card {
+  background: #F8F5EF;
+  border: 1px solid #E8E2D5;
+  border-radius: 28px;
+  padding: 48px;
+}
+
+.cafe-contact-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.cafe-contact-action-btn {
+  background: #FFFFFF;
+  border: 1px solid #E8E2D5;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: #171717;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cafe-contact-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.cafe-contact-action-btn.wa {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.cafe-contact-action-btn .action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #F8F5EF;
+  display: grid;
+  place-items: center;
+  color: #073F2C;
+  flex-shrink: 0;
+}
+
+.cafe-contact-action-btn .action-icon.wa {
+  background: #25D366;
+  color: #053b1a;
+}
+
+.cafe-contact-action-btn .action-details strong {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #073F2C;
+}
+
+.cafe-contact-action-btn .action-details span {
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.cafe-enquiry-form {
+  border-top: 1px solid #E8E2D5;
+  padding-top: 28px;
+  display: grid;
+  gap: 14px;
+}
+
+.cafe-enquiry-form .form-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #073F2C;
+  margin: 0;
+}
+
+.cafe-enquiry-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.cafe-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: #FFFFFF;
+  border: 1px solid #E8E2D5;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 14.5px;
+  outline: none;
+  font-family: inherit;
+  color: #171717;
+}
+
+.cafe-input:focus {
+  border-color: #073F2C;
+  box-shadow: 0 0 0 3px rgba(7, 63, 44, 0.1);
+}
+
+/* --------------------------------------------------------------------------
+   10. Footer Section (Structured 4-column)
+   -------------------------------------------------------------------------- */
+.cafe-footer {
+  background: #073F2C;
+  color: #FFFFFF;
+  padding: 80px 0 36px;
+}
+
+.cafe-footer-wrap {
+  width: min(1200px, 100% - 40px);
+  margin-inline: auto;
+}
+
+.cafe-footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1.2fr 1.2fr;
+  gap: 40px;
+  margin-bottom: 48px;
+}
+
+.cafe-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #FFFFFF;
+  font-family: var(--fd, 'Fraunces', Georgia, serif);
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.cafe-footer-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.cafe-footer-tagline {
+  color: #a3bfb4;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+.cafe-footer-loc {
+  color: #a3bfb4;
+  font-size: 13px;
+  margin: 0;
+}
+
+.cafe-footer-col-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #C89B5A;
+  margin: 0 0 18px;
+}
+
+.cafe-footer-links-list,
+.cafe-footer-info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.cafe-footer-links-list a,
+.cafe-footer-info-list a {
+  color: #d0e4da;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.cafe-footer-links-list a:hover,
+.cafe-footer-info-list a:hover {
+  color: #FFFFFF;
+}
+
+.cafe-footer-info-list span {
+  color: #a3bfb4;
+}
+
+.cafe-footer-hours p {
+  font-size: 13.5px;
+  color: #d0e4da;
+  margin: 0 0 6px;
+}
+
+.cafe-footer-hours strong {
+  color: #FFFFFF;
+}
+
+.cafe-footer-socials {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.cafe-footer-socials a {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d0e4da;
+  font-size: 12.5px;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: background 0.15s ease;
+}
+
+.cafe-footer-socials a:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+}
+
+.cafe-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #8aa99c;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.cafe-footer-bottom-links {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.cafe-footer-bottom-links a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cafe-footer-bottom-links a:hover {
+  color: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   11. Responsive Breakpoints (Tablets & Mobile)
+   -------------------------------------------------------------------------- */
+@media (max-width: 960px) {
+  .cafe-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .cafe-hero-media {
+    order: -1;
+  }
+  .cafe-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .cafe-about-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .cafe-gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .cafe-location-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .cafe-footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .cafe-hero {
+    padding: 52px 0 44px;
+  }
+  .cafe-hero-title {
+    font-size: 34px;
+  }
+  .cafe-hero-lead {
+    font-size: 16px;
+  }
+  .cafe-hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .cafe-hero-actions .cafe-btn-primary,
+  .cafe-hero-actions .cafe-btn-secondary {
+    width: 100%;
+  }
+  .cafe-menu-section,
+  .cafe-about-section,
+  .cafe-gallery-section,
+  .cafe-location-section,
+  .cafe-contact-section {
+    padding: 56px 0;
+  }
+  .cafe-products-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .cafe-location-card,
+  .cafe-contact-card,
+  .cafe-cta-card {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+  .cafe-enquiry-form .form-row {
+    grid-template-columns: 1fr;
+  }
+  .cafe-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}

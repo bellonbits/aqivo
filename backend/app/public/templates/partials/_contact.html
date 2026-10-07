@@ -1,43 +1,60 @@
-<section id="contact" class="store-secondary-section" data-tab-panel="contact">
-  <div class="wrap store-catalog-wrap">
-    <div class="store-info-card">
-      <div class="store-card-header">
-        <div class="store-icon-title">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          <h2 class="store-card-title">{{ c.title or 'Get in touch' }}</h2>
-        </div>
+<section id="contact" class="cafe-contact-section sx-sec" data-tab-panel="contact">
+  <div class="wrap cafe-contact-wrap">
+    <div class="cafe-contact-card">
+      <div class="cafe-section-header center">
+        <div class="cafe-section-kicker">GET IN TOUCH</div>
+        <h2 class="cafe-section-title">{{ c.title or 'Need Help or Ready to Order?' }}</h2>
+        <p class="cafe-section-sub">{{ c.body or 'Reach out to our team directly. We are always happy to help with orders, directions, or special requests.' }}</p>
       </div>
-      <p class="store-card-text">{{ c.body or 'Message us on WhatsApp or give us a call — we reply quickly.' }}</p>
       
-      <div class="store-contact-actions">
+      <div class="cafe-contact-actions-grid">
         {% if wa %}
-        <a class="store-contact-btn wa" href="{{ wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
-          <span>WhatsApp us</span>
+        <a class="cafe-contact-action-btn wa" href="{{ wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener">
+          <div class="action-icon wa">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+          </div>
+          <div class="action-details">
+            <strong>Chat on WhatsApp</strong>
+            <span>Quickest reply for orders</span>
+          </div>
         </a>
         {% endif %}
+
         {% if business.phone %}
-        <a class="store-contact-btn" href="tel:{{ business.phone }}" data-track="PHONE_CLICK">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          <span>{{ business.phone }}</span>
+        <a class="cafe-contact-action-btn" href="tel:{{ business.phone }}" data-track="PHONE_CLICK">
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div class="action-details">
+            <strong>Call {{ business.name }}</strong>
+            <span>{{ business.phone }}</span>
+          </div>
         </a>
         {% endif %}
+
         {% if business.email %}
-        <a class="store-contact-btn" href="mailto:{{ business.email }}">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-          <span>Email</span>
+        <a class="cafe-contact-action-btn" href="mailto:{{ business.email }}">
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </div>
+          <div class="action-details">
+            <strong>Email Us</strong>
+            <span>{{ business.email }}</span>
+          </div>
         </a>
         {% endif %}
       </div>
 
       {% if leads_on and (c.show_form is true or (not sells_products and c.show_form is none)) %}
-      <form id="lead-form" class="book lead-form store-enquiry-form" style="margin-top:24px" novalidate>
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">Send an enquiry</h3>
-        <label>Your name <input name="name" required maxlength="120" autocomplete="name" class="store-input"></label>
-        <label>Phone or email <input name="contact" required maxlength="120" autocomplete="tel" class="store-input"></label>
-        <label>Message <textarea name="message" rows="3" maxlength="1500" class="store-input"></textarea></label>
+      <form id="lead-form" class="cafe-enquiry-form" novalidate>
+        <h3 class="form-title">Send a quick message</h3>
+        <div class="form-row">
+          <input name="name" required maxlength="120" placeholder="Your name" autocomplete="name" class="cafe-input">
+          <input name="contact" required maxlength="120" placeholder="Phone or email" autocomplete="tel" class="cafe-input">
+        </div>
+        <textarea name="message" rows="3" maxlength="1500" placeholder="Your message or special inquiry..." class="cafe-input"></textarea>
         <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
-        <button class="store-submit-btn" type="submit">Send enquiry</button>
+        <button class="cafe-btn-primary" type="submit">Send Message</button>
         <div class="lead-msg" role="status"></div>
       </form>
       {% endif %}

@@ -1,3 +1,21 @@
-<section id="gallery"><div class="wrap"><h2>{{ c.title }}</h2><div class="grid">
-{% for g in gallery %}<a href="{{ g.url }}" aria-label="View photo {{ loop.index }}"><img src="{{ g.thumb_url or g.url }}" alt="{{ g.caption or business.name ~ ' photo ' ~ loop.index }}" loading="lazy" decoding="async" width="400" height="400"></a>{% endfor %}
-</div></div></section>
+<section id="gallery" class="cafe-gallery-section sx-sec">
+  <div class="wrap cafe-gallery-wrap">
+    <div class="cafe-section-header center">
+      <div class="cafe-section-kicker">MOMENTS & FLAVOURS</div>
+      <h2 class="cafe-section-title">{{ c.title or ('A Taste of ' ~ business.name) }}</h2>
+      <p class="cafe-section-sub">A glimpse into our kitchen, freshly brewed coffee, and daily café moments.</p>
+    </div>
+
+    <div class="cafe-gallery-grid">
+      {% set gal_items = d.photos if (d and d.photos) else gallery %}
+      {% for g in (gal_items[:6] if gal_items else []) %}
+      <div class="cafe-gallery-item">
+        <img src="{{ g.url or g.thumb_url }}" alt="{{ g.caption or (business.name ~ ' food ' ~ loop.index) }}" class="cafe-gallery-img" loading="lazy" width="400" height="400">
+        {% if g.caption %}
+        <div class="cafe-gallery-caption"><span>{{ g.caption }}</span></div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

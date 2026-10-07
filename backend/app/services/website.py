@@ -24,11 +24,11 @@ def default_section_content(stype: str, b: Business) -> dict:
         "specialists": {"title": "Meet the team", "subtitle": "Choose who you'd like to book with."},
         "about": {"title": f"About {b.name}", "body": b.description or f"{b.name} is a {b.category.lower()}{city}. Add your story here."},
         "services": {"title": ind.services_title, "subtitle": ind.services_subtitle},
-        "gallery": {"title": "Gallery"},
-        "testimonials": {"title": "What customers say"},
-        "reviews": {"title": "Reviews from real customers"},
+        "gallery": {"title": f"A Taste of {b.name}" if b.industry == "restaurant" else "Gallery"},
+        "testimonials": {"title": "What Our Customers Say" if b.industry == "restaurant" else "What customers say"},
+        "reviews": {"title": "What Our Customers Say" if b.industry == "restaurant" else "Reviews from real customers"},
         "booking": {"title": ind.booking_title, "subtitle": ind.booking_subtitle},
-        "location": {"title": "Find us"},
+        "location": {"title": f"Visit {b.name}" if b.industry == "restaurant" else "Find us"},
         "contact": {"title": "Get in touch", "body": "Message us on WhatsApp or give us a call — we reply quickly."},
         "announcement": {"text": "Order on WhatsApp — we reply within minutes."},
         "profile": {"title": b.name},
@@ -49,7 +49,9 @@ def default_section_content(stype: str, b: Business) -> dict:
         "faq": {"title": "Questions, answered", "items": [{"q": "How do I book or order?", "a": "Tap the WhatsApp button or use the booking form and we will confirm quickly."}]},
         "video": {"title": "See us in action"},
         "booking_cta": {"title": ind.booking_title, "body": ind.booking_subtitle, "button_text": "Book now"},
-        "whatsapp_cta": {"title": "Prefer WhatsApp?", "body": "Message us and get a quick reply.", "button_text": "Chat on WhatsApp", "message": f"Hi {b.name}, "},
+        "whatsapp_cta": {"title": "Hungry? Let's get your order started." if b.industry == "restaurant" else "Prefer WhatsApp?",
+                         "body": "Whether you're dining in, picking up or ordering for delivery, we're just a message away on WhatsApp." if b.industry == "restaurant" else "Message us and get a quick reply.",
+                         "button_text": "Order on WhatsApp →" if b.industry == "restaurant" else "Chat on WhatsApp", "message": f"Hi {b.name}, "},
         "newsletter": {"title": "Stay in the loop", "body": "Leave your number or email and we'll tell you about offers.", "button_text": "Keep me updated"},
         "opening_hours": {"title": "Opening hours"},
         "map": {"title": "Find us on the map"},
@@ -376,8 +378,8 @@ def compose_types(db: Session, business: Business, base: list[str]) -> list[str]
             out.append(item)
 
     for t in base:
-        if t == "services" and sells_products:
-            # Ecommerce and restaurant storefronts lead with categories, product grid, new arrivals carousel, and trust guarantees
+        if t == "services" and sells_products and ind.key != "restaurant":
+            # Retail ecommerce storefronts lead with categories, product grid, new arrivals carousel, and trust guarantees
             add("category_grid")
             add("product_grid")
             add("product_carousel")
@@ -457,7 +459,7 @@ import re as _re
 
 FONTS = {
     "Fraunces": "'Fraunces', Georgia, serif", "Playfair Display": "'Playfair Display', Georgia, serif", "DM Serif Display": "'DM Serif Display', Georgia, serif",
-    "Manrope": "'Manrope', system-ui, sans-serif", "Inter": "'Inter', system-ui, sans-serif", "Poppins": "'Poppins', system-ui, sans-serif",
+    "DM Sans": "'DM Sans', system-ui, sans-serif", "Manrope": "'Manrope', system-ui, sans-serif", "Inter": "'Inter', system-ui, sans-serif", "Poppins": "'Poppins', system-ui, sans-serif",
     "Space Grotesk": "'Space Grotesk', system-ui, sans-serif", "Outfit": "'Outfit', system-ui, sans-serif",
 }
 HERO_LAYOUTS = ("split", "centered", "overlay")

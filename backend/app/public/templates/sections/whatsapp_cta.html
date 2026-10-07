@@ -1,2 +1,17 @@
-<section class="sx-sec store-secondary-section" data-tab-panel="contact"><div class="wrap store-catalog-wrap"><div class="cta-band wa"><div><h2>{{ c.title }}</h2>{% if c.body %}<p>{{ c.body }}</p>{% endif %}</div>
-<a class="btn wa" href="{{ d.wa_href }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener">{{ c.button_text or 'Chat on WhatsApp' }}</a></div></div></section>
+<section class="cafe-cta-section sx-sec" data-tab-panel="contact">
+  <div class="wrap cafe-cta-wrap">
+    <div class="cafe-cta-card">
+      <div class="cafe-cta-content">
+        <div class="cafe-cta-kicker">READY TO ORDER?</div>
+        <h2 class="cafe-cta-title">{{ c.title or "Hungry? Let's get your order started." }}</h2>
+        <p class="cafe-cta-desc">{{ c.body or "Whether you're dining in, picking up or ordering for delivery, we're just a message away on WhatsApp." }}</p>
+        <div class="cafe-cta-actions">
+          <a class="cafe-cta-btn" href="{{ d.wa_href or wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+            <span>{{ c.button_text or 'Order on WhatsApp →' }}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

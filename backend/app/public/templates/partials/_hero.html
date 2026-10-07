@@ -3,9 +3,9 @@
 {% set raw_sub = (c.subheadline or business.description or '')|trim %}
 
 {% if sells_products and (not raw_cta or 'reserve' in raw_cta|lower or 'table' in raw_cta|lower or 'book' in raw_cta|lower or 'appointment' in raw_cta|lower) %}
-  {% set clean_cta = 'Order online' if is_rest else 'Shop now' %}
+  {% set clean_cta = 'Order Now' if is_rest else 'Shop now' %}
 {% else %}
-  {% set clean_cta = raw_cta or ('Order online' if is_rest else 'Shop now') %}
+  {% set clean_cta = raw_cta or ('Order Now' if is_rest else 'Shop now') %}
 {% endif %}
 
 {% if sells_products and (not c.cta_url or c.cta_url in ('#booking', 'auto', '')) %}
@@ -15,48 +15,60 @@
 {% endif %}
 
 {% if sells_products and ('party' in raw_sub|lower or 'date and time' in raw_sub|lower or 'pick a date' in raw_sub|lower or 'book an appointment' in raw_sub|lower) %}
-  {% set clean_sub = 'Freshly prepared meals, drinks, and daily specials delivered right to your door or ready for pickup.' if is_rest else 'Browse our curated selection and order online with fast doorstep delivery.' %}
+  {% set clean_sub = 'Freshly prepared meals, coffee & drinks made for your everyday moments.' if is_rest else 'Browse our curated selection and order online with fast doorstep delivery.' %}
 {% else %}
-  {% set clean_sub = raw_sub or ('Freshly prepared meals, drinks, and daily specials delivered right to your door or ready for pickup.' if is_rest else 'Browse our curated selection and order online with fast doorstep delivery.') %}
+  {% set clean_sub = raw_sub or ('Freshly prepared meals, coffee & drinks made for your everyday moments.' if is_rest else 'Browse our curated selection and order online with fast doorstep delivery.') %}
 {% endif %}
 
-{% if sells_products %}
-<!-- Clean Mobile-App Style Promo Banner Card (No random images) -->
-<section class="hero ecom-hero-app sx-sec" id="hero">
-  <div class="wrap ecom-hero-app-wrap">
-    <div class="ecom-app-promo-card">
-      <div class="ecom-app-promo-content">
-        <span class="ecom-app-promo-badge">{% if is_rest %}Fresh & Delicious{% else %}Featured Collection{% endif %}</span>
-        <h1 class="ecom-app-promo-title">{{ c.headline or business.name }}</h1>
-        <p class="ecom-app-promo-sub">{{ clean_sub }}</p>
-        <div class="ecom-app-promo-actions">
-          <a href="{{ clean_cta_url }}" class="ecom-app-btn-primary" data-track="HERO_CTA">
+{% set hero_food_img = c.image_url or hero_image or '/static/img/restaurant/restaurant-3.webp' %}
+
+<!-- Split Hero: Left Copy, Right Professional Food Photograph -->
+<section class="hero cafe-hero sx-sec" id="hero">
+  <div class="wrap cafe-hero-wrap">
+    <div class="cafe-hero-grid">
+      <!-- Left: Headline & Actions -->
+      <div class="cafe-hero-copy">
+        <div class="cafe-hero-kicker">
+          <span class="cafe-kicker-dot"></span>
+          <span>{% if is_rest %}GOOD FOOD. GOOD MOOD.{% else %}PREMIUM STORE{% endif %}</span>
+        </div>
+        <h1 class="cafe-hero-title">{{ c.headline or business.name }}</h1>
+        <p class="cafe-hero-lead">{{ clean_sub }}</p>
+        <div class="cafe-hero-actions">
+          <a href="{{ clean_cta_url }}" class="cafe-btn-primary" data-track="HERO_CTA">
             <span>{{ clean_cta }}</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
-          {% if is_rest %}
-          <a href="#services" class="ecom-app-btn-ghost">View menu</a>
-          {% elif categories and categories|length > 0 %}
-          <a href="#categories" class="ecom-app-btn-ghost">Browse categories</a>
-          {% endif %}
+          <a href="{% if is_rest %}#services{% else %}#categories{% endif %}" class="cafe-btn-secondary">
+            <span>{% if is_rest %}View Menu{% else %}Browse Catalog{% endif %}</span>
+          </a>
+        </div>
+        <!-- Trust badge row -->
+        <div class="cafe-hero-trust">
+          <div class="cafe-trust-tag">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>{{ business.address or 'Roysambu' }}, {{ business.city or 'Nairobi' }}</span>
+          </div>
+          <div class="cafe-trust-tag">
+            <span style="color:var(--gold, #C89B5A);font-weight:700">★ 4.9</span>
+            <span>(120+ happy diners)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Mouth-watering food/coffee photograph -->
+      <div class="cafe-hero-media">
+        <div class="cafe-hero-img-frame">
+          <img src="{{ hero_food_img }}" alt="{{ business.name }} food" class="cafe-hero-photo" fetchpriority="high">
+          <div class="cafe-hero-badge-float">
+            <span class="badge-icon">☕</span>
+            <div class="badge-text">
+              <strong>Freshly Brewed</strong>
+              <span>Made daily with love</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
-{% else %}
-<!-- Standard Centered Hero for Non-Commerce/Booking Sites -->
-<section class="hero sv-card bb-card" id="hero">
-  <div class="wrap">
-    <div class="content" style="text-align:center;padding:40px 16px">
-      {% if business.category %}<span class="badge">{{ business.category }}</span>{% endif %}
-      <h1>{{ c.headline or business.name }}</h1>
-      <p class="sub">{{ c.subheadline or business.description }}</p>
-      <div class="actions" style="display:flex;justify-content:center;gap:12px;margin-top:20px">
-        <a href="{{ c.cta_url or '#booking' }}" class="btn primary"><span>{{ c.cta_text or 'Book now' }}</span></a>
-        {% if wa %}<a href="{{ wa }}" class="btn wa">Chat on WhatsApp</a>{% endif %}
-      </div>
-    </div>
-  </div>
-</section>
-{% endif %}

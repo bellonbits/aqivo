@@ -1,30 +1,18 @@
 {% from "sections/_m.html" import store_product_card with context %}
 {% from "partials/_macros.html" import add_btn %}
 
-{% if sells_products %}
-<section class="ecom-catalog-section sx-sec" id="services">
-  <div class="wrap ecom-catalog-wrap">
-    <div class="ecom-catalog-top-bar">
-      <div class="ecom-catalog-title-group">
-        <h2 class="ecom-section-title">
-          {% if c.title and c.title|lower not in ('services', 'services & prices', 'our services') %}
-            {{ c.title }}
-          {% elif industry == 'restaurant' or business.industry == 'restaurant' %}
-            Menu & Specials
-          {% else %}
-            Featured Products
-          {% endif %}
-        </h2>
-        {% if c.subtitle %}
-        <p class="ecom-section-sub">{{ c.subtitle }}</p>
-        {% else %}
-        <p class="ecom-section-sub">Tap any item to view details or add to bag.</p>
-        {% endif %}
-      </div>
+<section class="cafe-menu-section sx-sec" id="services">
+  <div class="wrap cafe-menu-wrap">
+    <!-- Header: Kicker, Title, Subtitle -->
+    <div class="cafe-section-header center">
+      <div class="cafe-section-kicker">OUR MENU</div>
+      <h2 class="cafe-section-title">Popular Favourites</h2>
+      <p class="cafe-section-sub">Handcrafted with fresh local ingredients. Tap any dish to order or ask on WhatsApp.</p>
     </div>
 
-    <div class="ecom-products-area">
-      <div class="ecom-products-grid">
+    <!-- Dishes Grid: 4-6 items with mouth-watering photos -->
+    <div class="cafe-products-area">
+      <div class="cafe-products-grid">
         {% set items = d.cards if (d and d.cards) else [] %}
         {% for it in items %}
           {{ store_product_card(it) }}
@@ -36,28 +24,15 @@
       </div>
       {% endif %}
     </div>
-  </div>
-</section>
-{% else %}
-<section id="services">
-  <div class="wrap">
-    <h2>{{ c.title or 'Services & prices' }}</h2>
-    {% if c.subtitle %}<p class="sub">{{ c.subtitle }}</p>{% endif %}
-    <div class="list">
-      {% for sv in services %}
-      <div class="svc">
-        <h3>{{ sv.name }}</h3>
-        <div class="p">{% if settings.show_prices %}{{ sv.price|money(sv.currency) }}{% endif %}</div>
-        {% if sv.description %}<div class="d">{{ sv.description }}</div>{% endif %}
-        {% if sv.duration_minutes %}<div class="dur">{{ sv.duration_minutes }} min</div>{% endif %}
-        {% if settings.cart_enabled %}
-          {{ add_btn(sv, "Add to bag") }}
-        {% elif wa_services[sv.id|string] %}
-          <a class="btn" href="{{ wa_services[sv.id|string] }}" data-track="WHATSAPP_CLICK" data-service="{{ sv.id }}">Book on WhatsApp</a>
-        {% endif %}
-      </div>
-      {% endfor %}
+
+    <!-- View full menu action -->
+    <div class="cafe-menu-footer-action">
+      {% if wa %}
+      <a href="{{ wa }}" class="cafe-view-full-btn" target="_blank" rel="noopener" data-track="WHATSAPP_CLICK">
+        <span>Order on WhatsApp</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+      </a>
+      {% endif %}
     </div>
   </div>
 </section>
-{% endif %}

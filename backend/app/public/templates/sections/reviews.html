@@ -1,5 +1,32 @@
-<section class="sx-sec"><div class="wrap"><h2>{{ c.title }}</h2>
-{% if c.show_summary and summary.count %}<p class="sub"><span class="stars">{{ summary.average|stars }}</span> {{ summary.average }} from {{ summary.count }} verified review{{ '' if summary.count == 1 else 's' }}</p>{% endif %}
-<div class="reviews">{% for r in d.reviews %}<figure class="card" style="margin:0"><div class="stars" aria-label="{{ r.rating }} out of 5">{{ r.rating|stars }}</div><blockquote style="margin:10px 0 0">{{ r.comment }}</blockquote><figcaption class="who">{{ r.author_name }} {% if r.verified %}<span class="ver">· Verified customer</span>{% endif %}</figcaption>
-{% if r.response %}<div class="resp"><strong>Reply from {{ business.name }}:</strong> {{ r.response }}</div>{% endif %}</figure>{% endfor %}</div>
-<p style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap"><a class="btn" href="{{ urls.review }}">Leave a review</a>{% if google_review_url %}<a class="btn" href="{{ google_review_url }}" target="_blank" rel="noopener">Review us on Google</a>{% endif %}</p></div></section>
+<section class="sx-sec" id="reviews">
+  <div class="wrap">
+    <div class="cafe-section-header center">
+      <div class="cafe-section-kicker">{% if industry == 'restaurant' %}TESTIMONIALS{% else %}REVIEWS{% endif %}</div>
+      <h2 class="cafe-section-title">{{ c.title or 'What Our Customers Say' }}</h2>
+      {% if c.show_summary and summary.count %}
+      <p class="cafe-section-sub"><span class="stars" style="color:var(--gold, #C89B5A)">{{ summary.average|stars }}</span> {{ summary.average }} from {{ summary.count }} verified review{{ '' if summary.count == 1 else 's' }}</p>
+      {% else %}
+      <p class="cafe-section-sub">Loved by diners for great food, cozy vibes, and friendly service.</p>
+      {% endif %}
+    </div>
+    <div class="reviews">
+      {% for r in d.reviews %}
+      <figure class="card" style="margin:0;border-radius:20px;border:1px solid var(--border, #E8E2D5);background:var(--surface, #FFFFFF);box-shadow:0 4px 16px rgba(0,0,0,0.03);padding:24px">
+        <div class="stars" style="color:var(--gold, #C89B5A);letter-spacing:3px" aria-label="{{ r.rating }} out of 5">{{ r.rating|stars }}</div>
+        <blockquote style="margin:12px 0 0;font-size:15px;line-height:1.6;color:var(--ink, #171717)">"{{ r.comment }}"</blockquote>
+        <figcaption class="who" style="color:var(--accent, #073F2C);font-weight:700;margin-top:14px">{{ r.author_name }} {% if r.verified %}<span class="ver" style="color:var(--muted, #5A6560);font-weight:400">· Verified diner</span>{% endif %}</figcaption>
+        {% if r.response %}
+        <div class="resp" style="border-top:1px solid var(--border, #E8E2D5);margin-top:12px;padding-top:12px"><strong>Reply from {{ business.name }}:</strong> {{ r.response }}</div>
+        {% endif %}
+      </figure>
+      {% endfor %}
+    </div>
+    <p style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <a class="cafe-btn-secondary" href="{{ urls.review }}">Leave a review</a>
+      {% if google_review_url %}
+      <a class="cafe-btn-secondary" href="{{ google_review_url }}" target="_blank" rel="noopener">Review us on Google</a>
+      {% endif %}
+    </p>
+  </div>
+</section>
+
