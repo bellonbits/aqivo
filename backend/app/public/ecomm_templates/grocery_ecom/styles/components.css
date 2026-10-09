@@ -1,0 +1,786 @@
+/* ==========================================================================
+   Grofresh - Components, Catalog Grids, Promo Banners, & FAQ
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Category Bubbles Row
+   -------------------------------------------------------------------------- */
+.categories-bubbles-section {
+  padding-bottom: 2.5rem;
+}
+
+.category-bubbles-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+.category-bubble-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.category-bubble-card:hover {
+  border-color: var(--brand-green);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-3px);
+}
+
+.category-bubble-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-color: #F8FAF8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 10px;
+  padding: 4px;
+}
+
+.category-bubble-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: transform var(--transition-smooth);
+}
+
+.category-bubble-card:hover .category-bubble-thumb img {
+  transform: scale(1.1);
+}
+
+.category-bubble-name {
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: var(--forest-green);
+}
+
+/* --------------------------------------------------------------------------
+   Section Headers, Titles & Slider Arrows
+   -------------------------------------------------------------------------- */
+.section-padded {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 850;
+  color: var(--forest-green);
+  letter-spacing: -0.025em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.section-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: block;
+}
+
+.deals-countdown-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background-color: #FEE2E2;
+  color: var(--accent-sale);
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.timer-unit-pill {
+  background-color: #FFFFFF;
+  color: #B91C1C;
+  padding: 2px 7px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-weight: 850;
+  font-size: 0.85rem;
+  min-width: 24px;
+  text-align: center;
+  display: inline-block;
+}
+
+.slider-nav-arrows {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.slider-arrow-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  color: var(--forest-green);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-fast);
+}
+
+.slider-arrow-btn:hover {
+  background-color: var(--forest-green);
+  border-color: var(--forest-green);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(12, 74, 52, 0.2);
+}
+
+.slider-arrow-btn:active {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------------------------------
+   Grocery Product Cards
+   -------------------------------------------------------------------------- */
+.grocery-rail-slider {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding-bottom: 8px;
+}
+
+.grocery-rail-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.grocery-grid-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.grocery-product-card {
+  flex: 0 0 calc(25% - 12px);
+  min-width: 220px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 14px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.grocery-product-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: var(--shadow-card);
+  transform: translateY(-3px);
+}
+
+.card-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+  margin-bottom: 6px;
+}
+
+.grocery-badge-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badge-sale {
+  background-color: #FEE2E2;
+  color: var(--accent-sale);
+}
+
+.badge-organic {
+  background-color: var(--brand-lime-pale);
+  color: var(--brand-green);
+}
+
+.grocery-heart-btn {
+  color: #94A3B8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.grocery-heart-btn.is-active {
+  color: var(--accent-sale);
+}
+
+.card-thumb-wrap {
+  width: 100%;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FAFBF9;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.card-thumb-wrap img {
+  max-width: 88%;
+  max-height: 88%;
+  object-fit: contain;
+  transition: transform var(--transition-smooth);
+}
+
+.grocery-product-card:hover .card-thumb-wrap img {
+  transform: scale(1.08);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card-category-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.card-product-name {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin: 3px 0;
+  line-height: 1.3;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-unit-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.card-price-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.card-price-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-price {
+  font-size: 1.05rem;
+  font-weight: 850;
+  color: var(--forest-green);
+}
+
+.card-orig-price {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.card-add-btn {
+  background-color: var(--forest-green);
+  color: #FFFFFF;
+  font-size: 0.78rem;
+  font-weight: 750;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.card-add-btn:hover {
+  background-color: var(--brand-green);
+}
+
+/* --------------------------------------------------------------------------
+   Two Promotional Split Banners
+   -------------------------------------------------------------------------- */
+.promo-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 3rem;
+  margin-bottom: 3.5rem;
+}
+
+.promo-split-card {
+  border-radius: var(--radius-md);
+  padding: 34px 32px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.promo-card-lime {
+  background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+}
+
+.promo-card-crimson {
+  background: linear-gradient(135deg, #7F1D1D 0%, #991B1B 100%);
+  color: #FFFFFF;
+}
+
+.promo-card-content h3 {
+  font-size: 1.55rem;
+  font-weight: 850;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6rem;
+}
+
+.promo-card-content p {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin-bottom: 1.4rem;
+  opacity: 0.85;
+}
+
+.promo-card-visual {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.promo-card-visual img {
+  max-width: 120%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+
+/* --------------------------------------------------------------------------
+   Fresh Food For You (Tabs & Catalog)
+   -------------------------------------------------------------------------- */
+.catalog-filter-tabs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.category-filter-tab {
+  background-color: #F8FAF8;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  padding: 6px 18px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.category-filter-tab:hover {
+  border-color: var(--brand-green);
+  color: var(--brand-green);
+}
+
+.category-filter-tab.active {
+  background-color: var(--forest-green);
+  color: #FFFFFF;
+  border-color: var(--forest-green);
+}
+
+/* --------------------------------------------------------------------------
+   Shop by Brands Strip
+   -------------------------------------------------------------------------- */
+.brands-row-section {
+  padding: 2.5rem 0;
+}
+
+.brands-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  background-color: #F8FAF8;
+  padding: 18px 24px;
+  border-radius: var(--radius-md);
+}
+
+.brand-item-pill {
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  opacity: 0.75;
+  transition: opacity var(--transition-fast);
+}
+
+.brand-item-pill:hover {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   100% Quality Guarantee Spotlight Section
+   -------------------------------------------------------------------------- */
+.spotlight-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 2.3fr;
+  gap: 18px;
+  margin-bottom: 3.5rem;
+}
+
+.spotlight-banner-tall {
+  background: linear-gradient(135deg, #FEF08A 0%, #FDE047 100%);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.spotlight-banner-tall h3 {
+  font-size: 1.6rem;
+  font-weight: 850;
+  color: #713F12;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.spotlight-banner-tall p {
+  font-size: 0.82rem;
+  color: #854D0E;
+}
+
+.spotlight-products-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   4 Value Propositions Strip
+   -------------------------------------------------------------------------- */
+.value-props-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 3.5rem 0;
+}
+
+.value-prop-card {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-green);
+  border-radius: var(--radius-md);
+  padding: 20px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.value-prop-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--brand-lime-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.value-prop-card h4 {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--forest-green);
+  margin-bottom: 3px;
+}
+
+.value-prop-card p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Customer Testimonial Box
+   -------------------------------------------------------------------------- */
+.testimonial-card-box {
+  background-color: #F8FAF8;
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  margin: 3rem 0;
+}
+
+.testimonial-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #16A34A, #22C55E);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.testimonial-content p {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.testimonial-author {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--forest-green);
+}
+
+/* --------------------------------------------------------------------------
+   Mid-Page Promo Banners (Purple Veggies & Orange Seafood)
+   -------------------------------------------------------------------------- */
+.mid-promo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 3.5rem 0;
+}
+
+.mid-promo-card-purple {
+  background: linear-gradient(135deg, #581C87 0%, #6B21A8 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+}
+
+.mid-promo-card-orange {
+  background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+}
+
+/* --------------------------------------------------------------------------
+   Monthly Grocery Deal (Red Banner + 3 Items)
+   -------------------------------------------------------------------------- */
+.monthly-deals-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 2.5fr;
+  gap: 18px;
+  margin-bottom: 4rem;
+}
+
+.monthly-super-deal-banner {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.monthly-products-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   FAQ Accordion
+   -------------------------------------------------------------------------- */
+.faq-section {
+  padding: 3rem 0;
+}
+
+.faq-accordion-box {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-item {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.faq-question-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  font-size: 0.95rem;
+  font-weight: 750;
+  color: var(--forest-green);
+  text-align: left;
+  cursor: pointer;
+}
+
+.faq-chevron {
+  font-size: 0.75rem;
+  color: var(--brand-green);
+  transition: transform var(--transition-fast);
+}
+
+.faq-item.is-active .faq-chevron {
+  transform: rotate(180deg);
+}
+
+.faq-answer-body {
+  display: none;
+  padding: 0 20px 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-body);
+}
+
+.faq-item.is-active .faq-answer-body {
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Cashback Newsletter Banner
+   -------------------------------------------------------------------------- */
+.cashback-newsletter-banner {
+  background: linear-gradient(135deg, #FEF9C3 0%, #FEF08A 100%);
+  border-radius: var(--radius-lg);
+  padding: 44px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin: 3.5rem 0;
+  border: 1px solid #FDE047;
+}
+
+.cashback-newsletter-banner h3 {
+  font-size: 1.85rem;
+  font-weight: 850;
+  color: var(--forest-green);
+  margin-bottom: 0.5rem;
+}
+
+.cashback-newsletter-banner p {
+  font-size: 0.88rem;
+  color: #713F12;
+  margin-bottom: 1.6rem;
+}
+
+.newsletter-form-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 480px;
+  margin: 0 auto;
+  gap: 8px;
+}
+
+.newsletter-center-input {
+  flex: 1;
+  background-color: #FFFFFF;
+  border: 1.5px solid #FDE047;
+  border-radius: var(--radius-pill);
+  padding: 0.65rem 1.25rem;
+  font-size: 0.88rem;
+  outline: none;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .category-bubbles-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .grocery-grid-4col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .promo-split-grid,
+  .mid-promo-grid,
+  .spotlight-split-grid,
+  .monthly-deals-grid {
+    grid-template-columns: 1fr;
+  }
+  .value-props-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .category-bubbles-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grocery-grid-4col {
+    grid-template-columns: 1fr;
+  }
+  .value-props-grid {
+    grid-template-columns: 1fr;
+  }
+  .testimonial-card-box {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+}

@@ -4632,6 +4632,46 @@ footer,
     flex: 0 0 250px;
   }
 }
+.ecom-carousel-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.ecom-carousel-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ecom-carousel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 0;
+}
+.ecom-carousel-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+.ecom-carousel-btn:active {
+  transform: scale(0.94);
+}
+@media (max-width: 640px) {
+  .ecom-carousel-controls {
+    display: none;
+  }
+}
+
 
 /* --------------------------------------------------------------------------
    Why Shop With Us / Trust Guarantees (.ecom-why-us-section)
@@ -6184,5 +6224,585 @@ section#booking,
   .cafe-footer-grid {
     grid-template-columns: 1fr;
     gap: 28px;
+  }
+}
+
+/* ==========================================================================
+   Catalog Layout: Sidebar Filters + Product Grid Area
+   ========================================================================== */
+
+/* Catalog wrap overrides */
+.ecom-catalog-wrap {
+  width: 100%;
+}
+
+/* Top bar: title group + sort/filter actions */
+.ecom-catalog-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.ecom-catalog-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ecom-catalog-count-text {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+.ecom-catalog-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Sort box */
+.ecom-sort-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ecom-sort-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+}
+.ecom-sort-select {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.ecom-sort-select:focus {
+  border-color: #0f172a;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.06);
+}
+
+/* Mobile filter toggle button */
+.ecom-filter-toggle-btn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.ecom-filter-toggle-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+@media (max-width: 767px) {
+  .ecom-filter-toggle-btn {
+    display: flex;
+  }
+}
+.mobile-only {
+  display: none;
+}
+@media (max-width: 767px) {
+  .mobile-only {
+    display: flex;
+  }
+}
+
+/* Main layout: sidebar + products */
+.ecom-catalog-layout {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+/* Filter Sidebar */
+.ecom-filter-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: sticky;
+  top: 80px;
+}
+@media (max-width: 767px) {
+  .ecom-filter-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 200;
+    background: #ffffff;
+    padding: 20px;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+  }
+  .ecom-filter-sidebar.is-open {
+    transform: translateX(0);
+  }
+}
+.ecom-filter-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.ecom-filter-sidebar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.ecom-filter-close-btn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.ecom-filter-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Filter groups */
+.ecom-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ecom-filter-group-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin: 0;
+}
+.ecom-filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Radio pill filter labels */
+.ecom-filter-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: #374151;
+  transition: color 0.1s ease;
+}
+.ecom-filter-radio:hover {
+  color: #0f172a;
+}
+.ecom-filter-radio input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.radio-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  position: relative;
+}
+.ecom-filter-radio input[type="radio"]:checked ~ .radio-box {
+  border-color: #0f172a;
+  background: #0f172a;
+}
+.ecom-filter-radio input[type="radio"]:checked ~ .radio-box::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffffff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.radio-text {
+  flex: 1;
+}
+
+/* Products area */
+.ecom-products-area {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Empty state */
+.ecom-no-products {
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.ecom-no-products-icon {
+  color: #cbd5e1;
+}
+.ecom-no-products-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
+}
+.ecom-no-products-sub {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 767px) {
+  .ecom-catalog-layout {
+    flex-direction: column;
+  }
+  .ecom-filter-sidebar {
+    width: 100%;
+  }
+}
+
+/* 4-column trust grid variant */
+@media (min-width: 768px) {
+  .ecom-trust-grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .ecom-trust-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   FAQ Accordion Section (.ecom-faq-section)
+   -------------------------------------------------------------------------- */
+.ecom-faq-section {
+  padding: 36px 0;
+}
+.ecom-faq-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.ecom-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+.ecom-faq-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+.ecom-faq-item[open] {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+.ecom-faq-summary {
+  padding: 18px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  user-select: none;
+  list-style: none;
+}
+.ecom-faq-summary::-webkit-details-marker {
+  display: none;
+}
+.ecom-faq-question {
+  flex: 1;
+  text-align: left;
+}
+.ecom-faq-icon {
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+.ecom-faq-item[open] .ecom-faq-icon {
+  transform: rotate(180deg);
+  color: #16a34a;
+}
+.ecom-faq-answer {
+  padding: 0 20px 20px 20px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.ecom-faq-answer p {
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Newsletter Banner Section (.ecom-newsletter-section)
+   -------------------------------------------------------------------------- */
+.ecom-newsletter-section {
+  padding: 36px 0;
+}
+.ecom-newsletter-card {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 20px;
+  padding: 44px 32px;
+  color: #ffffff;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+.ecom-newsletter-icon-badge {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #38bdf8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.ecom-newsletter-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+.ecom-newsletter-sub {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0 0 24px 0;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+}
+.ecom-newsletter-inputs {
+  display: flex;
+  gap: 10px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.ecom-newsletter-input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+.ecom-newsletter-input::placeholder {
+  color: #94a3b8;
+}
+.ecom-newsletter-input:focus {
+  border-color: #38bdf8;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+.ecom-newsletter-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  background: #16a34a;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.ecom-newsletter-submit:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+.ecom-newsletter-submit:active {
+  transform: translateY(0);
+}
+.ecom-newsletter-msg {
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 500;
+}
+@media (max-width: 640px) {
+  .ecom-newsletter-card {
+    padding: 32px 20px;
+  }
+  .ecom-newsletter-inputs {
+    flex-direction: column;
+  }
+  .ecom-newsletter-submit {
+    width: 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Section Badges & Special Offers (.ecom-section-badge)
+   -------------------------------------------------------------------------- */
+.ecom-section-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+  margin-bottom: 6px;
+}
+.ecom-offers-section {
+  margin-bottom: 36px;
+}
+
+/* --------------------------------------------------------------------------
+   Announcement Bar (.ecom-announcement-bar)
+   -------------------------------------------------------------------------- */
+.ecom-announcement-bar {
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  text-align: center;
+  position: relative;
+  z-index: 40;
+}
+.ecom-announcement-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ecom-announcement-text,
+.ecom-announcement-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #f8fafc;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.ecom-announcement-link:hover {
+  opacity: 0.9;
+  text-decoration: underline;
+}
+.ecom-announcement-icon {
+  font-size: 14px;
+}
+
+/* --------------------------------------------------------------------------
+   CTA Band Banner (.ecom-cta-band-section)
+   -------------------------------------------------------------------------- */
+.ecom-cta-band-section {
+  padding: 32px 0;
+}
+.ecom-cta-band-card {
+  background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+  border-radius: 18px;
+  padding: 36px 40px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: 0 8px 24px rgba(6, 78, 59, 0.15);
+}
+.ecom-cta-band-text {
+  flex: 1;
+}
+.ecom-cta-band-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+.ecom-cta-band-sub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  line-height: 1.5;
+}
+.ecom-cta-band-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  background: #ffffff;
+  color: #064e3b;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease;
+}
+.ecom-cta-band-btn:hover {
+  background: #f0fdf4;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+@media (max-width: 640px) {
+  .ecom-cta-band-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 28px 20px;
+  }
+  .ecom-cta-band-btn {
+    width: 100%;
   }
 }

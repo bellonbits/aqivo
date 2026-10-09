@@ -1,0 +1,134 @@
+/* ==========================================================================
+   Grofresh - Hero Section
+   Matches Reference Mockup: Deep Forest Green Banner with Fresh Produce Bag
+   ========================================================================== */
+
+.hero-grocery-section {
+  padding-top: 1.5rem;
+  padding-bottom: 2.5rem;
+}
+
+.hero-curved-banner {
+  background: linear-gradient(135deg, #0C4A34 0%, #083424 100%);
+  border-radius: var(--radius-lg);
+  padding: 48px 56px;
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(12, 74, 52, 0.15);
+}
+
+.hero-curved-banner::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-left-content {
+  position: relative;
+  z-index: 2;
+  max-width: 540px;
+}
+
+.hero-headline {
+  font-size: 2.85rem;
+  font-weight: 850;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: #FFFFFF;
+  margin-bottom: 1rem;
+}
+
+.hero-headline span.highlight-lime {
+  color: var(--brand-lime);
+}
+
+.hero-subtext {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #E2E8F0;
+  margin-bottom: 2rem;
+  max-width: 460px;
+}
+
+.hero-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-video-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #FFFFFF;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.hero-video-link:hover {
+  opacity: 0.85;
+}
+
+.video-play-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.hero-right-visual {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-right-visual img {
+  max-width: 110%;
+  width: 110%;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.3));
+  transition: transform var(--transition-smooth);
+}
+
+.hero-curved-banner:hover .hero-right-visual img {
+  transform: scale(1.03);
+}
+
+@media (max-width: 900px) {
+  .hero-curved-banner {
+    grid-template-columns: 1fr;
+    padding: 36px 28px;
+    text-align: center;
+  }
+  .hero-left-content {
+    max-width: 100%;
+    margin-bottom: 24px;
+  }
+  .hero-headline {
+    font-size: 2.2rem;
+  }
+  .hero-actions-row {
+    justify-content: center;
+  }
+  .hero-right-visual img {
+    max-width: 85%;
+    width: 85%;
+  }
+}

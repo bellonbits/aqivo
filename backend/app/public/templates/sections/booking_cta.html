@@ -1,1 +1,19 @@
-<section class="sx-sec"><div class="wrap"><div class="cta-band"><div><h2>{{ c.title }}</h2>{% if c.body %}<p>{{ c.body }}</p>{% endif %}</div><a class="btn primary" href="#booking">{{ c.button_text or 'Book now' }}</a></div></div></section>
+<section class="ecom-cta-band-section sx-sec" id="booking-cta">
+  <div class="wrap ecom-cta-band-wrap">
+    <div class="ecom-cta-band-card">
+      <div class="ecom-cta-band-text">
+        <h2 class="ecom-cta-band-title">{{ c.title or 'Ready to Reserve Your Spot?' }}</h2>
+        {% if c.body %}
+        <p class="ecom-cta-band-sub">{{ c.body }}</p>
+        {% endif %}
+      </div>
+      <div class="ecom-cta-band-action">
+        <a class="ecom-cta-band-btn" href="#booking">
+          <span>{{ c.button_text or 'Book now' }}</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+

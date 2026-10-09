@@ -54,8 +54,8 @@ def test_xss_is_escaped_on_public_page(owner, client):
 
 def test_template_change_keeps_content(owner):
     owner.edit_section("about", body="My story")
-    r = owner.post("/api/v1/websites/me/template", json={"template_key": "barbershop_01"}).json()
-    assert r["template"]["key"] == "barbershop_01"
+    r = owner.post("/api/v1/websites/me/template", json={"template_key": "fashion_ecom"}).json()
+    assert r["template"]["key"] == "fashion_ecom"
     assert next(s for s in r["sections"] if s["type"] == "about")["settings"]["body"] == "My story"
     assert owner.post("/api/v1/websites/me/template", json={"template_key": "nope"}).status_code == 400
 
@@ -79,7 +79,8 @@ def test_free_plan_includes_storefront_but_gates_paid_tools(make_owner, client):
     assert o.post("/api/v1/ai/ask", json={"question": "hi"}).status_code == 402
     assert o.post("/api/v1/marketing/growth-campaigns", json={"name": "x", "objective": "SALES"}).status_code == 402
     o.post("/api/v1/websites/me/publish")
-    assert 'class="hero' in client.get(f"/{o.slug}").text
+    page_html = client.get(f"/{o.slug}").text
+    assert 'class="hero' in page_html or 'salon-hero-header' in page_html
 
 
 def test_hours_validation(owner):

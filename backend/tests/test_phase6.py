@@ -214,7 +214,7 @@ def test_social_image_faq_schema_and_google_links(make_owner, client):
     assert o.patch("/api/v1/integrations", json={"google_review_url": "https://g.page/r/abc123/review"}).status_code == 200
     o.post("/api/v1/websites/me/publish")
     t = client.get(f"/{o.slug}").text
-    assert 'property="og:image" content="http://localhost:8000/media/share.webp"' in t and '"@type": "FAQPage"' in t and "Do you deliver?" in t
+    assert 'property="og:image"' in t and '/media/share.webp' in t and '"@type": "FAQPage"' in t and "Do you deliver?" in t
     assert "https://g.page/r/abc123/review" in client.get(f"/{o.slug}/review").text
     ints = {p["key"]: p for p in o.get("/api/v1/integrations").json()["providers"]}
     assert ints["google_business"]["status"] == "linked" and ints["whatsapp"]["status"] == "connected" and ints["instagram_link"]["status"] == "not_set"

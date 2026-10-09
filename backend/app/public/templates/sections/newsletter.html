@@ -1,5 +1,27 @@
-<section class="sx-sec"><div class="wrap"><h2>{{ c.title }}</h2>{% if c.body %}<p class="sub">{{ c.body }}</p>{% endif %}
-<form class="book lead-form" novalidate><label>Your name <input name="name" required maxlength="120" autocomplete="name"></label>
-<label>Phone or email <input name="contact" required maxlength="120" autocomplete="tel"></label><input type="hidden" name="message" value="Sign-up from the website">
-<input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
-<button class="btn primary" type="submit">{{ c.button_text or 'Keep me updated' }}</button><div class="lead-msg" role="status"></div></form></div></section>
+<section class="ecom-newsletter-section sx-sec" id="newsletter">
+  <div class="wrap ecom-newsletter-wrap">
+    <div class="ecom-newsletter-card">
+      <div class="ecom-newsletter-icon-badge">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      </div>
+      <div class="ecom-newsletter-content">
+        <h2 class="ecom-newsletter-title">{{ c.title or 'Stay in the Loop' }}</h2>
+        <p class="ecom-newsletter-sub">{{ c.body or 'Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.' }}</p>
+      </div>
+      <form class="ecom-newsletter-form lead-form" novalidate>
+        <div class="ecom-newsletter-inputs">
+          <input type="text" name="name" class="ecom-newsletter-input" placeholder="Your name" required maxlength="120" autocomplete="name">
+          <input type="text" name="contact" class="ecom-newsletter-input" placeholder="Phone or email" required maxlength="120" autocomplete="tel">
+          <input type="hidden" name="message" value="Newsletter subscription from website">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0" aria-hidden="true">
+          <button class="ecom-newsletter-submit" type="submit">
+            <span>{{ c.button_text or 'Subscribe' }}</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="lead-msg ecom-newsletter-msg" role="status" hidden></div>
+      </form>
+    </div>
+  </div>
+</section>
+

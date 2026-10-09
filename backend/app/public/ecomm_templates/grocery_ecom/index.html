@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grofresh - Fresh Groceries Delivered To Your Door</title>
+  <meta name="description" content="Shop farm-fresh vegetables, organic fruits, artisan dairy, and sustainable seafood with guaranteed cold-chain 2-hour doorstep delivery.">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>🥬</text></svg>">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/header.css">
+  <link rel="stylesheet" href="styles/hero.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/drawer.css">
+  <link rel="stylesheet" href="styles/footer.css">
+</head>
+<body>
+
+  <!-- =========================================================================
+       Top Utility Bar
+       ========================================================================= -->
+  <div class="top-utility-bar">
+    <div class="container top-bar-inner">
+      <div class="top-bar-left">
+        <span>🚚 <strong>Express 2-Hour Delivery</strong> on orders over KSh 2,500</span>
+        <span>•</span>
+        <span>🌱 100% Certified Organic & Fresh Guarantee</span>
+      </div>
+      <div class="top-bar-right">
+        <a href="#fresh-food-section">Today's Deals</a>
+        <a href="#faq-section">Help & Support</a>
+        <a href="#cashback-section">20% Coupon</a>
+        <span>🇰🇪 EN / KES (KSh)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Main Brand Header
+       ========================================================================= -->
+  <header class="main-header">
+    <div class="container header-inner">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="brand-logo-wrap" title="Grofresh Homepage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px;color:var(--brand-green);">
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+        </svg>
+        <span>Grofresh<span class="brand-dot">.</span></span>
+      </a>
+
+      <!-- Instant Search Bar -->
+      <div class="header-search-wrap">
+        <div class="search-pill-box">
+          <select class="search-category-select" id="search-cat-filter" title="Search Category">
+            <option value="all">All Aisles</option>
+            <option value="vegetables">Vegetables</option>
+            <option value="fruits">Fruits</option>
+            <option value="dairy">Dairy & Eggs</option>
+            <option value="meat">Meat & Poultry</option>
+            <option value="seafood">Seafood</option>
+          </select>
+          <input 
+            type="text" 
+            id="main-search-input" 
+            class="search-input-field" 
+            placeholder="Search organic greens, farm tomatoes, fresh milk..." 
+            autocomplete="off" 
+          />
+          <button type="button" id="search-clear-btn" class="search-clear-btn" title="Clear search">&times;</button>
+          <button type="button" class="search-btn-icon" title="Search">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Search Auto-complete dropdown -->
+        <div id="search-dropdown" class="search-dropdown"></div>
+      </div>
+
+      <!-- Action Buttons (Wishlist & Cart) -->
+      <div class="header-actions">
+        <!-- Wishlist Button -->
+        <button type="button" class="header-action-icon-btn trigger-wishlist-view" title="Saved Items">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+          <span class="header-badge-count header-wishlist-count" style="display:none;">0</span>
+        </button>
+
+        <!-- Cart Capsule Button -->
+        <div class="header-cart-capsule trigger-cart-drawer" role="button" tabindex="0" title="View Cart">
+          <div class="cart-capsule-icon-wrap">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span class="cart-capsule-badge header-cart-count">2</span>
+          </div>
+          <span class="cart-capsule-amount" id="header-cart-amount">KSh 690</span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       Secondary Navigation Bar
+       ========================================================================= -->
+  <nav class="secondary-nav-bar">
+    <div class="container secondary-nav-inner">
+      <button type="button" class="all-categories-pill-btn" onclick="document.getElementById('fresh-food-section').scrollIntoView({ behavior: 'smooth' });">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <span>All Aisles</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <ul class="nav-links-row">
+        <li><a href="#todays-deals-section" class="active">Today's Deals</a></li>
+        <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('vegetables')">Fresh Vegetables</a></li>
+        <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('fruits')">Organic Fruits</a></li>
+        <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('dairy')">Dairy & Eggs</a></li>
+        <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('meat')">Meat & Poultry</a></li>
+        <li><a href="#seafood-deals-section">Fresh Seafood</a></li>
+        <li><a href="#best-sellers-section">Best Sellers</a></li>
+      </ul>
+
+      <div class="nav-delivery-strip-tag">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="15" height="13"></rect>
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+          <circle cx="5.5" cy="18.5" r="2.5"></circle>
+          <circle cx="18.5" cy="18.5" r="2.5"></circle>
+        </svg>
+        <span>Same-day 2-Hour Slot Open</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =========================================================================
+       Hero Section
+       ========================================================================= -->
+  <section class="hero-grocery-section">
+    <div class="container">
+      <div class="hero-curved-banner">
+        
+        <div class="hero-left-content">
+          <h1 class="hero-headline">
+            Fresh Groceries Delivered <br/>
+            <span class="highlight-lime">To Your Door</span>
+          </h1>
+          <p class="hero-subtext">
+            Hand-harvested crisp greens, vine-ripened organic fruits, farm-fresh dairy and sustainable seafood — delivered cold-chain fresh to your doorstep in under 2 hours.
+          </p>
+
+          <div class="hero-actions-row">
+            <a href="#fresh-food-section" class="pill-btn pill-btn-lime">
+              Shop Fresh Today
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+
+            <div class="hero-video-link" onclick="window.app.showToast('Harvest Story', 'Playing video: Inside Our Family Farms & Cold-Chain Logistics.', 'info')">
+              <span class="video-play-icon">▶</span>
+              <span>Watch Harvest Story</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-right-visual">
+          <img src="assets/hero_grocery_bag.jpg" alt="Kraft Grocery Bag full of fresh produce" loading="eager" />
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Category Bubbles Section
+       ========================================================================= -->
+  <section class="categories-bubbles-section">
+    <div class="container">
+      <div class="category-bubbles-grid" id="category-bubbles-grid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Today's Fresh Deals + Countdown Timer
+       ========================================================================= -->
+  <section class="section-padded" id="todays-deals-section">
+    <div class="container">
+      
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Today's Fresh Deals</h2>
+          <div class="deals-countdown-box">
+            <span>⏰ Ends in:</span>
+            <span class="timer-unit-pill" id="deal-timer-hours">08</span> :
+            <span class="timer-unit-pill" id="deal-timer-mins">42</span> :
+            <span class="timer-unit-pill" id="deal-timer-secs">15</span>
+          </div>
+        </div>
+
+        <div class="slider-nav-arrows">
+          <button type="button" class="slider-arrow-btn" id="deals-prev" title="Previous deals">‹</button>
+          <button type="button" class="slider-arrow-btn" id="deals-next" title="Next deals">›</button>
+        </div>
+      </div>
+
+      <div class="grocery-rail-slider" id="deals-rail">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Two Promotional Split Banners
+       ========================================================================= -->
+  <section class="container">
+    <div class="promo-split-grid">
+      
+      <!-- Card 1: Lime 20% Off -->
+      <div class="promo-split-card promo-card-lime">
+        <div class="promo-card-content">
+          <span class="grocery-badge-pill badge-organic" style="margin-bottom:8px; display:inline-block;">Special Offer</span>
+          <h3>Get 20% OFF Your First Order</h3>
+          <p>Use code <strong>FRESH20</strong> at checkout for 20% off farm produce and organic dairy.</p>
+          <button type="button" class="pill-btn pill-btn-primary pill-btn-sm" onclick="window.cart.applyPromoCode('FRESH20'); window.cart.openDrawer();">
+            Claim Voucher
+          </button>
+        </div>
+        <div class="promo-card-visual">
+          <img src="assets/promo_kraft_bag.jpg" alt="20% off fresh produce" loading="lazy" />
+        </div>
+      </div>
+
+      <!-- Card 2: 100% Fresh Crimson -->
+      <div class="promo-split-card promo-card-crimson">
+        <div class="promo-card-content">
+          <span class="grocery-badge-pill" style="background:#FEF08A;color:#713F12;margin-bottom:8px;display:inline-block;">Certified Clean</span>
+          <h3>100% Fresh & Organic Food</h3>
+          <p>Handpicked every dawn from certified family regenerative orchards & local co-ops.</p>
+          <button type="button" class="pill-btn pill-btn-lime pill-btn-sm" onclick="document.getElementById('fresh-food-section').scrollIntoView({ behavior: 'smooth' });">
+            Explore Harvest
+          </button>
+        </div>
+        <div class="promo-card-visual">
+          <img src="assets/promo_fruits_pile.jpg" alt="100% fresh organic food" loading="lazy" />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Fresh Food For You (Tabs & Catalog Grid)
+       ========================================================================= -->
+  <section class="section-padded" id="fresh-food-section">
+    <div class="container">
+      
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Fresh Food for You</h2>
+          <span class="section-subtitle">Picked daily from regenerative soils and delivered fresh</span>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="catalog-filter-tabs-row">
+        <button type="button" class="category-filter-tab active" data-cat="all">All Aisles</button>
+        <button type="button" class="category-filter-tab" data-cat="vegetables">Fresh Vegetables</button>
+        <button type="button" class="category-filter-tab" data-cat="fruits">Fresh Fruits</button>
+        <button type="button" class="category-filter-tab" data-cat="dairy">Dairy & Eggs</button>
+        <button type="button" class="category-filter-tab" data-cat="meat">Meat & Poultry</button>
+        <button type="button" class="category-filter-tab" data-cat="seafood">Seafood</button>
+        <button type="button" class="category-filter-tab" data-cat="bakery">Bakery & Breads</button>
+      </div>
+
+      <!-- Catalog Product Grid -->
+      <div class="grocery-grid-4col" id="fresh-food-grid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Shop By Brands Row
+       ========================================================================= -->
+  <section class="brands-row-section">
+    <div class="container">
+      <div class="brands-logo-row" id="brands-logo-row">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       100% Quality Guarantee Spotlight Section
+       ========================================================================= -->
+  <section class="container">
+    <div class="spotlight-split-grid">
+      
+      <!-- Tall Spotlight Banner -->
+      <div class="spotlight-banner-tall">
+        <div>
+          <span class="grocery-badge-pill" style="background:#FFFFFF;color:#713F12;margin-bottom:12px;display:inline-block;">Farm Pledge</span>
+          <h3>100% Quality Guarantee</h3>
+          <p>If any fruit or vegetable doesn't meet your crispness standards, we issue an instant one-click replacement or full refund.</p>
+        </div>
+        <button type="button" class="pill-btn pill-btn-primary" style="margin-top:20px;align-self:flex-start;" onclick="window.app.showToast('Quality Guarantee', 'Our produce is inspected 3x before leaving cold storage.', 'success')">
+          Learn Our Standards
+        </button>
+      </div>
+
+      <!-- 3 Spotlight Products -->
+      <div class="spotlight-products-row" id="spotlight-products-container">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       4 Value Propositions Grid
+       ========================================================================= -->
+  <section class="container">
+    <div class="value-props-grid">
+      
+      <div class="value-prop-card">
+        <div class="value-prop-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--brand-green)" stroke-width="2" fill="none">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+        </div>
+        <div>
+          <h4>Free Express Delivery</h4>
+          <p>Orders over KSh 2,500 delivered to your door in 2 hours</p>
+        </div>
+      </div>
+
+      <div class="value-prop-card">
+        <div class="value-prop-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--brand-green)" stroke-width="2" fill="none">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <div>
+          <h4>100% Organic & Fresh</h4>
+          <p>Certified pesticide-free from regional regenerative farms</p>
+        </div>
+      </div>
+
+      <div class="value-prop-card">
+        <div class="value-prop-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--brand-green)" stroke-width="2" fill="none">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div>
+          <h4>Secure Instant Payment</h4>
+          <p>100% encrypted checkout with Apple Pay & cards</p>
+        </div>
+      </div>
+
+      <div class="value-prop-card">
+        <div class="value-prop-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--brand-green)" stroke-width="2" fill="none">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h4>24/7 Customer Care</h4>
+          <p>Instant live chat support whenever you need assistance</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Daily Best Sellers Section
+       ========================================================================= -->
+  <section class="section-padded" id="best-sellers-section">
+    <div class="container">
+      
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Daily Best Sellers</h2>
+          <span class="section-subtitle">Top organic picks most loved by neighborhood kitchens</span>
+        </div>
+
+        <div class="slider-nav-arrows">
+          <button type="button" class="slider-arrow-btn" id="best-prev" title="Previous best sellers">‹</button>
+          <button type="button" class="slider-arrow-btn" id="best-next" title="Next best sellers">›</button>
+        </div>
+      </div>
+
+      <div class="grocery-rail-slider" id="best-rail">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Customer Testimonial Box
+       ========================================================================= -->
+  <section class="container">
+    <div class="testimonial-card-box">
+      <div class="testimonial-avatar">ER</div>
+      <div class="testimonial-content">
+        <p>"Grofresh has completely transformed how our family eats. The vine tomatoes smell like an authentic countryside garden, the wild Atlantic salmon arrived perfectly chilled, and the 2-hour courier was right on time. We won’t shop anywhere else!"</p>
+        <span class="testimonial-author">Elena Rostova — Verified Organic Shopper, Brooklyn NY ★★★★★</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Mid-Page Promo Banners (Purple Veggies & Orange Seafood)
+       ========================================================================= -->
+  <section class="container">
+    <div class="mid-promo-grid">
+      
+      <!-- Card 1: Purple 30% Off Veggies -->
+      <div class="mid-promo-card-purple">
+        <div>
+          <span class="grocery-badge-pill badge-organic" style="margin-bottom:8px; display:inline-block;">Seasonal Harvest</span>
+          <h3 style="font-size:1.5rem;font-weight:850;line-height:1.2;margin-bottom:8px;">Fresh Organic Greens 30% OFF</h3>
+          <p style="font-size:0.85rem;opacity:0.85;margin-bottom:16px;">Crisp kale, baby spinach, celery and root vegetables picked this morning.</p>
+          <button type="button" class="pill-btn pill-btn-lime pill-btn-sm" onclick="window.app.filterFreshFood('vegetables'); document.getElementById('fresh-food-section').scrollIntoView({ behavior: 'smooth' });">
+            Shop Crisp Greens
+          </button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;height:140px;">
+          <img src="assets/banner_veg_purple.jpg" alt="Fresh organic vegetables" style="max-height:100%;object-fit:contain;border-radius:10px;" />
+        </div>
+      </div>
+
+      <!-- Card 2: Orange Seafood Catch -->
+      <div class="mid-promo-card-orange">
+        <div>
+          <span class="grocery-badge-pill" style="background:#FFFFFF;color:#C2410C;margin-bottom:8px;display:inline-block;">Sustainable Catch</span>
+          <h3 style="font-size:1.5rem;font-weight:850;line-height:1.2;margin-bottom:8px;">Daily Fresh Seafood Catch</h3>
+          <p style="font-size:0.85rem;opacity:0.85;margin-bottom:16px;">Wild salmon fillets, tiger prawns, and fresh cod packed in insulated ice.</p>
+          <button type="button" class="pill-btn pill-btn-primary pill-btn-sm" style="background:#FFFFFF;color:#C2410C;" onclick="document.getElementById('seafood-deals-section').scrollIntoView({ behavior: 'smooth' });">
+            Explore Seafood
+          </button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;height:140px;">
+          <img src="assets/banner_fish_orange.jpg" alt="Daily fresh seafood" style="max-height:100%;object-fit:contain;border-radius:10px;" />
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Daily Fresh Seafood Deals
+       ========================================================================= -->
+  <section class="section-padded" id="seafood-deals-section">
+    <div class="container">
+      
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Daily Fresh Seafood Deals</h2>
+          <span class="section-subtitle">Sustainably wild-caught and day-boat fresh selections</span>
+        </div>
+
+        <div class="slider-nav-arrows">
+          <button type="button" class="slider-arrow-btn" id="sea-prev" title="Previous seafood deals">‹</button>
+          <button type="button" class="slider-arrow-btn" id="sea-next" title="Next seafood deals">›</button>
+        </div>
+      </div>
+
+      <div class="grocery-rail-slider" id="sea-rail">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Monthly Grocery Deals (Super Deal Pack)
+       ========================================================================= -->
+  <section class="section-padded">
+    <div class="container">
+      
+      <div class="monthly-deals-grid">
+        
+        <!-- Red Deal Banner -->
+        <div class="monthly-super-deal-banner">
+          <div>
+            <span class="grocery-badge-pill" style="background:#FFFFFF;color:#B91C1C;margin-bottom:12px;display:inline-block;">Monthly Special</span>
+            <h3 style="font-size:1.65rem;font-weight:850;line-height:1.2;margin-bottom:10px;">Super Grocery Saver Deals</h3>
+            <p style="font-size:0.88rem;opacity:0.9;">Stock up on kitchen essentials, whole milk, organic eggs and pantry staples with up to 40% discount all month.</p>
+          </div>
+          <button type="button" class="pill-btn pill-btn-lime" style="margin-top:20px;align-self:flex-start;" onclick="document.getElementById('fresh-food-section').scrollIntoView({ behavior: 'smooth' });">
+            Explore All Deals
+          </button>
+        </div>
+
+        <!-- 3 Monthly Deal Items -->
+        <div class="monthly-products-row" id="monthly-deals-container">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Frequently Asked Questions
+       ========================================================================= -->
+  <section class="faq-section" id="faq-section">
+    <div class="container">
+      
+      <div style="text-align:center;margin-bottom:2rem;">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <span class="section-subtitle">Everything you need to know about our fresh cold-chain delivery</span>
+      </div>
+
+      <div class="faq-accordion-box" id="faq-accordion-container">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Cashback Newsletter Banner
+       ========================================================================= -->
+  <section class="container" id="cashback-section">
+    <div class="cashback-newsletter-banner">
+      <h3>Get 20% Cashback On Your Next Grocery Order</h3>
+      <p>Join over 45,000+ happy households receiving weekly farm harvest schedules and exclusive promo codes.</p>
+      
+      <form id="newsletter-cashback-form" class="newsletter-form-center">
+        <input 
+          type="email" 
+          id="newsletter-cashback-input" 
+          class="newsletter-center-input" 
+          placeholder="Enter your email address..." 
+          required 
+        />
+        <button type="submit" class="pill-btn pill-btn-primary">
+          Subscribe & Save 20%
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       Grofresh Footer
+       ========================================================================= -->
+  <footer class="grofresh-footer">
+    <div class="container">
+      
+      <div class="footer-top-grid">
+        
+        <!-- Brand Col -->
+        <div class="footer-brand-col">
+          <a href="index.html" class="footer-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+            </svg>
+            <span class="footer-logo-text">Grofresh<span>.</span></span>
+          </a>
+          <p class="footer-brand-desc">
+            Your neighborhood organic and fresh grocery delivery service. Handpicked farm fresh fruits, crisp greens, artisan dairy, and sustainable seafood delivered directly to your doorstep in under 2 hours.
+          </p>
+          <div class="footer-social-row">
+            <a href="#" class="footer-social-btn" title="Facebook">f</a>
+            <a href="#" class="footer-social-btn" title="Instagram">in</a>
+            <a href="#" class="footer-social-btn" title="Twitter">x</a>
+            <a href="#" class="footer-social-btn" title="YouTube">yt</a>
+          </div>
+        </div>
+
+        <!-- Col 1: Categories -->
+        <div class="footer-col">
+          <h4>Fresh Aisles</h4>
+          <ul class="footer-links-list">
+            <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('vegetables')">Fresh Vegetables</a></li>
+            <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('fruits')">Organic Fruits</a></li>
+            <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('dairy')">Dairy & Farm Eggs</a></li>
+            <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('meat')">Meat & Poultry</a></li>
+            <li><a href="#seafood-deals-section">Sustainable Seafood</a></li>
+            <li><a href="#fresh-food-section" onclick="window.app.filterFreshFood('bakery')">Artisan Bakery</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 2: Quick Links -->
+        <div class="footer-col">
+          <h4>Quick Links</h4>
+          <ul class="footer-links-list">
+            <li><a href="#todays-deals-section">Today's Deals</a></li>
+            <li><a href="#best-sellers-section">Best Sellers</a></li>
+            <li><a href="#faq-section">Quality Guarantee</a></li>
+            <li><a href="#cashback-section">20% Coupon Code</a></li>
+            <li><a href="#faq-section">Delivery Schedule</a></li>
+            <li><a href="#faq-section">Cold-Chain Standards</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Customer Care -->
+        <div class="footer-col">
+          <h4>Customer Care</h4>
+          <ul class="footer-links-list">
+            <li><a href="#faq-section">Help Center & FAQ</a></li>
+            <li><a href="#" onclick="window.app.showToast('Order Tracker', 'Enter your order ID to see real-time courier GPS.', 'info')">Track Your Order</a></li>
+            <li><a href="#faq-section">Returns & Refunds</a></li>
+            <li><a href="#faq-section">Nutrition & Origins</a></li>
+            <li><a href="#" class="trigger-wishlist-view">Saved Wishlist</a></li>
+            <li><a href="#" class="trigger-cart-drawer">View Shopping Cart</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Contact Info -->
+        <div class="footer-col">
+          <h4>Contact & Hours</h4>
+          <div class="footer-contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <div>
+              <strong>1-800-GRO-FRESH</strong>
+              <span>Mon-Sun: 6:00 AM - 11:00 PM</span>
+            </div>
+          </div>
+          <div class="footer-contact-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            <div>
+              <strong>support@grofresh.com</strong>
+              <span>Average response: 5 mins</span>
+            </div>
+          </div>
+
+          <div class="footer-app-badges">
+            <div class="footer-badge-pill" style="cursor:pointer;" onclick="window.app.showToast('App Store', 'Grofresh iOS App available on App Store.', 'info')">
+              <span>🍏 Download on <strong>App Store</strong></span>
+            </div>
+            <div class="footer-badge-pill" style="cursor:pointer;" onclick="window.app.showToast('Google Play', 'Grofresh Android App available on Play Store.', 'info')">
+              <span>🤖 Get it on <strong>Google Play</strong></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="footer-bottom-bar">
+        <span>© 2026 Grofresh Online Grocery Ltd. All rights reserved.</span>
+        
+        <div class="footer-bottom-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Organic Standards</a>
+          <a href="#">Cookies</a>
+        </div>
+
+        <div class="footer-payments-row">
+          <span class="payment-pill">VISA</span>
+          <span class="payment-pill">MASTERCARD</span>
+          <span class="payment-pill">APPLE PAY</span>
+          <span class="payment-pill">PAYPAL</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       Cart Slide-out Drawer
+       ========================================================================= -->
+  <div class="cart-drawer-backdrop" id="cart-drawer-backdrop"></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-label="Shopping Cart Drawer">
+    
+    <div class="cart-drawer-header">
+      <div class="cart-drawer-title-wrap">
+        <h3 class="cart-drawer-title">Shopping Basket</h3>
+        <span class="cart-drawer-badge"><span class="header-cart-count">2</span> items</span>
+      </div>
+      <button type="button" class="cart-drawer-close" id="cart-drawer-close" title="Close Cart">&times;</button>
+    </div>
+
+    <!-- Items Container -->
+    <div class="cart-drawer-items" id="cart-drawer-items">
+      <!-- Rendered dynamically by cart.js -->
+    </div>
+
+    <!-- Promo code group -->
+    <div class="cart-drawer-promo">
+      <div class="promo-input-group">
+        <input type="text" id="cart-promo-input" placeholder="Promo code (e.g. FRESH20)" />
+        <button type="button" id="cart-promo-apply-btn">Apply</button>
+      </div>
+      <small class="cart-promo-hint">Try coupon <strong>FRESH20</strong> for 20% off your entire order!</small>
+    </div>
+
+    <!-- Financials & Checkout Footer -->
+    <div class="cart-drawer-footer">
+      <div class="cart-drawer-totals">
+        <div class="cart-total-line">
+          <span>Subtotal</span>
+          <span id="cart-subtotal-val">KSh 0</span>
+        </div>
+        <div class="cart-total-line cart-discount-line" id="cart-discount-row" style="display:none;">
+          <span>Coupon Discount</span>
+          <span id="cart-discount-val">-KSh 0</span>
+        </div>
+        <div class="cart-total-line">
+          <span>Delivery Fee</span>
+          <span id="cart-shipping-val">FREE</span>
+        </div>
+        <div class="cart-total-line cart-final-total">
+          <span>Total</span>
+          <span id="cart-total-val">KSh 0</span>
+        </div>
+      </div>
+
+      <button type="button" class="btn-checkout-drawer" id="cart-checkout-btn">
+        <span>Proceed to Checkout</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+
+      <div class="cart-delivery-guarantee">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <span>Guaranteed 2-Hour Delivery & 100% Freshness</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- =========================================================================
+       Product Detail Quick View Modal
+       ========================================================================= -->
+  <div class="app-modal-overlay" id="product-detail-modal">
+    <div class="app-modal-dialog">
+      <button type="button" class="modal-close-trigger" title="Close dialog">&times;</button>
+      
+      <div class="modal-product-layout">
+        <div class="modal-product-media">
+          <span class="grocery-badge-pill badge-organic modal-product-badge" id="modal-product-badge">Organic</span>
+          <img id="modal-product-img" src="assets/deal_tomatoes.jpg" alt="Product image" />
+        </div>
+
+        <div class="modal-product-info">
+          <span class="modal-category-tag" id="modal-product-cat">Fresh Vegetable</span>
+          <h3 class="modal-product-title">
+            <span id="modal-product-title">Fresh Product</span>
+            <span class="modal-unit-tag" id="modal-product-unit">(1 kg)</span>
+          </h3>
+
+          <div class="modal-price-box">
+            <span class="modal-current-price" id="modal-product-price">KSh 220</span>
+            <span class="modal-original-price" id="modal-product-orig-price">KSh 280</span>
+          </div>
+
+          <p class="modal-desc-text" id="modal-product-desc">
+            Sourced freshly from certified local growers. Hand-selected for crisp texture, deep color, and natural flavor.
+          </p>
+
+          <div class="modal-action-row">
+            <div class="modal-qty-control">
+              <button type="button" class="modal-qty-btn" onclick="window.modals.adjustModalQty(-1)">-</button>
+              <span id="modal-qty-val">1</span>
+              <button type="button" class="modal-qty-btn" onclick="window.modals.adjustModalQty(1)">+</button>
+            </div>
+
+            <button type="button" class="modal-add-cart-btn" id="modal-add-to-cart-btn">
+              Add to Basket
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Express Checkout Modal
+       ========================================================================= -->
+  <div class="app-modal-overlay" id="checkout-modal">
+    <div class="app-modal-dialog">
+      <button type="button" class="modal-close-trigger" title="Close dialog">&times;</button>
+      
+      <div class="checkout-modal-body">
+        <div class="checkout-modal-header">
+          <h3>Express Grocery Checkout</h3>
+          <p>Confirm your delivery address and payment for same-day 2-hour dispatch.</p>
+        </div>
+
+        <form id="checkout-form" onsubmit="event.preventDefault(); window.modals.confirmCheckout();">
+          <div class="checkout-form-grid">
+            <div class="checkout-field">
+              <label>Full Name</label>
+              <input type="text" required value="Sarah Wanjiku" placeholder="Your name" />
+            </div>
+
+            <div class="checkout-field">
+              <label>Phone Number (M-Pesa)</label>
+              <input type="tel" required value="+254 712 345 678" placeholder="+254 700 000 000" />
+            </div>
+
+            <div class="checkout-field checkout-field-full">
+              <label>Delivery Address</label>
+              <input type="text" required value="Argwings Kodhek Rd, Kilimani, Apt 4B" placeholder="Street address" />
+            </div>
+
+            <div class="checkout-field">
+              <label>City & Estate</label>
+              <input type="text" required value="Nairobi, Kilimani" placeholder="City, Estate" />
+            </div>
+
+            <div class="checkout-field">
+              <label>Delivery Time Slot</label>
+              <select>
+                <option>Today: Within 2 Hours (Priority Nairobi Express)</option>
+                <option>Today: 4:00 PM - 6:00 PM</option>
+                <option>Today: 6:00 PM - 8:00 PM</option>
+                <option>Tomorrow Morning: 8:00 AM - 10:00 AM</option>
+              </select>
+            </div>
+
+            <div class="checkout-field checkout-field-full">
+              <label>Payment Method</label>
+              <select>
+                <option>📱 M-Pesa Express (Instant STK Push)</option>
+                <option>💳 Credit / Debit Card (Visa / Mastercard)</option>
+                <option>💵 Cash on Delivery</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="checkout-summary-box">
+            <div class="checkout-summary-row">
+              <span>Items in Basket:</span>
+              <strong id="checkout-items-count">2 item(s)</strong>
+            </div>
+            <div class="checkout-summary-row">
+              <span>Subtotal:</span>
+              <span id="checkout-subtotal-val">KSh 0</span>
+            </div>
+            <div class="checkout-summary-row" style="color:var(--brand-green);">
+              <span>Discounts:</span>
+              <span id="checkout-discount-val">-KSh 0</span>
+            </div>
+            <div class="checkout-summary-row">
+              <span>Delivery:</span>
+              <span id="checkout-shipping-val">FREE</span>
+            </div>
+            <div class="checkout-summary-total">
+              <span>Total to Pay:</span>
+              <span id="checkout-total-val">KSh 0</span>
+            </div>
+          </div>
+
+          <button type="submit" class="checkout-submit-btn">
+            Place Order & Schedule Delivery
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Order Success Modal
+       ========================================================================= -->
+  <div class="app-modal-overlay" id="checkout-success-modal">
+    <div class="app-modal-dialog">
+      <button type="button" class="modal-close-trigger" title="Close dialog">&times;</button>
+      
+      <div class="success-modal-content">
+        <div class="success-icon-badge">✓</div>
+        <h3 style="font-size:1.5rem;font-weight:850;color:var(--forest-green);margin-bottom:8px;">
+          Order Placed Successfully!
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text-body);max-width:380px;">
+          Your fresh groceries are being handpicked at our local distribution hub and packed in insulated cold-chain totes.
+        </p>
+
+        <span class="success-order-num" id="success-order-number">GF-982412</span>
+
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:24px;">
+          Estimated Delivery: <strong>Within 90-120 minutes</strong>. A tracking SMS has been sent to your phone.
+        </p>
+
+        <button type="button" class="pill-btn pill-btn-primary" onclick="window.modals.closeAllModals();">
+          Continue Shopping
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Wishlist Modal
+       ========================================================================= -->
+  <div class="app-modal-overlay" id="wishlist-modal">
+    <div class="app-modal-dialog">
+      <button type="button" class="modal-close-trigger" title="Close dialog">&times;</button>
+      
+      <div class="wishlist-modal-body">
+        <h3 class="wishlist-modal-title">Your Saved Grocery Favorites</h3>
+        <div class="wishlist-items-list" id="wishlist-items-container">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Floating Toast Notifications Container
+       ========================================================================= -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- =========================================================================
+       Scripts
+       ========================================================================= -->
+  <script src="scripts/icons.js"></script>
+  <script src="scripts/data.js"></script>
+  <script src="scripts/cart.js"></script>
+  <script src="scripts/modals.js"></script>
+  <script src="scripts/search.js"></script>
+  <script src="scripts/app.js"></script>
+
+</body>
+</html>

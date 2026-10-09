@@ -1,0 +1,194 @@
+/* ==========================================================================
+   LPG Beauty & Clinic - Core Design System & Base Styling
+   STRICT RULE: ZERO EMOJIS! Pure SVG and typography only.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  
+  /* Color Palette matching luxury French LPG clinic */
+  --bg-page-gradient: radial-gradient(120% 120% at 10% 0%, #FDF1EE 0%, #FAF6F4 45%, #F4F1F2 100%);
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F9F9FB;
+  --bg-hover: #F4F4F6;
+  
+  --primary-pink: #E8929A;
+  --primary-pink-hover: #DE7D86;
+  --primary-pink-active: #D36C75;
+  --primary-pink-light: #FCECEE;
+  
+  --dark-main: #18191D;
+  --dark-secondary: #27272A;
+  --dark-hover: #2F3136;
+  
+  --gray-900: #18191D;
+  --gray-700: #3F3F46;
+  --gray-600: #52525B;
+  --gray-500: #71717A;
+  --gray-400: #A1A1AA;
+  --gray-300: #D4D4D8;
+  --gray-200: #E4E4E7;
+  --gray-100: #F4F4F5;
+  --gray-50:  #FAFAFA;
+
+  /* Pill Badges */
+  --badge-blue-bg: #E3EEFE;
+  --badge-blue-icon: #2563EB;
+  --badge-purple-bg: #F0E4FB;
+  --badge-purple-icon: #8B5CF6;
+
+  /* Status Badges */
+  --status-completed-bg: #E8F8EE;
+  --status-completed-text: #198754;
+  --status-cancelled-bg: #FDEBEB;
+  --status-cancelled-text: #DC3545;
+
+  /* Borders & Shadows */
+  --border-card: rgba(0, 0, 0, 0.07);
+  --border-light: #EBEBEF;
+  --shadow-main: 0 16px 48px rgba(30, 20, 25, 0.06);
+  --shadow-subtle: 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-popup: 0 20px 50px rgba(0, 0, 0, 0.15);
+
+  --radius-xl: 28px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+  
+  --max-width: 1280px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg-page-gradient);
+  background-attachment: fixed;
+  color: var(--gray-900);
+  min-height: 100vh;
+  line-height: 1.5;
+  padding: 24px 20px 48px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Base Container */
+.app-container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* Master White Card matching mockup */
+.salon-card-wrapper {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-main);
+  padding: 24px 32px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Global SVG helper styling */
+.svg-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Section Divider */
+.section-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 36px 0;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  background: var(--dark-main);
+  color: #FFFFFF;
+  padding: 14px 20px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-popup);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 260px;
+  max-width: 380px;
+}
+
+.toast.toast-success {
+  background: #111827;
+  border-left: 4px solid var(--primary-pink);
+}
+
+.toast-icon {
+  color: var(--primary-pink);
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Screen Transitions */
+.view-screen {
+  display: none;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.view-screen.is-active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Freshly Mart - Product Details</title>
+  <meta name="description" content="View details, ingredients, nutrition facts, and size options for premium farm-fresh groceries at Freshly Mart.">
+
+  <!-- Favicon: Vector SVG (Strictly Zero Emojis) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><circle cx=%2216%22 cy=%2216%22 r=%2215%22 fill=%22%23634994%22/><text x=%2216%22 y=%2222%22 font-family=%22sans-serif%22 font-size=%2214%22 font-weight=%22800%22 fill=%22%23FFFFFF%22 text-anchor=%22middle%22>F</text></svg>">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/header.css">
+  <link rel="stylesheet" href="styles/product.css">
+  <link rel="stylesheet" href="styles/trending.css">
+  <link rel="stylesheet" href="styles/cart.css">
+  <link rel="stylesheet" href="styles/footer.css">
+  <link rel="stylesheet" href="styles/responsive.css">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-announcement-bar">
+    <div class="container">
+      Free delivery on all orders over KSh 3,000. Shop now for fresh groceries!
+    </div>
+  </div>
+
+  <!-- Main Header Bar -->
+  <header class="main-header-bar">
+    <div class="container main-header-row">
+      <a href="index.html" class="brand-logo-text" title="Freshly Mart">
+        Freshly
+      </a>
+
+      <div class="header-search-container">
+        <a href="index.html" class="categories-dropdown-btn">
+          <span>All Categories</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </a>
+
+        <input 
+          type="text" 
+          id="main-search-input" 
+          class="main-search-input" 
+          placeholder="Search for items..." 
+          autocomplete="off" 
+        />
+
+        <button type="button" class="btn-search-gold" id="btn-search-submit" title="Search items">
+          Search
+        </button>
+      </div>
+
+      <div class="header-actions-group">
+        <button type="button" class="header-icon-action-btn" id="btn-header-user" onclick="window.App.showToast('Account', 'Viewing client dashboard.')" title="Account">
+        </button>
+        <button type="button" class="header-icon-action-btn" id="btn-header-wishlist" onclick="window.App.showToast('Wishlist', `You have ${window.App.wishlistCount} saved items.`)" title="Wishlist">
+        </button>
+        <button type="button" class="header-icon-action-btn" id="btn-header-cart" onclick="window.Cart.openDrawer()" title="Shopping Cart">
+        </button>
+        <button type="button" class="header-icon-action-btn" id="btn-header-menu" onclick="window.App.toggleMobileMenu()" title="Navigation Menu">
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Breadcrumbs Bar -->
+  <div style="background: var(--gray-50); border-bottom: 1px solid var(--border-light); padding: 12px 0;">
+    <div class="container" style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-500);">
+      <a href="index.html" style="color: var(--purple-main); font-weight: 600;">Home</a>
+      <span>/</span>
+      <span id="breadcrumb-category" style="color: var(--gray-600);">Catalogue</span>
+      <span>/</span>
+      <span id="breadcrumb-title" style="color: var(--gray-900); font-weight: 700;">Product Details</span>
+    </div>
+  </div>
+
+  <!-- Dedicated Product Detail Main Section -->
+  <main class="hero-product-section" style="padding-top: 32px; border-bottom: none;">
+    <div class="container">
+
+      <!-- Product Header Title & Meta -->
+      <div class="hero-product-title-row">
+        <h1 class="hero-product-title" id="page-prod-title">Aptamil Gold+ ProNutra Biotik Stage 1</h1>
+        <div class="hero-product-meta-row">
+          <span class="meta-avail-badge" id="page-prod-avail">Availability: 35</span>
+          <span>•</span>
+          <div class="hero-stars-wrap" id="page-prod-stars"></div>
+          <span>•</span>
+          <span class="meta-sku-text" id="page-prod-sku">Product SKU: 107</span>
+          <div class="meta-sizes-selector" id="page-sizes-row"></div>
+        </div>
+      </div>
+
+      <!-- 2-Column Product Layout -->
+      <div class="hero-product-grid">
+
+        <!-- Left: Image Gallery -->
+        <div class="hero-gallery-col">
+          <div class="hero-main-image-frame">
+            <button 
+              type="button" 
+              class="hero-wishlist-toggle-btn" 
+              id="page-wishlist-btn"
+              onclick="window.ProductPage.toggleWishlist()"
+              title="Add to wishlist"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            </button>
+            <img src="assets/aptamil_main.jpg" alt="Product Can" id="page-main-img" />
+          </div>
+
+          <div class="hero-thumbs-row" id="page-thumbs-row"></div>
+        </div>
+
+        <!-- Right: Purchasing Controls & Details -->
+        <div class="hero-buy-col">
+          
+          <!-- Prices -->
+          <div class="hero-price-display-row">
+            <span class="hero-price-original" id="page-price-original">KSh 1,690</span>
+            <span class="hero-price-current" id="page-price-current">KSh 1,299</span>
+          </div>
+
+          <!-- Stock Alert -->
+          <div class="hero-stock-urgency-badge" id="page-stock-urgency">
+            Hurry Up! Only 33 left in stock
+          </div>
+
+          <!-- Short Description -->
+          <p class="hero-short-desc" id="page-prod-short-desc">
+            Scientifically balanced nutrition crafted for gentle infant digestion and immune support.
+          </p>
+
+          <!-- Quantity Stepper & Add to Cart -->
+          <div class="hero-purchase-actions-row">
+            <div class="qty-counter-stepper">
+              <button type="button" class="qty-step-btn" onclick="window.ProductPage.updateQty(-1)" title="Decrease quantity">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+              <span class="qty-number-display" id="page-qty-val">1</span>
+              <button type="button" class="qty-step-btn" onclick="window.ProductPage.updateQty(1)" title="Increase quantity">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+            </div>
+
+            <button type="button" class="btn-primary-purple btn-add-to-cart-hero" onclick="window.ProductPage.addToCart()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              <span id="page-add-cart-text">Add to Cart • KSh 1,299</span>
+            </button>
+          </div>
+
+          <!-- Trust Badges -->
+          <div class="product-trust-bullets-list">
+            <div class="trust-bullet-row">
+              <span class="svg-icon" style="color: var(--accent-green);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+              <span>30 days easy returns policy</span>
+            </div>
+            <div class="trust-bullet-row">
+              <span class="svg-icon" style="color: var(--accent-green);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+              <span>Order yours before 2:30pm for same-day dispatch</span>
+            </div>
+          </div>
+
+          <!-- Guaranteed Safe Checkout -->
+          <div class="safe-checkout-box">
+            <span class="safe-checkout-title">Guaranteed safe & secure checkout</span>
+            <div class="payment-badges-row">
+              <span class="payment-badge-pill">M-PESA</span>
+              <span class="payment-badge-pill">VISA</span>
+              <span class="payment-badge-pill">MASTERCARD</span>
+              <span class="payment-badge-pill">PAYPAL</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Product Details Tabs -->
+  <section class="product-tabs-section" style="padding-top: 24px; padding-bottom: 48px;">
+    <div class="container">
+      <div class="product-tabs-nav">
+        <button type="button" class="product-tab-btn" data-tab="description" onclick="window.ProductPage.switchTab('description')">
+          Description
+        </button>
+        <button type="button" class="product-tab-btn is-active" data-tab="additional" onclick="window.ProductPage.switchTab('additional')">
+          Additional Information
+        </button>
+        <button type="button" class="product-tab-btn" data-tab="reviews" onclick="window.ProductPage.switchTab('reviews')">
+          Reviews (<span id="page-tab-reviews-count">1</span>)
+        </button>
+      </div>
+
+      <div id="product-tab-content-area"></div>
+    </div>
+  </section>
+
+  <!-- Related Products Section -->
+  <section class="trending-section-wrapper" style="border-top: 1px solid var(--border-light); padding: 40px 0;">
+    <div class="container">
+      <div class="trending-header-row">
+        <h2 class="trending-section-title">Related Items You May Like</h2>
+      </div>
+      <div class="trending-products-grid" id="related-products-grid"></div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="freshly-footer">
+    <div class="container">
+      <div class="footer-top-grid">
+        <div class="footer-brand-col">
+          <div class="footer-logo-title">Freshly</div>
+          <div class="footer-contact-item"><span>info@freshly.com</span></div>
+          <div class="footer-contact-item"><span>+254 700 345-0667</span></div>
+          <div class="footer-social-row">
+            <button type="button" class="footer-social-btn" title="Facebook"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></button>
+            <button type="button" class="footer-social-btn" title="Twitter"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></button>
+            <button type="button" class="footer-social-btn" title="Instagram"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path></svg></button>
+            <button type="button" class="footer-social-btn" title="LinkedIn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></button>
+          </div>
+        </div>
+
+        <div class="footer-nav-col">
+          <h4 class="footer-col-heading">About</h4>
+          <ul class="footer-links-list">
+            <li class="footer-link-item"><a href="index.html">About Us</a></li>
+            <li class="footer-link-item"><a href="index.html">Recipes</a></li>
+            <li class="footer-link-item"><a href="index.html">New Store</a></li>
+            <li class="footer-link-item"><a href="index.html">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-nav-col">
+          <h4 class="footer-col-heading">Company</h4>
+          <ul class="footer-links-list">
+            <li class="footer-link-item"><a href="index.html">Our Recipe</a></li>
+            <li class="footer-link-item"><a href="index.html">Sustainability</a></li>
+            <li class="footer-link-item"><a href="index.html">FAQs</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-nav-col">
+          <h4 class="footer-col-heading">Support</h4>
+          <ul class="footer-links-list">
+            <li class="footer-link-item"><a href="index.html">Account</a></li>
+            <li class="footer-link-item"><a href="index.html">Support Center</a></li>
+            <li class="footer-link-item"><a href="index.html">Feedback</a></li>
+            <li class="footer-link-item"><a href="index.html">Accessibility</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-bar">
+        <span>Copyright 2026 Freshly. All rights reserved.</span>
+        <div class="footer-payments-cluster">
+          <span class="footer-pay-pill">M-PESA</span>
+          <span class="footer-pay-pill">VISA</span>
+          <span class="footer-pay-pill">MASTERCARD</span>
+          <span class="footer-pay-pill">PAYPAL</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cart Drawer -->
+  <div class="cart-backdrop-overlay" id="cart-backdrop" onclick="window.Cart.closeDrawer()"></div>
+  <aside class="cart-drawer-panel" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <h3 class="cart-drawer-title">Shopping Cart</h3>
+      <button type="button" class="cart-close-btn" onclick="window.Cart.closeDrawer()" title="Close cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="cart-items-scroll-area" id="cart-items-list"></div>
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row">
+        <span>Subtotal:</span>
+        <span class="cart-subtotal-amount" id="cart-subtotal-val">KSh 0</span>
+      </div>
+      <button type="button" class="btn-primary-purple btn-checkout-primary" id="btn-cart-checkout" onclick="window.Cart.checkout()">
+        Proceed to Checkout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Checkout Modal -->
+  <div class="modal-overlay" id="checkout-modal">
+    <div class="checkout-modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h3 style="font-size: 19px; font-weight: 800; color: var(--gray-900);">Fast Checkout</h3>
+        <button type="button" class="cart-close-btn" onclick="window.App.closeCheckoutModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <p style="font-size: 13px; color: var(--gray-500); margin-bottom: 14px;">Enter delivery details for same-day grocery delivery.</p>
+
+      <div class="checkout-summary-box">
+        <span style="font-weight: 600; color: var(--purple-dark);" id="checkout-total-items">1 item</span>
+        <strong style="font-size: 18px; color: var(--purple-main);" id="checkout-total-amt">KSh 1,299</strong>
+      </div>
+
+      <div class="form-group-field">
+        <label style="font-size: 12.5px; font-weight: 600; display: block; margin-bottom: 4px;">Full Name</label>
+        <input type="text" class="form-input-control" id="checkout-client-name" placeholder="e.g. Dennis Kiprop" value="Dennis Kiprop" />
+      </div>
+
+      <div class="form-group-field">
+        <label style="font-size: 12.5px; font-weight: 600; display: block; margin-bottom: 4px;">M-Pesa / Mobile Number</label>
+        <input type="tel" class="form-input-control" id="checkout-client-phone" placeholder="e.g. +254 712 345 678" value="+254 712 345 678" />
+      </div>
+
+      <div class="form-group-field">
+        <label style="font-size: 12.5px; font-weight: 600; display: block; margin-bottom: 4px;">Delivery Location in Nairobi</label>
+        <input type="text" class="form-input-control" placeholder="e.g. Kilimani, Argwings Kodhek Rd" value="Kilimani, Nairobi" />
+      </div>
+
+      <button type="button" class="btn-primary-purple" style="width: 100%; height: 46px; margin-top: 8px;" onclick="window.App.confirmCheckout()">
+        Confirm & Pay with M-Pesa
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-drawer-backdrop" id="mobile-menu-backdrop" onclick="window.App.closeMobileMenu()"></div>
+  <aside class="mobile-drawer-panel" id="mobile-menu-drawer">
+    <div class="mobile-drawer-header">
+      <span class="brand-logo-text" style="font-size: 32px;">Freshly</span>
+      <button type="button" class="cart-close-btn" onclick="window.App.closeMobileMenu()" title="Close menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="mobile-drawer-body">
+      <div class="mobile-drawer-section-title">Navigation</div>
+      <ul class="mobile-nav-links-list">
+        <li><a href="index.html">Home Storefront</a></li>
+        <li><a href="index.html#section-featured">Featured Harvest</a></li>
+        <li><a href="index.html#section-bestsellers">Best Sellers</a></li>
+        <li><a href="index.html#section-trending">Trending Deals</a></li>
+      </ul>
+      <div class="mobile-drawer-support-card">
+        <div style="font-size: 11px; font-weight: 700; color: var(--purple-main); text-transform: uppercase; margin-bottom: 4px;">Hotline Support</div>
+        <a href="tel:+2547003450667" style="font-size: 15px; font-weight: 800; color: var(--gray-900);">+254 700 345-0667</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="scripts/icons.js"></script>
+  <script src="scripts/data.js"></script>
+  <script src="scripts/cart.js"></script>
+  <script src="scripts/app.js"></script>
+  <script>
+    // Dedicated Product Page Controller
+    window.ProductPage = {
+      product: null,
+      selectedSize: null,
+      quantity: 1,
+      activeTab: 'additional',
+
+      init() {
+        const params = new URLSearchParams(window.location.search);
+        const prodId = params.get('id') || 'prod-aptamil-1';
+        this.product = window.App.getProductById(prodId) || window.MartData.heroProduct;
+
+        // Set default options
+        if (!this.product.options || this.product.options.length === 0) {
+          if (this.product.sizes) {
+            this.product.options = this.product.sizes.map((s, idx) => ({
+              size: s,
+              price: this.product.price + (idx * 250),
+              originalPrice: this.product.originalPrice ? this.product.originalPrice + (idx * 300) : null,
+              formattedPrice: `KSh ${(this.product.price + (idx * 250)).toLocaleString()}`
+            }));
+          } else {
+            this.product.options = [{
+              size: 'Standard',
+              price: this.product.price,
+              formattedPrice: `KSh ${this.product.price.toLocaleString()}`
+            }];
+          }
+        }
+
+        this.selectedSize = this.product.options[0].size;
+        this.render();
+        this.renderRelated();
+      },
+
+      render() {
+        const p = this.product;
+        const curOpt = p.options.find(o => o.size === this.selectedSize) || p.options[0];
+
+        document.getElementById('breadcrumb-category').textContent = p.category || 'General';
+        document.getElementById('breadcrumb-title').textContent = p.title;
+
+        document.getElementById('page-prod-title').textContent = p.title;
+        document.getElementById('page-prod-sku').textContent = `Product SKU: ${p.sku || 'FMT-100'}`;
+        document.getElementById('page-prod-avail').textContent = `Availability: ${p.availability || 30}`;
+        document.getElementById('page-prod-short-desc').textContent = p.shortDesc || p.longDesc || 'Guaranteed fresh quality produce from verified Kenyan suppliers.';
+        document.getElementById('page-stock-urgency').textContent = `Hurry Up! Only ${p.stockUrgency || 25} left in stock`;
+
+        document.getElementById('page-price-current').textContent = curOpt.formattedPrice || `KSh ${curOpt.price.toLocaleString()}`;
+        const origEl = document.getElementById('page-price-original');
+        if (curOpt.originalPrice || p.originalPrice) {
+          origEl.textContent = `KSh ${(curOpt.originalPrice || p.originalPrice).toLocaleString()}`;
+          origEl.style.display = 'inline';
+        } else {
+          origEl.style.display = 'none';
+        }
+
+        document.getElementById('page-prod-stars').innerHTML = Array(p.rating || 5).fill(0).map(() => window.Icons.star(true)).join('');
+
+        const mainImg = document.getElementById('page-main-img');
+        mainImg.src = (p.images && p.images[0]) || p.image;
+
+        const thumbsRow = document.getElementById('page-thumbs-row');
+        if (p.images && p.images.length > 1) {
+          thumbsRow.style.display = 'grid';
+          thumbsRow.innerHTML = p.images.map((src, idx) => `
+            <div class="hero-thumb-box ${idx === 0 ? 'is-active' : ''}" onclick="window.ProductPage.switchImg('${src}', this)">
+              <img src="${src}" alt="Angle ${idx + 1}" />
+            </div>
+          `).join('');
+        } else {
+          thumbsRow.style.display = 'none';
+        }
+
+        // Sizes selector
+        const sizesRow = document.getElementById('page-sizes-row');
+        sizesRow.innerHTML = p.options.map(opt => `
+          <button type="button" class="size-select-pill ${opt.size === this.selectedSize ? 'is-active' : ''}" onclick="window.ProductPage.selectSize('${opt.size}')">
+            ${opt.size}
+          </button>
+        `).join('');
+
+        this.updateBtnText();
+        this.renderTabs();
+      },
+
+      switchImg(src, el) {
+        document.getElementById('page-main-img').src = src;
+        document.querySelectorAll('.hero-thumb-box').forEach(b => b.classList.remove('is-active'));
+        if (el) el.classList.add('is-active');
+      },
+
+      selectSize(size) {
+        this.selectedSize = size;
+        const curOpt = this.product.options.find(o => o.size === size) || this.product.options[0];
+        document.getElementById('page-price-current').textContent = curOpt.formattedPrice || `KSh ${curOpt.price.toLocaleString()}`;
+        if (curOpt.originalPrice) {
+          document.getElementById('page-price-original').textContent = `KSh ${curOpt.originalPrice.toLocaleString()}`;
+        }
+        document.querySelectorAll('.size-select-pill').forEach(b => {
+          b.classList.toggle('is-active', b.textContent.trim() === size);
+        });
+        this.updateBtnText();
+      },
+
+      updateQty(delta) {
+        this.quantity = Math.max(1, this.quantity + delta);
+        document.getElementById('page-qty-val').textContent = this.quantity;
+        this.updateBtnText();
+      },
+
+      updateBtnText() {
+        const curOpt = this.product.options.find(o => o.size === this.selectedSize) || this.product.options[0];
+        const total = curOpt.price * this.quantity;
+        document.getElementById('page-add-cart-text').textContent = `Add to Cart • KSh ${total.toLocaleString()}`;
+      },
+
+      addToCart() {
+        const curOpt = this.product.options.find(o => o.size === this.selectedSize) || this.product.options[0];
+        window.Cart.addItem({
+          id: `${this.product.id}-${this.selectedSize}`,
+          title: this.product.title,
+          size: this.selectedSize,
+          price: curOpt.price,
+          formattedPrice: `KSh ${curOpt.price.toLocaleString()}`,
+          image: (this.product.images && this.product.images[0]) || this.product.image,
+          quantity: this.quantity
+        });
+      },
+
+      toggleWishlist() {
+        window.App.toggleWishlist(this.product.id);
+        const btn = document.getElementById('page-wishlist-btn');
+        if (btn) btn.innerHTML = window.Icons.heart(window.App.likedItems.has(this.product.id));
+      },
+
+      switchTab(tabName) {
+        this.activeTab = tabName;
+        document.querySelectorAll('.product-tab-btn').forEach(btn => {
+          btn.classList.toggle('is-active', btn.getAttribute('data-tab') === tabName);
+        });
+        this.renderTabs();
+      },
+
+      renderTabs() {
+        const contentEl = document.getElementById('product-tab-content-area');
+        const p = this.product;
+
+        if (this.activeTab === 'additional') {
+          const sp = p.specs || {};
+          contentEl.innerHTML = `
+            <table class="specs-table">
+              <tbody>
+                <tr><td class="spec-label">Weight/Volume</td><td class="spec-val">${sp.weight || sp.volume || this.selectedSize}</td></tr>
+                <tr><td class="spec-label">Brand</td><td class="spec-val">${sp.brand || 'Freshly Quality'}</td></tr>
+                <tr><td class="spec-label">Origin</td><td class="spec-val">${sp.origin || 'Kenya'}</td></tr>
+                <tr><td class="spec-label">Shelf Life</td><td class="spec-val">${sp.shelfLife || sp.storage || 'Fresh Quality'}</td></tr>
+              </tbody>
+            </table>
+          `;
+        } else if (this.activeTab === 'description') {
+          contentEl.innerHTML = `
+            <div style="font-size: 14.5px; color: var(--gray-600); line-height: 1.7; max-width: 800px; margin: 0 auto;">
+              <p style="margin-bottom: 14px;">${p.longDesc || p.shortDesc}</p>
+              <ul style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+                <li>Certified origin and fresh handling protocol.</li>
+                <li>Hygienically packaged with temperature-controlled logistics.</li>
+                <li>100% farm-fresh guarantee with hassle-free exchange.</li>
+              </ul>
+            </div>
+          `;
+        } else if (this.activeTab === 'reviews') {
+          const reviews = p.reviewsList || [
+            { author: "Faith Wanjiku", date: "February 2026", rating: 5, comment: "Top quality grocery item, delivered crisp and super fresh within 2 hours in Nairobi!" }
+          ];
+          contentEl.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 16px; max-width: 800px; margin: 0 auto;">
+              ${reviews.map(r => `
+                <div style="padding: 16px; border: 1px solid var(--gray-200); border-radius: var(--radius-md); background: #FFFFFF;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="color: var(--gray-900);">${r.author}</strong>
+                    <span style="font-size: 12.5px; color: var(--gray-500);">${r.date}</span>
+                  </div>
+                  <div style="display: flex; gap: 3px; margin-bottom: 8px;">
+                    ${Array(r.rating).fill(0).map(() => window.Icons.star(true)).join('')}
+                  </div>
+                  <p style="font-size: 13.5px; color: var(--gray-600); line-height: 1.5;">${r.comment}</p>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+      },
+
+      renderRelated() {
+        const grid = document.getElementById('related-products-grid');
+        if (!grid) return;
+        const related = window.MartData.featuredProducts.slice(0, 4);
+        grid.innerHTML = related.map(prod => `
+          <div class="trending-product-card">
+            <div class="trend-card-top-row">
+              <span class="trend-cat-tag">${prod.category}</span>
+            </div>
+            <a href="product.html?id=${prod.id}" class="trend-img-wrap">
+              <img src="${prod.image}" alt="${prod.title}" />
+            </a>
+            <div class="trend-price-row">
+              <span class="trend-price-text">${prod.formattedPrice}</span>
+            </div>
+            <h4 class="trend-product-title"><a href="product.html?id=${prod.id}">${prod.title}</a></h4>
+            <a href="product.html?id=${prod.id}" class="btn-select-options" style="display: flex; align-items: center; justify-content: center; text-decoration: none;">
+              <span>View Details</span>
+            </a>
+          </div>
+        `).join('');
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.ProductPage.init();
+    });
+  </script>
+</body>
+</html>

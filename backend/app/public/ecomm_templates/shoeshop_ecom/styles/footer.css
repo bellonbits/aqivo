@@ -1,0 +1,187 @@
+/* ==========================================================================
+   FootWear - Premium Dark Footer
+   Matches Reference Mockup: Minimalist Dark Layout with Embedded Newsletter Card
+   ========================================================================== */
+
+.site-footer {
+  background-color: var(--bg-dark-footer);
+  color: #FFFFFF;
+  padding-top: 5rem;
+  padding-bottom: 3.5rem;
+  border-top: 1px solid #1E2026;
+}
+
+.footer-top-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 2fr;
+  gap: 60px;
+  margin-bottom: 4rem;
+}
+
+/* Left Footer Column */
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #FFFFFF;
+  margin-bottom: 1.2rem;
+}
+
+.footer-brand-bio {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: #8E93A3;
+  margin-bottom: 2rem;
+  max-width: 360px;
+}
+
+/* Embedded Newsletter Card */
+.footer-newsletter-card {
+  background-color: var(--bg-dark-footer-card);
+  border: 1px solid #282A33;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 380px;
+}
+
+.newsletter-card-title {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.newsletter-card-desc {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #8E93A3;
+  margin-bottom: 16px;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 8px;
+}
+
+.newsletter-input {
+  flex: 1;
+  background-color: #121316;
+  border: 1px solid #2E313C;
+  border-radius: var(--radius-pill);
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  color: #FFFFFF;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.newsletter-input:focus {
+  border-color: #555A6B;
+}
+
+.newsletter-submit-btn {
+  background-color: #FFFFFF;
+  color: #121316;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.newsletter-submit-btn:hover {
+  background-color: #E2E4E9;
+  transform: translateY(-1px);
+}
+
+/* Right Nav Columns */
+.footer-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+}
+
+.footer-nav-col h5 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.2rem;
+}
+
+.footer-links-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links-list a {
+  font-size: 0.85rem;
+  color: #8E93A3;
+  transition: color var(--transition-fast);
+}
+
+.footer-links-list a:hover {
+  color: #FFFFFF;
+}
+
+/* Footer Bottom Bar */
+.footer-bottom-bar {
+  border-top: 1px solid #202229;
+  padding-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: #6B7280;
+}
+
+.footer-social-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-social-links a {
+  color: #8E93A3;
+  transition: color var(--transition-fast);
+}
+
+.footer-social-links a:hover {
+  color: #FFFFFF;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .footer-top-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .footer-nav-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .footer-nav-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .footer-bottom-bar {
+    flex-direction: column;
+    gap: 14px;
+    text-align: center;
+  }
+}

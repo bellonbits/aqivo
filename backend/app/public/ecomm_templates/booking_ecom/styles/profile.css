@@ -1,0 +1,189 @@
+/* ==========================================================================
+   LUXE BEAUTY STUDIO - User Profile & Auth Styling
+   Matches Screen 9 from the Beauty Booking Mockup
+   ========================================================================== */
+
+.profile-view-wrapper {
+  padding: 24px 0 60px;
+}
+
+.profile-card-header {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--shadow-subtle);
+  margin-bottom: 24px;
+}
+
+.profile-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--color-rose-light);
+  box-shadow: 0 4px 12px rgba(216, 114, 116, 0.2);
+  flex-shrink: 0;
+}
+
+.profile-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-user-info {
+  flex: 1;
+}
+
+.profile-user-name {
+  font-size: 1.4rem;
+  font-weight: 850;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.profile-user-phone {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.vip-member-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  color: #92400E;
+  border: 1px solid #FCD34D;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+}
+
+/* Profile Menu Options */
+.profile-menu-section {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-subtle);
+  margin-bottom: 24px;
+}
+
+.profile-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.profile-menu-item:last-child {
+  border-bottom: none;
+}
+
+.profile-menu-item:hover {
+  background-color: var(--color-blush-pale);
+}
+
+.menu-item-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.menu-item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--bg-subtle);
+  color: var(--color-rose);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-menu-item:hover .menu-item-icon {
+  background-color: var(--color-rose);
+  color: #FFFFFF;
+}
+
+.menu-item-left strong {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.menu-item-left small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.menu-item-arrow {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* Authentication Modal */
+.auth-sheet-modal {
+  padding: 32px 24px;
+}
+
+.auth-tabs-toggle {
+  display: flex;
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.auth-tab-btn.is-active {
+  background-color: #FFFFFF;
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.auth-form-field {
+  margin-bottom: 16px;
+}
+
+.auth-form-field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 750;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.auth-form-field input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-light);
+  font-size: 0.9rem;
+  background-color: #FFFFFF;
+  outline: none;
+}
+
+.auth-form-field input:focus {
+  border-color: var(--color-rose);
+}

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FootWear — Shop Now, Goodlook Later | Official Sneaker Store</title>
+  <meta name="description" content="Discover premium sneakers from Nike, Adidas, Compass, New Balance, and Vans. Limited edition drops, exclusive sneaker fest deals, and 100% authentic streetwear footwear." />
+  <meta name="keywords" content="FootWear, sneakers, Air Jordan 6 Eastside, Nike Air Max 90, Stan Smith, Compass Retrograde, sneakerhead, authentic shoes" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 22' fill='none'><path d='M11 3C6.58 3 3 6.58 3 11C3 15.42 6.58 19 11 19C15.42 19 17.5 14.5 19 11C20.5 7.5 22.58 3 27 3C31.42 3 35 6.58 35 11C35 15.42 31.42 19 27 19C22.58 19 20.5 14.5 19 11C17.5 7.5 15.42 3 11 3Z' stroke='%23121316' stroke-width='3'/></svg>" />
+
+  <!-- Fonts & Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/header.css" />
+  <link rel="stylesheet" href="styles/hero.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/drawer.css" />
+  <link rel="stylesheet" href="styles/footer.css" />
+</head>
+<body>
+
+  <!-- =========================================================================
+       SITE HEADER
+       ========================================================================= -->
+  <header class="site-header">
+    <div class="container header-inner">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="brand-link" title="FootWear Home">
+        <svg class="footwear-logo-svg" width="34" height="22" viewBox="0 0 38 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 3C6.58 3 3 6.58 3 11C3 15.42 6.58 19 11 19C15.42 19 17.5 14.5 19 11C20.5 7.5 22.58 3 27 3C31.42 3 35 6.58 35 11C35 15.42 31.42 19 27 19C22.58 19 20.5 14.5 19 11C17.5 7.5 15.42 3 11 3Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>FootWear</span>
+      </a>
+
+      <!-- Pill Search Bar -->
+      <div class="header-search-wrap">
+        <form class="header-search-form" onsubmit="event.preventDefault();">
+          <input 
+            type="text" 
+            id="main-search-input" 
+            class="search-pill-input" 
+            placeholder="Find your sneaker shoes..." 
+            autocomplete="off" 
+          />
+          <button type="button" id="search-clear-btn" class="search-clear-btn" title="Clear search">&times;</button>
+          <button type="button" class="search-pill-icon-btn" title="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Live Instant Suggestions Dropdown -->
+        <div id="search-dropdown" class="search-suggestions-dropdown"></div>
+      </div>
+
+      <!-- Header Actions Right -->
+      <div class="header-actions">
+        
+        <!-- Cart Button -->
+        <button type="button" class="header-icon-btn trigger-cart-drawer" title="Shopping Bag">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="header-badge-count header-cart-count">2</span>
+        </button>
+
+        <!-- Wishlist Button -->
+        <button type="button" class="header-icon-btn trigger-wishlist-view" title="Saved Wishlist">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span class="header-badge-count header-wishlist-count">3</span>
+        </button>
+
+        <!-- User Profile Capsule -->
+        <div class="user-profile-capsule" onclick="window.app.showToast('Profile', 'Logged in as Lucky S. (VIP Sneakerhead)', 'info')" title="Account Profile">
+          <div class="user-avatar-circle">
+            <span>LS</span>
+          </div>
+          <span class="user-name-text">Mr. Lucky...</span>
+          <span class="user-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       HERO PROMO SPLIT SECTION
+       ========================================================================= -->
+  <main>
+    <section class="hero-section container">
+      <div class="hero-grid">
+        
+        <!-- Left Hero Card: Air Jordan 6 G x Eastside -->
+        <div class="hero-card-main">
+          <div class="hero-main-content">
+            <span class="hero-tag-badge">NEW ARRIVAL!</span>
+            <h1 class="hero-main-title">AIR JORDAN 6 G X EASTSIDE</h1>
+            <p class="hero-main-desc">
+              Crafted in celebration of the 1993 classic, this shoe blends vintage style with modern performance for everyday flex and street appeal.
+            </p>
+            <button type="button" class="pill-btn pill-btn-primary" onclick="window.modals.openProductModal('hero-eastside')">
+              View product
+            </button>
+          </div>
+          <div class="hero-main-visual" onclick="window.modals.openProductModal('hero-eastside')" style="cursor: pointer;">
+            <img src="assets/hero_eastside_jordan.jpg" alt="Air Jordan 6 G x Eastside Golf Sneaker and Collector Box" />
+          </div>
+        </div>
+
+        <!-- Right Hero Card: Sneakers Fest ID 50% -->
+        <div class="hero-card-promo">
+          <div class="hero-promo-content">
+            <h2 class="hero-promo-title">DISC UP TO 50% FOR SNEAKERS FEST ID 2023</h2>
+            <p class="hero-promo-desc">
+              Grab it now and get special discount for every sneaker shoes fest ID 2023 limited edition.
+            </p>
+            <button type="button" class="pill-btn pill-btn-white" onclick="window.modals.openEventModal()">
+              Event details
+            </button>
+          </div>
+          <div class="hero-promo-visual" onclick="window.modals.openEventModal()" style="cursor: pointer;">
+            <img src="assets/hero_sneaker_fest.jpg" alt="Sneakers Fest ID Limited Edition Drop" />
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 1: TODAY BEST DEALS !
+         ========================================================================= -->
+    <section class="deals-section container">
+      <div class="deals-section-header">
+        <h2 class="deals-title">Today Best Deals !</h2>
+        
+        <div class="deals-header-right">
+          <button type="button" id="deals-scroll-prev" class="deals-scroll-arrow" title="Scroll Previous">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button type="button" id="deals-scroll-next" class="deals-scroll-arrow" title="Scroll Next">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          <button type="button" class="deals-explore-pill" onclick="window.app.showToast('Best Deals', 'Viewing all curated limited flash deals.', 'info')">
+            Explore All Deal
+          </button>
+        </div>
+      </div>
+
+      <!-- Horizontal Scrollable Deals Rail -->
+      <div class="deals-rail-wrapper">
+        <div id="deals-scroll-rail" class="deals-scroll-rail">
+          <!-- Rendered dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 2: SHOP NOW, GOODLOOK LATER
+         ========================================================================= -->
+    <section id="shop-collection-section" class="catalog-section container">
+      <div class="section-header-centered">
+        <h2 class="section-title-large">Shop Now, Goodlook Later</h2>
+        <p class="section-subtitle">
+          We have a bunch collection for you. Let's go explore and find your damn shoes with best shape.
+        </p>
+      </div>
+
+      <!-- Filter Controls Bar Matching Mockup -->
+      <div class="filter-pills-bar">
+        
+        <!-- Brand Filter Dropdown -->
+        <div class="filter-pill-select-wrap">
+          <select id="filter-brand-select" class="filter-pill-select" title="Filter by Brand">
+            <option value="nike" selected>✓ Nike</option>
+            <option value="all">All Brands</option>
+            <option value="adidas">Adidas</option>
+            <option value="new balance">New Balance</option>
+            <option value="compass">Compass</option>
+            <option value="vans">Vans</option>
+            <option value="ventela">Ventela</option>
+          </select>
+          <span class="filter-pill-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+
+        <!-- Price Range Filter -->
+        <div class="filter-pill-select-wrap">
+          <select id="filter-price-select" class="filter-pill-select" title="Filter by Price">
+            <option value="all" selected>Price</option>
+            <option value="under-1500k">&lt; Rp 1.500.000</option>
+            <option value="1500k-2500k">Rp 1.5M - 2.5M</option>
+            <option value="over-2500k">&gt; Rp 2.500.000</option>
+          </select>
+          <span class="filter-pill-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+
+        <!-- Size Filter -->
+        <div class="filter-pill-select-wrap">
+          <select id="filter-size-select" class="filter-pill-select" title="Filter by Size">
+            <option value="all" selected>Size</option>
+            <option value="39">EU 39</option>
+            <option value="40">EU 40</option>
+            <option value="41">EU 41</option>
+            <option value="42">EU 42</option>
+            <option value="43">EU 43</option>
+            <option value="44">EU 44</option>
+            <option value="45">EU 45</option>
+          </select>
+          <span class="filter-pill-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+
+        <!-- Type Filter -->
+        <div class="filter-pill-select-wrap">
+          <select id="filter-type-select" class="filter-pill-select" title="Filter by Type">
+            <option value="all" selected>Type</option>
+            <option value="lifestyle">Lifestyle</option>
+            <option value="running">Running</option>
+            <option value="basketball">Basketball</option>
+            <option value="court">Court</option>
+            <option value="slides">Slides</option>
+          </select>
+          <span class="filter-pill-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </span>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Sort / More Filter Dropdown -->
+        <div class="filter-pill-select-wrap">
+          <select id="filter-sort-select" class="filter-pill-select" title="Sort sneakers">
+            <option value="popular" selected>More Filter ---</option>
+            <option value="popular">Most Popular</option>
+            <option value="rating">Top Rated</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+          <span class="filter-pill-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+          </span>
+        </div>
+
+      </div>
+
+      <!-- 4-Column Product Grid -->
+      <div id="catalog-products-grid" class="product-grid-4col">
+        <!-- Rendered dynamically by app.js matching the 12 items -->
+      </div>
+
+      <!-- Centered "View more" button -->
+      <div class="center-action-row">
+        <button type="button" id="catalog-view-more-btn" class="pill-btn pill-btn-primary">
+          View more
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 3: THE OFFICIAL STORE OF THE AMAZING BRAND
+         ========================================================================= -->
+    <section class="brand-stores-section container">
+      <div class="section-header-centered">
+        <h2 class="section-title-large">The Official Store of The Amazing Brand</h2>
+        <p class="section-subtitle">
+          We work together with high quality and famous brand around the world.
+        </p>
+      </div>
+
+      <!-- 3 Brand Stores Cards Grid -->
+      <div id="brand-stores-grid" class="brand-stores-grid">
+        <!-- Rendered dynamically by app.js (New Balance, Compass, Nike) -->
+      </div>
+
+      <!-- Centered "View more" button -->
+      <div class="center-action-row">
+        <button type="button" class="pill-btn pill-btn-primary" onclick="window.app.showToast('Flagship Brands', 'All 18 official partner brands are certified.', 'info')">
+          View more
+        </button>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 4: BIG IMPACT DARK BANNER
+         ========================================================================= -->
+    <section class="dark-cta-banner-section container">
+      <div class="dark-cta-banner">
+        <div class="dark-banner-content">
+          <h2 class="dark-banner-title">BRINGING YOU TO UPDATE FANTASTIC FOOTWEAR</h2>
+          <p class="dark-banner-subtitle">
+            Always fresh every single sneaker for your collection. Discover a whole new feeling in every step today.
+          </p>
+          <button type="button" class="pill-btn pill-btn-white" onclick="document.getElementById('shop-collection-section').scrollIntoView({ behavior: 'smooth' })">
+            More sneaker
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       PREMIUM DARK FOOTER
+       ========================================================================= -->
+  <footer class="site-footer">
+    <div class="container">
+      
+      <div class="footer-top-grid">
+        
+        <!-- Left Brand & Newsletter Column -->
+        <div class="footer-brand-col">
+          <div class="footer-logo">
+            <svg width="34" height="22" viewBox="0 0 38 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 3C6.58 3 3 6.58 3 11C3 15.42 6.58 19 11 19C15.42 19 17.5 14.5 19 11C20.5 7.5 22.58 3 27 3C31.42 3 35 6.58 35 11C35 15.42 31.42 19 27 19C22.58 19 20.5 14.5 19 11C17.5 7.5 15.42 3 11 3Z" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>FootWear</span>
+          </div>
+
+          <p class="footer-brand-bio">
+            Footwear was designed and founded in 2023 by person that passionate about sneakers always find whatever shoes is best for everyone.
+          </p>
+
+          <!-- Embedded Newsletter Box -->
+          <div class="footer-newsletter-card">
+            <h4 class="newsletter-card-title">Don't Wanna Miss Out Of Limit?</h4>
+            <p class="newsletter-card-desc">
+              Drop your email to get promo code and other best shoe updates
+            </p>
+            <form id="footer-newsletter-form" class="newsletter-form">
+              <input 
+                type="email" 
+                id="footer-email-input" 
+                class="newsletter-input" 
+                placeholder="Enter your email..." 
+                required 
+              />
+              <button type="submit" class="newsletter-submit-btn">
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Nav Columns -->
+        <div class="footer-nav-grid">
+          
+          <div class="footer-nav-col">
+            <h5>Products</h5>
+            <ul class="footer-links-list">
+              <li><a href="#shop-collection-section">Shoes</a></li>
+              <li><a href="#shop-collection-section">Apparel</a></li>
+              <li><a href="#shop-collection-section">Accessories</a></li>
+              <li><a href="#shop-collection-section">Care & Cleaning</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-nav-col">
+            <h5>Collections</h5>
+            <ul class="footer-links-list">
+              <li><a href="#shop-collection-section" onclick="window.app.filterByBrandDirect('Nike')">Nike</a></li>
+              <li><a href="#shop-collection-section" onclick="window.app.filterByBrandDirect('Adidas')">Adidas</a></li>
+              <li><a href="#shop-collection-section" onclick="window.app.filterByBrandDirect('Vans')">Vans</a></li>
+              <li><a href="#shop-collection-section" onclick="window.app.filterByBrandDirect('Compass')">Compass</a></li>
+              <li><a href="#shop-collection-section" onclick="window.app.filterByBrandDirect('Ventela')">Ventela</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-nav-col">
+            <h5>Featured</h5>
+            <ul class="footer-links-list">
+              <li><a href="#shop-collection-section">New Arrivals</a></li>
+              <li><a href="#shop-collection-section">Sneaker Fest Sale</a></li>
+              <li><a href="#shop-collection-section">Start Selling</a></li>
+              <li><a href="#shop-collection-section">Member Drops</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-nav-col">
+            <h5>Legal & Support</h5>
+            <ul class="footer-links-list">
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms and conditions</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Help Center</a></li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Footer Bottom Bar -->
+      <div class="footer-bottom-bar">
+        <span>&copy; 2023 - 2026 FootWear Inc. All rights reserved. Built with passion for sneakerheads.</span>
+        <div class="footer-social-links">
+          <a href="#" title="Instagram">Instagram</a>
+          <a href="#" title="Twitter">Twitter</a>
+          <a href="#" title="TikTok">TikTok</a>
+          <a href="#" title="YouTube">YouTube</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       MODALS & DRAWERS
+       ========================================================================= -->
+
+  <!-- Slide-out Shopping Cart Drawer -->
+  <div id="cart-drawer-backdrop" class="cart-drawer-backdrop"></div>
+  <aside id="cart-drawer" class="cart-drawer" aria-label="Shopping Cart">
+    <div class="cart-drawer-header">
+      <h3 class="cart-drawer-title">Shopping Bag</h3>
+      <button type="button" id="cart-drawer-close" class="cart-drawer-close-btn" title="Close bag">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Items List -->
+    <div id="cart-drawer-items" class="cart-drawer-body">
+      <!-- Injected by cart.js -->
+    </div>
+
+    <!-- Promo Code Input -->
+    <div class="cart-promo-section">
+      <div class="cart-promo-box">
+        <input type="text" id="cart-promo-input" class="cart-promo-input" placeholder="Promo code (e.g. FEST50)" />
+        <button type="button" id="cart-promo-apply-btn" class="cart-promo-btn">Apply</button>
+      </div>
+    </div>
+
+    <!-- Financial Breakdown -->
+    <div class="cart-drawer-footer">
+      <div class="cart-summary-line">
+        <span>Subtotal</span>
+        <span id="cart-subtotal-val">Rp 0</span>
+      </div>
+      <div id="cart-discount-row" class="cart-summary-line" style="display: none; color: #10B981; font-weight: 700;">
+        <span>Promo Discount</span>
+        <span id="cart-discount-val">- Rp 0</span>
+      </div>
+      <div class="cart-summary-line">
+        <span>Standard Delivery</span>
+        <span id="cart-shipping-val">FREE</span>
+      </div>
+      <div class="cart-summary-line cart-total-line">
+        <span>Total</span>
+        <span id="cart-total-val">Rp 0</span>
+      </div>
+
+      <button type="button" id="cart-checkout-btn" class="pill-btn pill-btn-primary cart-checkout-btn">
+        Proceed to Checkout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Product Detail / Quick View Modal -->
+  <div id="product-detail-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog">
+      <button type="button" class="modal-close-trigger" onclick="window.modals.closeAllModals()" title="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="modal-product-layout">
+        <div class="modal-product-visual">
+          <img id="modal-product-img" src="" alt="Sneaker Preview" />
+        </div>
+
+        <div class="modal-product-details">
+          <span id="modal-product-brand" class="modal-brand-tag">Brand</span>
+          <h2 id="modal-product-title" class="modal-title">Product Name</h2>
+
+          <div class="modal-rating-row">
+            <span id="modal-product-rating" class="modal-star">★ 4.9</span>
+            <span>|</span>
+            <span id="modal-product-sold">120 sold</span>
+            <span>•</span>
+            <span style="color: #10B981; font-weight: 700;">Verified 100% Authentic</span>
+          </div>
+
+          <div class="modal-price-row">
+            <span id="modal-product-price" class="modal-price-val">Rp 0</span>
+            <span id="modal-product-orig-price" class="modal-orig-price-val">Rp 0</span>
+          </div>
+
+          <p id="modal-product-desc" class="modal-desc">
+            Product description
+          </p>
+
+          <div class="modal-section-label">Select Size (EU)</div>
+          <div id="modal-sizes-grid" class="sizes-pills-grid">
+            <!-- Injected by modals.js -->
+          </div>
+
+          <div class="modal-cta-buttons">
+            <button type="button" id="modal-add-to-cart-btn" class="pill-btn pill-btn-primary">
+              Add to Bag
+            </button>
+            <button type="button" id="modal-buy-now-btn" class="pill-btn pill-btn-orange">
+              Buy Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkout-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog checkout-modal-dialog">
+      <button type="button" class="modal-close-trigger" onclick="window.modals.closeAllModals()" title="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="checkout-header">
+        <h3 class="cart-drawer-title" style="font-size: 1.4rem;">Express Checkout</h3>
+        <p style="font-size: 0.85rem; color: #6B7280; margin-top: 4px;">
+          Fast doorstep delivery with real-time package tracking.
+        </p>
+      </div>
+
+      <form id="checkout-form" onsubmit="event.preventDefault(); window.modals.confirmCheckout();">
+        <div class="checkout-form-grid">
+          <div>
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" value="Lucky Santoso" required />
+          </div>
+          <div>
+            <label class="form-label">Phone Number</label>
+            <input type="tel" class="form-input" value="+62 812-3456-7890" required />
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Delivery Address</label>
+            <input type="text" class="form-input" value="Jl. Senopati No. 42, Kebayoran Baru" required />
+          </div>
+          <div>
+            <label class="form-label">City</label>
+            <input type="text" class="form-input" value="Jakarta Selatan" required />
+          </div>
+          <div>
+            <label class="form-label">Postal Code</label>
+            <input type="text" class="form-input" value="12190" required />
+          </div>
+        </div>
+
+        <div class="modal-section-label" style="margin-top: 10px;">Select Payment Method</div>
+        <div class="payment-methods-row">
+          <div class="payment-pill active" onclick="this.parentElement.querySelectorAll('.payment-pill').forEach(p=>p.classList.remove('active')); this.classList.add('active');">
+            GoPay / QRIS
+          </div>
+          <div class="payment-pill" onclick="this.parentElement.querySelectorAll('.payment-pill').forEach(p=>p.classList.remove('active')); this.classList.add('active');">
+            BCA Virtual Acc
+          </div>
+          <div class="payment-pill" onclick="this.parentElement.querySelectorAll('.payment-pill').forEach(p=>p.classList.remove('active')); this.classList.add('active');">
+            Credit Card
+          </div>
+        </div>
+
+        <div style="background: #F8F8FA; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 6px;">
+            <span>Items (<span id="checkout-items-count">2</span>)</span>
+            <span id="checkout-subtotal-val">Rp 0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.88rem; color: #10B981; margin-bottom: 6px;">
+            <span>Discount</span>
+            <span id="checkout-discount-val">- Rp 0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 850; border-top: 1px dashed #E2E4E9; padding-top: 8px;">
+            <span>Total to Pay</span>
+            <span id="checkout-total-val" style="color: #FF5A36;">Rp 0</span>
+          </div>
+        </div>
+
+        <button type="submit" class="pill-btn pill-btn-primary" style="width: 100%; padding: 0.85rem;">
+          Pay & Place Order
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Checkout Success Modal -->
+  <div id="checkout-success-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog" style="max-width: 440px; text-align: center; padding: 40px 28px;">
+      <div style="width: 68px; height: 68px; background: #DCFCE7; color: #16A34A; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2rem;">
+        ✓
+      </div>
+      <h3 style="font-size: 1.45rem; font-weight: 850; margin-bottom: 8px;">Order Confirmed!</h3>
+      <p style="font-size: 0.9rem; color: #6B7280; margin-bottom: 16px;">
+        Thank you for your purchase. Your sneakers are being prepared for express delivery.
+      </p>
+      <div style="background: #F8F8FA; border-radius: 10px; padding: 10px; font-family: monospace; font-size: 0.95rem; font-weight: 700; margin-bottom: 24px;">
+        Order ID: <span id="success-order-number">FW-948102</span>
+      </div>
+      <button type="button" class="pill-btn pill-btn-primary" style="width: 100%;" onclick="window.modals.closeAllModals()">
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+
+  <!-- Sneakers Fest Event Details Modal -->
+  <div id="event-detail-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog" style="max-width: 520px; padding: 36px;">
+      <button type="button" class="modal-close-trigger" onclick="window.modals.closeAllModals()" title="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <span class="modal-brand-tag">SPECIAL FESTIVAL PROMO</span>
+      <h3 class="modal-title" style="margin-bottom: 12px;">SNEAKERS FEST ID 2023</h3>
+      <p class="modal-desc">
+        Celebrate Indonesia's biggest annual sneakerhead convention with discounts up to 50% across select limited edition colorways and collaborative grails.
+      </p>
+      
+      <div style="background: linear-gradient(135deg, #FFF7ED, #FFEDD5); border: 1px dashed #FDBA74; border-radius: 14px; padding: 18px; margin: 20px 0; text-align: center;">
+        <span style="font-size: 0.8rem; text-transform: uppercase; font-weight: 700; color: #C2410C;">Exclusive Voucher Code</span>
+        <div style="font-size: 1.6rem; font-weight: 850; letter-spacing: 2px; color: #9A3412; margin: 6px 0;">FEST50</div>
+        <button type="button" class="pill-btn pill-btn-orange pill-btn-sm" onclick="if(window.cart){ window.cart.applyPromoCode('FEST50'); window.cart.openDrawer(); window.modals.closeAllModals(); }">
+          Apply to Shopping Bag
+        </button>
+      </div>
+
+      <button type="button" class="pill-btn pill-btn-primary" style="width: 100%;" onclick="window.modals.closeAllModals()">
+        Explore Festival Drops
+      </button>
+    </div>
+  </div>
+
+  <!-- Wishlist Slide-over / Modal -->
+  <div id="wishlist-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog" style="max-width: 500px; padding: 32px;">
+      <button type="button" class="modal-close-trigger" onclick="window.modals.closeAllModals()" title="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <h3 class="cart-drawer-title" style="margin-bottom: 20px;">Your Saved Wishlist</h3>
+      <div id="wishlist-items-container" style="display: flex; flex-direction: column; gap: 14px; max-height: 400px; overflow-y: auto;">
+        <!-- Injected by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="scripts/icons.js"></script>
+  <script src="scripts/data.js"></script>
+  <script src="scripts/cart.js"></script>
+  <script src="scripts/modals.js"></script>
+  <script src="scripts/search.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

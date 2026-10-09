@@ -357,6 +357,11 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
 
 def render_business(db: Session, business: Business, *, draft: bool = False, force_profile: bool = False, editing: bool = False, page=None, root: str | None = None) -> str:
     ctx = build_context(db, business, draft=draft, force_profile=force_profile, editing=editing, page=page, root=root)
+    if ctx["use_site"] and page is None and business.website is not None:
+        from app.services import ecomm_site
+        key = business.website.template.key if business.website.template else None
+        if ecomm_site.is_ecomm(key):
+            return ecomm_site.render_ecomm(db, ctx, business, key)
     return render("site.html" if ctx["use_site"] else "profile.html", **ctx)
 
 

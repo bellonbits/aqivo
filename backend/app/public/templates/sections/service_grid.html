@@ -1,2 +1,18 @@
-{% from "sections/_m.html" import head, pcard with context %}
-<section class="sx-sec"><div class="wrap">{{ head(c) }}<div class="pgrid" style="--cols:{{ c.columns or 3 }}">{% for it in d.cards %}{{ pcard(it, c.show_price, true) }}{% endfor %}</div></div></section>
+{% from "sections/_m.html" import store_product_card with context %}
+<section class="ecom-services-section sx-sec" id="services">
+  <div class="wrap store-catalog-wrap">
+    <div class="ecom-section-header">
+      <h2 class="ecom-section-title">{{ c.title or 'Our Services' }}</h2>
+      {% if c.subtitle %}
+      <p class="ecom-section-sub">{{ c.subtitle }}</p>
+      {% endif %}
+    </div>
+
+    <div class="ecom-products-grid">
+      {% for it in d.cards %}
+        {{ store_product_card(it, c.show_price, true) }}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+

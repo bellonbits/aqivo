@@ -41,31 +41,62 @@
   // ---------- filters (search + category chips + price ranges), booking pre-select
   var q = "", cat = "", priceRange = "";
   function applyFilter() {
+    var matchCount = 0;
     document.querySelectorAll("[data-item]").forEach(function (el) {
       var p = Number(el.dataset.price || 0);
       var priceOk = true;
-      if (priceRange === "0-50") priceOk = p <= 50;
-      else if (priceRange === "50-150") priceOk = p >= 50 && p <= 150;
-      else if (priceRange === "150+") priceOk = p > 150;
+      if (priceRange) {
+        if (priceRange.indexOf("+") > -1) {
+          var minP = Number(priceRange.replace("+", ""));
+          priceOk = p >= minP;
+        } else if (priceRange.indexOf("-") > -1) {
+          var parts = priceRange.split("-");
+          priceOk = p >= Number(parts[0]) && p <= Number(parts[1]);
+        }
+      }
 
       var ok = (!q || (el.dataset.name || "").toLowerCase().indexOf(q) > -1) &&
                (!cat || el.dataset.category === cat) &&
                priceOk;
       el.dataset.hidden = ok ? "false" : "true";
       el.style.display = ok ? "" : "none";
+      if (ok) matchCount++;
     });
+
+    var activeLabelEl = document.querySelector("[data-active-filter-label]");
+    if (activeLabelEl) {
+      var catRadio = document.querySelector('input[name="store_cat_filter"]:checked');
+      var catLabel = "All items";
+      if (catRadio && catRadio.value) {
+        var labelEl = catRadio.closest("label").querySelector(".radio-text, .radio-label");
+        if (labelEl) catLabel = labelEl.textContent.trim();
+      }
+      activeLabelEl.textContent = catLabel;
+    }
+
     var activeTextEl = document.querySelector("[data-active-filter-text]");
     if (activeTextEl) {
       var filters = [];
       if (cat) {
-        var catRadio = document.querySelector('input[name="store_cat_filter"]:checked');
-        if (catRadio && catRadio.value) {
-          var labelEl = catRadio.closest("label").querySelector(".radio-label");
-          if (labelEl) filters.push(labelEl.textContent.trim());
+        var catRadio2 = document.querySelector('input[name="store_cat_filter"]:checked');
+        if (catRadio2 && catRadio2.value) {
+          var labelEl2 = catRadio2.closest("label").querySelector(".radio-text, .radio-label");
+          if (labelEl2) filters.push(labelEl2.textContent.trim());
         }
       }
-      if (priceRange) filters.push(priceRange === "0-50" ? "Under 50" : priceRange === "50-150" ? "50 - 150" : "Over 150");
+      if (priceRange) {
+        var priceRadio = document.querySelector('input[name="store_price_filter"]:checked');
+        if (priceRadio && priceRadio.value) {
+          var pLabelEl = priceRadio.closest("label").querySelector(".radio-text, .radio-label");
+          if (pLabelEl) filters.push(pLabelEl.textContent.trim());
+        }
+      }
       activeTextEl.textContent = filters.length > 0 ? filters.join(", ") : "None";
+    }
+
+    var noProductsEl = document.querySelector(".ecom-no-products");
+    if (noProductsEl) {
+      noProductsEl.style.display = matchCount === 0 ? "block" : "none";
     }
   }
 
@@ -85,7 +116,7 @@
   var sortSelect = document.getElementById("catalog-sort");
   if (sortSelect) {
     sortSelect.addEventListener("change", function () {
-      var grid = document.querySelector(".store-products-grid");
+      var grid = document.querySelector(".ecom-products-grid, .store-products-grid, .cafe-products-grid");
       if (!grid) return;
       var cards = Array.from(grid.querySelectorAll("[data-item]"));
       var val = sortSelect.value;
@@ -445,7 +476,24 @@
     // Toggle Filters Sidebar (Mobile)
     if (e.target.closest("[data-toggle-filters]")) {
       var sidebar = document.getElementById("store-filters");
-      if (sidebar) sidebar.classList.toggle("open");
+      if (sidebar) {
+        var opening = !sidebar.classList.contains("is-open");
+        sidebar.classList.toggle("is-open");
+        document.body.style.overflow = opening ? "hidden" : "";
+      }
+      return;
+    }
+
+    // Carousel Navigation (Prev / Next buttons)
+    var prevBtn = e.target.closest("[data-carousel-prev]");
+    var nextBtn = e.target.closest("[data-carousel-next]");
+    if (prevBtn || nextBtn) {
+      var sec = (prevBtn || nextBtn).closest(".ecom-carousel-section, .sx-sec");
+      var rail = sec ? sec.querySelector(".ecom-carousel-rail, [data-carousel-rail], .rail") : null;
+      if (rail) {
+        var scrollAmt = Math.max(260, rail.clientWidth * 0.75);
+        rail.scrollBy({ left: prevBtn ? -scrollAmt : scrollAmt, behavior: "smooth" });
+      }
       return;
     }
 
@@ -689,7 +737,7 @@
     }
     document.addEventListener("click", function (e) {
       // Allow ALL interactive controls, buttons, forms, quantity steppers, cart drawer, modals, tabs, etc. to work naturally
-      if (e.target.closest("button, input, select, textarea, label, [data-tab-target], [data-cat], [data-add], [data-take-pdp], [data-close-pdp], [data-fav-btn], [data-open-bag], [data-close-bag], [data-open-menu], [data-close-menu], [data-open-search], [data-close-search], [data-toggle-filters], [data-checkout], [data-checkout-link], [data-follow-btn], [data-share-btn], #bag, #pdp-modal, #take-cart-bar, .take-modal-veil, .store-bottom-bar, .take-qty-stepper, .store-search-bar")) {
+      if (e.target.closest("button, input, select, textarea, label, [data-tab-target], [data-cat], [data-add], [data-take-pdp], [data-close-pdp], [data-fav-btn], [data-open-bag], [data-close-bag], [data-open-menu], [data-close-menu], [data-open-search], [data-close-search], [data-toggle-filters], [data-carousel-prev], [data-carousel-next], [data-checkout], [data-checkout-link], [data-follow-btn], [data-share-btn], #bag, #pdp-modal, #take-cart-bar, .take-modal-veil, .store-bottom-bar, .take-qty-stepper, .store-search-bar")) {
         return;
       }
       var a = e.target.closest("a");

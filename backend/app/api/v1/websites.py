@@ -225,11 +225,14 @@ def preview(template: str | None = None, edit: bool = False, page: uuid.UUID | N
     headers = {"X-Robots-Tag": "noindex", "Cache-Control": "no-store"}
     if template:
         from app.services.site_render import render as render_tpl, template_preview_context
+        from app.services import ecomm_site
         tpl = db.scalars(select(Template).where(Template.key == template, Template.is_active.is_(True))).first()
         if not tpl:
             raise not_found("Template")
         c = template_preview_context(db, ctx.business, tpl)
         c["draft"], c["no_track"] = True, True
+        if ecomm_site.is_ecomm(tpl.key):
+            return HTMLResponse(ecomm_site.render_ecomm(db, c, ctx.business, tpl.key), headers=headers)
         return HTMLResponse(render_tpl("site.html", **c), headers=headers)
     pg = ws.get_page(db, _site(db, ctx), page) if page else None
     return HTMLResponse(render_business(db, ctx.business, draft=True, editing=edit, page=pg if pg and not pg.is_home else None, root="" if edit else None), headers=headers)
@@ -267,15 +270,10 @@ def list_templates(db: Session = Depends(get_db)):
              "preview_url": f"/api/v1/templates/{t.key}/preview"} for t in rows]
 
 
-@templates_router.get("/{key}/preview", response_class=HTMLResponse)
+@templates_router.get("/{key}/preview")
 def template_preview(key: str, db: Session = Depends(get_db)):
-    from app.models import Business
-    from app.services.site_render import render, template_preview_context
+    from fastapi.responses import RedirectResponse
     tpl = db.scalars(select(Template).where(Template.key == key, Template.is_active.is_(True))).first()
     if not tpl:
         raise not_found("Template")
-    demo = db.scalars(select(Business).where(Business.is_demo.is_(True), Business.industry == tpl.industry).order_by(Business.created_at)).first()
-    if not demo:
-        raise not_found("Demo business")
-    ctx = template_preview_context(db, demo, tpl)
-    return HTMLResponse(render("site.html", **ctx), headers={"X-Frame-Options": "SAMEORIGIN"})
+    return RedirectResponse(f"/ecomm-templates/{tpl.key}/", status_code=307)

@@ -74,6 +74,7 @@ app.add_middleware(
 app.include_router(api_router)
 app.mount("/media", StaticFiles(directory=settings.media_dir, check_dir=False), name="media")
 app.mount("/static", StaticFiles(directory=BASE / "public" / "static"), name="static")
+app.mount("/ecomm-templates", StaticFiles(directory=BASE / "public" / "ecomm_templates", html=True), name="ecomm-templates")
 
 
 @app.get("/", include_in_schema=False)
@@ -238,7 +239,17 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
     if head == "bookings" and n == 1:
         ctx = sp._base(db, b, root, "Book an appointment", canonical_path="/bookings")
         return html("shop/bookings.html", ctx)
+    if head in ("review", "google-review") and n == 1:
+        # If a single-use review token is present, fall through to the catch-all review form handler
+        if q.get("t"):
+            return None
+        url = (b.integrations or {}).get("google_review_url")
+        if url:
+            import html as _html
+            return HTMLResponse(f'<html><head><meta http-equiv="refresh" content="0;url={_html.escape(url)}"></head><body>Redirecting to <a href="{_html.escape(url)}">{_html.escape(url)}</a>...</body></html>', headers=NOSTORE)
+        return _message("Leave a review", f"Leave a review for {b.name}.", 404)
     return None
+
 
 
 def _spa(path: str):

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LUXINA — Contemporary Luxury & Ready-To-Wear | Official Store</title>
+  <meta name="description" content="Discover the latest in high-fashion minimalism, designer ready-to-wear, footwear, bags, and luxury accessories at LUXINA." />
+  <meta name="keywords" content="LUXINA, luxury fashion, designer apparel, streetwear, blazers, leather bags, end of season sale" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-weight='900'>L</text></svg>" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/header.css" />
+  <link rel="stylesheet" href="styles/hero.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/drawer.css" />
+  <link rel="stylesheet" href="styles/footer.css" />
+</head>
+<body>
+
+  <!-- =========================================================================
+       LUXINA SITE HEADER
+       ========================================================================= -->
+  <header class="site-header">
+    <div class="container">
+      
+      <!-- Top Row -->
+      <div class="header-top-row">
+        
+        <!-- Brand Logo -->
+        <a href="index.html" class="brand-logo-luxina" title="LUXINA Home">
+          LUXINA
+        </a>
+
+        <!-- Search Bar -->
+        <div class="header-search-wrap">
+          <form onsubmit="event.preventDefault();" style="position: relative;">
+            <input 
+              type="text" 
+              id="main-search-input" 
+              class="search-input-pill" 
+              placeholder="Search..." 
+              autocomplete="off" 
+            />
+            <span id="search-clear-btn" class="search-clear-btn">&times;</span>
+            <span class="search-submit-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+          </form>
+
+          <!-- Auto-suggest Dropdown -->
+          <div id="search-dropdown" class="search-dropdown"></div>
+        </div>
+
+        <!-- Utility Icons Right -->
+        <div class="header-actions-group">
+          
+          <!-- User / Account -->
+          <button type="button" class="header-action-btn" onclick="window.app.showToast('Account', 'Welcome back, VIP Client.', 'info')" title="Account">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </button>
+
+          <!-- Wishlist Heart -->
+          <button type="button" class="header-action-btn trigger-wishlist-view" title="Saved Wishlist">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span class="header-badge-count header-wishlist-count">2</span>
+          </button>
+
+          <!-- Shopping Bag -->
+          <button type="button" class="header-action-btn trigger-cart-drawer" title="Shopping Bag">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <span class="header-badge-count header-cart-count">1</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Secondary Horizontal Navigation Row -->
+      <nav class="header-nav-strip">
+        <ul class="nav-links-list">
+          <li><a href="#new-arrivals-section">NEW ARRIVAL</a></li>
+          <li><a href="#browse-categories-section">BEST SELLER</a></li>
+          <li><a href="#women-sale-section" class="nav-sale-link">SALE</a></li>
+          <li><a href="#women-sale-section">WOMEN</a></li>
+          <li><a href="#men-sale-section">MEN</a></li>
+          <li><a href="#blog-section">STORIES</a></li>
+          <li><a href="#footer-section">STORE LOCATION</a></li>
+          <li><a href="#footer-section">CONTACT US</a></li>
+        </ul>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       HERO EDITORIAL BENTO GRID
+       ========================================================================= -->
+  <main>
+    <section class="hero-mosaic-section container">
+      <div class="hero-bento-grid">
+        
+        <!-- Main Left Panel: 50% Off Model in Hat -->
+        <div class="hero-panel-main">
+          <img src="assets/hero_model_hat.jpg" alt="LUXINA Limited Edition" class="hero-panel-main-bg" />
+          
+          <div class="hero-panel-top-badge">
+            <!-- Stylized Barcode SVG -->
+            <svg class="barcode-svg" viewBox="0 0 120 24" fill="currentColor">
+              <rect x="0" y="0" width="3" height="24"/>
+              <rect x="5" y="0" width="1.5" height="24"/>
+              <rect x="9" y="0" width="4" height="24"/>
+              <rect x="15" y="0" width="2" height="24"/>
+              <rect x="19" y="0" width="1" height="24"/>
+              <rect x="22" y="0" width="3" height="24"/>
+              <rect x="27" y="0" width="2" height="24"/>
+              <rect x="31" y="0" width="5" height="24"/>
+              <rect x="38" y="0" width="1.5" height="24"/>
+              <rect x="42" y="0" width="3" height="24"/>
+              <rect x="47" y="0" width="4" height="24"/>
+              <rect x="53" y="0" width="2" height="24"/>
+              <rect x="57" y="0" width="1" height="24"/>
+              <rect x="60" y="0" width="3" height="24"/>
+              <rect x="65" y="0" width="4" height="24"/>
+              <rect x="71" y="0" width="1.5" height="24"/>
+              <rect x="75" y="0" width="3" height="24"/>
+              <rect x="80" y="0" width="2" height="24"/>
+              <rect x="84" y="0" width="4" height="24"/>
+              <rect x="90" y="0" width="1" height="24"/>
+              <rect x="93" y="0" width="3" height="24"/>
+              <rect x="98" y="0" width="2" height="24"/>
+              <rect x="102" y="0" width="4" height="24"/>
+              <rect x="108" y="0" width="2" height="24"/>
+              <rect x="112" y="0" width="3" height="24"/>
+              <rect x="117" y="0" width="3" height="24"/>
+            </svg>
+            <span style="font-size: 0.65rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase;">LIMITED EDITION</span>
+          </div>
+
+          <div class="hero-panel-main-content">
+            <div class="hero-big-percent">
+              50% <span>OFF</span>
+            </div>
+            <p class="hero-panel-desc">
+              Discover our limited collection with up to 50% discount available for online purchases.
+            </p>
+            <button type="button" class="pill-btn pill-btn-primary" onclick="document.getElementById('women-sale-section').scrollIntoView({ behavior: 'smooth' })">
+              SHOP NOW
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Side Bento Column -->
+        <div class="hero-bento-right">
+          
+          <!-- Top Right: Exclusive Offer -->
+          <div class="hero-panel-exclusive">
+            <img src="assets/hero_exclusive_sports.jpg" alt="Exclusive Offer" class="hero-exclusive-bg" />
+            <div class="hero-exclusive-content">
+              <h3 class="hero-exclusive-title">EXCLUSIVE OFFER</h3>
+              <button type="button" class="pill-btn pill-btn-primary pill-btn-sm" onclick="document.getElementById('new-arrivals-section').scrollIntoView({ behavior: 'smooth' })">
+                DISCOVER
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Right: Browse Accessories -->
+          <div class="hero-panel-accessories">
+            <div class="hero-accessories-visual">
+              <img src="assets/hero_sunglasses_blue.jpg" alt="Browse Accessories" />
+            </div>
+            <div class="hero-accessories-content">
+              <h3 class="hero-accessories-title">BROWSE ACCESSORIES</h3>
+              <div class="hero-accessories-nav">
+                <span class="hero-mini-arrow" onclick="window.app.showToast('Accessories', 'Previous slide', 'info')">❮</span>
+                <span style="opacity: 0.3; font-size: 0.7rem;">|</span>
+                <span class="hero-mini-arrow" onclick="window.app.showToast('Accessories', 'Next slide', 'info')">❯</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION: BROWSE CATEGORIES
+         ========================================================================= -->
+    <section id="browse-categories-section" class="container" style="padding-top: 2rem;">
+      <div class="section-header-row">
+        <h2 class="section-heading-bold">BROWSE CATEGORIES</h2>
+        <div style="font-size: 0.78rem; font-weight: 750; letter-spacing: 0.05em; display: flex; gap: 12px; color: #71717A;">
+          <span style="cursor: pointer; color: #111;">ALL</span>
+          <span>|</span>
+          <span style="cursor: pointer;" onclick="window.app.showToast('Categories', 'Showing all 14 fashion departments', 'info')">VIEW ALL</span>
+        </div>
+      </div>
+
+      <!-- 4 Category Strip Thumbnails -->
+      <div id="categories-strip" class="categories-strip-grid">
+        <!-- Injected by app.js -->
+      </div>
+
+      <!-- Category Split Feature Card -->
+      <div class="category-feature-split">
+        <div class="cat-feature-left">
+          <h3 class="cat-feature-title">BROWSE CATEGORIES</h3>
+          <p class="cat-feature-sub">A collection tailored for every mood</p>
+          <button type="button" class="pill-btn pill-btn-primary pill-btn-sm" onclick="document.getElementById('new-arrivals-section').scrollIntoView({ behavior: 'smooth' })">
+            VIEW ALL
+          </button>
+        </div>
+        <div class="cat-feature-right">
+          <img src="assets/cat_feature_model.jpg" alt="Model in Contemporary Streetwear" />
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION: SALE IS ON!
+         ========================================================================= -->
+    <section class="container" style="padding-top: 1rem;">
+      <h2 class="section-heading-bold" style="margin-bottom: 1.5rem;">SALE IS ON!</h2>
+
+      <div class="sale-is-on-grid">
+        
+        <!-- Clearance Summer -->
+        <div class="sale-promo-card">
+          <div class="sale-promo-content">
+            <div class="sale-tag-row">
+              <span>HOT SELECTION</span>
+              <span>•</span>
+              <span style="color: var(--text-red);">DISCOUNT</span>
+            </div>
+            <div>
+              <h3 class="sale-promo-title">CLEARANCE SUMMER</h3>
+              <button type="button" class="pill-btn pill-btn-primary pill-btn-sm" onclick="document.getElementById('women-sale-section').scrollIntoView({ behavior: 'smooth' })">
+                SHOP NOW
+              </button>
+            </div>
+          </div>
+          <div class="sale-promo-visual">
+            <img src="assets/sale_summer_shirt.jpg" alt="Clearance Summer Shirt" />
+          </div>
+        </div>
+
+        <!-- High Boots Ankle -->
+        <div class="sale-promo-card">
+          <div class="sale-promo-content">
+            <div class="sale-tag-row">
+              <span>NEW SEASON</span>
+              <span>•</span>
+              <span style="color: var(--text-red);">SPECIAL</span>
+            </div>
+            <div>
+              <h3 class="sale-promo-title">HIGH BOOTS ANGKLE</h3>
+              <button type="button" class="pill-btn pill-btn-primary pill-btn-sm" onclick="document.getElementById('women-sale-section').scrollIntoView({ behavior: 'smooth' })">
+                EXPLORE NOW
+              </button>
+            </div>
+          </div>
+          <div class="sale-promo-visual">
+            <img src="assets/sale_ankle_boots.jpg" alt="High Boots Ankle" />
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION: NEW ARRIVALS
+         ========================================================================= -->
+    <section id="new-arrivals-section" class="container" style="padding-top: 1rem; padding-bottom: 2rem;">
+      <div class="section-header-row">
+        <h2 class="section-heading-bold">NEW ARRIVALS</h2>
+        <div class="section-arrows-nav">
+          <button type="button" id="arrivals-prev" class="arrow-circle-btn" title="Previous">❮</button>
+          <button type="button" id="arrivals-next" class="arrow-circle-btn" title="Next">❯</button>
+        </div>
+      </div>
+
+      <div id="arrivals-rail" class="fashion-products-rail">
+        <!-- Injected by app.js (Blazer, Tote, Tee, Glasses) -->
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         FULL-WIDTH EDITORIAL BANNER: END OF SEASON SALE
+         ========================================================================= -->
+    <section class="container">
+      <div class="editorial-strip-banner">
+        <div class="banner-model-thumb">
+          <img src="assets/banner_male_trench.jpg" alt="Model in Trench Coat" />
+        </div>
+        <div class="banner-center-text">
+          <span class="banner-tag-small">LAST CHANCE</span>
+          <h2 class="banner-headline">END OF SEASON SALE UP TO 50% OFF</h2>
+          <button type="button" class="pill-btn pill-btn-white pill-btn-sm" onclick="document.getElementById('women-sale-section').scrollIntoView({ behavior: 'smooth' })">
+            SHOP SALE
+          </button>
+        </div>
+        <div class="banner-model-thumb">
+          <img src="assets/banner_female_bag.jpg" alt="Model with Handbag" />
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION: NEW SALE FOR WOMEN
+         ========================================================================= -->
+    <section id="women-sale-section" class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
+      <div class="section-header-row">
+        <h2 class="section-heading-bold">NEW SALE FOR WOMEN</h2>
+        <div class="section-arrows-nav">
+          <button type="button" id="women-sale-prev" class="arrow-circle-btn" title="Previous">❮</button>
+          <button type="button" id="women-sale-next" class="arrow-circle-btn" title="Next">❯</button>
+        </div>
+      </div>
+
+      <div id="women-sale-rail" class="fashion-products-rail">
+        <!-- Injected by app.js (Green bag, belt, shorts, sandals) -->
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION: NEW SALE FOR MEN
+         ========================================================================= -->
+    <section id="men-sale-section" class="container" style="padding-top: 1rem; padding-bottom: 3rem;">
+      <div class="section-header-row">
+        <h2 class="section-heading-bold">NEW SALE FOR MEN</h2>
+        <div class="section-arrows-nav">
+          <button type="button" id="men-sale-prev" class="arrow-circle-btn" title="Previous">❮</button>
+          <button type="button" id="men-sale-next" class="arrow-circle-btn" title="Next">❯</button>
+        </div>
+      </div>
+
+      <div id="men-sale-rail" class="fashion-products-rail">
+        <!-- Injected by app.js (Puffer, sunglasses, court sneakers, yellow tee) -->
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION: BLOG
+         ========================================================================= -->
+    <section id="blog-section" class="container" style="padding-top: 1rem; padding-bottom: 2rem;">
+      <div class="section-header-row">
+        <h2 class="section-heading-bold">BLOG</h2>
+        <span style="font-size: 0.8rem; color: #71717A;">Read our curated fashion news & seasonal lookbooks</span>
+      </div>
+
+      <div id="blog-grid" class="blog-cards-grid">
+        <!-- Injected by app.js -->
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION: SUBSCRIBE OUR NEWSLETTERS
+         ========================================================================= -->
+    <section class="newsletter-strip-section">
+      <div class="container newsletter-strip-grid">
+        <div>
+          <h2 class="newsletter-title-big">SUBSCRIBE OUR NEWSLETTERS</h2>
+        </div>
+        <div class="newsletter-form-right">
+          <p>
+            Be the first to hear about limited capsule drops, private seasonal sales, and member-only exclusives.
+          </p>
+          <form id="newsletter-form" class="newsletter-input-row">
+            <input 
+              type="email" 
+              id="newsletter-email-input" 
+              class="newsletter-pill-input" 
+              placeholder="Your email address..." 
+              required 
+            />
+            <button type="submit" class="pill-btn pill-btn-primary">
+              SUBSCRIBE
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       DARK LUXURY FOOTER WITH MASSIVE TYPOGRAPHY
+       ========================================================================= -->
+  <footer id="footer-section" class="site-footer">
+    <div class="container">
+      
+      <!-- Footer Nav Strip -->
+      <ul class="footer-nav-strip">
+        <li><a href="#new-arrivals-section">NEW ARRIVAL</a></li>
+        <li><a href="#browse-categories-section">BEST SELLER</a></li>
+        <li><a href="#women-sale-section" class="footer-sale-link">SALE</a></li>
+        <li><a href="#women-sale-section">WOMEN</a></li>
+        <li><a href="#men-sale-section">MEN</a></li>
+        <li><a href="#blog-section">STORIES</a></li>
+        <li><a href="#">STORE LOCATION</a></li>
+        <li><a href="#">CONTACT US</a></li>
+      </ul>
+
+      <!-- Massive Iconic Brand Statement -->
+      <div class="footer-massive-brand-wrap">
+        <span class="footer-massive-brand">LUXINA</span>
+      </div>
+
+      <!-- Footer Bottom Meta -->
+      <div class="footer-bottom-meta">
+        <span>&copy; 2026 LUXINA ARCHIVE. ALL RIGHTS RESERVED.</span>
+        <div class="footer-socials">
+          <a href="#">INSTAGRAM</a>
+          <a href="#">VOGUE ARCHIVE</a>
+          <a href="#">TIKTOK</a>
+          <a href="#">YOUTUBE</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       MODALS & DRAWERS
+       ========================================================================= -->
+
+  <!-- Slide-out Shopping Bag Drawer -->
+  <div id="cart-drawer-backdrop" class="cart-drawer-backdrop"></div>
+  <aside id="cart-drawer" class="cart-drawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-drawer-title">Shopping Bag</h3>
+      <button type="button" id="cart-drawer-close" class="cart-drawer-close-btn" title="Close bag">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div id="cart-drawer-items" class="cart-drawer-body"></div>
+
+    <div class="cart-promo-section">
+      <div class="cart-promo-box">
+        <input type="text" id="cart-promo-input" class="cart-promo-input" placeholder="Promo code (e.g. LUX50)" />
+        <button type="button" id="cart-promo-apply-btn" class="cart-promo-btn">Apply</button>
+      </div>
+    </div>
+
+    <div class="cart-drawer-footer">
+      <div class="cart-summary-line">
+        <span>Subtotal</span>
+        <span id="cart-subtotal-val">KSh 0</span>
+      </div>
+      <div id="cart-discount-row" class="cart-summary-line" style="display: none; color: var(--text-red); font-weight: 700;">
+        <span>Seasonal Discount</span>
+        <span id="cart-discount-val">-KSh 0</span>
+      </div>
+      <div class="cart-summary-line">
+        <span>Worldwide Shipping</span>
+        <span id="cart-shipping-val">Complimentary</span>
+      </div>
+      <div class="cart-summary-line cart-total-line">
+        <span>Total</span>
+        <span id="cart-total-val">KSh 0</span>
+      </div>
+
+      <button type="button" id="cart-checkout-btn" class="pill-btn pill-btn-primary" style="width: 100%;">
+        PROCEED TO CHECKOUT
+      </button>
+    </div>
+  </aside>
+
+  <!-- Product Detail / Quick View Modal -->
+  <div id="product-detail-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog">
+      <button type="button" class="modal-close-trigger" onclick="window.modals.closeAllModals()" title="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <div class="modal-product-layout">
+        <div class="modal-product-visual">
+          <img id="modal-product-img" src="" alt="Product Preview" />
+        </div>
+
+        <div class="modal-product-details">
+          <span id="modal-product-cat" class="modal-brand-tag">COLLECTION</span>
+          <h2 id="modal-product-title" class="modal-title">Product Name</h2>
+
+          <div class="modal-price-row">
+            <span id="modal-product-price" class="modal-price-val">KSh 0</span>
+            <span id="modal-product-orig-price" class="modal-orig-price-val">KSh 0</span>
+          </div>
+
+          <p id="modal-product-desc" class="modal-desc">
+            Description
+          </p>
+
+          <div class="modal-section-label">SELECT SIZE</div>
+          <div id="modal-sizes-grid" class="sizes-pills-grid"></div>
+
+          <div class="modal-cta-buttons">
+            <button type="button" id="modal-add-to-cart-btn" class="pill-btn pill-btn-primary">
+              ADD TO BAG
+            </button>
+            <button type="button" id="modal-buy-now-btn" class="pill-btn pill-btn-white" style="border: 1px solid #111;">
+              BUY NOW
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkout-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog checkout-modal-dialog">
+      <button type="button" class="modal-close-trigger" onclick="window.modals.closeAllModals()" title="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <h3 style="font-size: 1.35rem; font-weight: 850; letter-spacing: -0.02em; margin-bottom: 6px; text-transform: uppercase;">
+        EXPRESS CHECKOUT
+      </h3>
+      <p style="font-size: 0.8rem; color: #71717A; margin-bottom: 20px;">
+        Complimentary insured global express delivery.
+      </p>
+
+      <form onsubmit="event.preventDefault(); window.modals.confirmCheckout();">
+        <div class="checkout-form-grid">
+          <div>
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" value="Alexander Vance" required />
+          </div>
+          <div>
+            <label class="form-label">Phone</label>
+            <input type="tel" class="form-input" value="+1 (555) 234-8901" required />
+          </div>
+          <div class="form-group-full">
+            <label class="form-label">Shipping Address</label>
+            <input type="text" class="form-input" value="742 Evergreen Terrace, Penthouse 4B" required />
+          </div>
+          <div>
+            <label class="form-label">City</label>
+            <input type="text" class="form-input" value="New York" required />
+          </div>
+          <div>
+            <label class="form-label">Postal Code</label>
+            <input type="text" class="form-input" value="10012" required />
+          </div>
+        </div>
+
+        <div class="modal-section-label" style="margin-top: 10px;">PAYMENT METHOD</div>
+        <div class="payment-methods-row">
+          <div class="payment-pill active" onclick="this.parentElement.querySelectorAll('.payment-pill').forEach(p=>p.classList.remove('active')); this.classList.add('active');">
+            Apple Pay
+          </div>
+          <div class="payment-pill" onclick="this.parentElement.querySelectorAll('.payment-pill').forEach(p=>p.classList.remove('active')); this.classList.add('active');">
+            Credit Card
+          </div>
+          <div class="payment-pill" onclick="this.parentElement.querySelectorAll('.payment-pill').forEach(p=>p.classList.remove('active')); this.classList.add('active');">
+            Klarna (4x)
+          </div>
+        </div>
+
+        <div style="background: var(--bg-subtle); border-radius: 6px; padding: 14px 18px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
+            <span>Pieces (<span id="checkout-items-count">1</span>)</span>
+            <span id="checkout-subtotal-val">KSh 0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-red); margin-bottom: 6px;">
+            <span>Discount</span>
+            <span id="checkout-discount-val">-KSh 0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 850; border-top: 1px dashed #E2E4E9; padding-top: 8px;">
+            <span>Total</span>
+            <span id="checkout-total-val">KSh 0</span>
+          </div>
+        </div>
+
+        <button type="submit" class="pill-btn pill-btn-primary" style="width: 100%; padding: 0.85rem;">
+          AUTHORIZE & ORDER
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Order Success Modal -->
+  <div id="checkout-success-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog" style="max-width: 440px; text-align: center; padding: 40px 24px;">
+      <div style="width: 60px; height: 60px; background: #DCFCE7; color: #16A34A; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.8rem;">
+        ✓
+      </div>
+      <h3 style="font-size: 1.35rem; font-weight: 850; margin-bottom: 6px; text-transform: uppercase;">ORDER CONFIRMED</h3>
+      <p style="font-size: 0.85rem; color: #71717A; margin-bottom: 16px;">
+        Your bespoke order has been reserved and is being prepared in our atelier.
+      </p>
+      <div style="background: var(--bg-subtle); border-radius: 6px; padding: 10px; font-family: monospace; font-size: 0.95rem; font-weight: 700; margin-bottom: 24px;">
+        REFERENCE: <span id="success-order-number">LX-849102</span>
+      </div>
+      <button type="button" class="pill-btn pill-btn-primary" style="width: 100%;" onclick="window.modals.closeAllModals()">
+        CONTINUE BROWSING
+      </button>
+    </div>
+  </div>
+
+  <!-- Wishlist Modal -->
+  <div id="wishlist-modal" class="app-modal-overlay">
+    <div class="app-modal-dialog" style="max-width: 480px; padding: 28px;">
+      <button type="button" class="modal-close-trigger" onclick="window.modals.closeAllModals()" title="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <h3 style="font-size: 1.15rem; font-weight: 850; text-transform: uppercase; margin-bottom: 18px;">YOUR SAVED WISHLIST</h3>
+      <div id="wishlist-items-container" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="scripts/icons.js"></script>
+  <script src="scripts/data.js"></script>
+  <script src="scripts/cart.js"></script>
+  <script src="scripts/modals.js"></script>
+  <script src="scripts/search.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

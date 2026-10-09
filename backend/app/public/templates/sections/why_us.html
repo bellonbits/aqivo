@@ -3,20 +3,19 @@
   <div class="wrap store-catalog-wrap">
     <div class="cafe-section-header center">
       <div class="cafe-section-kicker">{% if is_rest %}OUR PROMISE{% else %}WHY CHOOSE US{% endif %}</div>
-      <h2 class="cafe-section-title">{{ c.title or ('Why Dine With ' ~ business.name if is_rest else 'Why shop with us') }}</h2>
+      <h2 class="cafe-section-title">{{ c.title or ('Why Dine With ' ~ business.name if is_rest else 'Why shop with ' ~ business.name) }}</h2>
       <p class="cafe-section-sub">{{ c.subtitle or ('Crafted with passion, served with genuine warmth every day.' if is_rest else 'Our promise to every customer') }}</p>
     </div>
 
-    <div class="ecom-trust-grid">
-      <!-- Feature 1: Fresh Ingredients -->
+    <div class="ecom-trust-grid ecom-trust-grid--4">
+      <!-- Feature 1 -->
       <div class="ecom-trust-card">
         <div class="ecom-trust-icon-box" style="background: rgba(7, 63, 44, 0.1); color: #073F2C;">
           {% if is_rest %}
           <span style="font-size:24px">🥗</span>
           {% else %}
           <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
           </svg>
           {% endif %}
         </div>
@@ -26,18 +25,16 @@
         </div>
       </div>
 
-      <!-- Feature 2: Fast Delivery / Dine-in -->
+      <!-- Feature 2 -->
       <div class="ecom-trust-card">
         <div class="ecom-trust-icon-box" style="background: rgba(200, 155, 90, 0.14); color: #C89B5A;">
           {% if is_rest %}
           <span style="font-size:24px">⚡</span>
           {% else %}
           <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
-            <path d="M15 18H9"/>
+            <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/>
             <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/>
-            <circle cx="17" cy="18" r="2"/>
-            <circle cx="7" cy="18" r="2"/>
+            <circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>
           </svg>
           {% endif %}
         </div>
@@ -47,7 +44,7 @@
         </div>
       </div>
 
-      <!-- Feature 3: WhatsApp & Easy Checkout -->
+      <!-- Feature 3 -->
       <div class="ecom-trust-card">
         <div class="ecom-trust-icon-box" style="background: rgba(37, 211, 102, 0.12); color: #15803d;">
           {% if is_rest %}
@@ -63,6 +60,24 @@
           <p class="ecom-trust-desc">{{ c.f3_desc or ('Order in seconds on WhatsApp with M-Pesa or cash on delivery.' if is_rest else 'Pay with M-Pesa, card, WhatsApp or cash') }}</p>
         </div>
       </div>
+
+      <!-- Feature 4: Reviews / Customer Care -->
+      <div class="ecom-trust-card">
+        <div class="ecom-trust-icon-box" style="background: rgba(234, 179, 8, 0.12); color: #b45309;">
+          {% if is_rest %}
+          <span style="font-size:24px">⭐</span>
+          {% else %}
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          {% endif %}
+        </div>
+        <div class="ecom-trust-content">
+          <h3 class="ecom-trust-title">{{ c.f4_title or ('Loved by customers' if is_rest else 'Trusted & reviewed') }}</h3>
+          <p class="ecom-trust-desc">{{ c.f4_desc or ('Hundreds of happy diners. Come see why we're a local favourite.' if is_rest else 'Real reviews from real buyers across East Africa') }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+

@@ -1,1 +1,27 @@
-<section class="sx-sec"><div class="wrap"><h2>{{ c.title }}</h2><div class="faq">{% for q in c['items'] %}<details><summary>{{ q.q }}</summary><p>{{ q.a }}</p></details>{% endfor %}</div></div></section>
+<section class="ecom-faq-section sx-sec" id="faq">
+  <div class="wrap ecom-faq-wrap">
+    <div class="ecom-section-header center">
+      <h2 class="ecom-section-title">{{ c.title or 'Frequently Asked Questions' }}</h2>
+      {% if c.subtitle %}
+      <p class="ecom-section-sub">{{ c.subtitle }}</p>
+      {% endif %}
+    </div>
+
+    <div class="ecom-faq-list">
+      {% for q in c.get('items', []) %}
+      <details class="ecom-faq-item">
+        <summary class="ecom-faq-summary">
+          <span class="ecom-faq-question">{{ q.q }}</span>
+          <span class="ecom-faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
+        </summary>
+        <div class="ecom-faq-answer">
+          <p>{{ q.a }}</p>
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
