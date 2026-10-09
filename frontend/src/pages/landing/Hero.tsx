@@ -274,24 +274,26 @@ export function Hero() {
                 <button
                   type="button"
                   onClick={() => setPreviewMode('ecommerce')}
-                  className={`rounded-full px-3 py-1 text-[11px] font-bold transition shadow-xs ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[11px] font-bold transition shadow-xs ${
                     previewMode === 'ecommerce'
                       ? 'bg-stone-900 text-white ring-1 ring-stone-900'
                       : 'bg-white/85 text-stone-600 hover:text-stone-900 border border-stone-200/60'
                   }`}
                 >
-                  🛍️ Storefront (Two Sides)
+                  <ShoppingBag className="size-3.5" />
+                  <span>Storefront (Two Sides)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreviewMode('booking')}
-                  className={`rounded-full px-3 py-1 text-[11px] font-bold transition shadow-xs ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[11px] font-bold transition shadow-xs ${
                     previewMode === 'booking'
                       ? 'bg-stone-900 text-white ring-1 ring-stone-900'
                       : 'bg-white/85 text-stone-600 hover:text-stone-900 border border-stone-200/60'
                   }`}
                 >
-                  📅 Booking & Appointments
+                  <Calendar className="size-3.5" />
+                  <span>Booking & Appointments</span>
                 </button>
               </div>
 

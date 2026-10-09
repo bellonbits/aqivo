@@ -506,7 +506,10 @@ export function EcommercePhoneApp({
                   {/* Free Delivery Bar */}
                   <div className="rounded-xl bg-emerald-50 p-2.5 border border-emerald-200/60">
                     <div className="flex items-center justify-between text-[11px] font-bold text-emerald-800">
-                      <span>✓ Free Express Delivery Unlocked!</span>
+                      <span className="flex items-center gap-1">
+                        <Check className="size-3 text-emerald-700 stroke-[3]" />
+                        Free Express Delivery Unlocked!
+                      </span>
                       <span>100%</span>
                     </div>
                     <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-emerald-200">
@@ -685,7 +688,7 @@ export function EcommercePhoneApp({
               }`}
             >
               <Check className="size-4" />
-              <span>Orders {screen === 'success' ? '✓' : ''}</span>
+              <span>Orders</span>
             </button>
           </div>
         </div>
