@@ -177,7 +177,28 @@
       return { id: "cat-" + c.id, name: esc(c.name), verified: true, rating: 5, followers: c.count + " items", logoText: esc(c.name).slice(0, 2).toUpperCase(), logoBg: palette[i % palette.length], logoSvg: "",
         items: ITEMS.filter(function (p) { return p.cid === c.id; }).slice(0, 4).map(function (p) { return { id: p.id, name: esc(p.name), price: p.price, img: pic(p) }; }) };
     }));
-    onReady(function () { if (!CATS.length) hide(["brand-stores-grid"]); });
+    onReady(function () {
+      if (!CATS.length) hide(["brand-stores-grid"]);
+      var promoTitle = document.querySelector(".hero-promo-title");
+      if (promoTitle) promoTitle.textContent = (B.name + " COLLECTION").toUpperCase();
+      var promoDesc = document.querySelector(".hero-promo-desc");
+      if (promoDesc) promoDesc.textContent = B.tagline || "Discover our curated collection.";
+      var promoBtn = document.querySelector(".hero-promo-content .pill-btn-white");
+      if (promoBtn) {
+        promoBtn.textContent = "Shop Collection";
+        promoBtn.onclick = function () {
+          var el = document.getElementById("shop-collection-section");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        };
+      }
+      var promoVisual = document.querySelector(".hero-promo-visual");
+      if (promoVisual) {
+        promoVisual.onclick = function () {
+          var el = document.getElementById("shop-collection-section");
+          if (el) el.scrollIntoView({ behavior: "smooth" });
+        };
+      }
+    });
   };
 
   MAP.mart_ecom = function () {
@@ -201,7 +222,18 @@
     var pool = cycle(all, 5);
     D.bestSellers.leftItems = pool.slice(0, 2); D.bestSellers.rightItems = pool.slice(3, 5); D.bestSellers.centerFeature = pool[2] || D.bestSellers.centerFeature;
     setArr(D.topVendors, []);
-    onReady(function () { hide(["vendors-row-grid"]); if (!all.length) hide(["featured-products-grid", "trending-products-grid"]); });
+    onReady(function () {
+      hide(["vendors-row-grid"]);
+      if (!all.length) hide(["featured-products-grid", "trending-products-grid"]);
+      var rcol = document.querySelector(".hero-banners-right-col");
+      if (rcol) {
+        rcol.style.display = "none";
+        var grid = document.querySelector(".hero-banners-grid");
+        if (grid) grid.style.gridTemplateColumns = "1fr";
+      }
+      var mainImg = document.querySelector(".hero-main-visual-overlay img");
+      if (mainImg && all.length && all[0].image) mainImg.src = all[0].image;
+    });
   };
 
   MAP.booking_ecom = function () {

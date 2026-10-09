@@ -157,15 +157,15 @@
         <!-- Left: Main Large Hero Banner -->
         <div class="hero-banner-main-left">
           <div class="hero-main-content-col">
-            <div class="hero-main-badge-pill">100% Organic Good Food</div>
-            <h2 class="hero-main-title">Fresh Organic<br/><span class="hero-main-title-cursive">Food For All</span></h2>
-            <div class="hero-main-price">KSh 5,900</div>
-            <button type="button" class="btn-hero-shop-purple" onclick="window.App.openProductDetail('trend-1')">
+            <div class="hero-main-badge-pill" data-bz-tagline>Welcome to our Store</div>
+            <h2 class="hero-main-title"><span data-bz-name>Freshly</span><br/><span class="hero-main-title-cursive">Online Store</span></h2>
+            <div class="hero-main-price" style="display:none;"></div>
+            <button type="button" class="btn-hero-shop-purple" onclick="document.getElementById('featured-products-section')?.scrollIntoView({behavior:'smooth'})">
               Shop Now
             </button>
           </div>
           <div class="hero-main-visual-overlay">
-            <img src="assets/hero_cans_blended.png" alt="Organic Fresh Fruit Drink Cans" />
+            <img src="assets/hero_cans_blended.png" alt="Featured Store Products" />
           </div>
         </div>
 
@@ -467,9 +467,6 @@
         <span data-bz-copyright>Copyright 2026 Freshly. All rights reserved.</span>
         <div class="footer-payments-cluster">
           <span class="footer-pay-pill">M-PESA</span>
-          <span class="footer-pay-pill">VISA</span>
-          <span class="footer-pay-pill">MASTERCARD</span>
-          <span class="footer-pay-pill">PAYPAL</span>
         </div>
       </div>
 

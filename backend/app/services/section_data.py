@@ -103,23 +103,6 @@ def resolve_sections(raw: list[dict], *, db, business, products: list, services:
                 for idx, card in enumerate(data["cards"]):
                     if not card.get("image"):
                         card["image"] = f"/static/img/restaurant/restaurant-{(idx % 6) + 1}.webp"
-                if len(data["cards"]) < 4:
-                    _suggs = [
-                        ("Nyama Choma Platter", "Grilled goat meat served with fresh kachumbari and warm ugali.", 1200, "/static/img/restaurant/restaurant-1.webp"),
-                        ("Grilled Chicken", "Tender marinated chicken grilled to golden perfection.", 850, "/static/img/restaurant/restaurant-2.webp"),
-                        ("Weekend Brunch", "Fluffy pancakes, farm eggs, sausages and fresh brew.", 950, "/static/img/restaurant/restaurant-3.webp"),
-                        ("Fresh Passion Juice", "Freshly cold-pressed seasonal fruit juice.", 250, "/static/img/restaurant/restaurant-4.webp"),
-                        ("Samosa Platter", "Crispy golden beef and vegetable samosas.", 450, "/static/img/restaurant/restaurant-5.webp"),
-                        ("Cappuccino & Mandazi", "Freshly brewed rich espresso paired with spiced mandazi.", 350, "/static/img/restaurant/restaurant-6.webp"),
-                    ]
-                    existing_names = {card["name"].lower() for card in data["cards"]}
-                    for sname, sdesc, sprice, simg in _suggs:
-                        if sname.lower() not in existing_names and len(data["cards"]) < 6:
-                            data["cards"].append({
-                                "kind": "service", "id": f"sug-{len(data['cards'])}", "name": sname, "desc": sdesc,
-                                "price": float(sprice), "compare": None, "currency": cur, "image": simg,
-                                "duration": 20, "wa": wa, "category_id": None, "url": "#services"
-                            })
             empty = not data["cards"]
         elif t == "collection_grid":
             from app.models import Collection
@@ -156,22 +139,11 @@ def resolve_sections(raw: list[dict], *, db, business, products: list, services:
             need = "categories"
         elif t == "reviews":
             data["reviews"] = list(reviews[: int(c.get("limit") or 6)])
-            if not data["reviews"] and business.industry == "restaurant":
-                data["reviews"] = [
-                    {"author_name": "Amina W.", "rating": 5, "comment": "Best nyama choma in Roysambu! The meat was tender, well seasoned, and arrived piping hot.", "verified": True, "response": None},
-                    {"author_name": "Brian K.", "rating": 5, "comment": "Great coffee and fast WhatsApp service. Their breakfast combo is my daily go-to before work.", "verified": True, "response": None},
-                    {"author_name": "Faith M.", "rating": 5, "comment": "Cozy ambiance, welcoming team, and delicious fresh juices. Highly recommend Jeff Café!", "verified": True, "response": None},
-                ]
             empty = not data["reviews"]
         elif t == "testimonials":
             empty = not (reviews or testimonials)
         elif t == "gallery":
             data["photos"] = list(gallery[: int(c.get("limit") or 12)])
-            if not data["photos"] and business.industry == "restaurant":
-                data["photos"] = [
-                    {"url": f"/static/img/restaurant/restaurant-{i}.webp", "caption": cap}
-                    for i, cap in enumerate(["Nyama Choma Platter", "Chicken Biryani", "Weekend Brunch & Coffee", "Fresh Cold-Pressed Juice", "Crispy Samosa Platter", "Handcrafted Mandazi & Chai"], start=1)
-                ]
             empty = not data["photos"]
         elif t == "specialists":
             empty = not staff
