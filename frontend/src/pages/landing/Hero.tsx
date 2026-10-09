@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Calendar, CheckCircle2, Flame, Menu, MessageCircle, Sparkles, X } from 'lucide-react'
+import { ArrowRight, Calendar, CheckCircle2, Flame, Menu, MessageCircle, ShoppingBag, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { CountUp, DriftingBlobs, Floaty, ease } from '@/lib/motion'
@@ -104,6 +104,8 @@ function Glass({ className = '', children }: { className?: string; children: Rea
 
 export function Hero() {
   const [previewMode, setPreviewMode] = useState<'ecommerce' | 'booking'>('ecommerce')
+  const isEcom = previewMode === 'ecommerce'
+
   return (
     <section className="px-3 pb-6 pt-6 sm:px-6 sm:pt-10">
       <div className="sky relative mx-auto max-w-[1400px] overflow-hidden rounded-[40px] border border-white/80 shadow-[0_30px_80px_rgba(80,100,190,0.18)]">
@@ -111,32 +113,41 @@ export function Hero() {
         <div className="relative mx-auto max-w-6xl px-5 pb-0 pt-14 text-center md:pt-20">
           {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            key={`badge-${previewMode}`}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 rounded-full bg-white/85 px-4 py-1.5 text-xs font-bold text-brand shadow-sm ring-1 ring-purple-200/60 mb-6"
           >
             <Sparkles className="size-3.5 text-brand" />
-            <span>24/7 Online Booking & Appointment Platform</span>
+            <span>
+              {isEcom
+                ? 'Mobile Storefront & WhatsApp E-Commerce Platform'
+                : '24/7 Online Booking & Appointment Platform'}
+            </span>
           </motion.div>
 
           <h1
             className="mx-auto max-w-4xl text-[38px] font-semibold leading-[1.08] tracking-[-0.03em] sm:text-6xl lg:text-[68px]"
-            aria-label="Fill Every Chair. Book Every Slot. Grow your appointment business."
+            aria-label={
+              isEcom
+                ? 'Launch Your Store. Sell On WhatsApp. Grow your retail business.'
+                : 'Fill Every Chair. Book Every Slot. Grow your appointment business.'
+            }
           >
             {[
-              ['Fill', 'Every', 'Chair.'],
-              ['Book', 'Every', 'Slot.'],
+              isEcom ? ['Launch', 'Your', 'Store.'] : ['Fill', 'Every', 'Chair.'],
+              isEcom ? ['Sell', 'On', 'WhatsApp.'] : ['Book', 'Every', 'Slot.'],
             ].map((line, li) => (
-              <span key={li} className="block">
+              <span key={`${previewMode}-${li}`} className="block">
                 {line.map((w, i) => (
                   <motion.span
-                    key={w}
+                    key={`${previewMode}-${w}`}
                     aria-hidden
                     className="mr-[0.25em] inline-block"
-                    initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                    initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    transition={{ duration: 0.8, delay: 0.15 + li * 0.25 + i * 0.1, ease }}
+                    transition={{ duration: 0.6, delay: 0.1 + li * 0.2 + i * 0.08, ease }}
                   >
                     {w}
                   </motion.span>
@@ -144,13 +155,13 @@ export function Hero() {
               </span>
             ))}
             <span className="block" aria-hidden>
-              {['Grow', 'your', 'service', 'business.'].map((w, i) => (
+              {['Grow', 'your', isEcom ? 'retail' : 'appointment', 'business.'].map((w, i) => (
                 <motion.span
-                  key={w}
+                  key={`${previewMode}-${w}`}
                   className={`mr-[0.25em] inline-block ${i === 0 ? 'text-gradient' : ''}`}
-                  initial={{ opacity: 0, y: 40, filter: 'blur(8px)' }}
+                  initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  transition={{ duration: 0.8, delay: 0.75 + i * 0.1, ease }}
+                  transition={{ duration: 0.6, delay: 0.5 + i * 0.08, ease }}
                 >
                   {w}
                 </motion.span>
@@ -159,29 +170,31 @@ export function Hero() {
           </h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            key={`sub-${previewMode}`}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.0, ease }}
+            transition={{ duration: 0.5, ease }}
             className="mx-auto mt-6 max-w-2xl text-base text-muted md:text-lg"
           >
-            Let clients self-book 24/7, pick their favorite specialist, pay deposits upfront, and receive automated
-            WhatsApp reminders. Stop losing hours to WhatsApp chat scheduling.
+            {isEcom
+              ? 'Create a modern mobile storefront in minutes, accept instant M-Pesa payments, and receive structured, itemized orders directly on WhatsApp.'
+              : 'Let clients self-book 24/7, pick their favorite specialist, pay deposits upfront, and receive automated WhatsApp reminders. Stop losing hours to WhatsApp chat scheduling.'}
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.15, ease }}
+            transition={{ duration: 0.7, delay: 0.8, ease }}
             className="mt-8 flex flex-wrap justify-center gap-3"
           >
             <Link
               to="/register"
               className="btn-brand rounded-full px-8 py-4 text-base font-bold transition hover:-translate-y-0.5 active:scale-95 shadow-lg"
             >
-              Start free booking
+              {isEcom ? 'Start free storefront' : 'Start free booking'}
             </Link>
             <a
-              href="#booking-engine"
+              href={isEcom ? '#features' : '#booking-engine'}
               className="glass rounded-full px-8 py-4 text-base font-bold transition hover:-translate-y-0.5"
             >
               Test live demo
@@ -195,16 +208,21 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, x: -60 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.9, delay: 1.2, ease }}
+            transition={{ duration: 0.9, delay: 0.4, ease }}
             className="relative z-10 order-2 space-y-4 pb-10 lg:order-1 lg:pb-24"
           >
             <Glass>
-              <p className="text-sm text-muted">Your booking link</p>
+              <p className="text-sm text-muted">
+                {isEcom ? 'Your storefront link' : 'Your booking link'}
+              </p>
               <p className="mt-1 break-all text-2xl font-semibold tracking-tight">
-                aqivo.shop/<span className="text-gradient">broadway-beauty</span>
+                aqivo.shop/<span className="text-gradient">{isEcom ? 'two-sides' : 'broadway-beauty'}</span>
               </p>
               <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-                {['24/7 Booking', 'Specialist schedules', 'Upfront deposits', 'Barcode check-in'].map((t) => (
+                {(isEcom
+                  ? ['Mobile Storefront', 'WhatsApp Checkout', 'Instant M-Pesa', 'Live Order Tracking']
+                  : ['24/7 Booking', 'Specialist schedules', 'Upfront deposits', 'Barcode check-in']
+                ).map((t) => (
                   <span key={t} className="rounded-full bg-white/80 px-3 py-1.5 shadow-xs">
                     {t}
                   </span>
@@ -216,10 +234,16 @@ export function Hero() {
               <Floaty amp={8} duration={3200}>
                 <Glass className="!p-4">
                   <p className="flex items-center gap-1.5 text-xs text-muted">
-                    <Calendar className="size-3.5 text-brand" /> Set up in
+                    {isEcom ? (
+                      <ShoppingBag className="size-3.5 text-brand" />
+                    ) : (
+                      <Calendar className="size-3.5 text-brand" />
+                    )}{' '}
+                    {isEcom ? 'Checkout speed' : 'Set up in'}
                   </p>
                   <p className="mt-2 text-3xl font-semibold">
-                    ~<CountUp to={8} /> <span className="text-sm text-muted">min</span>
+                    ~<CountUp to={isEcom ? 30 : 8} />{' '}
+                    <span className="text-sm text-muted">{isEcom ? 'sec' : 'min'}</span>
                   </p>
                 </Glass>
               </Floaty>
@@ -227,10 +251,11 @@ export function Hero() {
               <Floaty amp={8} duration={3800} delay={400}>
                 <Glass className="!p-4">
                   <p className="flex items-center gap-1.5 text-xs text-muted">
-                    <CheckCircle2 className="size-3.5 text-emerald-600" /> No-shows
+                    <CheckCircle2 className="size-3.5 text-emerald-600" />{' '}
+                    {isEcom ? 'Cart conversion' : 'No-shows'}
                   </p>
                   <p className="mt-2 text-3xl font-semibold text-emerald-600">
-                    -<CountUp to={85} />%
+                    {isEcom ? '+' : '-'}<CountUp to={isEcom ? 42 : 85} />%
                   </p>
                 </Glass>
               </Floaty>
@@ -241,7 +266,7 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, y: 120 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.1, delay: 0.9, ease }}
+            transition={{ duration: 1.1, delay: 0.3, ease }}
             className="order-1 lg:order-2"
           >
             <div className="relative z-0 pb-4">
@@ -282,17 +307,23 @@ export function Hero() {
           <motion.div
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.9, delay: 1.3, ease }}
+            transition={{ duration: 0.9, delay: 0.5, ease }}
             className="relative z-10 order-3 space-y-4 pb-10 lg:pb-24"
           >
             <Floaty amp={10} duration={3400} delay={200}>
               <Glass className="flex items-center gap-4 !p-4">
-                <span className="grid size-11 shrink-0 place-items-center rounded-full bg-purple-100 text-brand">
+                <span className={`grid size-11 shrink-0 place-items-center rounded-full ${isEcom ? 'bg-emerald-100 text-emerald-700' : 'bg-purple-100 text-brand'}`}>
                   <MessageCircle className="size-5" />
                 </span>
                 <div>
-                  <p className="font-semibold">Automated WhatsApp Reminders</p>
-                  <p className="text-sm text-muted">24h & 2h alerts with 1-tap reschedule</p>
+                  <p className="font-semibold">
+                    {isEcom ? 'Instant WhatsApp Orders' : 'Automated WhatsApp Reminders'}
+                  </p>
+                  <p className="text-sm text-muted">
+                    {isEcom
+                      ? 'Itemized orders land on your WhatsApp with 1 tap'
+                      : '24h & 2h alerts with 1-tap reschedule'}
+                  </p>
                 </div>
               </Glass>
             </Floaty>
@@ -300,23 +331,32 @@ export function Hero() {
             <Floaty amp={12} duration={4200} delay={600}>
               <Glass>
                 <div className="flex items-center gap-2 text-sm font-semibold">
-                  <Flame className="size-4 text-brand" /> Smart Rebooking Engine
+                  <Flame className="size-4 text-brand" />{' '}
+                  {isEcom ? 'Live Order Stream' : 'Smart Rebooking Engine'}
                 </div>
                 <p className="mt-3 text-3xl font-semibold tracking-tight">
-                  <CountUp to={24} />{' '}
-                  <span className="text-sm font-normal text-muted">clients due for their next appointment</span>
+                  <CountUp to={isEcom ? 18 : 24} />{' '}
+                  <span className="text-sm font-normal text-muted">
+                    {isEcom ? 'orders fulfilled today across Nairobi' : 'clients due for their next appointment'}
+                  </span>
                 </p>
                 <p className="mt-3 flex items-center justify-between border-t border-white/80 pt-3 text-sm text-brand font-semibold cursor-pointer">
-                  Send 1-tap WhatsApp prompt <ArrowRight className="size-4" />
+                  {isEcom ? 'Track orders in real-time' : 'Send 1-tap WhatsApp prompt'} <ArrowRight className="size-4" />
                 </p>
-                <p className="mt-2 text-[10px] text-muted">Automated rebooking workflow</p>
+                <p className="mt-2 text-[10px] text-muted">
+                  {isEcom ? 'Automated customer receipts & status' : 'Automated rebooking workflow'}
+                </p>
               </Glass>
             </Floaty>
 
             <Glass className="!p-4">
-              <p className="text-sm font-semibold">Protected with Upfront Deposits</p>
+              <p className="text-sm font-semibold">
+                {isEcom ? 'Instant M-Pesa & Card Checkout' : 'Protected with Upfront Deposits'}
+              </p>
               <p className="mt-1 text-sm text-muted">
-                Accept M-Pesa STK push, Till/Paybill, Daraja, and cards. Never get ghosted again.
+                {isEcom
+                  ? 'Accept M-Pesa STK push, Till/Paybill, and cards with instant payment verification. Zero ghost orders.'
+                  : 'Accept M-Pesa STK push, Till/Paybill, Daraja, and cards. Never get ghosted again.'}
               </p>
             </Glass>
           </motion.div>

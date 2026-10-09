@@ -13,7 +13,8 @@ import {
   Truck,
   CreditCard,
   Plus,
-  Minus
+  Minus,
+  Store
 } from 'lucide-react'
 import { PhoneFrame } from '@/components/PhoneFrame'
 import { useReduced } from '@/lib/motion'
@@ -202,7 +203,7 @@ export function EcommercePhoneApp({
                 aria-label="Open cart"
               >
                 <ShoppingBag className="size-4" />
-                {totalCount > 0 && (
+                {totalCount > 0 && screen !== 'success' && (
                   <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-extrabold text-white">
                     {totalCount}
                   </span>
@@ -660,18 +661,21 @@ export function EcommercePhoneApp({
                 screen === 'storefront' ? 'text-stone-900' : 'text-stone-400'
               }`}
             >
-              <div className="size-4" />
+              <Store className="size-4" />
               <span>Store</span>
             </button>
             <button
               type="button"
-              onClick={() => setScreen('cart')}
+              onClick={() => {
+                if (Object.keys(cartItems).length === 0) setCartItems({ p1: 1, p2: 1 })
+                setScreen('cart')
+              }}
               className={`flex flex-col items-center gap-0.5 text-[9px] font-bold ${
                 screen === 'cart' ? 'text-stone-900' : 'text-stone-400'
               }`}
             >
               <ShoppingBag className="size-4" />
-              <span>Bag ({totalCount})</span>
+              <span>Bag ({screen === 'success' ? 0 : totalCount})</span>
             </button>
             <button
               type="button"
@@ -681,7 +685,7 @@ export function EcommercePhoneApp({
               }`}
             >
               <Check className="size-4" />
-              <span>Orders</span>
+              <span>Orders {screen === 'success' ? '✓' : ''}</span>
             </button>
           </div>
         </div>
