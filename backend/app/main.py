@@ -252,12 +252,26 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
 
 
 
+import re
+
+_SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$")
+
+
+def is_potential_slug(slug: str) -> bool:
+    if not slug or len(slug) > 40 or slug in RESERVED_SLUGS or "." in slug:
+        return False
+    return bool(_SLUG_RE.match(slug))
+
+
 def _spa(path: str):
     if not DIST.exists():
         return None
     f = (DIST / path).resolve()
     if path and DIST in f.parents and f.is_file():
         return FileResponse(f, headers={"Cache-Control": "public, max-age=31536000, immutable"} if "/assets/" in f"/{path}" else {})
+    filename = Path(path).name
+    if "." in filename:
+        return None
     idx = DIST / "index.html"
     return FileResponse(idx, headers={"Cache-Control": "no-cache"}) if idx.exists() else None
 
@@ -268,7 +282,7 @@ def catch_all(full_path: str, request: Request, db: Session = Depends(get_db)):
         return root(request)
     parts = [p for p in full_path.split("/") if p]
     first = parts[0].lower() if parts else ""
-    if first and first not in RESERVED_SLUGS and not (DIST / full_path).is_file():
+    if is_potential_slug(first) and not (DIST / full_path).is_file():
         b = db.scalars(select(Business).where(Business.slug == first, Business.deleted_at.is_(None))).first()
         if b:
             if b.status != BusinessStatus.ACTIVE:

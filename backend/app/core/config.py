@@ -8,6 +8,11 @@ class Settings(BaseSettings):
 
     environment: str = "development"
     database_url: str = "postgresql+psycopg://mac@localhost:5432/bizora"
+    db_pool_size: int = 5
+    db_max_overflow: int = 5
+    db_pool_timeout: int = 15
+    db_pool_recycle: int = 300
+    db_pool_pre_ping: bool = True
     secret_key: str = "dev-only-secret-change-me-dev-only-secret"
     access_token_minutes: int = 30
     refresh_token_days: int = 14

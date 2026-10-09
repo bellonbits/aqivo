@@ -206,3 +206,11 @@ def test_media_upload_list_rename_delete_and_isolation(make_owner):
     assert a.post("/api/v1/media", files={"file": ("x.png", _png(), "image/png")}, data={"folder": "../etc"}).status_code == 400
     assert a.post("/api/v1/media", files={"file": ("x.png", b"not an image", "image/png")}, data={"folder": "logo"}).status_code == 400
     assert a.delete(f"/api/v1/media/{asset['id']}").status_code == 204 and a.get("/api/v1/media").json()["total"] == 0
+
+
+def test_catch_all_rejects_scanner_probes_without_hitting_business(client, owner):
+    # Common scanner probe paths should safely return 404 without querying business slugs
+    for path in ["/env-config.js", "/env.js", "/env.txt", "/.env", "/wp-login.php", "/config.json"]:
+        r = client.get(path)
+        assert r.status_code == 404
+
