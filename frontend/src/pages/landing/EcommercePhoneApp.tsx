@@ -147,7 +147,7 @@ export function EcommercePhoneApp({
   return (
     <div className={`relative flex flex-col items-center ${className}`}>
       {/* Screen selector chips */}
-      <div className="mb-3 flex flex-wrap items-center justify-center gap-1.5 px-2">
+      <div className="mb-6 sm:mb-8 flex flex-wrap items-center justify-center gap-1.5 px-2">
         {[
           { id: 'storefront', label: '1. Storefront' },
           { id: 'product', label: '2. Product Details' },
@@ -184,7 +184,7 @@ export function EcommercePhoneApp({
           onMouseEnter={() => setIsPaused(true)}
         >
           {/* Top Ecommerce Sticky Nav */}
-          <div className="sticky top-0 z-30 flex items-center justify-between border-b border-stone-100 bg-white/95 px-3 py-2.5 backdrop-blur-md">
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-100 bg-white/95 px-3 py-2.5 backdrop-blur-md">
             <div className="flex items-center gap-2">
               <div className="flex size-7 items-center justify-center rounded-lg bg-stone-900 text-xs font-black text-white">
                 2S

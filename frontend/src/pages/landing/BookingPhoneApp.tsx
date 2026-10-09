@@ -96,7 +96,7 @@ export function BookingPhoneApp({
   return (
     <div className={`relative flex flex-col items-center ${className}`}>
       {/* Screen selector chips above or below */}
-      <div className="mb-3 flex flex-wrap items-center justify-center gap-1.5 px-2">
+      <div className="mb-6 sm:mb-8 flex flex-wrap items-center justify-center gap-1.5 px-2">
         {[
           { id: 'home', label: '1. Explore' },
           { id: 'salon', label: '2. Salon' },

@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 
 // Hand variant (home page only): public/phone-frame.png, a hand holding a phone, 1000×960, screen cut out.
 const IMG = { w: 1000, h: 960 }
-const SCREEN = { left: 459.7, top: 17.1, w: 423.7, h: 891.9 }
+const SCREEN = { left: 464, top: 22, w: 415, h: 880 }
 
 // Standard iPhone 14 / 15 / 16 Viewport
 export const IPHONE_W = 390
@@ -47,13 +47,17 @@ export function PhoneFrame({
   if (variant === 'hand') {
     const k = width / SCREEN.w
     const h = width * (SCREEN.h / SCREEN.w)
+    const borderRadius = Math.round(width * 0.11)
     return (
       <div
-        className={cn('relative mx-auto', className)}
+        className={cn('relative mx-auto isolate', className)}
         style={{ width, height: h, marginBottom: (IMG.h - SCREEN.top - SCREEN.h) * k }}
         {...a11y}
       >
-        <div className="absolute inset-0 overflow-hidden bg-white" style={{ borderRadius: width * 0.085 }}>
+        <div
+          className="absolute inset-0 overflow-hidden bg-white z-0"
+          style={{ borderRadius }}
+        >
           {children}
         </div>
         <img
@@ -63,7 +67,7 @@ export function PhoneFrame({
           width={IMG.w}
           height={IMG.h}
           draggable={false}
-          className="pointer-events-none absolute max-w-none select-none"
+          className="pointer-events-none absolute max-w-none select-none z-30"
           style={{ left: -SCREEN.left * k, top: -SCREEN.top * k, width: IMG.w * k, height: IMG.h * k }}
         />
       </div>
