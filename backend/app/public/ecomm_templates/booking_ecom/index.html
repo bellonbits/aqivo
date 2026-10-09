@@ -29,7 +29,7 @@
         
         <!-- Left: Logo & Menu Button -->
         <div class="header-left-col">
-          <div class="brand-logo-badge" onclick="window.App.switchView('salon')" title="Beauty Salon Body LPG">
+          <div class="brand-logo-badge" onclick="window.App.switchView('salon')" title="Salon" data-bz-initial>
             LPG
           </div>
           <button type="button" class="btn-header-menu" id="btn-header-menu" onclick="window.App.openMenuDrawer()" title="Open Navigation Menu">
@@ -95,7 +95,7 @@
               <div class="salon-icon-badge badge-purple" id="badge-face-contour" title="LPG Facial Rejuvenation"></div>
             </div>
             <div class="salon-title-meta-wrap">
-              <h1 class="salon-main-heading" id="salon-title-text">Beauty Salon Body LPG</h1>
+              <h1 class="salon-main-heading" id="salon-title-text" data-bz-name>Beauty Salon Body LPG</h1>
               <div class="salon-meta-inline">
                 <span class="meta-rating-item">
                   <span class="svg-icon" id="salon-star-icon"></span>
@@ -228,12 +228,12 @@
               <button type="button" class="map-zoom-btn" onclick="window.App.showToast('Map Zoom', 'Zooming out map perspective.')">-</button>
             </div>
 
-            <div class="map-marker-pin" onclick="window.App.showToast('Location Selected', 'Beauty Salon Body LPG: 249 Kensington St, Bradford.')">
+            <div class="map-marker-pin" onclick="window.App.showToast('Location', window.__BZ && window.__BZ.address ? window.__BZ.address : 'Our location')">
               4.9
             </div>
 
             <div class="map-popup-card">
-              Beauty Salon Body LPG
+              <span data-bz-name>Beauty Salon Body LPG</span>
             </div>
           </div>
         </section>
@@ -449,7 +449,7 @@
   <div class="modal-backdrop-overlay" id="menu-drawer-backdrop" onclick="window.App.closeMenuDrawer()"></div>
   <aside class="menu-drawer-panel" id="menu-drawer-panel">
     <div class="menu-drawer-header">
-      <div class="brand-logo-badge">LPG</div>
+      <div class="brand-logo-badge" data-bz-initial>LPG</div>
       <button type="button" class="btn-circle-action" onclick="window.App.closeMenuDrawer()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>

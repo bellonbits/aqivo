@@ -91,9 +91,33 @@
     if (window.Cart && KEY === "mart_ecom") window.Cart.checkout = function () { goCheckout(CART[KEY]()); };
   });
 
-  // contact details baked into the templates' footers
+  // contact details & branding baked into the templates' footers
   onReady(function () {
+    var year = new Date().getFullYear();
+    // [data-bz-name] → business name (original case)
     document.querySelectorAll("[data-bz-name]").forEach(function (el) { el.textContent = B.name; });
+    // [data-bz-name-upper] → business name uppercased
+    document.querySelectorAll("[data-bz-name-upper]").forEach(function (el) { el.textContent = B.name.toUpperCase(); });
+    // [data-bz-tagline] → tagline or sensible fallback (only replace if business has one)
+    if (B.tagline) document.querySelectorAll("[data-bz-tagline]").forEach(function (el) { el.textContent = B.tagline; });
+    // [data-bz-phone] → business phone number
+    if (B.phone) document.querySelectorAll("[data-bz-phone]").forEach(function (el) { el.textContent = B.phone; });
+    // [data-bz-email] → business email
+    if (B.email) document.querySelectorAll("[data-bz-email]").forEach(function (el) { el.textContent = B.email; });
+    // [data-bz-address] → business address
+    if (B.address) document.querySelectorAll("[data-bz-address]").forEach(function (el) { el.textContent = B.address; });
+    // [data-bz-copyright] → dynamic copyright line with real name and current year
+    document.querySelectorAll("[data-bz-copyright]").forEach(function (el) {
+      el.innerHTML = "\u00A9 " + year + " " + esc(B.name) + ". All rights reserved.";
+    });
+    // [data-bz-free-delivery] → free delivery threshold amount
+    if (B.freeOver) document.querySelectorAll("[data-bz-free-delivery]").forEach(function (el) {
+      el.textContent = (B.symbol ? B.symbol + " " : (B.currency ? B.currency + " " : "")) + Number(B.freeOver).toLocaleString();
+    });
+    // [data-bz-initial] → first two letters of brand name for logo badges
+    document.querySelectorAll("[data-bz-initial]").forEach(function (el) {
+      el.textContent = B.name.slice(0, 2).toUpperCase();
+    });
   });
 
   // ---------- per-template data

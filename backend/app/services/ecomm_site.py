@@ -18,12 +18,13 @@ TEMPLATES_ROOT = Path(__file__).resolve().parent.parent / "public" / "ecomm_temp
 URL_BASE = "/ecomm-templates"
 
 # demo brand names baked into each template's static HTML
+# Order matters: longer / more-specific patterns must come first so they are replaced before shorter substrings
 DEMO_BRANDS = {
-    "fashion_ecom": ["LUXINA", "Luxina"],
-    "grocery_ecom": ["Grofresh", "GROFRESH"],
-    "shoeshop_ecom": ["FootWear", "Footwear", "FOOTWEAR"],
-    "mart_ecom": ["Freshly"],
-    "booking_ecom": ["Beauty Salon Body LPG", "LPG Beauty & Clinic"],
+    "fashion_ecom": ["LUXINA ARCHIVE", "LUXINA", "Luxina"],
+    "grocery_ecom": ["Grofresh Online Grocery Ltd", "Grofresh", "GROFRESH"],
+    "shoeshop_ecom": ["FootWear Hub", "FootWear", "Footwear", "FOOTWEAR"],
+    "mart_ecom": ["Freshly Market", "Freshly"],
+    "booking_ecom": ["Beauty Salon Body LPG", "LPG Beauty & Clinic", "LPG Beauty \u0026 Clinic", "LPG"],
 }
 
 
