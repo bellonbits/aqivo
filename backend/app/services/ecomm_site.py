@@ -236,7 +236,10 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str) -> str:
     if nav_items:
         nav_html = "".join(f'<a href="{_html.escape(item.get("href", "#"))}">{_html.escape(item.get("label", ""))}</a>' for item in nav_items)
         if nav_html:
-            page = page.replace("</header>", f'<nav class="custom-nav" style="display:flex;gap:16px;padding:10px;">{nav_html}</nav></header>', 1)
+            if "</header>" in page:
+                page = page.replace("</header>", f'<nav class="custom-nav" style="display:flex;gap:16px;padding:10px;">{nav_html}</nav></header>', 1)
+            else:
+                page = re.sub(r'(<body[^>]*>)', rf'\g<1><nav class="custom-nav" style="display:flex;gap:16px;padding:10px;">{nav_html}</nav>', page, count=1)
 
     # If business has a custom hero headline in website sections, update the main heading
     hero_sec = next((s for s in ctx.get("sections", []) if s.get("type") == "hero"), None)

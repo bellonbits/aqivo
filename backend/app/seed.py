@@ -26,19 +26,19 @@ from app.services import website as ws
 log = logging.getLogger("bizora.seed")
 
 DEMOS = [
-    dict(name="Mary's Beauty Studio", slug="marysbeauty", city="Pangani, Nairobi", category="Beauty Salon", template="booking_ecom", phone="0712000001",
+    dict(name="Mary's Beauty Studio", slug="marysbeauty", city="Pangani, Nairobi", category="Beauty Salon", template="aqivo", phone="0712000001",
          description="Professional hair and beauty services for modern women in Pangani. Braids, nails and skincare by appointment.", accent="#B4532A",
          services=[("Knotless Braids", "Neat, lightweight knotless braids.", 1500, 240), ("Gel Nails", "Gel overlay with a colour of your choice.", 800, 60), ("Pedicure", "Relaxing pedicure with scrub.", 1000, 60), ("Silk Press", "Wash, blow-dry and silk press.", 1800, 90)]),
-    dict(name="Glow Beauty Lounge", slug="glowlounge", city="Westlands, Nairobi", category="Spa", template="booking_ecom", phone="0712000002",
+    dict(name="Glow Beauty Lounge", slug="glowlounge", city="Westlands, Nairobi", category="Spa", template="aqivo", phone="0712000002",
          description="A calm space for facials, massage and skin treatments in Westlands.", accent="#3F6B57",
          services=[("Signature Facial", "Deep-cleansing facial for glowing skin.", 3500, 75), ("Swedish Massage", "60 minutes full-body relaxation.", 4000, 60), ("Body Scrub", "Exfoliating scrub and moisturise.", 2500, 45)]),
-    dict(name="Urban Cuts", slug="urbancuts", city="Kilimani, Nairobi", category="Barbershop", template="booking_ecom", phone="0712000003",
+    dict(name="Urban Cuts", slug="urbancuts", city="Kilimani, Nairobi", category="Barbershop", template="aqivo", phone="0712000003",
          description="Sharp fades, clean line-ups and beard trims. Walk-ins welcome, bookings preferred.", accent="#E6F26A",
          services=[("Haircut", "Classic or fade with a hot towel finish.", 500, 30), ("Beard Trim", "Shape and line-up.", 300, 20), ("Cut + Beard", "The full package.", 700, 45), ("Kids Cut", "Under 12.", 350, 25)]),
-    dict(name="Nairobi Nail Studio", slug="nairobinails", city="Lavington, Nairobi", category="Nail Studio", template="booking_ecom", phone="0712000004",
+    dict(name="Nairobi Nail Studio", slug="nairobinails", city="Lavington, Nairobi", category="Nail Studio", template="aqivo", phone="0712000004",
          description="Nail art, acrylics and gel manicures by a team of certified nail technicians.", accent="#C2185B",
          services=[("Acrylic Full Set", "Full set in your choice of shape.", 2500, 120), ("Gel Manicure", "Long-lasting gel colour.", 1200, 60), ("Nail Art (per nail)", "Custom hand-painted art.", 100, 10)]),
-    dict(name="The Beauty Room", slug="thebeautyroom", city="Karen, Nairobi", category="Makeup Artist", template="booking_ecom", phone="0712000005",
+    dict(name="The Beauty Room", slug="thebeautyroom", city="Karen, Nairobi", category="Makeup Artist", template="aqivo", phone="0712000005",
          description="Bridal, event and editorial makeup by appointment.", accent="#111111",
          services=[("Bridal Makeup", "Trial + wedding day makeup.", 12000, 180), ("Event Makeup", "Full-face glam for any occasion.", 3500, 75), ("Lash Application", "Classic or volume lashes.", 2000, 90)]),
 ]

@@ -5,7 +5,7 @@ import pytest
 
 from tests.conftest import add_service
 
-KEYS = ["booking_ecom", "fashion_ecom", "grocery_ecom", "mart_ecom", "shoeshop_ecom", "aqivo"]
+KEYS = ["aqivo"]
 
 
 def _bz(html: str) -> dict:
@@ -35,4 +35,4 @@ def test_ecomm_template_renders_real_business_data(make_owner, client, key):
 def test_templates_list_only_ecomm(client):
     keys = {t["key"] for t in client.get("/api/v1/templates").json()}
     assert keys == set(KEYS)
-    assert client.get("/api/v1/templates/fashion_ecom/preview", follow_redirects=False).status_code == 307
+    assert client.get("/api/v1/templates/aqivo/preview", follow_redirects=False).status_code == 307

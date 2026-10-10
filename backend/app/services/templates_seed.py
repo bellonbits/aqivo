@@ -17,12 +17,7 @@ def _tpl(key, name, industry, description, features, accent, bg="#FFFFFF", ink="
 
 
 TEMPLATES = [
-    _tpl("booking_ecom", "Booking", "beauty", "Booking-focused storefront for service businesses.", ["Online booking", "Service menu", "WhatsApp button"], "#B4532A", sections=SECTION_ORDER),
-    _tpl("fashion_ecom", "Fashion", "retail", "Fashion storefront with big imagery and a clean product grid.", ["Product grid", "Categories", "Cart drawer", "Search"], "#111111"),
-    _tpl("grocery_ecom", "Grocery", "restaurant", "Fresh grocery and food storefront with deals and categories.", ["Deals", "Categories", "Cart drawer", "Search"], "#16A34A"),
-    _tpl("mart_ecom", "Mart", "retail", "General marketplace storefront with vendors and product pages.", ["Vendors", "Product page", "Cart drawer", "Search"], "#2563EB"),
-    _tpl("shoeshop_ecom", "Shoe Shop", "retail", "Sneaker and footwear storefront with deals and brands.", ["Deals", "Brands", "Cart drawer", "Search"], "#111111"),
-    _tpl("aqivo", "Aqivo Modern", "retail", "Unified modern storefront supporting both products and appointment bookings.", ["Products & Services", "Appointments", "Cart & Checkout", "Search"], "#00BFFF"),
+    _tpl("aqivo", "Aqivo Modern", "retail", "Unified modern storefront supporting both products and appointment bookings.", ["Products & Services", "Appointments", "Cart & Checkout", "Search"], "#00BFFF", sections=SECTION_ORDER),
 ]
 
 
