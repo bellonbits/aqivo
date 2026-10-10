@@ -5,7 +5,7 @@ import pytest
 
 from tests.conftest import add_service
 
-KEYS = ["booking_ecom", "fashion_ecom", "grocery_ecom", "mart_ecom", "shoeshop_ecom", "aqivo"]
+KEYS = ["aqivo"]
 
 
 def _bz(html: str) -> dict:

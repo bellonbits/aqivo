@@ -22,8 +22,8 @@ def test_unknown_industry_rejected(client):
 
 def test_templates_cover_industries_and_layouts(client):
     ts = client.get("/api/v1/templates").json()
-    assert len(ts) == 6
-    assert {"booking_ecom", "fashion_ecom", "grocery_ecom", "mart_ecom", "shoeshop_ecom", "aqivo"} <= {t["key"] for t in ts}
+    assert len(ts) == 1
+    assert ts[0]["key"] == "aqivo"
 
 
 def test_style_overrides_validated_and_stay_draft_until_publish(make_owner, client):
