@@ -29,7 +29,7 @@ export default function Onboarding() {
   const [d, setD] = useState<Draft>({ name: '', industry: 'beauty', category: 'Beauty Salon', country: 'KE', city: '', address: '', phone: '', whatsapp: '' })
   const [sameWa, setSameWa] = useState(true)
   const [rows, setRows] = useState<Row[]>([{ name: '', price: '', minutes: '60' }])
-  const [template, setTemplate] = useState(params.get('template') ?? 'beauty_studio_01')
+  const [template, setTemplate] = useState(params.get('template') ?? 'booking_ecom')
   const [published, setPublished] = useState(false)
   const countries = useQuery({ queryKey: ['config'], queryFn: () => api.get<{ countries: CountryConfig[]; industries: IndustryConfig[] }>('/businesses/config'), staleTime: Infinity })
   const templates = useQuery({ queryKey: ['templates'], queryFn: () => api.get<Template[]>('/templates') })

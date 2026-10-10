@@ -42,7 +42,7 @@ export function AdminNewBusiness() {
   const toast = useToast()
   const cfg = useQuery({ queryKey: ['config'], queryFn: () => api.get<{ countries: CountryConfig[] }>('/businesses/config'), staleTime: Infinity })
   const tpls = useQuery({ queryKey: ['templates'], queryFn: () => api.get<{ key: string; name: string }[]>('/templates') })
-  const [f, setF] = useState({ name: '', owner_name: '', owner_email: '', phone: '', whatsapp: '', city: '', country_code: 'KE', category: 'Beauty Salon', template_key: 'beauty_studio_01', plan_key: 'GROW', trial: false, description: '' })
+  const [f, setF] = useState({ name: '', owner_name: '', owner_email: '', phone: '', whatsapp: '', city: '', country_code: 'KE', category: 'Beauty Salon', template_key: 'booking_ecom', plan_key: 'GROW', trial: false, description: '' })
   const [created, setCreated] = useState<{ business: Business; owner_email: string; temporary_password: string | null; urls: { profile: string } } | null>(null)
   const m = useMutation({ mutationFn: () => api.post<NonNullable<typeof created>>('/admin/businesses', { ...f, phone: f.phone || null, whatsapp: f.whatsapp || null }), onSuccess: setCreated, onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed') })
   const set = (k: keyof typeof f, v: string | boolean) => setF((s) => ({ ...s, [k]: v }))

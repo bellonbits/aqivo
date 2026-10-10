@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
+import { useAuth } from '@/features/auth/AuthContext'
 import type { BusinessSummary, Urls } from '@/types'
 
 export const BUSINESS_KEY = ['business', 'me']
@@ -27,7 +28,15 @@ export function cleanUrls(urls?: Urls): Urls | undefined {
 }
 
 export function useBusiness() {
-  const q = useQuery({ queryKey: BUSINESS_KEY, queryFn: () => api.get<BusinessSummary>('/businesses/me'), staleTime: 30_000 })
+  const { me } = useAuth()
+  const hasMemberships = !me || me.memberships.length > 0 || me.impersonating
+  const q = useQuery({
+    queryKey: BUSINESS_KEY,
+    queryFn: () => api.get<BusinessSummary>('/businesses/me'),
+    staleTime: 30_000,
+    enabled: hasMemberships,
+    retry: false,
+  })
   const qc = useQueryClient()
   const summary = q.data ? { ...q.data, urls: cleanUrls(q.data.urls)! } : undefined
   const has = (feature: string) => !!summary?.plan.features.includes(feature)
