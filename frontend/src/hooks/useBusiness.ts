@@ -1,4 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useMemo } from 'react'
 import { api } from '@/lib/api'
 import { useAuth } from '@/features/auth/AuthContext'
 import type { BusinessSummary, Urls } from '@/types'
@@ -38,8 +39,9 @@ export function useBusiness() {
     retry: false,
   })
   const qc = useQueryClient()
-  const summary = q.data ? { ...q.data, urls: cleanUrls(q.data.urls)! } : undefined
-  const has = (feature: string) => !!summary?.plan.features.includes(feature)
-  const can = (allOwner = false) => !allOwner || !!summary?.permissions_all
-  return { ...q, business: summary?.business, summary, has, can, refresh: () => qc.invalidateQueries({ queryKey: BUSINESS_KEY }) }
+  const summary = useMemo(() => (q.data ? { ...q.data, urls: cleanUrls(q.data.urls)! } : undefined), [q.data])
+  const has = useCallback((feature: string) => !!summary?.plan.features.includes(feature), [summary?.plan.features])
+  const can = useCallback((allOwner = false) => !allOwner || !!summary?.permissions_all, [summary?.permissions_all])
+  const refresh = useCallback(() => qc.invalidateQueries({ queryKey: BUSINESS_KEY }), [qc])
+  return { ...q, business: summary?.business, summary, has, can, refresh }
 }

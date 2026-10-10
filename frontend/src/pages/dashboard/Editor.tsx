@@ -109,7 +109,8 @@ export default function Editor() {
     const pg = pageRef.current
     try { setHtml(await api.get<string>('/websites/me/preview', { template: tpl ?? undefined, edit: tpl ? undefined : 1, page: tpl ? undefined : pg ?? undefined })) } catch (e) { toast.err(e instanceof Error ? e.message : 'Preview failed') }
   }, [toast])
-  useEffect(() => { if (has('website') && homeId) void loadPreview(previewTpl) }, [has, previewTpl, loadPreview, curPage, homeId])
+  const hasWebsite = has('website')
+  useEffect(() => { if (hasWebsite && homeId) void loadPreview(previewTpl) }, [hasWebsite, previewTpl, loadPreview, curPage, homeId])
 
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
