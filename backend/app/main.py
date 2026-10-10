@@ -47,6 +47,7 @@ async def lifespan(app: FastAPI):
     except Exception:  # noqa: BLE001
         log.exception("bootstrap failed (has `alembic upgrade head` been run?)")
     yield
+    engine.dispose()
 
 
 app = FastAPI(

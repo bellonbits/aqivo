@@ -9,12 +9,22 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+connect_args = {}
+if settings.database_url.startswith("postgresql"):
+    connect_args = {
+        "connect_timeout": 10,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 3,
+    }
+
 if settings.db_pool_size <= 0:
     engine = create_engine(
         settings.database_url,
         poolclass=NullPool,
         pool_pre_ping=settings.db_pool_pre_ping,
-        pool_recycle=settings.db_pool_recycle,
+        connect_args=connect_args,
     )
 else:
     engine = create_engine(
@@ -24,6 +34,7 @@ else:
         max_overflow=settings.db_max_overflow,
         pool_timeout=settings.db_pool_timeout,
         pool_recycle=settings.db_pool_recycle,
+        connect_args=connect_args,
     )
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 

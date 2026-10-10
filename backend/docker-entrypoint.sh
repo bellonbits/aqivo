@@ -17,13 +17,13 @@ conn_url = db_url.replace("postgresql+psycopg://", "postgresql://")
 max_retries = 30
 for i in range(1, max_retries + 1):
     try:
-        conn = psycopg.connect(conn_url)
+        conn = psycopg.connect(conn_url, connect_timeout=10)
         conn.close()
         print(f"Database connection established successfully on attempt {i}.")
         sys.exit(0)
     except Exception as e:
         print(f"Waiting for database ({i}/{max_retries}): {e}")
-        time.sleep(1)
+        time.sleep(2)
 
 print("Error: Could not connect to database after 30 seconds.")
 sys.exit(1)

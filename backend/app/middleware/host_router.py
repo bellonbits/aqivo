@@ -17,7 +17,7 @@ TTL = 60
 def _lookup(host: str) -> str | None:
     s = get_settings()
     base = s.base_domain.lower()
-    if host == base or host.startswith("localhost") or host.startswith("127.") or host.replace(".", "").isdigit():
+    if not host or host == base or host.startswith(("localhost", "127.", "[::1]")) or host.replace(".", "").isdigit():
         return None
     hit = _cache.get(host)
     if hit and time.monotonic() - hit[0] < TTL:
@@ -33,6 +33,8 @@ def _lookup(host: str) -> str | None:
             d = db.scalars(select(Domain).where(Domain.domain == host, Domain.type == "CUSTOM", Domain.verification_status == "VERIFIED", Domain.status == "ACTIVE")).first()
             if d:
                 slug = db.scalar(select(Business.slug).where(Business.id == d.business_id))
+        except Exception:
+            slug = None
         finally:
             db.close()
     _cache[host] = (time.monotonic(), slug)
