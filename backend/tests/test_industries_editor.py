@@ -22,9 +22,9 @@ def test_unknown_industry_rejected(client):
 
 def test_templates_cover_industries_and_layouts(client):
     ts = client.get("/api/v1/templates").json()
-    assert len(ts) == 5
+    assert len(ts) == 6
     assert {t["industry"] for t in ts} >= {"beauty", "restaurant", "retail"}
-    assert {"booking_ecom", "fashion_ecom", "grocery_ecom", "mart_ecom", "shoeshop_ecom"} <= {t["key"] for t in ts}
+    assert {"booking_ecom", "fashion_ecom", "grocery_ecom", "mart_ecom", "shoeshop_ecom", "aqivo"} <= {t["key"] for t in ts}
 
 
 def test_style_overrides_validated_and_stay_draft_until_publish(make_owner, client):
@@ -81,4 +81,11 @@ def test_restaurant_storefront_complete_brand_design(make_owner, client):
     assert "Jeff Cafe" in html
     assert "Nyama Choma Platter" in html
     assert "_bridge.js" in html
+
+
+def test_aqivo_template_preview_and_render(make_owner):
+    o = make_owner("aq@example.com", "A", "Aqivo Store")
+    add_service(o, "Custom Dress", "3500")
+    html = o.get("/api/v1/websites/me/preview", params={"template": "aqivo"}).text
+    assert "Aqivo Store" in html and "_bridge.js" in html and "window.__BZ" in html
 

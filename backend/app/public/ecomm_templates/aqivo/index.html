@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aqivo — Shop local businesses online</title>
+  <meta name="description" content="Aqivo is a marketplace for every local business. Discover shops, compare products and order in a few taps." />
+  <meta name="theme-color" content="#00bfff" />
+  <meta property="og:title" content="Aqivo — Shop local businesses online" />
+  <meta property="og:description" content="Discover shops, compare products and order in a few taps." />
+  <meta property="og:type" content="website" />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2300BFFF'/><path d='M8 11h16l-2 11H10L8 11Z' fill='none' stroke='white' stroke-width='2'/><path d='M12 11V9a4 4 0 0 1 8 0v2' fill='none' stroke='white' stroke-width='2'/></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/booking.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="app"></div>
+
+  <script src="scripts/icons.js"></script>
+  <script src="scripts/data.js"></script>
+  <script src="scripts/api.js"></script>
+  <script src="scripts/store.js"></script>
+  <script src="scripts/components.js"></script>
+  <script src="scripts/booking.js"></script>
+  <script src="scripts/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      AqivoApp.init(document.getElementById('app'));
+    });
+  </script>
+</body>
+</html>

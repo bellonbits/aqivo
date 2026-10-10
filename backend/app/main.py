@@ -277,51 +277,55 @@ def _spa(path: str):
 
 
 @app.get("/{full_path:path}", include_in_schema=False)
-def catch_all(full_path: str, request: Request, db: Session = Depends(get_db)):
+def catch_all(full_path: str, request: Request):
     if not full_path or full_path.strip("/") == "":
         return root(request)
     parts = [p for p in full_path.split("/") if p]
     first = parts[0].lower() if parts else ""
     if is_potential_slug(first) and not (DIST / full_path).is_file():
-        b = db.scalars(select(Business).where(Business.slug == first, Business.deleted_at.is_(None))).first()
-        if b:
-            if b.status != BusinessStatus.ACTIVE:
-                return _message("Temporarily unavailable", "This business page is currently unavailable.", 503)
-            root = "" if (request.scope.get("aqivo_host") == b.slug or request.scope.get("bizora_host") == b.slug) else f"/{b.slug}"
-            moved = _to_primary(b, request, parts)
-            if moved is not None:
-                return moved
-            redir = _site_redirect(db, b, parts, root)
-            if redir is not None:
-                return redir
-            if len(parts) == 1:
-                return HTMLResponse(render_business(db, b, root=root), headers=CACHE)
-            shop = _shop_page(db, b, parts[1:], request, root)
-            if shop is not None:
-                return shop
-            if parts[1] == "review" and len(parts) == 2:
-                ctx = build_context(db, b, force_profile=True)
-                token = request.query_params.get("t", "")
-                rr = db.scalars(select(ReviewRequest).where(ReviewRequest.token == token, ReviewRequest.business_id == b.id, ReviewRequest.completed_at.is_(None))).first() if token else None
-                ctx.update(token=token if rr else "", verified=rr is not None, prefill_name="")
-                ctx["seo"] = {**ctx["seo"], "robots": "noindex,follow", "title": f"Review {b.name}"}
-                return HTMLResponse(render("review.html", **ctx), headers={"Cache-Control": "no-store"})
-            if parts[1] == "sitemap.xml":
-                from app.models import Product, Service, ServiceCategory
-                base = f"https://{b.primary_domain}" if b.primary_domain else settings.public_base_url.rstrip("/") + f"/{b.slug}"
-                urls = [base] + [f"{base}/products"]
-                urls += [f"{base}/products/{x}" for x in db.scalars(select(Product.slug).where(Product.business_id == b.id, Product.deleted_at.is_(None), Product.status == "ACTIVE").limit(5000))]
-                urls += [f"{base}/categories/{x}" for x in db.scalars(select(ServiceCategory.slug).where(ServiceCategory.business_id == b.id, ServiceCategory.is_visible.is_(True), ServiceCategory.slug.isnot(None)))]
-                from app.models import Collection
-                urls += [f"{base}/collections/{x}" for x in db.scalars(select(Collection.slug).where(Collection.business_id == b.id, Collection.is_visible.is_(True)))]
-                urls += [f"{base}/services/{x}" for x in db.scalars(select(Service.slug).where(Service.business_id == b.id, Service.deleted_at.is_(None), Service.is_active.is_(True), Service.slug.isnot(None)))]
-                if b.website and b.website.status == "PUBLISHED":
-                    urls += [f"{base}/p/{x.slug}" for x in db.scalars(select(WebsitePage).where(WebsitePage.website_id == b.website.id, WebsitePage.is_home.is_(False)))
-                             if (x.published or {}).get("enabled")]
-                body = "".join(f"<url><loc>{u}</loc></url>" for u in urls)
-                return Response(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>', media_type="application/xml")
-            if parts[1] == "robots.txt":
-                return PlainTextResponse(f"User-agent: *\nAllow: /\nSitemap: {settings.public_base_url.rstrip('/')}/{b.slug}/sitemap.xml\n")
+        db = SessionLocal()
+        try:
+            b = db.scalars(select(Business).where(Business.slug == first, Business.deleted_at.is_(None))).first()
+            if b:
+                if b.status != BusinessStatus.ACTIVE:
+                    return _message("Temporarily unavailable", "This business page is currently unavailable.", 503)
+                root = "" if (request.scope.get("aqivo_host") == b.slug or request.scope.get("bizora_host") == b.slug) else f"/{b.slug}"
+                moved = _to_primary(b, request, parts)
+                if moved is not None:
+                    return moved
+                redir = _site_redirect(db, b, parts, root)
+                if redir is not None:
+                    return redir
+                if len(parts) == 1:
+                    return HTMLResponse(render_business(db, b, root=root), headers=CACHE)
+                shop = _shop_page(db, b, parts[1:], request, root)
+                if shop is not None:
+                    return shop
+                if parts[1] == "review" and len(parts) == 2:
+                    ctx = build_context(db, b, force_profile=True)
+                    token = request.query_params.get("t", "")
+                    rr = db.scalars(select(ReviewRequest).where(ReviewRequest.token == token, ReviewRequest.business_id == b.id, ReviewRequest.completed_at.is_(None))).first() if token else None
+                    ctx.update(token=token if rr else "", verified=rr is not None, prefill_name="")
+                    ctx["seo"] = {**ctx["seo"], "robots": "noindex,follow", "title": f"Review {b.name}"}
+                    return HTMLResponse(render("review.html", **ctx), headers={"Cache-Control": "no-store"})
+                if parts[1] == "sitemap.xml":
+                    from app.models import Product, Service, ServiceCategory
+                    base = f"https://{b.primary_domain}" if b.primary_domain else settings.public_base_url.rstrip("/") + f"/{b.slug}"
+                    urls = [base] + [f"{base}/products"]
+                    urls += [f"{base}/products/{x}" for x in db.scalars(select(Product.slug).where(Product.business_id == b.id, Product.deleted_at.is_(None), Product.status == "ACTIVE").limit(5000))]
+                    urls += [f"{base}/categories/{x}" for x in db.scalars(select(ServiceCategory.slug).where(ServiceCategory.business_id == b.id, ServiceCategory.is_visible.is_(True), ServiceCategory.slug.isnot(None)))]
+                    from app.models import Collection
+                    urls += [f"{base}/collections/{x}" for x in db.scalars(select(Collection.slug).where(Collection.business_id == b.id, Collection.is_visible.is_(True)))]
+                    urls += [f"{base}/services/{x}" for x in db.scalars(select(Service.slug).where(Service.business_id == b.id, Service.deleted_at.is_(None), Service.is_active.is_(True), Service.slug.isnot(None)))]
+                    if b.website and b.website.status == "PUBLISHED":
+                        urls += [f"{base}/p/{x.slug}" for x in db.scalars(select(WebsitePage).where(WebsitePage.website_id == b.website.id, WebsitePage.is_home.is_(False)))
+                                 if (x.published or {}).get("enabled")]
+                    body = "".join(f"<url><loc>{u}</loc></url>" for u in urls)
+                    return Response(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>', media_type="application/xml")
+                if parts[1] == "robots.txt":
+                    return PlainTextResponse(f"User-agent: *\nAllow: /\nSitemap: {settings.public_base_url.rstrip('/')}/{b.slug}/sitemap.xml\n")
+        finally:
+            db.close()
     resp = _spa(full_path)
     if resp is not None:
         return resp

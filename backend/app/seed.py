@@ -270,7 +270,7 @@ def ensure_demo_products(db: Session) -> None:
 def refresh_demo_photos(db: Session) -> None:
     for slug in DEMO_PHOTOS:
         b = db.scalars(select(Business).where(Business.slug == slug, Business.is_demo.is_(True))).first()
-        if b:
+        if b and not db.scalar(select(GalleryImage.id).where(GalleryImage.business_id == b.id)):
             add_demo_gallery(db, b, slug)
     db.commit()
 

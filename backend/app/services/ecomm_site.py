@@ -25,6 +25,7 @@ DEMO_BRANDS = {
     "shoeshop_ecom": ["FootWear Hub", "FootWear", "Footwear", "FOOTWEAR"],
     "mart_ecom": ["Freshly Market", "Freshly"],
     "booking_ecom": ["Beauty Salon Body LPG", "LPG Beauty & Clinic", "LPG Beauty \u0026 Clinic", "LPG"],
+    "aqivo": ["Two Sides Boutique", "Two Sides"],
 }
 
 

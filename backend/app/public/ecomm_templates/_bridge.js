@@ -63,15 +63,16 @@
     fashion_ecom: function () { return readLS("luxina_cart_items_kes_v2", function (i) { return { id: i.id, variant: i.size, qty: i.quantity }; }); },
     grocery_ecom: function () { return readLS("grofresh_cart_items_kes_v2", function (i) { return { id: i.id, variant: "", qty: i.quantity }; }); },
     shoeshop_ecom: function () { return readLS("footwear_cart_items_v2", function (i) { return { id: i.id, variant: String(i.size), qty: i.quantity }; }); },
-    mart_ecom: function () { return ((window.Cart && window.Cart.items) || []).map(function (i) { return { id: i.id, variant: i.size, qty: i.quantity }; }); }
+    mart_ecom: function () { return ((window.Cart && window.Cart.items) || []).map(function (i) { return { id: i.id, variant: i.size, qty: i.quantity }; }); },
+    aqivo: function () { try { return window.AqivoStore ? window.AqivoStore.getCart().map(function (i) { return { id: i.productId, variant: (i.variant && (i.variant.Size || i.variant.Color || i.variant['Add-ons'] || '')) || '', qty: i.qty }; }) : []; } catch (e) { return []; } }
   };
   // never start with the template's demo cart items
   var LS_KEYS = { fashion_ecom: "luxina_cart_items_kes_v2", grocery_ecom: "grofresh_cart_items_kes_v2", shoeshop_ecom: "footwear_cart_items_v2" };
   if (LS_KEYS[KEY]) { try { if (localStorage.getItem(LS_KEYS[KEY]) === null) localStorage.setItem(LS_KEYS[KEY], "[]"); } catch (e) {} }
 
   document.addEventListener("click", function (e) {
-    var t = e.target.closest && e.target.closest("#cart-checkout-btn, #btn-cart-checkout");
-    if (t && CART[KEY]) { e.preventDefault(); e.stopImmediatePropagation(); goCheckout(CART[KEY]()); return; }
+    var t = e.target.closest && e.target.closest("#cart-checkout-btn, #btn-cart-checkout, [data-checkout]");
+    if (t && (CART[KEY] || KEY === 'aqivo')) { e.preventDefault(); e.stopImmediatePropagation(); goCheckout((CART[KEY] || function(){return[]})()); return; }
     var a = e.target.closest && e.target.closest('a[href^="#"]'); // <base> would otherwise send in-page anchors away
     if (a) {
       var id = a.getAttribute("href").slice(1);
@@ -318,6 +319,74 @@
           }).catch(function () { if (btn) btn.disabled = false; window.App.showToast("Network error", "Please try again."); });
       };
     });
+  };
+
+  MAP.aqivo = function () {
+    if (!window.AQIVO_DB) return;
+    var tenant = {
+      slug: B.slug,
+      business: {
+        name: B.name,
+        tagline: B.tagline || "",
+        description: B.about || B.tagline || "",
+        type: "general",
+        logo: B.logo || "",
+        cover: (B.gallery && B.gallery[0] && B.gallery[0].src) || "",
+        verified: true,
+        rating: (B.rating && B.rating.average) || 5,
+        reviewCount: (B.rating && B.rating.count) || 0,
+        open: true,
+        phone: B.phone || "",
+        whatsapp: B.wa || B.phone || "",
+        email: B.email || "",
+        address: B.address || "",
+        city: ""
+      },
+      settings: {
+        currency: B.currency || "KES",
+        delivery: { available: true, fee: 200, freeOver: B.freeOver || 0, time: "Same day", note: "Standard delivery" },
+        pickup: { available: true, note: B.address || "Pick up at shop" },
+        minOrder: 0,
+        payments: ["mpesa", "cod"],
+        whatsappOrdering: !!B.wa,
+        hours: (B.hours && B.hours[0] && B.hours[0].text) || "Mon–Sat"
+      },
+      categories: (CATS.length ? CATS : [{ id: "all", name: "All Items", icon: "sparkle" }]).map(function (c) {
+        return { id: c.id, name: c.name, icon: "sparkle" };
+      }),
+      products: ITEMS.map(function (p) {
+        var imgs = (p.images && p.images.length) ? p.images : (p.image ? [p.image] : [FALLBACK_IMG]);
+        return {
+          id: p.id,
+          category: p.cid || (CATS[0] && CATS[0].id) || "all",
+          type: p.kind === "service" ? "service" : "product",
+          name: p.name,
+          price: p.price,
+          compare_at_price: (p.compare && p.compare > p.price) ? p.compare : null,
+          available: !p.soldout,
+          description: p.desc,
+          images: imgs,
+          duration: p.duration ? (p.duration + " min") : undefined,
+          durationMin: p.duration || 60,
+          variants: (p.variants && p.variants.length) ? [
+            { name: "Option", type: "option", options: p.variants.map(function (v) { return { label: v.title, available: true }; }) }
+          ] : [],
+          specs: []
+        };
+      }),
+      booking: {
+        enabled: !!B.bookingsOn,
+        consultationFee: 0,
+        slots: ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"],
+        staff: (B.team || []).map(function (m) {
+          return { id: m.id, name: m.name, role: "Specialist", avatar: m.photo || "" };
+        })
+      }
+    };
+    window.AQIVO_DB.stores = [tenant];
+    window.AQIVO_DB.defaultStore = B.slug;
+    window.AQIVO_DB.currency = B.currency || "KES";
+    try { localStorage.setItem("aqivo.lastShop", B.slug); } catch (e) {}
   };
 
   if (MAP[KEY]) MAP[KEY]();

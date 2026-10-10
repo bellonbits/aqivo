@@ -1,0 +1,116 @@
+/* ============================================================
+   Aqivo Design Tokens
+   Single source of truth for colour, type, spacing, radius,
+   shadow, motion and layout across the whole marketplace.
+   ============================================================ */
+
+:root {
+  /* ---- Brand ---- */
+  --brand: #00bfff;
+  --brand-600: #00a6df;
+  --brand-700: #0089bd;
+  --brand-050: #e8f8ff;
+  --brand-100: #d0f1ff;
+  --brand-ink: #003544;
+
+  /* ---- Accents (used sparingly, semantic only) ---- */
+  --success: #0f9d58;
+  --success-050: #e7f7ee;
+  --warning: #b7791f;
+  --warning-050: #fdf6e7;
+  --danger: #d92d20;
+  --danger-050: #fdecea;
+  --star: #f5a623;
+
+  /* ---- Surfaces ---- */
+  --bg: #f7f9fb;
+  --surface: #ffffff;
+  --surface-2: #f1f4f7;
+  --surface-3: #e7ecf1;
+
+  /* ---- Text ---- */
+  --text: #10151b;
+  --text-2: #48525e;
+  --text-3: #727e8c;
+  --text-on-brand: #ffffff;
+
+  /* ---- Border ---- */
+  --border: #e4e9ee;
+  --border-strong: #cfd7df;
+
+  /* ---- Typography ---- */
+  --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --fs-xs: 0.75rem;    /* 12 */
+  --fs-sm: 0.8125rem;  /* 13 */
+  --fs-base: 0.875rem; /* 14 */
+  --fs-md: 0.9375rem;  /* 15 */
+  --fs-lg: 1.0625rem;  /* 17 */
+  --fs-xl: 1.25rem;    /* 20 */
+  --fs-2xl: 1.5rem;    /* 24 */
+  --fs-3xl: 1.875rem;  /* 30 */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+  --lh-tight: 1.2;
+  --lh-snug: 1.35;
+  --lh-normal: 1.55;
+
+  /* ---- Spacing scale (4px base) ---- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* ---- Radius ---- */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* ---- Shadow ---- */
+  --shadow-xs: 0 1px 2px rgba(16, 21, 27, 0.05);
+  --shadow-sm: 0 2px 8px rgba(16, 21, 27, 0.06);
+  --shadow-md: 0 8px 24px rgba(16, 21, 27, 0.09);
+  --shadow-lg: 0 18px 44px rgba(16, 21, 27, 0.14);
+  --shadow-brand: 0 8px 20px rgba(0, 191, 255, 0.32);
+
+  /* ---- Controls ---- */
+  --control-h: 44px;
+  --control-h-sm: 36px;
+  --control-h-lg: 52px;
+
+  /* ---- Layout ---- */
+  --maxw: 1200px;
+  --header-h: 64px;
+  --bottomnav-h: 62px;
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur: 220ms;
+  --dur-slow: 360ms;
+
+  /* ---- Z-index ---- */
+  --z-header: 60;
+  --z-drawer: 80;
+  --z-modal: 90;
+  --z-toast: 100;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+}
