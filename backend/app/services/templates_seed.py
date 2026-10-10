@@ -1,6 +1,7 @@
 """Website templates. These are the static storefronts in public/ecomm_templates/<key>/ (served at
 /ecomm-templates/<key>/). The template key equals the folder name."""
-from sqlalchemy import select
+from sqlalchemy import select, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models import Template
@@ -26,6 +27,10 @@ TEMPLATES = [
 
 
 def seed_templates(db: Session) -> None:
+    try:
+        db.execute(text("SELECT pg_advisory_xact_lock(hashtext('seed_templates'))"))
+    except Exception:
+        pass
     existing = {t.key: t for t in db.scalars(select(Template))}
     keys = {t["key"] for t in TEMPLATES}
     for row in existing.values():
@@ -39,4 +44,19 @@ def seed_templates(db: Session) -> None:
             row.is_active = True
         else:
             db.add(Template(**t))
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing = {t.key: t for t in db.scalars(select(Template))}
+        for t in TEMPLATES:
+            if t["key"] in existing:
+                row = existing[t["key"]]
+                for k, v in t.items():
+                    setattr(row, k, v)
+                row.is_active = True
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+

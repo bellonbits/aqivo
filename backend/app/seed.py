@@ -351,6 +351,11 @@ def ensure_demo_store(db: Session) -> None:
 def bootstrap(demo: bool = False) -> None:
     db = SessionLocal()
     try:
+        from sqlalchemy import text
+        try:
+            db.execute(text("SELECT pg_advisory_xact_lock(hashtext('bizora_bootstrap'))"))
+        except Exception:
+            pass
         seed_roles(db)
         seed_plans(db)
         seed_templates(db)
