@@ -62,7 +62,7 @@ window.AqivoStore = (function () {
       };
       state.cart = load('cart', []);
       state.wishlist = load('wishlist', []);
-      state.fulfilment = settings.delivery.available ? 'delivery' : (settings.pickup.available ? 'pickup' : 'delivery');
+      state.fulfilment = settings.delivery.available ? 'delivery' : (settings.pickup.available ? 'pickup' : 'none');
       emit();
     },
 

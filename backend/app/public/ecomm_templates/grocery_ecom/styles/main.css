@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Grofresh - Design System & Base Styling
+   Matches Reference Mockup: Vibrant organic grocery store
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --forest-green: #0C4A34;
+  --forest-green-dark: #083324;
+  --forest-green-light: #145A40;
+  --brand-green: #16A34A;
+  --brand-lime: #22C55E;
+  --brand-lime-pale: #F0FDF4;
+
+  --bg-page: #FFFFFF;
+  --bg-subtle: #F8FAF8;
+  --bg-card: #FFFFFF;
+  --bg-cream: #FCFDFB;
+
+  --text-dark: #0F172A;
+  --text-body: #475569;
+  --text-muted: #64748B;
+  --text-light: #FFFFFF;
+
+  --accent-sale: #EF4444;
+  --accent-star: #F59E0B;
+  --accent-orange: #F97316;
+
+  --border-light: #E2E8F0;
+  --border-card: #EAEFEA;
+  --border-green: #DCFCE7;
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+
+  --shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 4px 16px rgba(12, 74, 52, 0.05);
+  --shadow-hover: 0 10px 24px rgba(12, 74, 52, 0.1);
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-dark);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+input, select {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.container {
+  width: 100%;
+  max-width: 1220px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Button Utilities */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.65rem 1.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pill-btn-lime {
+  background-color: var(--brand-lime);
+  color: var(--forest-green-dark);
+}
+
+.pill-btn-lime:hover {
+  background-color: #16A34A;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.pill-btn-green {
+  background-color: var(--forest-green);
+  color: #FFFFFF;
+}
+
+.pill-btn-green:hover {
+  background-color: var(--forest-green-dark);
+  transform: translateY(-1px);
+}
+
+.pill-btn-white {
+  background-color: #FFFFFF;
+  color: var(--forest-green);
+}
+
+.pill-btn-white:hover {
+  background-color: #F0FDF4;
+  transform: translateY(-1px);
+}
+
+.pill-btn-sm {
+  padding: 0.45rem 1.1rem;
+  font-size: 0.8rem;
+}
+
+/* Section Header Shared */
+.section-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.section-title-bold {
+  font-size: 1.55rem;
+  font-weight: 850;
+  color: var(--forest-green);
+  letter-spacing: -0.02em;
+}
+
+.section-title-centered {
+  text-align: center;
+  font-size: 1.85rem;
+  font-weight: 850;
+  color: var(--forest-green);
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+}
+
+.section-pad {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}

@@ -323,13 +323,19 @@
 
   MAP.aqivo = function () {
     if (!window.AQIVO_DB) return;
+    var isCommerce = (B.is_commerce !== undefined)
+      ? Boolean(B.is_commerce)
+      : (B.industry === 'restaurant' || B.industry === 'retail');
+    var hasProducts = (ITEMS || []).some(function (p) { return p.kind === 'product'; });
+    var allowFulfilment = isCommerce || hasProducts;
+
     var tenant = {
       slug: B.slug,
       business: {
         name: B.name,
         tagline: B.tagline || "",
         description: B.about || B.tagline || "",
-        type: "general",
+        type: isCommerce ? (B.industry === 'restaurant' ? 'restaurant' : 'retail') : 'service',
         logo: B.logo || "",
         cover: (B.gallery && B.gallery[0] && B.gallery[0].src) || "",
         verified: true,
@@ -344,10 +350,14 @@
       },
       settings: {
         currency: B.currency || "KES",
-        delivery: { available: true, fee: 200, freeOver: B.freeOver || 0, time: "Same day", note: "Standard delivery" },
-        pickup: { available: true, note: B.address || "Pick up at shop" },
+        delivery: allowFulfilment
+          ? { available: true, fee: 200, freeOver: B.freeOver || 0, time: "Same day", note: "Standard delivery" }
+          : { available: false, fee: 0, freeOver: 0 },
+        pickup: allowFulfilment
+          ? { available: true, note: B.address || "Pick up at shop" }
+          : { available: false },
         minOrder: 0,
-        payments: ["mpesa", "cod"],
+        payments: allowFulfilment ? ["mpesa", "cod"] : ["mpesa", "pay_at_venue"],
         whatsappOrdering: !!B.wa,
         hours: (B.hours && B.hours[0] && B.hours[0].text) || "Mon–Sat"
       },
@@ -368,6 +378,7 @@
           images: imgs,
           duration: p.duration ? (p.duration + " min") : undefined,
           durationMin: p.duration || 60,
+          staffIds: (B.team && B.team.length ? B.team : [{ id: "any" }]).map(function (m) { return m.id; }),
           variants: (p.variants && p.variants.length) ? [
             { name: "Option", type: "option", options: p.variants.map(function (v) { return { label: v.title, available: true }; }) }
           ] : [],
@@ -376,10 +387,30 @@
       }),
       booking: {
         enabled: !!B.bookingsOn,
+        timezone: "Africa/Nairobi",
+        hours: {
+          mon: [["09:00", "18:00"]], tue: [["09:00", "18:00"]], wed: [["09:00", "18:00"]],
+          thu: [["09:00", "18:00"]], fri: [["09:00", "18:00"]], sat: [["09:00", "17:00"]],
+          sun: []
+        },
+        bufferMinutes: 15,
+        depositPercent: 0,
+        policy: "Book online and we will confirm shortly.",
         consultationFee: 0,
         slots: ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"],
-        staff: (B.team || []).map(function (m) {
-          return { id: m.id, name: m.name, role: "Specialist", avatar: m.photo || "" };
+        staff: (B.team && B.team.length ? B.team : [{ id: "any", name: "Specialist", photo: "" }]).map(function (m) {
+          return {
+            id: m.id,
+            name: m.name,
+            role: "Specialist",
+            photo: m.photo || "",
+            avatar: m.photo || "",
+            workingHours: { mon: [["09:00", "18:00"]], tue: [["09:00", "18:00"]], wed: [["09:00", "18:00"]], thu: [["09:00", "18:00"]], fri: [["09:00", "18:00"]], sat: [["09:00", "17:00"]], sun: [] }
+          };
+        }),
+        blockedDates: [],
+        reviews: (B.reviews || []).map(function (r) {
+          return { author: r.author, rating: r.stars, date: r.date, text: r.text };
         })
       }
     };

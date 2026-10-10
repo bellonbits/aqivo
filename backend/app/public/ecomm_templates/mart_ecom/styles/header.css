@@ -1,0 +1,276 @@
+/* ==========================================================================
+   Freshly Mart - Header & Categories Rail
+   ========================================================================== */
+
+/* 1. Top Announcement Bar */
+.top-announcement-bar {
+  background: var(--purple-main);
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 8px 0;
+  text-align: center;
+  letter-spacing: 0.2px;
+}
+
+/* 2. Main Header Row */
+.main-header-bar {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.main-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Brand Logo */
+.brand-logo-text {
+  font-family: var(--font-logo);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--purple-main);
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Search Bar & Categories Dropdown Container */
+.header-search-container {
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--purple-main);
+  border-radius: var(--radius-pill);
+  height: 48px;
+  max-width: 620px;
+  flex: 1;
+  background: #FFFFFF;
+  padding: 2px 2px 2px 16px;
+  overflow: hidden;
+}
+
+.categories-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--gray-700);
+  padding-right: 14px;
+  border-right: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.categories-dropdown-btn:hover {
+  color: var(--purple-main);
+}
+
+.main-search-input {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 0 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--gray-900);
+  outline: none;
+}
+
+.main-search-input::placeholder {
+  color: var(--gray-400);
+}
+
+.btn-search-gold {
+  background: var(--accent-gold);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.btn-search-gold:hover {
+  background: var(--accent-gold-hover);
+}
+
+/* Header Action Icons (User, Wishlist, Cart, Menu) */
+.header-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon-action-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--gray-200);
+  background: #FFFFFF;
+  color: var(--gray-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.header-icon-action-btn:hover {
+  border-color: var(--purple-main);
+  color: var(--purple-main);
+  background: var(--purple-light);
+}
+
+.header-badge-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-gold);
+  color: #FFFFFF;
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 3. Secondary Navigation Bar */
+.secondary-nav-bar {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.secondary-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.nav-links-menu {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  list-style: none;
+}
+
+.nav-menu-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-800);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nav-menu-item:hover {
+  color: var(--purple-main);
+}
+
+.nav-right-cluster {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.weekly-discount-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-green-light);
+  color: var(--accent-green);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+}
+
+.hotline-support-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--purple-main);
+  color: #FFFFFF;
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(99, 73, 148, 0.2);
+}
+
+/* 4. Horizontal Category Rail */
+.category-pills-section {
+  padding: 24px 0 28px;
+}
+
+.category-pills-rail {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+.category-pill-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-pill);
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.category-pill-card:hover {
+  border-color: var(--purple-main);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.cat-pill-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cat-pill-icon-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cat-pill-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.cat-pill-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--gray-900);
+  line-height: 1.2;
+}
+
+.cat-pill-items-sub {
+  font-size: 11.5px;
+  color: var(--gray-500);
+  margin-top: 2px;
+}

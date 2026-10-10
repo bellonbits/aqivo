@@ -1,0 +1,302 @@
+/* ==========================================================================
+   FootWear - Header & Navigation Bar
+   Matches Reference Mockup: Minimalist Top Header with Pill Search & Profile
+   ========================================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+  gap: 24px;
+}
+
+/* Brand Logo */
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dark);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+}
+
+.brand-link .footwear-logo-svg {
+  color: var(--text-dark);
+  display: block;
+}
+
+/* Header Search Pill */
+.header-search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+}
+
+.header-search-form {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-pill-input {
+  width: 100%;
+  height: 44px;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E4E9;
+  border-radius: var(--radius-pill);
+  padding: 0 46px 0 20px;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.search-pill-input::placeholder {
+  color: #9CA3AF;
+  font-weight: 400;
+}
+
+.search-pill-input:focus {
+  border-color: #121316;
+  box-shadow: 0 0 0 3px rgba(18, 19, 22, 0.06);
+}
+
+.search-pill-icon-btn {
+  position: absolute;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B7280;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 42px;
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: none;
+  line-height: 1;
+}
+
+/* Live Instant Dropdown */
+.search-suggestions-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-hover);
+  max-height: 380px;
+  overflow-y: auto;
+  display: none;
+  z-index: 150;
+  padding: 12px;
+}
+
+.search-suggestions-dropdown.is-active {
+  display: block;
+}
+
+.search-results-header {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  padding: 4px 8px 8px;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.search-result-item:hover {
+  background-color: var(--bg-card-subtle);
+}
+
+.search-result-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  background-color: #F8F8FA;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+}
+
+.search-result-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.search-result-brand {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.search-result-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.search-result-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.search-result-price {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.search-result-rating {
+  font-size: 0.75rem;
+  color: var(--accent-star);
+  font-weight: 600;
+}
+
+.search-no-results {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Header Actions Right */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-icon-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--text-dark);
+  transition: background-color var(--transition-fast);
+  background: none;
+}
+
+.header-icon-btn:hover {
+  background-color: var(--bg-card-subtle);
+}
+
+.header-badge-count {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: var(--accent-orange);
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 700;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #FFFFFF;
+}
+
+/* User Profile Capsule */
+.user-profile-capsule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-card-subtle);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.user-profile-capsule:hover {
+  background-color: #EDEDF1;
+}
+
+.user-avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF6B4A, #FFA387);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  overflow: hidden;
+}
+
+.user-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-name-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.user-chevron {
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+}
+
+/* Responsive */
+@media (max-width: 868px) {
+  .header-search-wrap {
+    display: none;
+  }
+  .user-name-text,
+  .user-chevron {
+    display: none;
+  }
+  .user-profile-capsule {
+    padding: 0;
+    background: none;
+  }
+}

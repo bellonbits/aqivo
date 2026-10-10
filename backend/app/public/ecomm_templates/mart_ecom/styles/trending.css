@@ -1,0 +1,284 @@
+/* ==========================================================================
+   Freshly Mart - Trending Products & Promo Banner Section
+   ========================================================================== */
+
+.trending-section-wrapper {
+  padding: 48px 0;
+}
+
+.trending-header-row {
+  margin-bottom: 24px;
+}
+
+.trending-section-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.3px;
+}
+
+/* 5-Column Responsive Product Grid (10 Items Total) */
+.trending-products-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+}
+
+.trending-product-card {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.trending-product-card:hover {
+  border-color: var(--purple-main);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+/* Card Top: Category & Wishlist */
+.trend-card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.trend-cat-tag {
+  font-size: 11px;
+  color: var(--gray-400);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.trend-wishlist-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: var(--gray-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.trend-wishlist-btn:hover {
+  color: var(--accent-red);
+  background: var(--accent-red-light);
+}
+
+/* Image Wrap */
+.trend-img-wrap {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.trend-img-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.trending-product-card:hover .trend-img-wrap img {
+  transform: scale(1.06);
+}
+
+/* Size Pills */
+.trend-sizes-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.trend-size-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-600);
+  border: 1px solid var(--gray-200);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.trend-size-pill.is-selected,
+.trend-size-pill:hover {
+  border-color: var(--purple-main);
+  color: var(--purple-main);
+  background: var(--purple-light);
+}
+
+/* Price & Discount */
+.trend-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.trend-price-text {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--purple-main);
+}
+
+.trend-discount-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: var(--accent-red);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* Title */
+.trend-product-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--gray-900);
+  line-height: 1.35;
+  margin-bottom: 8px;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 36px;
+}
+
+.trend-product-title:hover {
+  color: var(--purple-main);
+}
+
+/* Stars */
+.trend-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.stars-inline {
+  display: flex;
+  gap: 2px;
+}
+
+.trend-reviews-num {
+  font-size: 11.5px;
+  color: var(--gray-400);
+}
+
+/* Select Options Action Button */
+.btn-select-options {
+  margin-top: auto;
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-pill);
+  background: #FFFFFF;
+  color: var(--gray-800);
+  font-size: 12.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-select-options:hover {
+  background: var(--purple-main);
+  color: #FFFFFF;
+  border-color: var(--purple-main);
+}
+
+/* 2. Promo Banner Card */
+.weekly-promo-banner-card {
+  margin: 54px 0 24px;
+  background: linear-gradient(135deg, #FDECEF 0%, #F6ECF8 50%, #ECEBF8 100%);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  padding: 40px 48px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: center;
+  gap: 36px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+.promo-left-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.promo-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  background: #FFE896;
+  color: #785A00;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 14px;
+  border-radius: var(--radius-pill);
+  width: fit-content;
+}
+
+.promo-banner-heading {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.promo-banner-sub {
+  font-size: 15px;
+  color: var(--gray-600);
+}
+
+.btn-promo-shop-now {
+  background: #FFFFFF;
+  color: var(--gray-900);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.btn-promo-shop-now:hover {
+  background: var(--purple-main);
+  color: #FFFFFF;
+  transform: translateX(3px);
+}
+
+.promo-right-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 240px;
+}
+
+.promo-right-visual img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.1));
+}

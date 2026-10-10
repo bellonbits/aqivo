@@ -1,0 +1,457 @@
+/* ==========================================================================
+   Freshly Mart - Comprehensive Responsive Desktop & Mobile Breakpoints
+   STRICT RULE: ZERO EMOJIS!
+   ========================================================================== */
+
+/* Tablet & Intermediate Screens (<= 1024px) */
+@media (max-width: 1024px) {
+  .hero-banners-grid {
+    grid-template-columns: 1.2fr 1fr;
+    gap: 16px;
+  }
+
+  .trending-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .featured-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .category-pills-rail {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .vendors-row-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .best-sellers-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .best-sellers-feature-card {
+    grid-column: 1 / -1;
+  }
+
+  .mid-promo-banners-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .footer-top-grid {
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 28px;
+  }
+}
+
+/* Mobile Screens (<= 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  /* 1. Header Mobile */
+  .main-header-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .brand-logo-text {
+    font-size: 32px;
+  }
+
+  .header-search-container {
+    order: 3;
+    max-width: 100%;
+    width: 100%;
+    height: 44px;
+    padding: 2px 2px 2px 14px;
+  }
+
+  .categories-dropdown-btn {
+    display: none;
+  }
+
+  .btn-search-gold {
+    height: 38px;
+    padding: 0 18px;
+    font-size: 13px;
+  }
+
+  .secondary-nav-bar {
+    display: none;
+  }
+
+  /* 2. Category Rail Mobile */
+  .category-pills-rail {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+  }
+
+  .category-pills-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-pill-card {
+    min-width: 150px;
+    flex-shrink: 0;
+    padding: 10px 14px;
+  }
+
+  /* 3. Hero Asymmetric Banners Mobile */
+  .hero-banners-section {
+    padding: 6px 0 24px;
+  }
+
+  .hero-banners-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .hero-banner-main-left {
+    min-height: 250px;
+    padding: 24px 20px;
+  }
+
+  .hero-main-content-col {
+    max-width: 65%;
+  }
+
+  .hero-main-title {
+    font-size: 26px;
+  }
+
+  .hero-main-title-cursive {
+    font-size: 30px;
+  }
+
+  .hero-main-price {
+    font-size: 22px;
+    margin: 6px 0 16px;
+  }
+
+  .btn-hero-shop-purple {
+    padding: 10px 22px;
+    font-size: 13px;
+  }
+
+  .hero-main-visual-overlay {
+    width: 130px;
+    height: 170px;
+    right: 6px;
+    bottom: 6px;
+  }
+
+  .hero-banners-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .hero-banner-sub-top,
+  .hero-banner-sub-bottom {
+    min-height: 150px;
+    padding: 20px 18px;
+  }
+
+  .hero-sub-title {
+    font-size: 17px;
+  }
+
+  .hero-sub-visual {
+    width: 110px;
+    height: 130px;
+    right: 4px;
+    bottom: 4px;
+  }
+
+  /* 4. Featured Products Section Mobile */
+  .featured-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .featured-filter-bar {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .featured-filter-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .featured-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  /* 5. Mid 3 Promo Banners Mobile */
+  .mid-promo-banners-section {
+    padding: 20px 0;
+  }
+
+  .mid-promo-banners-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .mid-promo-card {
+    min-height: 150px;
+    padding: 20px 18px;
+  }
+
+  .mid-promo-title {
+    font-size: 17px;
+  }
+
+  .mid-promo-visual {
+    width: 110px;
+    height: 120px;
+  }
+
+  /* 6. Vendors Row Mobile */
+  .vendors-row-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .vendor-user-card {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .vendor-avatar-circle {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* 7. Health & Safety Strip Mobile */
+  .health-safety-strip {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+    padding: 20px 16px;
+    margin: 10px 0 32px;
+  }
+
+  .health-safety-right {
+    justify-content: center;
+  }
+
+  /* 8. Best Sellers Section Mobile */
+  .best-sellers-section {
+    padding: 16px 0 36px;
+  }
+
+  .best-sellers-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .best-sellers-feature-card {
+    order: -1;
+    padding: 24px 20px;
+  }
+
+  .feature-card-img-wrap {
+    height: 180px;
+  }
+
+  /* 9. Trending Products Mobile (2 Columns) */
+  .trending-section-wrapper {
+    padding: 32px 0;
+  }
+
+  .trending-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .trending-product-card {
+    padding: 12px;
+  }
+
+  .trend-img-wrap {
+    height: 115px;
+  }
+
+  .trend-product-title {
+    font-size: 13.5px;
+    height: 36px;
+  }
+
+  .trend-price-text {
+    font-size: 14px;
+  }
+
+  .btn-select-options {
+    height: 36px;
+    font-size: 12.5px;
+  }
+
+  /* 10. Weekly Big Promo Banner Mobile */
+  .weekly-promo-banner-card {
+    grid-template-columns: 1fr;
+    padding: 28px 20px;
+    gap: 20px;
+  }
+
+  .promo-banner-heading {
+    font-size: 24px;
+  }
+
+  .promo-right-visual {
+    height: 160px;
+  }
+
+  /* 11. Footer Mobile */
+  .footer-top-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .footer-bottom-bar {
+    flex-direction: column;
+    gap: 14px;
+    text-align: center;
+  }
+
+  /* 12. Product Detail Modal Bottom-Sheet on Mobile */
+  .product-modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .product-modal-card {
+    border-radius: 24px 24px 0 0;
+    max-height: 88vh;
+    padding: 18px 18px 28px;
+    transform: translateY(100%);
+  }
+
+  .product-modal-backdrop.is-open .product-modal-card {
+    transform: translateY(0);
+  }
+
+  .modal-drag-handle {
+    display: block;
+  }
+
+  .modal-close-btn {
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .product-modal-body-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .pmodal-image-stage {
+    height: 200px;
+  }
+
+  .pmodal-title {
+    font-size: 19px;
+  }
+
+  .pmodal-price-current {
+    font-size: 22px;
+  }
+
+  .pmodal-specs-wrap {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .pmodal-actions-row {
+    flex-wrap: wrap;
+    position: sticky;
+    bottom: -10px;
+    background: #FFFFFF;
+    padding: 10px 0 4px;
+    border-top: 1px solid var(--gray-100);
+    z-index: 5;
+  }
+
+  .pmodal-btn-add {
+    flex: 1;
+    min-width: 180px;
+    height: 46px;
+  }
+
+  .pmodal-btn-buy {
+    flex: 1;
+    min-width: 100px;
+    height: 46px;
+  }
+
+  /* 13. Cart Drawer Mobile */
+  .cart-drawer-panel {
+    width: 100%;
+    max-width: 380px;
+  }
+}
+
+/* Small Smart Phones (<= 480px) */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  .trending-products-grid,
+  .featured-products-grid {
+    gap: 8px;
+  }
+
+  .trending-product-card {
+    padding: 10px 8px;
+  }
+
+  .trend-img-wrap {
+    height: 95px;
+  }
+
+  .trend-product-title {
+    font-size: 12.5px;
+    height: 32px;
+  }
+
+  .trend-price-text {
+    font-size: 13px;
+  }
+
+  .vendors-row-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-main-title {
+    font-size: 22px;
+  }
+
+  .hero-main-title-cursive {
+    font-size: 26px;
+  }
+
+  .hero-main-visual-overlay {
+    width: 100px;
+    height: 130px;
+  }
+}

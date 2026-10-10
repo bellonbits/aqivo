@@ -1,0 +1,413 @@
+/* ==========================================================================
+   LPG Beauty & Clinic - Appointments & Booking Detail Screen (Image 2 Mockup)
+   STRICT RULE: ZERO EMOJIS! Pure SVG and typography only.
+   ========================================================================== */
+
+.appointments-view-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 36px;
+  align-items: flex-start;
+}
+
+/* LEFT COLUMN: Empty upcoming bookings & Past Bookings List */
+.appointments-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* Empty Upcoming State Card */
+.empty-upcoming-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 36px 20px 32px;
+  background: #FFFFFF;
+}
+
+.empty-illustration-wrap {
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 6px;
+}
+
+.empty-state-subtitle {
+  font-size: 13.5px;
+  color: var(--gray-500);
+  max-width: 300px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.btn-find-salons {
+  height: 42px;
+  padding: 0 24px;
+  border-radius: var(--radius-pill);
+  background: var(--dark-main);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-find-salons:hover {
+  background: var(--dark-hover);
+  transform: translateY(-1px);
+}
+
+/* Past Bookings Section */
+.past-bookings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.past-bookings-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.past-bookings-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.past-bookings-title span {
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+.show-all-past-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--dark-main);
+  cursor: pointer;
+}
+
+.show-all-past-link:hover {
+  color: var(--primary-pink);
+}
+
+/* Booking Cards */
+.booking-history-card {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  background: #FFFFFF;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.booking-history-card:hover {
+  border-color: var(--gray-300);
+}
+
+.booking-history-card.is-active-selection {
+  border-color: var(--dark-main);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* Pointer arrow indicating right detail panel in Image 2 */
+.booking-history-card.is-active-selection::after {
+  content: '';
+  position: absolute;
+  right: -9px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 16px;
+  height: 16px;
+  background: #FFFFFF;
+  border-top: 1px solid var(--dark-main);
+  border-right: 1px solid var(--dark-main);
+  z-index: 2;
+}
+
+.card-top-identity-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.salon-badges-and-name {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.badges-duo {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mini-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-badge.badge-blue {
+  background: var(--badge-blue-bg);
+}
+
+.mini-badge.badge-purple {
+  background: var(--badge-purple-bg);
+}
+
+.booking-salon-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.booking-salon-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.booking-salon-address-sub {
+  font-size: 12.5px;
+  color: var(--gray-500);
+}
+
+/* Status Badges */
+.booking-status-pill {
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.booking-status-pill.completed {
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
+}
+
+.booking-status-pill.cancelled {
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled-text);
+}
+
+.booking-status-pill.upcoming {
+  background: #E8F0FE;
+  color: #1A73E8;
+}
+
+.card-bottom-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--gray-100);
+  padding-top: 12px;
+  font-size: 13px;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+/* RIGHT COLUMN: Selected Booking Detail Panel */
+.booking-detail-panel {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  position: sticky;
+  top: 24px;
+}
+
+.detail-header-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-datetime-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: -0.2px;
+}
+
+.detail-salon-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-top: 2px;
+}
+
+.detail-salon-address {
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+/* Action Buttons Row */
+.detail-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0 10px;
+}
+
+.btn-rebook-pink {
+  height: 42px;
+  padding: 0 28px;
+  border-radius: var(--radius-pill);
+  background: var(--primary-pink);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(232, 146, 154, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-rebook-pink:hover {
+  background: var(--primary-pink-hover);
+  transform: translateY(-1px);
+}
+
+.btn-leave-review-outline {
+  height: 42px;
+  padding: 0 22px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--gray-300);
+  background: #FFFFFF;
+  color: var(--gray-800);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-leave-review-outline:hover {
+  border-color: var(--gray-500);
+  background: var(--gray-50);
+}
+
+/* Booking Details Itemization */
+.booking-items-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 20px;
+}
+
+.booking-items-section-title {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.detail-service-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.service-detail-headline {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.service-detail-duration {
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+.waiting-interval-callout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F8F9FA;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--gray-700);
+  font-weight: 500;
+  margin: 4px 0;
+}
+
+.waiting-interval-callout .svg-icon {
+  color: var(--gray-500);
+}
+
+.detail-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-light);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+
+.total-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.total-value-shillings {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+/* Your Review Box */
+.detail-review-section {
+  border-top: 1px solid var(--border-light);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-review-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.detail-review-box {
+  background: #FDF9F8;
+  border: 1px solid #F5E9E8;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-review-stars {
+  display: flex;
+  gap: 3px;
+}
+
+.detail-review-text {
+  font-size: 13.5px;
+  color: var(--gray-700);
+  line-height: 1.5;
+}

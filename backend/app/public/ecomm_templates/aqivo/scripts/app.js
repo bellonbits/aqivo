@@ -403,10 +403,13 @@ window.AqivoApp = (function () {
     els.cartFoot.hidden = false;
     var minWarning = !totals.meetsMinimum
       ? '<p class="field__error" style="display:block;text-align:center">Minimum order is ' + C.money(totals.minimum) + '.</p>' : '';
+    var s = S.getSettings();
+    var hasFulfilment = (s.delivery && s.delivery.available) || (s.pickup && s.pickup.available);
     els.cartFoot.innerHTML =
       '<div class="summary-row"><span>Subtotal</span><span>' + C.money(totals.subtotal) + '</span></div>' +
-      '<div class="summary-row"><span>' + (S.getFulfilment() === 'pickup' ? 'Pickup' : 'Delivery') + '</span><span>' +
-        (S.getFulfilment() === 'pickup' ? 'Free' : (totals.delivery === 0 ? 'Free' : C.money(totals.delivery))) + '</span></div>' +
+      (hasFulfilment ?
+        '<div class="summary-row"><span>' + (S.getFulfilment() === 'pickup' ? 'Pickup' : 'Delivery') + '</span><span>' +
+        (S.getFulfilment() === 'pickup' ? 'Free' : (totals.delivery === 0 ? 'Free' : C.money(totals.delivery))) + '</span></div>' : '') +
       '<div class="summary-row summary-row--total"><span>Total</span><span>' + C.money(totals.total) + '</span></div>' +
       minWarning +
       '<button class="btn btn--primary btn--block btn--lg" data-checkout' + (totals.meetsMinimum ? '' : ' disabled') + '>Checkout · ' + C.money(totals.total) + '</button>';
@@ -909,6 +912,11 @@ window.AqivoApp = (function () {
         if (product.available === false || !variantAvailable()) { toast('Please choose an available option.', true); return false; }
         S.addToCart(product, { qty: qty, variant: Object.assign({}, selection) });
       } else if (type === 'service') {
+        if (B.hasBooking(activeStore)) {
+          bkSel = [product.id];
+          navigate('/book');
+          return true;
+        }
         var chosen = (product.addons || []).filter(function (a) { return addons[a.id || a.label]; }).map(function (a) { return a.label; });
         S.addToCart(product, { qty: 1, variant: chosen.length ? { 'Add-ons': chosen.join(', ') } : {} });
       } else {
@@ -1049,7 +1057,7 @@ window.AqivoApp = (function () {
             '<input class="input" id="ck-email" name="email" type="email" autocomplete="email" placeholder="you@example.com"></div>' +
         '</div>' +
 
-        ((s.delivery.available && s.pickup.available) ?
+        ((s.delivery && s.delivery.available && s.pickup && s.pickup.available) ?
           '<div class="panel"><h3 class="panel__title">How would you like it?</h3>' +
           '<label class="pay-option' + (fulfilment === 'delivery' ? ' is-selected' : '') + '" data-fulfil="delivery">' +
             '<span class="pay-option__radio"></span><span class="pay-option__main">' +
@@ -1059,16 +1067,16 @@ window.AqivoApp = (function () {
             '<span class="pay-option__name">Pickup</span><span class="pay-option__sub">' + C.esc(s.pickup.note || '') + '</span></span></label>' +
           '</div>' : '') +
 
-        (fulfilment === 'delivery' ? '<div class="panel">' +
+        ((s.delivery && s.delivery.available && fulfilment === 'delivery') ? '<div class="panel">' +
           '<h3 class="panel__title">Delivery address</h3>' +
           '<div class="field" data-field="address"><label class="field__label" for="ck-addr">Address</label>' +
             '<textarea class="textarea" id="ck-addr" name="address" placeholder="Building, street, area" data-addr-field></textarea>' +
             '<span class="field__error">Please enter a delivery address.</span></div>' +
           '<div class="field" style="margin-bottom:0"><label class="field__label" for="ck-notes">Order notes <span class="field__hint">(optional)</span></label>' +
             '<textarea class="textarea" id="ck-notes" name="notes" placeholder="Landmark, gate number, preferred time…"></textarea></div>' +
-        '</div>' : '<div class="panel"><h3 class="panel__title">Pickup</h3>' +
+        '</div>' : ((s.pickup && s.pickup.available && fulfilment === 'pickup') ? '<div class="panel"><h3 class="panel__title">Pickup</h3>' +
           '<p class="pdp__desc">' + I.get('pin') + ' ' + C.esc(activeStore.address || '') + '</p>' +
-          '<p class="field__hint" style="margin-top:var(--sp-2)">' + C.esc(s.pickup.note || '') + '</p></div>') +
+          '<p class="field__hint" style="margin-top:var(--sp-2)">' + C.esc(s.pickup.note || '') + '</p></div>' : '')) +
 
         '<div class="panel"><h3 class="panel__title">Payment method</h3>' +
           payments.map(function (p, i) {
@@ -1092,7 +1100,8 @@ window.AqivoApp = (function () {
         }).join('') +
         '<div style="height:var(--sp-3)"></div>' +
         '<div class="summary-row"><span>Subtotal</span><span>' + C.money(totals.subtotal) + '</span></div>' +
-        '<div class="summary-row"><span>Delivery</span><span data-ck-delivery>' + (fulfilment === 'pickup' ? 'Free' : (totals.delivery === 0 ? 'Free' : C.money(totals.delivery))) + '</span></div>' +
+        ((s.delivery && s.delivery.available) || (s.pickup && s.pickup.available) ?
+          '<div class="summary-row"><span>' + (fulfilment === 'pickup' ? 'Pickup' : 'Delivery') + '</span><span data-ck-delivery>' + (fulfilment === 'pickup' ? 'Free' : (totals.delivery === 0 ? 'Free' : C.money(totals.delivery))) + '</span></div>' : '') +
         '<div class="summary-row summary-row--total"><span>Total</span><span data-ck-total>' + C.money(totals.total) + '</span></div>' +
         '<div style="height:var(--sp-4)"></div>' +
         '<button class="btn btn--primary btn--block btn--lg" data-place-order' + (totals.meetsMinimum ? '' : ' disabled') + '>' + I.get('shield') + 'Place order</button>' +
@@ -1133,7 +1142,7 @@ window.AqivoApp = (function () {
       var phone = form.elements.phone.value.replace(/\s+/g, '');
       var phoneOk = /^(?:\+?254|0)[17]\d{8}$/.test(phone);
       ok = setError('phone', !phoneOk) && ok;
-      if (S.getFulfilment() === 'delivery' && form.elements.address) {
+      if (s.delivery && s.delivery.available && S.getFulfilment() === 'delivery' && form.elements.address) {
         ok = setError('address', form.elements.address.value.trim().length < 4) && ok;
       }
       return ok;
@@ -1181,11 +1190,15 @@ window.AqivoApp = (function () {
       '<div class="order-success__icon">' + I.get('checkCircle') + '</div>' +
       '<h1 style="font-size:var(--fs-2xl)">Order confirmed</h1>' +
       '<p style="color:var(--text-2);margin-top:var(--sp-2)">Thank you, ' + C.esc(order.name.split(' ')[0]) + '. ' +
-        (order.payment === 'mpesa' ? 'A payment prompt has been sent to ' + C.esc(order.phone) + '.' : 'Please have ' + C.money(order.total) + ' ready on ' + (order.fulfilment === 'pickup' ? 'pickup' : 'delivery') + '.') +
+        (order.payment === 'mpesa' ? 'A payment prompt has been sent to ' + C.esc(order.phone) + '.' :
+          (order.fulfilment === 'none' ? 'Your booking has been received.' :
+          'Please have ' + C.money(order.total) + ' ready on ' + (order.fulfilment === 'pickup' ? 'pickup' : 'delivery') + '.')) +
       '</p>' +
       '<div class="receipt"><div class="spec-list">' +
         '<div class="spec-row"><dt>Reference</dt><dd>' + C.esc(order.reference) + '</dd></div>' +
-        '<div class="spec-row"><dt>' + (order.fulfilment === 'pickup' ? 'Pickup at' : 'Delivering to') + '</dt><dd>' + C.esc(order.fulfilment === 'pickup' ? (activeStore.address || '') : order.address) + '</dd></div>' +
+        (order.fulfilment !== 'none' && (order.fulfilment === 'pickup' ? activeStore.address : order.address) ?
+          '<div class="spec-row"><dt>' + (order.fulfilment === 'pickup' ? 'Pickup at' : 'Delivering to') + '</dt><dd>' +
+          C.esc(order.fulfilment === 'pickup' ? (activeStore.address || '') : order.address) + '</dd></div>' : '') +
         '<div class="spec-row"><dt>Payment</dt><dd>' + (order.payment === 'mpesa' ? 'M-Pesa' : order.payment === 'cod' ? 'Cash on delivery' : order.payment) + '</dd></div>' +
         order.items.map(function (i) { return '<div class="spec-row"><dt>' + C.esc(i.name) + ' × ' + i.qty + '</dt><dd>' + C.money(i.price * i.qty) + '</dd></div>'; }).join('') +
         '<div class="spec-row" style="border-top:1px solid var(--border);border-bottom:0"><dt><strong>Total</strong></dt><dd><strong>' + C.money(order.total) + '</strong></dd></div>' +
@@ -1227,27 +1240,16 @@ window.AqivoApp = (function () {
       if (s.delivery && s.delivery.available) rows += '<div class="spec-row"><dt>Delivery</dt><dd>' + C.esc(s.delivery.note || '') + ' · ' + (s.delivery.fee === 0 ? 'Free' : C.money(s.delivery.fee)) + ' (free over ' + C.money(s.delivery.freeOver) + ')</dd></div>';
       if (s.pickup && s.pickup.available) rows += '<div class="spec-row"><dt>Pickup</dt><dd>' + C.esc(s.pickup.note || '') + '</dd></div>';
 
-      var preview = '<div class="panel"><h3 class="panel__title">Template preview</h3>' +
-        '<p class="field__hint" style="margin-bottom:var(--sp-3)">This store is powered by the Aqivo platform. Preview the same storefront template with another business (demo only).</p>' +
-        '<div class="row" style="flex-wrap:wrap;gap:var(--sp-2)">' +
-          stores.map(function (st) {
-            var active = st.slug === b.slug;
-            return '<button class="btn ' + (active ? 'btn--primary' : 'btn--secondary') + ' btn--sm" data-preview-shop="' + C.esc(st.slug) + '"' + (active ? ' disabled' : '') + '>' +
-              C.esc(st.name) + (active ? ' · current' : '') + '</button>';
-          }).join('') +
-        '</div></div>';
-
       return breadcrumb([{ label: 'Store info' }]) +
         C.sectionHead(b.name, b.type ? (b.type.charAt(0).toUpperCase() + b.type.slice(1)) : '') +
         (b.description ? '<div class="panel" style="margin-bottom:var(--sp-4)"><p class="shop-hero__desc" style="text-align:left">' + C.esc(b.description) + '</p></div>' : '') +
-        '<div class="checkout">' +
+        '<div class="checkout" style="grid-template-columns:1fr">' +
           '<div class="panel"><h3 class="panel__title">Contact & details</h3><dl class="spec-list">' + rows + '</dl>' +
             '<div class="row" style="gap:var(--sp-3);margin-top:var(--sp-5);flex-wrap:wrap">' +
               (b.whatsapp ? '<a class="btn btn--primary" href="https://wa.me/' + C.esc(b.whatsapp.replace(/[^\d]/g, '')) + '" target="_blank" rel="noopener">' + I.get('chat') + 'Chat on WhatsApp</a>' : '') +
               (b.phone ? '<a class="btn btn--secondary" href="tel:' + C.esc(b.phone.replace(/\s/g, '')) + '">' + I.get('phone') + 'Call store</a>' : '') +
             '</div>' +
           '</div>' +
-          '<aside class="checkout__aside">' + preview + '</aside>' +
         '</div>';
     });
   }
