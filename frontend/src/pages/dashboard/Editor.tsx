@@ -105,12 +105,15 @@ export default function Editor() {
   const defs = useMemo(() => Object.fromEntries((registry.data?.types ?? []).map((d) => [d.type, d])), [registry.data])
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }))
 
+  const previewLoading = useRef(false)
   const loadPreview = useCallback(async (tpl: string | null) => {
+    if (previewLoading.current) return
+    previewLoading.current = true
     const pg = pageRef.current
-    try { setHtml(await api.get<string>('/websites/me/preview', { template: tpl ?? undefined, edit: tpl ? undefined : 1, page: tpl ? undefined : pg ?? undefined })) } catch (e) { toast.err(e instanceof Error ? e.message : 'Preview failed') }
+    try { setHtml(await api.get<string>('/websites/me/preview', { template: tpl ?? undefined, edit: tpl ? undefined : 1, page: tpl ? undefined : pg ?? undefined })) } catch (e) { toast.err(e instanceof Error ? e.message : 'Preview failed') } finally { previewLoading.current = false }
   }, [toast])
   const hasWebsite = has('website')
-  useEffect(() => { if (hasWebsite && homeId) void loadPreview(previewTpl) }, [hasWebsite, previewTpl, loadPreview, curPage, homeId])
+  useEffect(() => { if (hasWebsite && homeId) void loadPreview(previewTpl) }, [hasWebsite, previewTpl, curPage, homeId])
 
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {

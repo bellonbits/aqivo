@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { CheckCircle2, AlertCircle, X } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -13,8 +13,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setItems((s) => [...s, { id, kind, text }])
     setTimeout(() => setItems((s) => s.filter((x) => x.id !== id)), kind === 'err' ? 6000 : 3500)
   }, [])
+  const ok = useCallback((t: string) => push('ok', t), [push])
+  const err = useCallback((t: string) => push('err', t), [push])
+  const value = useMemo(() => ({ ok, err }), [ok, err])
   return (
-    <Ctx.Provider value={{ ok: (t) => push('ok', t), err: (t) => push('err', t) }}>
+    <Ctx.Provider value={value}>
       {children}
       <div className="fixed inset-x-0 bottom-20 z-[100] flex flex-col items-center gap-2 px-4 md:bottom-6" role="status" aria-live="polite">
         <AnimatePresence>{items.map((t) => (
