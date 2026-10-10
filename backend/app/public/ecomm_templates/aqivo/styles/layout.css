@@ -113,8 +113,9 @@
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   padding-bottom: var(--sp-2);
-  margin-inline: calc(var(--sp-4) * -1);
-  padding-inline: var(--sp-4);
+  margin-inline: 0;
+  padding-inline: 4px;
+  scroll-padding-inline: 4px;
   scrollbar-width: none;
 }
 .rail::-webkit-scrollbar { display: none; }
