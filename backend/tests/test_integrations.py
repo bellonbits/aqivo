@@ -458,9 +458,9 @@ def test_google_reviews_section(owner, client, http):
 
 
 def test_unconnected_social_sections_are_hidden_live_and_hinted_while_editing(owner, client):
-    owner.post("/api/v1/websites/me/sections", json={"type": "instagram_feed", "settings": {"title": "Insta"}})
+    owner.post("/api/v1/websites/me/sections", json={"type": "instagram_feed", "settings": {"title": "InstaUnconnectedTitle"}})
     owner.post("/api/v1/websites/me/publish")
-    assert "Insta" not in client.get(f"/{owner.slug}").text
+    assert "InstaUnconnectedTitle" not in client.get(f"/{owner.slug}").text
     assert "Connect Instagram" in owner.get("/api/v1/websites/me/preview").text
 
 
@@ -561,11 +561,11 @@ def test_shop_app_layout_renders_with_free_delivery_progress(owner, client):
         s.close()
     owner.patch("/api/v1/store/settings", json={"settings": {"delivery": {"flat_fee": 200, "free_over": 3000, "zones": [], "estimate": ""}}})
     p = product(owner, "Backpack", "5999", compare_at_price="8999")
-    assert owner.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).status_code == 200
+    assert owner.post("/api/v1/websites/me/template", json={"template_key": "twosidesboutique"}).status_code == 200
     owner.post("/api/v1/websites/me/regenerate")
     owner.post("/api/v1/websites/me/publish")
     html = client.get(f"/{owner.slug}").text
-    assert "Backpack" in html and "aqivo" in html
+    assert "Backpack" in html and "twosidesboutique" in html
     pg = client.get(f"/{owner.slug}/products/{p['slug']}" if p.get("slug") else f"/{owner.slug}/products")
     assert pg.status_code == 200
 
@@ -579,10 +579,10 @@ def test_service_app_layout_renders_services_as_cards(owner, client):
     finally:
         s.close()
     add_service(owner, "Deep Clean", 3500) if False else owner.post("/api/v1/services", json={"name": "Deep Clean", "price": "3500", "duration_minutes": 120, "description": "Whole home"})
-    assert owner.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).status_code == 200
+    assert owner.post("/api/v1/websites/me/template", json={"template_key": "zuribeauty"}).status_code == 200
     owner.post("/api/v1/websites/me/publish")
     html = client.get(f"/{owner.slug}").text
-    assert "Deep Clean" in html and "aqivo" in html
+    assert "Deep Clean" in html and "zuribeauty" in html
 
 
 def test_service_marketplace_layout_renders_bubbles_and_rows(owner, client):
@@ -596,10 +596,10 @@ def test_service_marketplace_layout_renders_bubbles_and_rows(owner, client):
     cat = owner.post("/api/v1/categories", json={"name": "Cleaning"})
     cid = cat.json().get("id") if cat.status_code in (200, 201) else None
     owner.post("/api/v1/services", json={"name": "Deep Clean", "price": "3500", "duration_minutes": 120, "category_id": cid})
-    assert owner.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).status_code == 200
+    assert owner.post("/api/v1/websites/me/template", json={"template_key": "zuribeauty"}).status_code == 200
     owner.post("/api/v1/websites/me/publish")
     html = client.get(f"/{owner.slug}").text
-    assert "Deep Clean" in html and "aqivo" in html
+    assert "Deep Clean" in html and "zuribeauty" in html
 
 
 

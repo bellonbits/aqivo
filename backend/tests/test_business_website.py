@@ -54,8 +54,8 @@ def test_xss_is_escaped_on_public_page(owner, client):
 
 def test_template_change_keeps_content(owner):
     owner.edit_section("about", body="My story")
-    r = owner.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).json()
-    assert r["template"]["key"] == "aqivo"
+    r = owner.post("/api/v1/websites/me/template", json={"template_key": "twosidesboutique"}).json()
+    assert r["template"]["key"] == "twosidesboutique"
     assert next(s for s in r["sections"] if s["type"] == "about")["settings"]["body"] == "My story"
     assert owner.post("/api/v1/websites/me/template", json={"template_key": "nope"}).status_code == 400
 

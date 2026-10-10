@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aqivo — Beautiful Online Stores for Every Business</title>
+  <meta name="description" content="Create a stunning online store in minutes. No coding, no designers. Choose your business type, add products, and start selling with WhatsApp ordering." />
+  <meta property="og:title" content="Aqivo — Beautiful Online Stores for Every Business" />
+  <meta property="og:description" content="The simplest way for small businesses to sell online. Beautiful storefronts, WhatsApp ordering, mobile-first." />
+  <meta property="og:type" content="website" />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230D0A08'/><path d='M9 22L16 8L23 22H9Z' fill='%23C9AA72'/></svg>" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #C9AA72;
+      --gold-light: #E5CC97;
+      --green: #10B981;
+      --green-dark: #059669;
+      --bg: #080604;
+      --surface: #0F0C09;
+      --surface2: #1A1510;
+      --border: #2A2118;
+      --text: #F5E6C8;
+      --text-sec: #A89070;
+      --white: #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(20px, 5vw, 60px);
+      height: 68px;
+      background: rgba(8, 6, 4, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(201, 170, 114, 0.1);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+
+    .nav-logo-mark {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #C9AA72, #8B6340);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      font-size: 0;
+    }
+
+    .nav-logo-mark svg { width: 20px; height: 20px; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-sec);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #C9AA72, #A07840);
+      color: #080604;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #D4BB86, #C9AA72);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(201,170,114,0.25);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px clamp(20px, 5vw, 80px) 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,170,114,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16,185,129,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-img {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, #1e293b, #0f172a);
+      opacity: 0.07;
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201,170,114,0.1);
+      border: 1px solid rgba(201,170,114,0.25);
+      color: var(--gold);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      letter-spacing: 0.04em;
+      margin-bottom: 32px;
+      text-transform: uppercase;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      max-width: 820px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      background: linear-gradient(135deg, #C9AA72, #F0D090, #A07840);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--text-sec);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 44px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero-actions .btn-primary { font-size: 1rem; padding: 14px 32px; }
+    .hero-actions .btn-ghost { font-size: 1rem; padding: 13px 28px; }
+
+    .hero-proof {
+      margin-top: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 0.8125rem;
+      color: var(--text-sec);
+    }
+
+    .hero-proof-avatars {
+      display: flex;
+    }
+
+    .hero-proof-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      margin-right: -8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      background: var(--surface2);
+      color: var(--gold);
+    }
+
+    /* ── STEPS ── */
+    .steps-section {
+      padding: clamp(60px, 8vw, 120px) clamp(20px, 5vw, 60px);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.75rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      color: var(--text-sec);
+      font-size: 1rem;
+      max-width: 520px;
+      margin-bottom: 56px;
+      line-height: 1.7;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      position: relative;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+
+    .step-card:hover {
+      border-color: rgba(201,170,114,0.4);
+      transform: translateY(-4px);
+    }
+
+    .step-num {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: rgba(201,170,114,0.1);
+      border: 1px solid rgba(201,170,114,0.25);
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+      color: var(--white);
+    }
+
+    .step-desc {
+      font-size: 0.9rem;
+      color: var(--text-sec);
+      line-height: 1.6;
+    }
+
+    /* ── TEMPLATES ── */
+    .templates-section {
+      padding: clamp(60px, 8vw, 100px) clamp(20px, 5vw, 60px);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .templates-header {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 56px;
+    }
+
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .template-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .template-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px var(--gold);
+    }
+
+    .template-card-img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .template-card:hover .template-card-img {
+      transform: scale(1.04);
+    }
+
+    .template-card-img-wrap {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .template-card-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(8,6,4,0.8);
+      backdrop-filter: blur(8px);
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .template-card-body {
+      padding: 20px 22px 24px;
+    }
+
+    .template-card-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-sec);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .template-card-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--white);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .template-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-sec);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .template-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .template-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      background: rgba(201,170,114,0.08);
+      border: 1px solid rgba(201,170,114,0.15);
+      color: var(--gold-light);
+    }
+
+    .template-card-cta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-top: 18px;
+      transition: gap 0.2s;
+    }
+
+    .template-card:hover .template-card-cta { gap: 10px; }
+
+    /* ── WHY AQIVO ── */
+    .why-section {
+      padding: clamp(60px, 8vw, 120px) clamp(20px, 5vw, 60px);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .why-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+
+    .why-card:hover { border-color: rgba(201,170,114,0.3); }
+
+    .why-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: grid; place-items: center;
+      margin-bottom: 16px;
+      font-size: 1.4rem;
+    }
+
+    .why-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .why-desc {
+      font-size: 0.875rem;
+      color: var(--text-sec);
+      line-height: 1.65;
+    }
+
+    /* ── FINAL CTA ── */
+    .cta-section {
+      margin: 0 clamp(20px, 5vw, 60px) clamp(60px, 8vw, 100px);
+      background: linear-gradient(135deg, #1A1510 0%, #0F0C09 100%);
+      border: 1px solid rgba(201,170,114,0.2);
+      border-radius: 28px;
+      padding: clamp(48px, 8vw, 80px) clamp(32px, 6vw, 80px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 0%, rgba(201,170,114,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.75rem, 4vw, 3rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .cta-section p {
+      color: var(--text-sec);
+      font-size: 1.05rem;
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+      position: relative;
+    }
+
+    .cta-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .cta-actions .btn-primary { font-size: 1.05rem; padding: 15px 36px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 40px clamp(20px, 5vw, 60px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-brand {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--white);
+    }
+
+    .footer-note {
+      font-size: 0.8125rem;
+      color: var(--text-sec);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .steps-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="#" class="nav-logo" id="nav-home-link">
+      <div class="nav-logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 16L10 4L16 16H4Z" fill="#0D0A08"/>
+          <path d="M6 16L10 8L14 16H6Z" fill="#C9AA72"/>
+        </svg>
+      </div>
+      Aqivo
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#templates">Templates</a></li>
+      <li><a href="receipt.html">Branded Receipts</a></li>
+      <li><a href="#why-aqivo">Why Aqivo</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <a href="receipt.html" class="btn-ghost" id="nav-preview-btn">Branded Receipts</a>
+      <a href="#templates" class="btn-primary" id="nav-getstarted-btn">
+        Explore 4 Templates
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="hero" aria-labelledby="hero-heading">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-img" aria-hidden="true"></div>
+
+    <div class="hero-eyebrow" aria-label="Now open">4 industry templates · No coding required</div>
+
+    <h1 id="hero-heading">
+      Your business deserves a<br />
+      <em>beautiful online store.</em>
+    </h1>
+
+    <p class="hero-sub">
+      Choose your industry. Add your products. Start selling — with WhatsApp ordering,
+      mobile-first design, and zero website-building complexity.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#templates" class="btn-primary" id="hero-cta-btn">
+        Explore 4 Storefronts
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="receipt.html" class="btn-ghost" id="hero-demo-btn">View Branded Receipts</a>
+    </div>
+
+    <div class="hero-proof" aria-label="Trusted by small businesses">
+      <div class="hero-proof-avatars" aria-hidden="true">
+        <div class="hero-proof-avatar">A</div>
+        <div class="hero-proof-avatar">S</div>
+        <div class="hero-proof-avatar">K</div>
+        <div class="hero-proof-avatar">M</div>
+      </div>
+      <span>Trusted by hundreds of small businesses across Africa</span>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="steps-section" id="how-it-works" aria-labelledby="steps-heading">
+    <p class="section-label">How it works</p>
+    <h2 class="section-title" id="steps-heading">From idea to live store<br />in under 10 minutes.</h2>
+    <p class="section-sub">No designers. No developers. No complicated settings to get lost in.</p>
+
+    <div class="steps-grid" role="list">
+      <article class="step-card" role="listitem">
+        <div class="step-num" aria-label="Step 1">1</div>
+        <h3 class="step-title">Choose your business type</h3>
+        <p class="step-desc">Select from 8 industry templates — each designed specifically for your type of business, not a generic website.</p>
+      </article>
+
+      <article class="step-card" role="listitem">
+        <div class="step-num" aria-label="Step 2">2</div>
+        <h3 class="step-title">Add your business details</h3>
+        <p class="step-desc">Enter your store name, logo, WhatsApp number, location and opening hours. Your storefront header builds itself.</p>
+      </article>
+
+      <article class="step-card" role="listitem">
+        <div class="step-num" aria-label="Step 3">3</div>
+        <h3 class="step-title">Add products & prices</h3>
+        <p class="step-desc">Upload product photos, set prices, write descriptions and choose categories. No spreadsheets, no complex dashboards.</p>
+      </article>
+
+      <article class="step-card" role="listitem">
+        <div class="step-num" aria-label="Step 4">4</div>
+        <h3 class="step-title">Publish & start selling</h3>
+        <p class="step-desc">Preview your live store, share the link with customers, and receive orders via Website Checkout or WhatsApp — with direct payment arrangements and zero gateway fees.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- TEMPLATES -->
+  <section class="templates-section" id="templates" aria-labelledby="templates-heading">
+    <div class="templates-header">
+      <p class="section-label">4 industry templates</p>
+      <h2 class="section-title" id="templates-heading">A design built for<br />your business.</h2>
+      <p class="section-sub" style="max-width: 480px; margin: 12px auto 0;">A restaurant shouldn't look like a clothing shop. Every template is crafted for its industry.</p>
+    </div>
+
+    <div class="templates-grid" role="list">
+
+      <!-- 1. Two Sides Boutique -->
+      <a href="twosidesboutique/index.html" class="template-card" id="tmpl-fashion" role="listitem" aria-label="Fashion & Boutique template">
+        <div class="template-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80" alt="Two Sides Boutique preview" class="template-card-img" loading="lazy" />
+          <span class="template-card-badge" style="background:#059669;">Two Sides Boutique</span>
+        </div>
+        <div class="template-card-body">
+          <p class="template-card-num">Template 01</p>
+          <h3 class="template-card-name">Two Sides Boutique</h3>
+          <p class="template-card-desc">Contemporary fashion atelier storefront with Kikoi wrap dresses, pure linen shirts, size variants, and dedicated branded receipt.</p>
+          <div class="template-card-tags">
+            <span class="template-tag">Emerald #059669</span>
+            <span class="template-tag">Shopping Bag Emblem</span>
+            <span class="template-tag">Atelier Collections</span>
+          </div>
+          <div class="template-card-cta">
+            Preview Storefront
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- 2. Mavuno Fresh -->
+      <a href="mavunofresh/index.html" class="template-card" id="tmpl-grocery" role="listitem" aria-label="Grocery & Farm Produce template">
+        <div class="template-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=600&q=80" alt="Mavuno Fresh storefront preview" class="template-card-img" loading="lazy" />
+          <span class="template-card-badge" style="background:#16A34A;">Mavuno Fresh</span>
+        </div>
+        <div class="template-card-body">
+          <p class="template-card-num">Template 02</p>
+          <h3 class="template-card-name">Mavuno Fresh</h3>
+          <p class="template-card-desc">Farm-fresh groceries and organic produce storefront with fresh vegetable boxes, interactive steppers, and branded leaf receipt.</p>
+          <div class="template-card-tags">
+            <span class="template-tag">Farm Green #16A34A</span>
+            <span class="template-tag">Fresh Leaf Emblem</span>
+            <span class="template-tag">Farm Catalog</span>
+          </div>
+          <div class="template-card-cta">
+            Preview Storefront
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- 3. Brew & Bites -->
+      <a href="brewandbites/index.html" class="template-card" id="tmpl-restaurant" role="listitem" aria-label="Restaurant & Kitchen template">
+        <div class="template-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80" alt="Brew & Bites storefront preview" class="template-card-img" loading="lazy" />
+          <span class="template-card-badge" style="background:#D97706;">Brew & Bites</span>
+        </div>
+        <div class="template-card-body">
+          <p class="template-card-num">Template 03</p>
+          <h3 class="template-card-name">Brew & Bites</h3>
+          <p class="template-card-desc">Warm kitchen and artisan coffee storefront with pizzas, burgers, countdown deals, and dedicated amber cup receipt.</p>
+          <div class="template-card-tags">
+            <span class="template-tag">Warm Amber #D97706</span>
+            <span class="template-tag">Cup Emblem</span>
+            <span class="template-tag">Food & Coffee Menu</span>
+          </div>
+          <div class="template-card-cta">
+            Preview Storefront
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- 4. Zuri Beauty Studio -->
+      <a href="zuribeauty/index.html" class="template-card" id="tmpl-beauty" role="listitem" aria-label="Beauty & Studio template">
+        <div class="template-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80" alt="Zuri Beauty Studio storefront preview" class="template-card-img" loading="lazy" />
+          <span class="template-card-badge" style="background:#9333EA;">Zuri Beauty</span>
+        </div>
+        <div class="template-card-body">
+          <p class="template-card-num">Template 04</p>
+          <h3 class="template-card-name">Zuri Beauty Studio</h3>
+          <p class="template-card-desc">Luxe salon and beauty appointments storefront with knotless braids, gel manicures, clean haircare, and dedicated crown receipt.</p>
+          <div class="template-card-tags">
+            <span class="template-tag">Luxe Violet #9333EA</span>
+            <span class="template-tag">Crown Emblem</span>
+            <span class="template-tag">Beauty Services</span>
+          </div>
+          <div class="template-card-cta">
+            Preview Storefront
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </a></div>
+  </section>
+
+  <!-- WHY AQIVO -->
+  <section class="why-section" id="why-aqivo" aria-labelledby="why-heading">
+    <div style="text-align: center; max-width: 640px; margin: 0 auto 56px;">
+      <p class="section-label">Why Aqivo</p>
+      <h2 class="section-title" id="why-heading">Everything you need.<br />Nothing you don't.</h2>
+      <p class="section-sub" style="max-width: 480px; margin: 12px auto 0;">Aqivo is not a website builder. It is a complete online shop, delivered instantly.</p>
+    </div>
+
+    <div class="why-grid" role="list">
+      <article class="why-card" role="listitem">
+        <div class="why-icon" style="background: rgba(16,185,129,0.1);">📱</div>
+        <h3 class="why-title">Mobile-first by default</h3>
+        <p class="why-desc">Your customers shop on their phones. Every storefront is designed for mobile from the ground up — fast, touch-friendly and beautiful.</p>
+      </article>
+      <article class="why-card" role="listitem">
+        <div class="why-icon" style="background: rgba(37,211,102,0.1);">💬</div>
+        <h3 class="why-title">Website Checkout & WhatsApp</h3>
+        <p class="why-desc">Customers order via seamless Website Checkout or direct WhatsApp message. Buyers pick their payment preference (M-Pesa, Cash, Bank) and you confirm directly — no gateway cuts.</p>
+      </article>
+      <article class="why-card" role="listitem">
+        <div class="why-icon" style="background: rgba(201,170,114,0.1);">🎨</div>
+        <h3 class="why-title">Industry-specific designs</h3>
+        <p class="why-desc">A restaurant menu looks different from a jewellery boutique. Each template is built specifically for its industry — not a generic page builder.</p>
+      </article>
+      <article class="why-card" role="listitem">
+        <div class="why-icon" style="background: rgba(99,102,241,0.1);">⚡</div>
+        <h3 class="why-title">No coding, ever</h3>
+        <p class="why-desc">Enter your business name, upload a logo, add products with photos and prices. That is all. Your store is ready to share in minutes.</p>
+      </article>
+      <article class="why-card" role="listitem">
+        <div class="why-icon" style="background: rgba(245,158,11,0.1);">🛒</div>
+        <h3 class="why-title">Ordering first, always</h3>
+        <p class="why-desc">Every design decision prioritises making it easy for your customers to browse, add to cart and place an order — nothing else matters more.</p>
+      </article>
+      <article class="why-card" role="listitem">
+        <div class="why-icon" style="background: rgba(239,68,68,0.1);">🔗</div>
+        <h3 class="why-title">Share your store link</h3>
+        <p class="why-desc">Get a clean Aqivo link to share on Instagram, WhatsApp, TikTok or as your link-in-bio — customers click and land directly on your store.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="cta-section" id="cta" aria-labelledby="cta-heading">
+    <h2 id="cta-heading">Ready to open your store?</h2>
+    <p>Join hundreds of businesses already selling on Aqivo. It takes less than 10 minutes.</p>
+    <div class="cta-actions">
+      <a href="#templates" class="btn-primary" id="cta-start-btn">
+        Explore 4 Storefronts
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="receipt.html" class="btn-ghost" id="cta-demo-btn">View Branded Receipts</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-brand">Aqivo</div>
+    <p class="footer-note">© 2026 Aqivo · Beautiful stores for every business.</p>
+  </footer>
+
+  <script>
+
+
+    // Subtle scroll reveal for cards
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.template-card, .step-card, .why-card').forEach((el, i) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(24px)';
+        el.style.transition = `opacity 0.5s ease ${i * 0.06}s, transform 0.5s ease ${i * 0.06}s`;
+        io.observe(el);
+      });
+    }
+  </script>
+
+</body>
+</html>

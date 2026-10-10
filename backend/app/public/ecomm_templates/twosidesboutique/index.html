@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Two Sides Boutique — Contemporary Fashion Atelier Nairobi</title>
+  <meta name="description" content="Discover handcrafted ready-to-wear, Kikoi wrap dresses, pure linen shirts, and Kenyan leather accessories cut in our Kilimani workshop." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/mobile-store.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23C9AA72'/><path d='M16 6l8 14H8z' fill='white'/></svg>" />
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Bar -->
+  <nav class="site-nav" role="navigation" aria-label="Main Navigation">
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="index.html" class="site-brand-logo" aria-label="Two Sides Boutique Home">
+          <span>Two Sides Boutique</span>
+        </a>
+
+        <!-- Nairobi Estate Location Selector -->
+        <div class="nav-location-picker" onclick="window.StoreApp.changeLocation()" title="Change Delivery Estate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="nav-location-label">Kilimani, Nairobi</span>
+        </div>
+      </div>
+
+      <!-- Search Menu Bar -->
+      <div class="nav-search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search Dresses, Linen, Leather Bags..." oninput="window.StoreApp.searchMenu(this.value)" aria-label="Search Collections" />
+        <button class="nav-search-clear" onclick="window.StoreApp.clearSearch()" aria-label="Clear Search" type="button">✕</button>
+      </div>
+
+      <div class="nav-right">
+
+        <!-- Shopping Cart Trigger Button -->
+        <button class="nav-cart-btn" onclick="window.StoreApp.openCart()" aria-label="Shopping Cart">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1.5"/><circle cx="20" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="nav-cart-badge" id="nav-cart-badge" style="background:#C9AA72;">1</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Full-Width Dark Hero with Asymmetrical Curved Dome -->
+  <header class="hero-fullwidth-dark" role="banner">
+    <div class="hero-inner-container">
+      <div class="hero-info-col">
+        <h1 class="hero-store-title">Two Sides Boutique</h1>
+        <p class="hero-store-desc">
+          Contemporary Kenyan atelier crafting modern ready-to-wear from locally sourced cotton, linen, and vegetable-tanned leather. Every piece is cut and finished in our Kilimani workshop.
+        </p>
+
+        <div class="hero-chips-row">
+          <span class="hero-meta-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            45–60 min
+          </span>
+          <span class="hero-meta-chip rating">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            4.9 (890)
+          </span>
+          <span class="hero-meta-chip">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            1.8 km
+          </span>
+        </div>
+
+        <div class="hero-hours-text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Kilimani Workshop: 9:00 AM – 6:00 PM
+        </div>
+      </div>
+
+      <div class="hero-image-col">
+        <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=600&q=80" alt="Two Sides Boutique Workshop Collection" class="hero-platter-img" />
+      </div>
+    </div>
+
+    <!-- The Asymmetrical Curved Dome Separator -->
+    <div class="hero-curve-separator">
+      <svg viewBox="0 0 1440 54" preserveAspectRatio="none">
+        <path d="M 0,54 L 0,30 Q 320,-10 1440,24 L 1440,54 Z" fill="#F8F9FA"></path>
+      </svg>
+    </div>
+  </header>
+
+  <!-- Sticky Category Chips Filter -->
+  <section class="category-filter-strip" aria-label="Fashion Categories">
+    <div class="category-filter-container">
+      <button class="cat-chip-btn active" data-cat="all" onclick="window.StoreApp.filterCategory('all')">All</button>
+      <button class="cat-chip-btn" data-cat="dresses" onclick="window.StoreApp.filterCategory('dresses')">Dresses</button>
+      <button class="cat-chip-btn" data-cat="linen" onclick="window.StoreApp.filterCategory('linen')">Linen & Tops</button>
+      <button class="cat-chip-btn" data-cat="leather" onclick="window.StoreApp.filterCategory('leather')">Leather Bags</button>
+      <button class="cat-chip-btn" data-cat="accessories" onclick="window.StoreApp.filterCategory('accessories')">Accessories</button>
+    </div>
+  </section>
+
+  <!-- Main Content Area -->
+  <main class="main-page-content">
+
+
+    <!-- SECTION 1: READY-TO-WEAR DRESSES -->
+    <section class="catalog-section" data-section-cat="dresses" aria-labelledby="sec-dresses">
+      <div class="section-title-row">
+        <h2 class="section-headline" id="sec-dresses">Ready-to-Wear Dresses</h2>
+        <span class="section-all-link" onclick="window.StoreApp.filterCategory('dresses')">
+          All
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+      <div class="product-cards-grid">
+
+        <!-- Card: Kikoi Wrap Dress -->
+        <a href="product.html?id=tws-wrap-dress" class="menu-card" data-prod-name="Kikoi Wrap Dress">
+          <div class="menu-card-img-box">
+            <span class="card-popular-badge">Popular</span>
+            <img src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80" alt="Kikoi Wrap Dress" loading="lazy" />
+            <button class="card-add-btn" aria-label="Add Kikoi Wrap Dress" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart('tws-wrap-dress');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="menu-card-price">Ksh 5,800</div>
+          <h3 class="menu-card-title">Kikoi Wrap Dress</h3>
+        </a>
+
+        <!-- Card: Bias-Cut Silk Slip Dress -->
+        <a href="product.html?id=tws-silk-slip" class="menu-card" data-prod-name="Bias-Cut Silk Slip Dress">
+          <div class="menu-card-img-box">
+            <span class="card-popular-badge">Popular</span>
+            <img src="https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=400&q=80" alt="Bias-Cut Silk Slip Dress" loading="lazy" />
+            <button class="card-add-btn" aria-label="Add Silk Slip Dress" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart('tws-silk-slip');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="menu-card-price">Ksh 6,400</div>
+          <h3 class="menu-card-title">Bias-Cut Silk Slip Dress</h3>
+        </a>
+
+        <!-- Card: Safari Midi Shirtdress -->
+        <a href="product.html?id=tws-safari-midi" class="menu-card" data-prod-name="Safari Midi Shirtdress">
+          <div class="menu-card-img-box">
+            <img src="https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=400&q=80" alt="Safari Midi Shirtdress" loading="lazy" />
+            <button class="card-add-btn" aria-label="Add Shirtdress" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart('tws-safari-midi');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="menu-card-price">Ksh 5,200</div>
+          <h3 class="menu-card-title">Safari Midi Shirtdress</h3>
+        </a>
+
+        <!-- Card: Pleated Linen Maxi Dress -->
+        <a href="product.html?id=tws-pleated-maxi" class="menu-card" data-prod-name="Pleated Linen Maxi Dress">
+          <div class="menu-card-img-box">
+            <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=400&q=80" alt="Pleated Linen Maxi Dress" loading="lazy" />
+            <button class="card-add-btn" aria-label="Add Linen Maxi Dress" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart('tws-pleated-maxi');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="menu-card-price">Ksh 7,200</div>
+          <h3 class="menu-card-title">Pleated Linen Maxi Dress</h3>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: HANDWOVEN LINEN & TOPS -->
+    <section class="catalog-section" data-section-cat="linen" aria-labelledby="sec-linen">
+      <div class="section-title-row">
+        <h2 class="section-headline" id="sec-linen">Handwoven Linen & Tops</h2>
+        <span class="section-all-link" onclick="window.StoreApp.filterCategory('linen')">
+          All
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"/></svg>
+        </span>
+      </div>
+
+      <div class="product-cards-grid">
+
+        <!-- Card: Handwoven Linen Shirt -->
+        <a href="product.html?id=tws-linen-shirt" class="menu-card" data-prod-name="Handwoven Linen Shirt">
+          <div class="menu-card-img-box">
+            <span class="card-popular-badge">Popular</span>
+            <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=400&q=80" alt="Handwoven Linen Shirt" loading="lazy" />
+            <button class="card-add-btn" aria-label="Add Linen Shirt" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart('tws-linen-shirt');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="menu-card-price">Ksh 4,200</div>
+          <h3 class="menu-card-title">Handwoven Linen Shirt</h3>
+        </a>
+
+        <!-- Card: Wide-Leg Linen Trousers -->
+        <a href="product.html?id=tws-linen-trousers" class="menu-card" data-prod-name="Wide-Leg Linen Trousers">
+          <div class="menu-card-img-box">
+            <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=400&q=80" alt="Wide-Leg Linen Trousers" loading="lazy" />
+            <button class="card-add-btn" aria-label="Add Linen Trousers" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart('tws-linen-trousers');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="menu-card-price">Ksh 4,800</div>
+          <h3 class="menu-card-title">Wide-Leg Linen Trousers</h3>
+        </a>
+
+        <!-- Card: Kilimani Leather Tote Bag -->
+        <a href="product.html?id=tws-leather-tote" class="menu-card" data-prod-name="Kilimani Leather Tote Bag">
+          <div class="menu-card-img-box">
+            <span class="card-popular-badge">Popular</span>
+            <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80" alt="Kilimani Leather Tote Bag" loading="lazy" />
+            <button class="card-add-btn" aria-label="Add Leather Tote" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart('tws-leather-tote');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="menu-card-price">Ksh 8,500</div>
+          <h3 class="menu-card-title">Kilimani Leather Tote Bag</h3>
+        </a>
+
+        <!-- Card: Raw Silk Kimono Robe -->
+        <a href="product.html?id=tws-silk-kimono" class="menu-card" data-prod-name="Raw Silk Kimono Robe">
+          <div class="menu-card-img-box">
+            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=80" alt="Raw Silk Kimono Robe" loading="lazy" />
+            <button class="card-add-btn" aria-label="Add Kimono Robe" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart('tws-silk-kimono');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+          <div class="menu-card-price">Ksh 6,800</div>
+          <h3 class="menu-card-title">Raw Silk Kimono Robe</h3>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Slide-Out Shopping Cart Drawer -->
+  <aside class="cart-drawer-overlay" id="cart-drawer-overlay" onclick="if(event.target===this) window.StoreApp.closeCart()" aria-hidden="true">
+    <div class="cart-drawer-panel" role="dialog" aria-modal="true" aria-label="Atelier Bag">
+      <div class="cart-drawer-header">
+        <div>
+          <h3 class="cart-drawer-title">Your Atelier Bag</h3>
+          <span style="font-size:12px; color:#71717A;" id="cart-drawer-count">1 item</span>
+        </div>
+        <button class="cart-drawer-close-btn" onclick="window.StoreApp.closeCart()" aria-label="Close Bag">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="cart-drawer-body">
+        <div id="cart-items-container"></div>
+
+        <!-- Promo Code Box -->
+        <div class="cart-promo-box">
+          <input type="text" class="cart-promo-input" value="TWOSIDES10" id="cart-promo-input" placeholder="Promo code" />
+          <button class="cart-promo-btn" style="background:#C9AA72;" onclick="window.StoreApp.applyPromo()">Promo-code Confirmed</button>
+        </div>
+
+        <!-- Order Summary Card -->
+        <div class="cart-summary-card" id="cart-summary-box">
+          <div class="cart-summary-line">
+            <span>Garment Subtotal</span>
+            <span id="cart-subtotal-val">Ksh 5,800</span>
+          </div>
+          <div class="cart-summary-line" id="cart-discount-line" style="color:var(--accent-coral);">
+            <span>Atelier Privilege Discount</span>
+            <span id="cart-discount-val">-Ksh 580</span>
+          </div>
+          <div class="cart-summary-line">
+            <span>Courier Delivery</span>
+            <span>Ksh 200</span>
+          </div>
+          <div class="cart-summary-line">
+            <span>Packaging & Taxes</span>
+            <span>Ksh 100</span>
+          </div>
+          <div class="cart-summary-line total">
+            <span>Total Payable</span>
+            <span id="cart-total-val">Ksh 5,520</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cart-drawer-footer">
+        <button class="cart-whatsapp-btn" id="cart-whatsapp-btn" onclick="window.StoreApp.orderCartOnWhatsApp()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Order via WhatsApp
+        </button>
+        <button class="cart-checkout-btn" style="background:#18181B;" id="cart-checkout-btn" onclick="window.StoreApp.openCheckout()">
+          Website Checkout
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Website Checkout Modal (Aqivo Direct Fulfilment & Payment Arrangement) -->
+  <div class="modal-backdrop" id="checkout-modal-backdrop" onclick="if(event.target===this) window.StoreApp.closeCheckout()">
+    <div class="checkout-modal-card">
+      <div class="checkout-modal-head">
+        <div>
+          <h3 class="checkout-modal-title">Website Checkout</h3>
+          <p class="checkout-modal-sub">Payment is agreed directly with Two Sides Boutique. No cards or automated STK push.</p>
+        </div>
+        <button class="cart-drawer-close-btn" onclick="window.StoreApp.closeCheckout()" aria-label="Close Checkout">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Section 1: Customer Contact -->
+      <div class="checkout-section-block">
+        <div class="checkout-section-title">1. Contact Information</div>
+        <div class="checkout-fields-row">
+          <div class="checkout-field">
+            <label class="checkout-label" for="checkout-name">Full Name <span class="req">*</span></label>
+            <input type="text" id="checkout-name" class="checkout-input" placeholder="e.g. Achieng Odhiambo" autocomplete="name" required />
+          </div>
+          <div class="checkout-field">
+            <label class="checkout-label" for="checkout-phone">Phone Number (M-Pesa / WhatsApp) <span class="req">*</span></label>
+            <input type="tel" id="checkout-phone" class="checkout-input" placeholder="e.g. 0722 987 654" autocomplete="tel" required />
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Fulfilment Preference -->
+      <div class="checkout-section-block">
+        <div class="checkout-section-title">2. Fulfilment Preference</div>
+        <div class="checkout-toggle-group">
+          <button type="button" class="checkout-toggle-btn active" id="toggle-delivery" onclick="window.StoreApp.setFulfilment('delivery')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Courier Delivery
+          </button>
+          <button type="button" class="checkout-toggle-btn" id="toggle-pickup" onclick="window.StoreApp.setFulfilment('pickup')">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Atelier Studio Pickup
+          </button>
+        </div>
+
+        <div class="checkout-field" id="delivery-address-group" style="margin-top:12px;">
+          <label class="checkout-label" for="checkout-address">Delivery Destination Address <span class="req">*</span></label>
+          <input type="text" id="checkout-address" class="checkout-input" value="12 Riverside Drive, Kilimani, Nairobi" placeholder="Estate, street, building, apartment/house no." autocomplete="street-address" />
+          <div class="checkout-helper-text">Delivery charge will be confirmed with the atelier prior to dispatch.</div>
+        </div>
+
+        <div class="checkout-pickup-info" id="pickup-location-info" style="display:none; margin-top:12px;">
+          <div style="font-weight:700; color:#18181B; font-size:13.5px;">Kilimani Atelier Studio</div>
+          <div style="font-size:12.5px; color:#71717A;">Collect directly from our Rose Avenue studio in Kilimani. Free pickup and fitting.</div>
+        </div>
+      </div>
+
+      <!-- Section 3: Order Breakdown -->
+      <div class="checkout-section-block">
+        <div class="checkout-section-title">3. Order Summary & Items</div>
+        <div class="checkout-items-preview" id="checkout-items-preview"></div>
+        <div class="checkout-summary-mini">
+          <div class="checkout-sum-row">
+            <span>Garments Subtotal</span>
+            <span id="checkout-subtotal-val">Ksh 0</span>
+          </div>
+          <div class="checkout-sum-row" id="checkout-discount-row" style="display:none; color:var(--accent-coral);">
+            <span>Boutique Discount</span>
+            <span id="checkout-discount-val">-Ksh 0</span>
+          </div>
+          <div class="checkout-sum-row" id="checkout-delivery-row">
+            <span>Courier Delivery</span>
+            <span id="checkout-delivery-val">Ksh 200 (Seller confirms)</span>
+          </div>
+          <div class="checkout-sum-row total">
+            <span>Estimated Total</span>
+            <span id="checkout-total-val">Ksh 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Payment Details -->
+      <div class="checkout-section-block">
+        <div class="checkout-section-title">4. Payment Details</div>
+        <p class="checkout-pay-intro">How would you like to pay? Tell the seller your preferred payment method.</p>
+
+        <div class="checkout-pay-chips-grid">
+          <button type="button" class="checkout-pay-chip active" data-method="M-Pesa" onclick="window.StoreApp.setPaymentPreference(this, 'M-Pesa')">
+            <span class="chip-radio"></span> M-Pesa
+          </button>
+          <button type="button" class="checkout-pay-chip" data-method="Cash" onclick="window.StoreApp.setPaymentPreference(this, 'Cash')">
+            <span class="chip-radio"></span> Cash on Delivery
+          </button>
+          <button type="button" class="checkout-pay-chip" data-method="Bank transfer" onclick="window.StoreApp.setPaymentPreference(this, 'Bank transfer')">
+            <span class="chip-radio"></span> Bank transfer
+          </button>
+          <button type="button" class="checkout-pay-chip" data-method="Other" onclick="window.StoreApp.setPaymentPreference(this, 'Other')">
+            <span class="chip-radio"></span> Other / write my own
+          </button>
+        </div>
+
+        <div class="checkout-field" id="custom-payment-group" style="display:none; margin-top:12px;">
+          <label class="checkout-label" for="checkout-custom-payment">Specify Payment Method</label>
+          <input type="text" id="checkout-custom-payment" class="checkout-input" placeholder="e.g. Pesapal, PayPal, Cheque..." />
+        </div>
+
+        <div class="checkout-field" style="margin-top:12px;">
+          <label class="checkout-label" for="checkout-pay-instructions">Additional payment instructions (optional)</label>
+          <input type="text" id="checkout-pay-instructions" class="checkout-input" placeholder="e.g. Will pay via M-Pesa Till after tailoring review" />
+        </div>
+      </div>
+
+      <!-- Section 5: Order Notes -->
+      <div class="checkout-section-block">
+        <div class="checkout-section-title">5. Order Notes (Optional)</div>
+        <div class="checkout-field">
+          <textarea id="checkout-notes" class="checkout-textarea" rows="2" placeholder="Sizing adjustments, custom hem instructions, or gift packaging..."></textarea>
+        </div>
+      </div>
+
+      <!-- Direct payment agreement notice -->
+      <div class="checkout-disclaimer-notice">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <div>
+          <strong>Direct Seller Payment:</strong> No card charges or automatic STK Push. Two Sides Boutique confirms atelier sizing, fabric availability, and payment details directly.
+        </div>
+      </div>
+
+      <button type="button" class="cart-checkout-btn checkout-submit-btn" style="background:#18181B;" onclick="window.StoreApp.submitWebsiteOrder()">
+        Confirm Website Order (<span id="checkout-submit-total">Ksh 0</span>)
+      </button>
+    </div>
+  </div>
+
+  <!-- Celebratory Order Successful Modal (Revised for Aqivo) -->
+  <div class="modal-backdrop" id="order-success-modal" onclick="if(event.target===this) window.StoreApp.closeSuccess()">
+    <div class="order-success-card">
+      <div class="metallic-emblem-outer">
+        <div class="metallic-emblem-inner" style="background:linear-gradient(145deg, #423223 0%, #2A1F16 100%);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+
+      <div class="order-ref-pill" id="order-success-ref">Order #AQ-1002</div>
+      <h2 class="order-success-title">Order Submitted!</h2>
+      <p class="order-success-desc">
+        Your bespoke order has been recorded in Aqivo. Two Sides Boutique will confirm atelier garment availability and payment arrangements directly.
+      </p>
+
+      <div class="order-status-badge-wrap">
+        <span class="order-status-badge unpaid" id="order-status-badge">Status: Unpaid (Awaiting Seller Agreement)</span>
+      </div>
+
+      <div class="order-success-info-card">
+        <div class="order-success-row">
+          <span class="label">Customer:</span>
+          <span class="val" id="order-success-name">—</span>
+        </div>
+        <div class="order-success-row">
+          <span class="label">Phone:</span>
+          <span class="val" id="order-success-phone">—</span>
+        </div>
+        <div class="order-success-row">
+          <span class="label">Fulfilment:</span>
+          <span class="val" id="order-success-fulfilment">Courier Delivery</span>
+        </div>
+        <div class="order-success-row">
+          <span class="label">Payment Preference:</span>
+          <span class="val" id="order-success-payment">M-Pesa</span>
+        </div>
+        <div class="order-success-row total">
+          <span class="label">Estimated Total:</span>
+          <span class="val" id="order-success-total">Ksh 0</span>
+        </div>
+      </div>
+
+      <div class="receipt-success-btn-group" style="display:flex; gap:8px; width:100%;">
+        <button class="btn-view-receipt" style="flex:1;" onclick="window.StoreApp.openReceiptModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Quick Receipt
+        </button>
+        <a href="receipt.html" id="order-success-receipt-link" class="btn-view-receipt" style="flex:1; background:#111827; color:#FFFFFF; text-decoration:none; justify-content:center;" target="_blank">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Receipt Page
+        </a>
+      </div>
+
+      <button class="btn-whatsapp-followup" onclick="window.StoreApp.chatOrderOnWhatsApp()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        Confirm Order via WhatsApp
+      </button>
+
+      <button class="btn-copy-order" onclick="window.StoreApp.copyPaymentDetails()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy Payment Details
+      </button>
+
+      <button class="btn-report-payment" id="btn-report-payment" onclick="window.StoreApp.reportPaymentMade()">
+        I have paid (Report Payment)
+      </button>
+
+      <button class="btn-close-modal" onclick="window.StoreApp.closeSuccess()">Back to Collections</button>
+    </div>
+  </div>
+
+  <!-- Branded Order Receipt Modal (Take App Style) -->
+  <div class="modal-backdrop" id="receipt-modal-backdrop" onclick="if(event.target===this) window.StoreApp.closeReceiptModal()">
+    <div class="receipt-modal-card">
+      <div class="receipt-top-toolbar">
+        <div class="receipt-toolbar-actions">
+          <button type="button" class="receipt-btn-action primary" onclick="window.StoreApp.printReceipt()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print / PDF
+          </button>
+          <button type="button" class="receipt-btn-action whatsapp" onclick="window.StoreApp.shareReceiptWhatsApp()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            WhatsApp
+          </button>
+          <a href="receipt.html" id="receipt-fullpage-btn" class="receipt-btn-action" target="_blank" style="text-decoration:none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Full Page
+          </a>
+          <button type="button" class="receipt-btn-action" onclick="window.StoreApp.copyReceiptLink()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Link
+          </button>
+        </div>
+        <button type="button" class="receipt-close-circle" onclick="window.StoreApp.closeReceiptModal()" aria-label="Close Receipt">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div id="receipt-modal-container"></div>
+
+      <div class="receipt-status-manager">
+        <div class="receipt-manager-title">
+          <span>Payment Status Manager</span>
+          <span style="font-size:10px; font-weight:400; color:#9CA3AF;">Live receipt update</span>
+        </div>
+        <div class="receipt-status-chips">
+          <button type="button" class="receipt-status-chip active" id="chip-status-awaiting" onclick="window.StoreApp.updateReceiptPaymentStatus('Awaiting payment confirmation')">Awaiting Confirmation</button>
+          <button type="button" class="receipt-status-chip" id="chip-status-reported" onclick="window.StoreApp.updateReceiptPaymentStatus('Payment reported (Customer notified seller)')">Payment Reported</button>
+          <button type="button" class="receipt-status-chip" id="chip-status-paid" onclick="window.StoreApp.updateReceiptPaymentStatus('Paid (Confirmed by seller)')">Paid ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="app-toast-banner" id="app-toast"></div>
+
+  <!-- Client Script -->
+  <script src="scripts/mobile-store.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      window.createWebStorefront({
+        currencySymbol: 'Ksh',
+        deliveryFee: 200,
+        taxFee: 100,
+        defaultPromo: 'TWOSIDES10',
+        defaultDiscount: 580,
+        initialCart: [
+          {
+            id: 'tws-wrap-dress',
+            name: 'Kikoi Wrap Dress',
+            price: 5800,
+            image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80',
+            qty: 1
+          }
+        ],
+        store: {
+          name: 'Two Sides Boutique',
+          whatsappPhone: '254722987654',
+          products: [
+            { id: 'tws-wrap-dress', name: 'Kikoi Wrap Dress', price: 5800, image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=400&q=80' },
+            { id: 'tws-silk-slip', name: 'Bias-Cut Silk Slip Dress', price: 6400, image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=400&q=80' },
+            { id: 'tws-safari-midi', name: 'Safari Midi Shirtdress', price: 5200, image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=400&q=80' },
+            { id: 'tws-pleated-maxi', name: 'Pleated Linen Maxi Dress', price: 7200, image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=400&q=80' },
+            { id: 'tws-linen-shirt', name: 'Handwoven Linen Shirt', price: 4200, image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=400&q=80' },
+            { id: 'tws-linen-trousers', name: 'Wide-Leg Linen Trousers', price: 4800, image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=400&q=80' },
+            { id: 'tws-leather-tote', name: 'Kilimani Leather Tote Bag', price: 8500, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80' },
+            { id: 'tws-silk-kimono', name: 'Raw Silk Kimono Robe', price: 6800, image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=80' }
+          ]
+        }
+      });
+    });
+  </script>
+</body>
+</html>

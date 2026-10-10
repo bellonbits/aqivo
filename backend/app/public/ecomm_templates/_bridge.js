@@ -59,20 +59,27 @@
   function readLS(key, map) {
     try { return (JSON.parse(localStorage.getItem(key) || "[]") || []).map(map); } catch (e) { return []; }
   }
+  function readMobileStoreCart(storeName) {
+    var key = "aqivo_cart_" + (storeName || "").replace(/\s+/g, "_").toLowerCase();
+    try {
+      return (JSON.parse(localStorage.getItem(key) || "[]") || []).map(function (i) {
+        return { id: i.id, variant: i.option || i.variant || "", qty: i.qty };
+      });
+    } catch (e) {
+      return [];
+    }
+  }
+
   var CART = {
-    fashion_ecom: function () { return readLS("luxina_cart_items_kes_v2", function (i) { return { id: i.id, variant: i.size, qty: i.quantity }; }); },
-    grocery_ecom: function () { return readLS("grofresh_cart_items_kes_v2", function (i) { return { id: i.id, variant: "", qty: i.quantity }; }); },
-    shoeshop_ecom: function () { return readLS("footwear_cart_items_v2", function (i) { return { id: i.id, variant: String(i.size), qty: i.quantity }; }); },
-    mart_ecom: function () { return ((window.Cart && window.Cart.items) || []).map(function (i) { return { id: i.id, variant: i.size, qty: i.quantity }; }); },
-    aqivo: function () { try { return window.AqivoStore ? window.AqivoStore.getCart().map(function (i) { return { id: i.productId, variant: (i.variant && (i.variant.Size || i.variant.Color || i.variant['Add-ons'] || '')) || '', qty: i.qty }; }) : []; } catch (e) { return []; } }
+    twosidesboutique: function () { return readMobileStoreCart(B.name || "Two Sides Boutique"); },
+    mavunofresh: function () { return readMobileStoreCart(B.name || "Mavuno Fresh"); },
+    brewandbites: function () { return readMobileStoreCart(B.name || "Brew & Bites"); },
+    zuribeauty: function () { return readMobileStoreCart(B.name || "Zuri Beauty Studio"); }
   };
-  // never start with the template's demo cart items
-  var LS_KEYS = { fashion_ecom: "luxina_cart_items_kes_v2", grocery_ecom: "grofresh_cart_items_kes_v2", shoeshop_ecom: "footwear_cart_items_v2" };
-  if (LS_KEYS[KEY]) { try { if (localStorage.getItem(LS_KEYS[KEY]) === null) localStorage.setItem(LS_KEYS[KEY], "[]"); } catch (e) {} }
 
   document.addEventListener("click", function (e) {
     var t = e.target.closest && e.target.closest("#cart-checkout-btn, #btn-cart-checkout, [data-checkout]");
-    if (t && (CART[KEY] || KEY === 'aqivo')) { e.preventDefault(); e.stopImmediatePropagation(); goCheckout((CART[KEY] || function(){return[]})()); return; }
+    if (t && CART[KEY]) { e.preventDefault(); e.stopImmediatePropagation(); goCheckout((CART[KEY] || function(){return[]})()); return; }
     var a = e.target.closest && e.target.closest('a[href^="#"]'); // <base> would otherwise send in-page anchors away
     if (a) {
       var id = a.getAttribute("href").slice(1);
@@ -321,104 +328,35 @@
     });
   };
 
-  MAP.aqivo = function () {
-    if (!window.AQIVO_DB) return;
-    var isCommerce = (B.is_commerce !== undefined)
-      ? Boolean(B.is_commerce)
-      : (B.industry === 'restaurant' || B.industry === 'retail');
-    var hasProducts = (ITEMS || []).some(function (p) { return p.kind === 'product'; });
-    var allowFulfilment = isCommerce || hasProducts;
-
-    var tenant = {
-      slug: B.slug,
-      business: {
-        name: B.name,
-        tagline: B.tagline || "",
-        description: B.about || B.tagline || "",
-        type: isCommerce ? (B.industry === 'restaurant' ? 'restaurant' : 'retail') : 'service',
-        logo: B.logo || "",
-        cover: (B.gallery && B.gallery[0] && B.gallery[0].src) || "",
-        verified: true,
-        rating: (B.rating && B.rating.average) || 5,
-        reviewCount: (B.rating && B.rating.count) || 0,
-        open: true,
-        phone: B.phone || "",
-        whatsapp: B.wa || B.phone || "",
-        email: B.email || "",
-        address: B.address || "",
-        city: ""
-      },
-      settings: {
-        currency: B.currency || "KES",
-        delivery: allowFulfilment
-          ? { available: true, fee: 200, freeOver: B.freeOver || 0, time: "Same day", note: "Standard delivery" }
-          : { available: false, fee: 0, freeOver: 0 },
-        pickup: allowFulfilment
-          ? { available: true, note: B.address || "Pick up at shop" }
-          : { available: false },
-        minOrder: 0,
-        payments: allowFulfilment ? ["mpesa", "cod"] : ["mpesa", "pay_at_venue"],
-        whatsappOrdering: !!B.wa,
-        hours: (B.hours && B.hours[0] && B.hours[0].text) || "Mon–Sat"
-      },
-      categories: (CATS.length ? CATS : [{ id: "all", name: "All Items", icon: "sparkle" }]).map(function (c) {
-        return { id: c.id, name: c.name, icon: "sparkle" };
-      }),
-      products: ITEMS.map(function (p) {
-        var imgs = (p.images && p.images.length) ? p.images : (p.image ? [p.image] : [FALLBACK_IMG]);
-        return {
-          id: p.id,
-          category: p.cid || (CATS[0] && CATS[0].id) || "all",
-          type: p.kind === "service" ? "service" : "product",
-          name: p.name,
-          price: p.price,
-          compare_at_price: (p.compare && p.compare > p.price) ? p.compare : null,
-          available: !p.soldout,
-          description: p.desc,
-          images: imgs,
-          duration: p.duration ? (p.duration + " min") : undefined,
-          durationMin: p.duration || 60,
-          staffIds: (B.team && B.team.length ? B.team : [{ id: "any" }]).map(function (m) { return m.id; }),
-          variants: (p.variants && p.variants.length) ? [
-            { name: "Option", type: "option", options: p.variants.map(function (v) { return { label: v.title, available: true }; }) }
-          ] : [],
-          specs: []
-        };
-      }),
-      booking: {
-        enabled: !!B.bookingsOn,
-        timezone: "Africa/Nairobi",
-        hours: {
-          mon: [["09:00", "18:00"]], tue: [["09:00", "18:00"]], wed: [["09:00", "18:00"]],
-          thu: [["09:00", "18:00"]], fri: [["09:00", "18:00"]], sat: [["09:00", "17:00"]],
-          sun: []
-        },
-        bufferMinutes: 15,
-        depositPercent: 0,
-        policy: "Book online and we will confirm shortly.",
-        consultationFee: 0,
-        slots: ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"],
-        staff: (B.team && B.team.length ? B.team : [{ id: "any", name: "Specialist", photo: "" }]).map(function (m) {
-          return {
-            id: m.id,
-            name: m.name,
-            role: "Specialist",
-            photo: m.photo || "",
-            avatar: m.photo || "",
-            workingHours: { mon: [["09:00", "18:00"]], tue: [["09:00", "18:00"]], wed: [["09:00", "18:00"]], thu: [["09:00", "18:00"]], fri: [["09:00", "18:00"]], sat: [["09:00", "17:00"]], sun: [] }
-          };
-        }),
-        blockedDates: [],
-        reviews: (B.reviews || []).map(function (r) {
-          return { author: r.author, rating: r.stars, date: r.date, text: r.text };
-        })
+  function mapMobileStore(tplKey) {
+    onReady(function () {
+      var grid = document.querySelector(".product-cards-grid");
+      if (grid && ITEMS && ITEMS.length) {
+        var isService = tplKey === "zuribeauty";
+        var detailPage = isService ? "service.html" : "product.html";
+        grid.innerHTML = ITEMS.map(function (p) {
+          var priceStr = fmt(p.price);
+          var imgUrl = pic(p);
+          return '<a href="' + detailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-name="' + esc(p.name) + '">' +
+            '<div class="menu-card-img-box">' +
+            (p.featured ? '<span class="card-popular-badge">Popular</span>' : '') +
+            '<img src="' + esc(imgUrl) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
+            '<button class="card-add-btn" aria-label="Add ' + esc(p.name) + '" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'' + esc(p.id) + '\');">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+            '</button>' +
+            '</div>' +
+            '<div class="menu-card-price">' + esc(priceStr) + '</div>' +
+            '<h3 class="menu-card-title">' + esc(p.name) + '</h3>' +
+            '</a>';
+        }).join("");
       }
-    };
-    window.AQIVO_DB.stores = [tenant];
-    window.AQIVO_DB.defaultStore = B.slug;
-    window.AQIVO_DB.currency = B.currency || "KES";
-    try { localStorage.setItem("aqivo.lastShop", B.slug); } catch (e) {}
-  };
+    });
+  }
+
+  MAP.twosidesboutique = function () { mapMobileStore("twosidesboutique"); };
+  MAP.mavunofresh = function () { mapMobileStore("mavunofresh"); };
+  MAP.brewandbites = function () { mapMobileStore("brewandbites"); };
+  MAP.zuribeauty = function () { mapMobileStore("zuribeauty"); };
 
   if (MAP[KEY]) MAP[KEY]();
 })();

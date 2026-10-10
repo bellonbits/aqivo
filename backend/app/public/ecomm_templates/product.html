@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Redirecting to Product Details...</title>
+  <script>
+    (function () {
+      var search = window.location.search || '';
+      var hash = window.location.hash || '';
+      var m = search.match(/[?&]shop=([^&]+)/);
+      var shop = m ? decodeURIComponent(m[1]) : '';
+
+      if (shop === 'twosides' || shop === 'twosidesboutique') {
+        window.location.replace('twosidesboutique/product.html' + search + hash);
+      } else if (shop === 'mavuno' || shop === 'mavunofresh') {
+        window.location.replace('mavunofresh/product.html' + search + hash);
+      } else if (shop === 'zuri' || shop === 'zuribeauty') {
+        window.location.replace('zuribeauty/service.html' + search + hash);
+      } else {
+        window.location.replace('brewandbites/product.html' + search + hash);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p>Loading product details... <a href="brewandbites/product.html">Click here if not redirected</a>.</p>
+</body>
+</html>

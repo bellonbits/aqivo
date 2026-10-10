@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Receipt — Brew & Bites</title>
+  <meta name="description" content="Official order receipt for Brew & Bites artisan coffee & kitchen. Powered by Aqivo." />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/mobile-store.css" />
+
+  <style>
+    body {
+      background: #F3F4F6;
+      color: #111827;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px 60px;
+      margin: 0;
+    }
+
+    .receipt-page-header {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .receipt-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #92400E;
+      text-decoration: none;
+      padding: 8px 14px;
+      background: #FFFFFF;
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: all 0.15s ease;
+    }
+    .receipt-back-btn:hover {
+      background: #FFFBEB;
+      color: #78350F;
+      transform: translateY(-1px);
+    }
+
+    .receipt-badge-top {
+      font-size: 11px;
+      font-weight: 700;
+      color: #D97706;
+      background: #FEF3C7;
+      padding: 5px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .receipt-wrapper {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .receipt-controls-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+      width: 100%;
+    }
+
+    .receipt-ctrl-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: 1px solid #E5E7EB;
+      background: #FFFFFF;
+      color: #111827;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      text-decoration: none;
+    }
+    .receipt-ctrl-btn:hover {
+      background: #F9FAFB;
+      border-color: #D1D5DB;
+      transform: translateY(-1px);
+    }
+    .receipt-ctrl-btn.primary {
+      background: #D97706;
+      color: #FFFFFF;
+      border-color: #D97706;
+    }
+    .receipt-ctrl-btn.primary:hover {
+      background: #B45309;
+    }
+    .receipt-ctrl-btn.whatsapp {
+      background: #25D366;
+      color: #FFFFFF;
+      border-color: #25D366;
+    }
+    .receipt-ctrl-btn.whatsapp:hover {
+      background: #1EBE5D;
+    }
+
+    .receipt-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #111827;
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 12px 22px;
+      border-radius: 9999px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+      pointer-events: none;
+    }
+    .receipt-toast.active {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        padding: 0 !important;
+      }
+      .receipt-page-header,
+      .receipt-controls-bar,
+      .receipt-status-manager,
+      .receipt-toast {
+        display: none !important;
+      }
+      .receipt-wrapper {
+        max-width: 480px !important;
+        margin: 0 auto !important;
+      }
+      #aqivo-receipt-card {
+        box-shadow: none !important;
+        border: 1px solid #E5E7EB !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation & Return -->
+  <header class="receipt-page-header">
+    <a href="index.html" class="receipt-back-btn" id="receipt-back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Menu
+    </a>
+    <div class="receipt-badge-top">
+      Verified Aqivo Receipt
+    </div>
+  </header>
+
+  <!-- Branded Receipt Container -->
+  <main class="receipt-wrapper">
+    <div id="receipt-card-mount">
+      <!-- Receipt Card Rendered via JS -->
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="receipt-controls-bar">
+      <button type="button" class="receipt-ctrl-btn primary" onclick="printReceiptDoc()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / PDF
+      </button>
+      <button type="button" class="receipt-ctrl-btn whatsapp" onclick="shareReceiptDoc()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        WhatsApp
+      </button>
+      <button type="button" class="receipt-ctrl-btn" onclick="copyReceiptDoc()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy Link
+      </button>
+    </div>
+
+    <!-- Merchant Payment Status Simulator -->
+    <div class="receipt-status-manager">
+      <div class="receipt-manager-title">
+        <span>Payment Status Manager</span>
+        <span style="font-size:10px; font-weight:400; color:#9CA3AF;">Live receipt update</span>
+      </div>
+      <div class="receipt-status-chips">
+        <button type="button" class="receipt-status-chip active" id="btn-status-awaiting" onclick="setReceiptPaymentStatus('Awaiting payment confirmation')">Awaiting Confirmation</button>
+        <button type="button" class="receipt-status-chip" id="btn-status-reported" onclick="setReceiptPaymentStatus('Payment reported (Customer notified seller)')">Payment Reported</button>
+        <button type="button" class="receipt-status-chip" id="btn-status-paid" onclick="setReceiptPaymentStatus('Paid (Confirmed by seller)')">Paid ✓</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="receipt-toast" id="receipt-toast">Details copied to clipboard!</div>
+
+  <script src="scripts/mobile-store.js"></script>
+  <script>
+    var currentReceiptOrder = null;
+
+    var DEFAULT_RECEIPT = {
+      orderId: 'AQ-20261010-003',
+      receiptNo: 'AQ-20261010-003',
+      store: 'BREW & BITES',
+      storeTagline: 'Artisan Coffee & Flame Fried Kitchen',
+      storeContact: 'Kilimani, Nairobi · 0733 123 456',
+      storePhone: '254733123456',
+      storeBrandColor: '#D97706',
+      storeIconBg: '#FEF3C7',
+      storeIconType: 'food',
+      createdAt: '2026-10-10T16:45:00.000Z',
+      dateFormatted: '10 Oct 2026',
+      customer: {
+        name: 'Brian Kamau',
+        phone: '0733 000 000'
+      },
+      fulfilment: 'delivery',
+      address: '12 Riverside Drive, Kilimani',
+      items: [
+        {
+          name: 'Streetwise 3 Meal (Extra Crispy)',
+          price: 800,
+          qty: 1
+        },
+        {
+          name: 'Kenyan AA Cold Brew (750ml)',
+          price: 450,
+          qty: 1
+        }
+      ],
+      subtotal: 1250,
+      discount: 200,
+      deliveryFee: 150,
+      deliveryFeeText: 'KSh 150 (Seller confirms)',
+      total: 1200,
+      currencySymbol: 'Ksh',
+      paymentMethod: 'Cash on Delivery',
+      paymentStatus: 'Awaiting payment confirmation',
+      orderStatus: 'Order confirmed'
+    };
+
+    function showToast(msg) {
+      var t = document.getElementById('receipt-toast');
+      if (!t) return;
+      t.textContent = msg;
+      t.classList.add('active');
+      setTimeout(function () { t.classList.remove('active'); }, 2600);
+    }
+
+    function renderOrder(order) {
+      currentReceiptOrder = order;
+      var mount = document.getElementById('receipt-card-mount');
+      if (mount && window.StoreApp) {
+        mount.innerHTML = window.StoreApp.renderReceiptHTML(order);
+      }
+      syncStatusChips(order.paymentStatus);
+    }
+
+    function syncStatusChips(status) {
+      var bWait = document.getElementById('btn-status-awaiting');
+      var bRep = document.getElementById('btn-status-reported');
+      var bPaid = document.getElementById('btn-status-paid');
+      if (!bWait || !bRep || !bPaid) return;
+
+      bWait.classList.remove('active');
+      bRep.classList.remove('active');
+      bPaid.classList.remove('active');
+
+      if (status === 'Paid' || status === 'Paid (Confirmed by seller)') {
+        bPaid.classList.add('active');
+      } else if (status && status.indexOf('reported') !== -1) {
+        bRep.classList.add('active');
+      } else {
+        bWait.classList.add('active');
+      }
+    }
+
+    function setReceiptPaymentStatus(newStatus) {
+      if (!currentReceiptOrder) return;
+      currentReceiptOrder.paymentStatus = newStatus;
+      
+      try {
+        var raw = localStorage.getItem('aqivo_orders');
+        if (raw) {
+          var list = JSON.parse(raw);
+          var found = list.find(function(it) {
+            return it.receiptNo === currentReceiptOrder.receiptNo || it.orderId === currentReceiptOrder.orderId;
+          });
+          if (found) {
+            found.paymentStatus = newStatus;
+            found.status = (newStatus.indexOf('Paid') !== -1 ? 'Paid' : (newStatus.indexOf('reported') !== -1 ? 'Payment reported' : 'Unpaid'));
+            localStorage.setItem('aqivo_orders', JSON.stringify(list));
+          }
+        }
+      } catch (e) {}
+
+      renderOrder(currentReceiptOrder);
+      showToast('Receipt updated: ' + newStatus);
+    }
+
+    function printReceiptDoc() {
+      window.print();
+    }
+
+    function shareReceiptDoc() {
+      if (!currentReceiptOrder || !window.StoreApp) return;
+      window.StoreApp.shareReceiptWhatsApp(currentReceiptOrder);
+    }
+
+    function copyReceiptDoc() {
+      if (!currentReceiptOrder) return;
+      var text = currentReceiptOrder.store + ' — Receipt No. ' + currentReceiptOrder.receiptNo + '\n' +
+        'Total: ' + (currentReceiptOrder.currencySymbol || 'Ksh') + ' ' + currentReceiptOrder.total + '\n' +
+        'Payment Method: ' + currentReceiptOrder.paymentMethod + '\n' +
+        'Payment Status: ' + currentReceiptOrder.paymentStatus + '\n' +
+        'Receipt URL: ' + window.location.href;
+      
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() {
+          showToast('Receipt details copied!');
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.createWebStorefront) {
+        window.createWebStorefront({ store: { name: 'Brew & Bites', whatsappPhone: '254733123456' } });
+      }
+
+      var params = new URLSearchParams(window.location.search);
+      var queryOrderId = params.get('orderId');
+
+      var orderToDisplay = null;
+
+      // 1. Look up orderId in localStorage
+      if (queryOrderId) {
+        try {
+          var raw = localStorage.getItem('aqivo_orders');
+          if (raw) {
+            var list = JSON.parse(raw);
+            orderToDisplay = list.find(function(it) {
+              return it.receiptNo === queryOrderId || it.orderId === queryOrderId;
+            });
+          }
+        } catch (e) {}
+      }
+
+      // 2. Fallback to latest Brew & Bites order in localStorage
+      if (!orderToDisplay) {
+        try {
+          var raw2 = localStorage.getItem('aqivo_orders');
+          if (raw2) {
+            var list2 = JSON.parse(raw2);
+            var foodOrder = list2.find(function(it) {
+              return it.store && (it.store.indexOf('BREW') !== -1 || it.store.indexOf('BITES') !== -1);
+            });
+            if (foodOrder) orderToDisplay = foodOrder;
+            else if (list2.length > 0) orderToDisplay = list2[0];
+          }
+        } catch (e) {}
+      }
+
+      // 3. Fallback to default restaurant receipt
+      if (!orderToDisplay) {
+        orderToDisplay = DEFAULT_RECEIPT;
+      }
+
+      renderOrder(orderToDisplay);
+    });
+  </script>
+</body>
+</html>
