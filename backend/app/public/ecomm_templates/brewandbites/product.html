@@ -402,7 +402,7 @@
 
         <div class="checkout-field" id="delivery-address-group" style="margin-top:12px;">
           <label class="checkout-label" for="checkout-address">Delivery Destination Address <span class="req">*</span></label>
-          <input type="text" id="checkout-address" class="checkout-input" value="12 Riverside Drive, Kilimani, Nairobi" placeholder="Estate, street, building, apartment/house no." autocomplete="street-address" />
+          <input type="text" id="checkout-address" class="checkout-input" value="" placeholder="Estate, street, building, apartment/house no." autocomplete="street-address" />
           <div class="checkout-helper-text">Rider delivery fee will be confirmed with the kitchen prior to dispatch.</div>
         </div>
 
@@ -614,18 +614,10 @@
         currencySymbol: 'Ksh',
         deliveryFee: 150,
         taxFee: 50,
-        defaultPromo: 'BREW20',
-        defaultDiscount: 200,
+        defaultPromo: '',
+        defaultDiscount: 0,
         whatsappPhone: '254733123456',
-        initialCart: [
-          {
-            id: 'streetwise-3',
-            name: 'Streetwise 3',
-            price: 700,
-            image: 'images/streetwise_3.jpg',
-            qty: 1
-          }
-        ],
+        initialCart: [],
         store: {
           name: 'Brew & Bites',
           products: [

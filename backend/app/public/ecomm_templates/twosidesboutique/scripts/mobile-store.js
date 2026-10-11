@@ -28,9 +28,9 @@
       store: config.store,
       currencySymbol: 'Ksh',
       cart: loadCartFromStorage(),
-      promoCode: config.defaultPromo || 'BREW20',
-      promoApplied: true,
-      promoDiscount: config.defaultDiscount || 200,
+      promoCode: config.defaultPromo || '',
+      promoApplied: !!(config.defaultPromo && config.defaultDiscount),
+      promoDiscount: config.defaultDiscount || 0,
       deliveryFee: config.deliveryFee !== undefined ? config.deliveryFee : 150,
       taxFee: config.taxFee !== undefined ? config.taxFee : 50,
       selectedPayment: 'mpesa',
@@ -82,7 +82,10 @@
       saveCartToStorage();
       var totalQty = state.cart.reduce(function (a, b) { return a + b.qty; }, 0);
       var badge = document.getElementById('nav-cart-badge');
-      if (badge) badge.textContent = totalQty;
+      if (badge) {
+        badge.textContent = totalQty;
+        badge.style.display = totalQty > 0 ? '' : 'none';
+      }
 
       var cartCountLabel = document.getElementById('cart-drawer-count');
       if (cartCountLabel) cartCountLabel.textContent = totalQty + (totalQty === 1 ? ' item' : ' items');

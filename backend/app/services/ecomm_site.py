@@ -248,8 +248,38 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str) -> str:
         headline = hero_content.get("headline")
         if headline:
             escaped_hl = _html.escape(headline)
-            # Replace primary headings in ecomm templates
             page = re.sub(r'(<h1[^>]*>).*?(</h1>)', rf'\g<1>{escaped_hl}\g<2>', page, count=1, flags=re.S)
+
+    # Clean demo hero description with real business tagline/description
+    hero_desc_text = business.tagline or business.description or (
+        f"Welcome to {business.name}. Browse our services and book online."
+        if (business.industry in ("salon", "barbershop", "beauty") or key == "zuribeauty")
+        else f"Welcome to {business.name}. Browse our catalogue and place your order online."
+    )
+    page = re.sub(r'<p class="hero-store-desc">.*?</p>', f'<p class="hero-store-desc">{_html.escape(hero_desc_text)}</p>', page, count=1, flags=re.S)
+
+    # Clean demo search placeholder
+    if business.industry in ("salon", "barbershop", "beauty") or key == "zuribeauty":
+        search_ph = "Search services..."
+    elif business.industry in ("restaurant", "food") or key == "brewandbites":
+        search_ph = "Search menu..."
+    else:
+        search_ph = "Search catalogue..."
+    page = re.sub(r'placeholder="Search[^"]*"', f'placeholder="{search_ph}"', page)
+
+    # Clean location label
+    if business.address:
+        page = page.replace('id="nav-location-label">Kilimani, Nairobi</span>', f'id="nav-location-label">{_html.escape(business.address)}</span>')
+
+    # Reset hardcoded nav cart badge to 0
+    page = re.sub(r'<span class="nav-cart-badge"[^>]*>.*?</span>', '<span class="nav-cart-badge" id="nav-cart-badge" style="display:none;">0</span>', page)
+
+    # Clean hardcoded checkout address values
+    page = re.sub(r'(id="checkout-address"[^>]*?)\s+value="[^"]*"', r'\1 value=""', page)
+
+    # Clean demo initialCart and discounts in inline script
+    page = re.sub(r'initialCart:\s*\[[\s\S]*?\](?=,\s*\n|\s*store|\s*defaultPromo|\s*\})', 'initialCart: []', page)
+    page = re.sub(r'defaultDiscount:\s*\d+', 'defaultDiscount: 0', page)
 
     # Render custom sections (e.g. rich text, custom html, video, ig feed, google reviews, collections)
     draft_mode = bool(ctx.get("draft") or ctx.get("editing"))
@@ -279,10 +309,13 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str) -> str:
         page = page.replace("</body>", bag_html + "</body>", 1)
 
     inject = f'<script>window.__BZ={_safe_json(data)};</script>'
-    marker = '<script src="scripts/data.js"></script>'
     bridge = f'<script src="{URL_BASE}/_bridge.js"></script>'
+    marker = '<script src="scripts/data.js"></script>'
+    marker_store = '<script src="scripts/mobile-store.js"></script>'
     if marker in page:
         page = page.replace(marker, marker + inject + bridge, 1)
+    elif marker_store in page:
+        page = page.replace(marker_store, inject + bridge + marker_store, 1)
     else:  # no data.js: still inject before the app script
         page = page.replace("</body>", inject + bridge + "</body>", 1)
     return page

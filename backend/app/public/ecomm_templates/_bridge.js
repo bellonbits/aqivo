@@ -330,25 +330,248 @@
 
   function mapMobileStore(tplKey) {
     onReady(function () {
-      var grid = document.querySelector(".product-cards-grid");
-      if (grid && ITEMS && ITEMS.length) {
-        var isService = tplKey === "zuribeauty";
-        var detailPage = isService ? "service.html" : "product.html";
-        grid.innerHTML = ITEMS.map(function (p) {
-          var priceStr = fmt(p.price);
-          var imgUrl = pic(p);
-          return '<a href="' + detailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-name="' + esc(p.name) + '">' +
-            '<div class="menu-card-img-box">' +
-            (p.featured ? '<span class="card-popular-badge">Popular</span>' : '') +
-            '<img src="' + esc(imgUrl) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
-            '<button class="card-add-btn" aria-label="Add ' + esc(p.name) + '" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'' + esc(p.id) + '\');">' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
-            '</button>' +
-            '</div>' +
-            '<div class="menu-card-price">' + esc(priceStr) + '</div>' +
-            '<h3 class="menu-card-title">' + esc(p.name) + '</h3>' +
-            '</a>';
-        }).join("");
+      var isService = tplKey === "zuribeauty" || !B.is_commerce;
+      var detailPage = isService ? "service.html" : "product.html";
+
+      // 1. Update branding, titles, hero copy
+      document.querySelectorAll(".hero-store-title, .site-brand-logo span, .site-brand-logo").forEach(function (el) {
+        if (el.tagName === "SPAN" || el.classList.contains("hero-store-title")) el.textContent = B.name;
+      });
+
+      var heroDesc = document.querySelector(".hero-store-desc");
+      if (heroDesc) {
+        heroDesc.textContent = B.tagline || B.about || ("Welcome to " + B.name + (isService ? ". Browse our services and book online." : ". Browse our catalogue and place your order online."));
+      }
+
+      var searchInput = document.querySelector(".nav-search-bar input");
+      if (searchInput) {
+        searchInput.placeholder = isService ? "Search services..." : (tplKey === "brewandbites" ? "Search menu..." : "Search catalogue...");
+      }
+
+      var locLabel = document.getElementById("nav-location-label");
+      var locText = B.address || "";
+      if (locLabel) {
+        if (locText) {
+          locLabel.textContent = locText;
+        } else {
+          var lp = document.querySelector(".nav-location-picker");
+          if (lp) lp.style.display = "none";
+        }
+      }
+
+      var hoursEl = document.querySelector(".hero-hours-text");
+      if (hoursEl) {
+        if (B.hours && B.hours.length) {
+          var todayIdx = (new Date().getDay() + 6) % 7;
+          var todayH = B.hours[todayIdx];
+          if (todayH) {
+            hoursEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Open Today: ' + esc(todayH.text);
+          }
+        } else {
+          hoursEl.style.display = "none";
+        }
+      }
+
+      var ratingChip = document.querySelector(".hero-meta-chip.rating");
+      if (ratingChip) {
+        if (B.rating && B.rating.average && B.rating.count) {
+          ratingChip.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' + Number(B.rating.average).toFixed(1) + ' (' + B.rating.count + ')';
+        } else if (B.reviews && B.reviews.length) {
+          ratingChip.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> ' + B.reviews.length + ' reviews';
+        } else {
+          ratingChip.style.display = "none";
+        }
+      }
+
+      var allChips = document.querySelectorAll(".hero-meta-chip");
+      if (allChips.length >= 3) {
+        if (isService) {
+          allChips[0].innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Appointments';
+        }
+        if (!locText && allChips[2]) {
+          allChips[2].style.display = "none";
+        }
+      }
+
+      var heroImg = document.querySelector(".hero-platter-img");
+      if (heroImg) {
+        if (B.logo) {
+          heroImg.src = B.logo;
+        } else if (B.gallery && B.gallery.length) {
+          heroImg.src = B.gallery[0].src;
+        }
+      }
+
+      // 2. Synchronize StoreApp store products & clear demo cart items
+      var storageKey = 'aqivo_cart_' + (B.name || '').replace(/\s+/g, '_').toLowerCase();
+      try {
+        var rawCart = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        if (Array.isArray(rawCart)) {
+          var cleanCart = rawCart.filter(function (ci) { return !!byId[ci.id]; });
+          localStorage.setItem(storageKey, JSON.stringify(cleanCart));
+        }
+      } catch (e) {}
+
+      if (window.StoreApp) {
+        if (!window.StoreApp.store) window.StoreApp.store = {};
+        window.StoreApp.store.name = B.name;
+        window.StoreApp.store.whatsappPhone = B.phone || B.wa || "";
+        window.StoreApp.store.products = ITEMS;
+        if (window.StoreApp.cart) {
+          window.StoreApp.cart = window.StoreApp.cart.filter(function (ci) { return !!byId[ci.id]; });
+          window.StoreApp.updateCartUI();
+        }
+      }
+
+      // 3. Clear fake demo addresses in checkout
+      var chkAddr = document.getElementById("checkout-address");
+      if (chkAddr) {
+        if (chkAddr.value && (chkAddr.value.indexOf("Riverside") !== -1 || chkAddr.value.indexOf("Rose Avenue") !== -1)) {
+          chkAddr.value = "";
+        }
+        if (locText) chkAddr.placeholder = locText;
+      }
+      var promoInp = document.getElementById("cart-promo-input");
+      if (promoInp && (promoInp.value === "FARM15" || promoInp.value === "STYLE10" || promoInp.value === "BREW20" || promoInp.value === "ZURI20")) {
+        promoInp.value = "";
+      }
+
+      // 4. Booking specific adjustments (no delivery or pickup for salon/booking)
+      if (isService) {
+        var toggleGroup = document.querySelector(".checkout-toggle-group");
+        if (toggleGroup) {
+          var blk = toggleGroup.closest(".checkout-section-block");
+          if (blk) blk.style.display = "none";
+        }
+        var delGroup = document.getElementById("delivery-address-group");
+        if (delGroup) delGroup.style.display = "none";
+        var pickInfo = document.getElementById("pickup-location-info");
+        if (pickInfo) pickInfo.style.display = "none";
+        var delSumRow = document.getElementById("checkout-delivery-row");
+        if (delSumRow) delSumRow.style.display = "none";
+        var cartSummary = document.getElementById("cart-summary-box");
+        if (cartSummary) {
+          cartSummary.querySelectorAll(".cart-summary-line").forEach(function (line) {
+            if (line.textContent.indexOf("Delivery") !== -1 || line.textContent.indexOf("Sanitation") !== -1) {
+              line.style.display = "none";
+            }
+          });
+        }
+        var chkBtn = document.getElementById("cart-checkout-btn");
+        if (chkBtn) chkBtn.textContent = "Book Appointment";
+        if (window.StoreApp) {
+          window.StoreApp.deliveryFee = 0;
+          window.StoreApp.taxFee = 0;
+          window.StoreApp.updateCheckoutSummary && window.StoreApp.updateCheckoutSummary();
+        }
+      }
+
+      // 5. Build dynamic category filter chips
+      var catStrip = document.querySelector(".category-filter-strip");
+      var catContainer = document.querySelector(".category-filter-container");
+      if (catContainer) {
+        if (CATS && CATS.length > 0) {
+          var chipsHtml = '<button class="cat-chip-btn active" data-cat="all" onclick="window.StoreApp.filterCategory(\'all\')">All</button>';
+          CATS.forEach(function (c) {
+            var catSlug = "cat-" + c.id;
+            chipsHtml += '<button class="cat-chip-btn" data-cat="' + esc(catSlug) + '" onclick="window.StoreApp.filterCategory(\'' + esc(catSlug) + '\')">' + esc(c.name) + '</button>';
+          });
+          catContainer.innerHTML = chipsHtml;
+          if (catStrip) catStrip.style.display = "";
+        } else {
+          if (catStrip) catStrip.style.display = "none";
+        }
+      }
+
+      // 6. Build dynamic catalogue content (.main-page-content)
+      var main = document.querySelector(".main-page-content");
+      if (main) {
+        main.innerHTML = ""; // completely remove all hardcoded demo sections
+        if (!ITEMS || ITEMS.length === 0) {
+          main.innerHTML = '<div style="text-align:center; padding: 64px 20px; color:#71717A;">' +
+            '<h3 style="font-size:18px; font-weight:700; color:#18181B; margin-bottom:8px;">No items added to catalogue yet</h3>' +
+            '<p style="font-size:14px;">Products and services added in your dashboard will appear here automatically.</p>' +
+            '</div>';
+        } else {
+          var groups = [];
+          if (CATS && CATS.length > 0) {
+            CATS.forEach(function (c) {
+              var inCat = ITEMS.filter(function (it) { return String(it.cid) === String(c.id); });
+              if (inCat.length) {
+                groups.push({ id: "cat-" + c.id, name: c.name, items: inCat });
+              }
+            });
+            var uncategorized = ITEMS.filter(function (it) {
+              return !it.cid || !CATS.some(function (c) { return String(c.id) === String(it.cid); });
+            });
+            if (uncategorized.length) {
+              groups.push({ id: "uncategorized", name: isService ? "Other Services" : "Other Products", items: uncategorized });
+            }
+          }
+          if (groups.length === 0) {
+            groups.push({ id: "all", name: isService ? "Our Services" : "Catalogue", items: ITEMS });
+          }
+
+          groups.forEach(function (g) {
+            var sec = document.createElement("section");
+            sec.className = "catalog-section";
+            sec.setAttribute("data-section-cat", g.id);
+            sec.innerHTML = '<div class="section-title-row">' +
+              '<h2 class="section-headline">' + esc(g.name) + '</h2>' +
+              '<span class="section-all-link" onclick="window.StoreApp.filterCategory(\'' + esc(g.id) + '\')">' +
+              'All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 18 15 12 9 6"/></svg>' +
+              '</span></div>' +
+              '<div class="product-cards-grid">' +
+              g.items.map(function (p) {
+                var priceStr = fmt(p.price);
+                var imgUrl = pic(p);
+                return '<a href="' + detailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-name="' + esc(p.name) + '">' +
+                  '<div class="menu-card-img-box">' +
+                  (p.featured ? '<span class="card-popular-badge">Popular</span>' : '') +
+                  '<img src="' + esc(imgUrl) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
+                  '<button class="card-add-btn" aria-label="Add ' + esc(p.name) + '" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'' + esc(p.id) + '\');">' +
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+                  '</button>' +
+                  '</div>' +
+                  '<div class="menu-card-price">' + esc(priceStr) + '</div>' +
+                  '<h3 class="menu-card-title">' + esc(p.name) + '</h3>' +
+                  '</a>';
+              }).join("") +
+              '</div>';
+            main.appendChild(sec);
+          });
+        }
+      }
+
+      // 7. Product / Service Detail Page (PDP)
+      var pdpContainer = document.getElementById("pdp-page-container");
+      if (pdpContainer && ITEMS && ITEMS.length) {
+        var urlParams = new URLSearchParams(window.location.search);
+        var prodId = urlParams.get("id");
+        var activeP = ITEMS.find(function (x) { return x.id === prodId; }) || ITEMS[0];
+        if (activeP) {
+          var crumb = document.getElementById("pdp-crumb-title"); if (crumb) crumb.textContent = activeP.name;
+          var title = document.getElementById("pdp-item-title"); if (title) title.textContent = activeP.name;
+          var hImg = document.getElementById("pdp-hero-img"); if (hImg) { hImg.src = pic(activeP); hImg.alt = activeP.name; }
+          var desc = document.getElementById("pdp-description-text"); if (desc) desc.textContent = activeP.desc || "";
+          var prc = document.getElementById("pdp-price-bold"); if (prc) prc.textContent = fmt(activeP.price);
+        }
+        var simGrid = document.querySelector(".similar-products-grid");
+        if (simGrid) {
+          var related = ITEMS.filter(function (x) { return !activeP || x.id !== activeP.id; }).slice(0, 4);
+          simGrid.innerHTML = related.map(function (p) {
+            return '<a href="' + detailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-name="' + esc(p.name) + '">' +
+              '<div class="menu-card-img-box">' +
+              '<img src="' + esc(pic(p)) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
+              '<button class="card-add-btn" aria-label="Add ' + esc(p.name) + '" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'' + esc(p.id) + '\');">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+              '</button>' +
+              '</div>' +
+              '<div class="menu-card-price">' + esc(fmt(p.price)) + '</div>' +
+              '<h3 class="menu-card-title">' + esc(p.name) + '</h3>' +
+              '</a>';
+          }).join("");
+        }
       }
     });
   }
