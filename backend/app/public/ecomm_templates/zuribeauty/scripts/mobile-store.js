@@ -10,6 +10,34 @@
   'use strict';
 
   window.createWebStorefront = function (config) {
+    var bz = window.__BZ;
+    if (!bz) {
+      try {
+        var savedBz = sessionStorage.getItem("aqivo_active_bz");
+        if (savedBz) bz = JSON.parse(savedBz);
+      } catch (e) {}
+    }
+    if (bz && bz.items && bz.items.length) {
+      config.store = config.store || {};
+      config.store.name = bz.name || config.store.name;
+      config.store.whatsappPhone = (bz.phone || bz.wa || config.store.whatsappPhone || '').replace(/\+/g, '').replace(/\s+/g, '');
+      config.store.products = bz.items.map(function (item) {
+        return {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image || '',
+          category: item.category || '',
+          desc: item.desc || '',
+          kind: item.kind || 'product',
+          variants: item.variants || []
+        };
+      });
+      if (bz.symbol || bz.currency) {
+        config.currencySymbol = bz.symbol || bz.currency;
+      }
+    }
+
     var storeName = (config.store && config.store.name) || 'Store';
     var storageKey = 'aqivo_cart_' + storeName.replace(/\s+/g, '_').toLowerCase();
 
@@ -1328,49 +1356,7 @@
     /* Product / Service Description generator */
     function getProductDescription(prod) {
       if (prod && (prod.desc || prod.description)) return prod.desc || prod.description;
-      var name = (prod.name || '').toLowerCase();
-      if (name.indexOf('streetwise 3 meal') > -1) {
-        return 'Signature KFC-style meal featuring 3 pieces of golden, crunchy fried chicken seasoned with our 11 secret herbs and spices, a large portion of crisp spiced fries, and a chilled 350ml beverage.';
-      } else if (name.indexOf('streetwise 3') > -1) {
-        return 'Three succulent pieces of fresh Kenyan bone-in chicken fried to crispy golden perfection, accompanied by a generous serving of hot crispy chips.';
-      } else if (name.indexOf('colonel rice') > -1) {
-        return 'Two pieces of crispy fried chicken served alongside fragrant turmeric-seasoned spiced rice and rich savory gravy reduction.';
-      } else if (name.indexOf('chipotle') > -1) {
-        return 'Six pieces of prime crunchy chicken wings dunked generously in our chef-crafted smoky maple chili glaze, topped with toasted sesame seeds and fresh scallions.';
-      } else if (name.indexOf('wings bucket') > -1) {
-        return 'Ten plump, crunchy wings bathed in rich hickory smoke barbecue sauce. Perfect for sharing with friends or family gatherings.';
-      } else if (name.indexOf('drumsticks') > -1) {
-        return 'Four plump, juicy chicken drumsticks marinated in habanero peri-peri and citrus spice, fried to golden fiery perfection.';
-      } else if (name.indexOf('wings') > -1) {
-        return 'Six pieces of prime chicken wings seasoned with crunchy golden breading and fried fresh to order. Served with garlic dip.';
-      } else if (name.indexOf('pizza') > -1) {
-        return 'Handcrafted stone-baked artisan pizza made with 48-hour fermented sourdough, San Marzano tomato reduction, fresh mozzarella, and savory toppings.';
-      } else if (name.indexOf('burger') > -1) {
-        return 'Two smash-seared Kenyan prime beef patties, melted sharp cheddar, caramelized onions, house pickles, and secret burger sauce on a toasted brioche bun.';
-      } else if (name.indexOf('cold brew') > -1) {
-        return 'Single-origin Kenyan AA Arabica beans steeped cold for 18 hours, resulting in rich dark notes of blackcurrant, dark chocolate, and crisp refreshing clarity.';
-      } else if (name.indexOf('wrap dress') > -1) {
-        return 'Handcrafted from coastal Kenyan Kikoi woven cotton, featuring an adjustable draped tie waist, flattering deep V-neckline, and side pockets tailored in our Kilimani atelier.';
-      } else if (name.indexOf('silk slip') > -1) {
-        return 'Bias-cut 100% pure mulberry silk dress designed to drape naturally over the body. Features French seams and delicate adjustable straps.';
-      } else if (name.indexOf('tote bag') > -1) {
-        return 'Hand-stitched from full-grain vegetable-tanned Kenyan leather, fitted with solid brass hardware, suede lining, and reinforced carry handles.';
-      } else if (name.indexOf('linen') > -1) {
-        return 'Crafted from 100% pre-washed breathable European flax linen. Soft on skin, moisture-wicking, and naturally tailored for warm Nairobi afternoons.';
-      } else if (name.indexOf('avocado') > -1) {
-        return 'Export-grade Hass avocados grown organically in the volcanic soils of Murang’a. Creamy, nutrient-rich, picked fresh daily.';
-      } else if (name.indexOf('box') > -1) {
-        return 'Carefully selected weekly farm harvest containing spinach, sukuma wiki, carrots, bell peppers, courgettes, and red onions packed in biodegradable boxes.';
-      } else if (name.indexOf('braid') > -1) {
-        return 'Specialist knotless tension-free braids installed by senior stylists. Lightweight, neat parts, bohemian wavy curl ends, and finished with botanical tea tree scalp oil.';
-      } else if (name.indexOf('manicure') > -1) {
-        return 'Full Russian cuticle care, nail strengthening base, precision gel sculpting, and high-shine LED cured topcoat lasting up to 3 weeks.';
-      } else if (name.indexOf('facial') > -1) {
-        return 'Deep pore steam cleanse, ultrasonic exfoliation, hyaluronic acid moisture infusion, and relaxing jade roller lymphatic drainage massage.';
-      } else if (name.indexOf('oil') > -1 || name.indexOf('butter') > -1) {
-        return 'Pure cold-pressed Kenyan botanical beauty formula, rich in essential fatty acids and antioxidants for glowing skin and nourished hair.';
-      }
-      return 'Freshly prepared and curated with premium ingredients and craftsmanship. Guaranteed highest quality standards with fast Nairobi delivery.';
+      return '';
     }
 
     /* Modal Quick-view detail */
@@ -1525,21 +1511,131 @@
       // Breadcrumb & Title
       var crumbTitle = document.getElementById('pdp-crumb-title');
       if (crumbTitle) crumbTitle.textContent = prod.name;
+      var crumbCat = document.getElementById('pdp-crumb-cat');
+      if (crumbCat) crumbCat.textContent = prod.category || (prod.kind === 'service' ? 'Services' : 'Catalogue');
 
       var titleEl = document.getElementById('pdp-item-title');
       if (titleEl) titleEl.textContent = prod.name;
 
+      var catTag = document.getElementById('pdp-category-tag');
+      if (catTag) catTag.textContent = prod.category || state.store.name || '';
+
       // Image & Thumbnails
       var heroImg = document.getElementById('pdp-hero-img');
       if (heroImg) {
-        heroImg.src = prod.image;
+        heroImg.src = prod.image || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#eceff3"/><text x="200" y="210" font-size="22" text-anchor="middle" fill="#9aa3af" font-family="sans-serif">No image</text></svg>');
         heroImg.alt = prod.name;
       }
 
-      var thumb0 = document.getElementById('pdp-thumb-0');
-      if (thumb0) {
-        var timg = thumb0.querySelector('img');
-        if (timg) timg.src = prod.image;
+      var thumbStrip = document.querySelector('.pdp-thumbnails-strip');
+      if (thumbStrip) {
+        if (prod.images && prod.images.length > 1) {
+          thumbStrip.style.display = 'flex';
+          thumbStrip.innerHTML = prod.images.map(function (u, idx) {
+            return '<div class="pdp-thumb-item ' + (idx === 0 ? 'active' : '') + '" onclick="window.StoreApp.changePdpImage(\'' + u + '\', this)">' +
+              '<img src="' + u + '" alt="' + prod.name + ' ' + (idx + 1) + '" />' +
+              '</div>';
+          }).join('');
+        } else {
+          thumbStrip.style.display = 'none';
+        }
+      }
+
+      // Options / Variants
+      var optSection = document.querySelector('.pdp-options-section');
+      if (optSection) {
+        if (prod.variants && prod.variants.length > 0) {
+          optSection.style.display = 'block';
+          optSection.innerHTML = '<div class="pdp-option-group">' +
+            '<div class="pdp-option-header"><span class="pdp-option-title">Option / Variant:</span><span class="pdp-option-helper">Choose 1</span></div>' +
+            '<div class="pdp-chips-grid">' +
+            prod.variants.map(function (v, idx) {
+              var vExtra = (v.price && v.price > prod.price) ? (v.price - prod.price) : 0;
+              return '<button type="button" class="pdp-chip-btn ' + (idx === 0 ? 'active' : '') + '" onclick="window.StoreApp.selectPdpOption(this, 1, \'' + v.title + '\', ' + vExtra + ')">' +
+                v.title + (vExtra > 0 ? ' (+' + state.currencySymbol + ' ' + fmt(vExtra) + ')' : '') +
+                '</button>';
+            }).join('') +
+            '</div></div>';
+        } else {
+          optSection.style.display = 'none';
+        }
+      }
+
+      // Rating meta & prep badges
+      var revChip = document.querySelector('.pdp-verified-reviews');
+      if (revChip) revChip.style.display = 'none';
+      var prepChip = document.querySelector('.pdp-prep-chip');
+      if (prepChip) {
+        if (prod.kind === 'service') {
+          prepChip.textContent = 'Service';
+          prepChip.style.display = 'inline-block';
+        } else {
+          prepChip.style.display = 'none';
+        }
+      }
+      var vatLabel = document.querySelector('.pdp-vat-label');
+      if (vatLabel) vatLabel.textContent = 'Inclusive of all applicable taxes';
+      var heroBadge = document.getElementById('pdp-hero-badge');
+      if (heroBadge) {
+        if (prod.featured) {
+          heroBadge.textContent = 'Popular';
+          heroBadge.style.display = 'inline-block';
+        } else if (prod.kind === 'service') {
+          heroBadge.textContent = 'Service';
+          heroBadge.style.display = 'inline-block';
+        } else {
+          heroBadge.style.display = 'none';
+        }
+      }
+
+      // Trust Badges Strip
+      var trustGrid = document.querySelector('.pdp-trust-grid');
+      if (trustGrid) {
+        trustGrid.innerHTML = '<div class="pdp-trust-item">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
+          '<span class="trust-title">Verified Business</span>' +
+          '<span class="trust-sub">Direct from ' + (state.store.name || 'Seller') + '</span>' +
+          '</div>' +
+          '<div class="pdp-trust-item">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+          '<span class="trust-title">' + (prod.kind === 'service' ? 'Flexible Booking' : 'Fast Fulfilment') + '</span>' +
+          '<span class="trust-sub">Order via WhatsApp or Online</span>' +
+          '</div>' +
+          '<div class="pdp-trust-item">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>' +
+          '<span class="trust-title">Direct Payment</span>' +
+          '<span class="trust-sub">M-Pesa, Cash or Bank</span>' +
+          '</div>';
+      }
+
+      // Deep Details Accordions
+      var accGroup = document.querySelector('.pdp-accordion-group');
+      if (accGroup) {
+        accGroup.innerHTML = '<div class="pdp-accordion-item open">' +
+          '<div class="pdp-accordion-header">' +
+          '<span>' + (prod.kind === 'service' ? 'Service Information' : 'Product Details') + '</span>' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>' +
+          '</div>' +
+          '<div class="pdp-accordion-content">' +
+          (prod.desc || prod.description || ('High quality ' + (prod.kind === 'service' ? 'service' : 'item') + ' provided directly by ' + (state.store.name || 'us') + '.')) +
+          '</div>' +
+          '</div>' +
+          '<div class="pdp-accordion-item">' +
+          '<div class="pdp-accordion-header">' +
+          '<span>' + (prod.kind === 'service' ? 'Booking & Appointment Info' : 'Fulfilment & Delivery Information') + '</span>' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>' +
+          '</div>' +
+          '<div class="pdp-accordion-content">' +
+          (prod.kind === 'service' ? 'Book your appointment online or contact us directly on WhatsApp to confirm availability.' : 'Orders are prepared and dispatched directly by the seller. Track status and coordinate delivery on WhatsApp.') +
+          '</div>' +
+          '</div>';
+      }
+
+      // Back button
+      var backLink = document.querySelector('.pdp-back-link');
+      if (backLink) {
+        backLink.textContent = '← Back to ' + (state.store.name || 'Store');
+        backLink.setAttribute('href', 'index.html');
       }
 
       // Base Price
@@ -1554,13 +1650,13 @@
         if (qtyVal) qtyVal.textContent = state.pdpQty < 10 ? '0' + state.pdpQty : state.pdpQty;
 
         var addBtn = document.getElementById('pdp-add-bag-btn');
-        if (addBtn) addBtn.textContent = 'Add to Bag — ' + state.currencySymbol + ' ' + fmt(totalPrice);
+        if (addBtn) addBtn.textContent = (prod.kind === 'service' ? 'Book Service — ' : 'Add to Bag — ') + state.currencySymbol + ' ' + fmt(totalPrice);
 
         var mobPrice = document.getElementById('pdp-mobile-price');
         if (mobPrice) mobPrice.textContent = state.currencySymbol + ' ' + fmt(totalPrice);
 
         var mobAddBtn = document.getElementById('pdp-mobile-add-btn');
-        if (mobAddBtn) mobAddBtn.textContent = 'Add to Bag (' + (state.pdpQty < 10 ? '0' + state.pdpQty : state.pdpQty) + ')';
+        if (mobAddBtn) mobAddBtn.textContent = (prod.kind === 'service' ? 'Book (' : 'Add to Bag (') + (state.pdpQty < 10 ? '0' + state.pdpQty : state.pdpQty) + ')';
       }
 
       updatePdpPriceUI();

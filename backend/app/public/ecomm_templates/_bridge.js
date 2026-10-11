@@ -613,12 +613,79 @@
         var prodId = urlParams.get("id");
         var activeP = ITEMS.find(function (x) { return x.id === prodId; }) || ITEMS[0];
         if (activeP) {
+          if (activeP.name) document.title = activeP.name + " — " + B.name;
+          if (window.StoreApp && window.StoreApp.state) {
+            window.StoreApp.state.activeDetailItem = activeP;
+            window.StoreApp.state.store = window.StoreApp.state.store || {};
+            window.StoreApp.state.store.name = B.name;
+            window.StoreApp.state.store.products = ITEMS;
+          }
           var crumb = document.getElementById("pdp-crumb-title"); if (crumb) crumb.textContent = activeP.name;
           var crumbCat = document.getElementById("pdp-crumb-cat"); if (crumbCat) crumbCat.textContent = activeP.category || (isService ? "Services" : "Catalogue");
           var title = document.getElementById("pdp-item-title"); if (title) title.textContent = activeP.name;
           var catTag = document.getElementById("pdp-category-tag"); if (catTag) catTag.textContent = activeP.category || B.name;
           var hImg = document.getElementById("pdp-hero-img"); if (hImg) { hImg.src = pic(activeP); hImg.alt = activeP.name; }
-          var thumb0 = document.querySelector("#pdp-thumb-0 img"); if (thumb0) thumb0.src = pic(activeP);
+
+          // Thumbnails
+          var thumbStrip = document.querySelector(".pdp-thumbnails-strip");
+          if (thumbStrip) {
+            if (activeP.images && activeP.images.length > 1) {
+              thumbStrip.style.display = "flex";
+              thumbStrip.innerHTML = activeP.images.map(function (u, idx) {
+                return '<div class="pdp-thumb-item ' + (idx === 0 ? "active" : "") + '" onclick="window.StoreApp.changePdpImage(\'' + esc(u) + '\', this)">' +
+                  '<img src="' + esc(u) + '" alt="' + esc(activeP.name) + ' ' + (idx + 1) + '" />' +
+                  '</div>';
+              }).join("");
+            } else {
+              thumbStrip.style.display = "none";
+            }
+          }
+
+          // Options / Variants
+          var optSection = document.querySelector(".pdp-options-section");
+          if (optSection) {
+            if (activeP.variants && activeP.variants.length > 0) {
+              optSection.style.display = "block";
+              optSection.innerHTML = '<div class="pdp-option-group">' +
+                '<div class="pdp-option-header"><span class="pdp-option-title">Option / Variant:</span><span class="pdp-option-helper">Choose 1</span></div>' +
+                '<div class="pdp-chips-grid">' +
+                activeP.variants.map(function (v, idx) {
+                  var vExtra = (v.price && v.price > activeP.price) ? (v.price - activeP.price) : 0;
+                  return '<button type="button" class="pdp-chip-btn ' + (idx === 0 ? "active" : "") + '" onclick="window.StoreApp.selectPdpOption(this, 1, \'' + esc(v.title) + '\', ' + vExtra + ')">' +
+                    esc(v.title) + (vExtra > 0 ? " (+" + fmt(vExtra) + ")" : "") +
+                    '</button>';
+                }).join("") +
+                '</div></div>';
+            } else {
+              optSection.style.display = "none";
+            }
+          }
+
+          // Rating meta & prep badges
+          var revChip = document.querySelector(".pdp-verified-reviews"); if (revChip) revChip.style.display = "none";
+          var prepChip = document.querySelector(".pdp-prep-chip");
+          if (prepChip) {
+            if (activeP.kind === "service" || isService) {
+              prepChip.textContent = "Service";
+              prepChip.style.display = "inline-block";
+            } else {
+              prepChip.style.display = "none";
+            }
+          }
+          var vatLabel = document.querySelector(".pdp-vat-label"); if (vatLabel) vatLabel.textContent = "Inclusive of all applicable taxes";
+          var heroBadge = document.getElementById("pdp-hero-badge");
+          if (heroBadge) {
+            if (activeP.featured) {
+              heroBadge.textContent = "Popular";
+              heroBadge.style.display = "inline-block";
+            } else if (activeP.kind === "service" || isService) {
+              heroBadge.textContent = "Service";
+              heroBadge.style.display = "inline-block";
+            } else {
+              heroBadge.style.display = "none";
+            }
+          }
+
           var desc = document.getElementById("pdp-description-text"); if (desc) desc.textContent = activeP.desc || "";
           var prc = document.getElementById("pdp-price-bold"); if (prc) prc.textContent = fmt(activeP.price);
           var addBtn = document.getElementById("pdp-add-bag-btn");
@@ -642,13 +709,73 @@
               window.open("https://wa.me/" + phone + "?text=" + msg, "_blank");
             };
           }
+
+          // Trust Badges Strip
+          var trustGrid = document.querySelector(".pdp-trust-grid");
+          if (trustGrid) {
+            trustGrid.innerHTML = '<div class="pdp-trust-item">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' +
+              '<span class="trust-title">Verified Business</span>' +
+              '<span class="trust-sub">Direct from ' + esc(B.name) + '</span>' +
+              '</div>' +
+              '<div class="pdp-trust-item">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+              '<span class="trust-title">' + (activeP.kind === "service" || isService ? "Flexible Booking" : "Fast Fulfilment") + '</span>' +
+              '<span class="trust-sub">Order via WhatsApp or Online</span>' +
+              '</div>' +
+              '<div class="pdp-trust-item">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>' +
+              '<span class="trust-title">Direct Payment</span>' +
+              '<span class="trust-sub">M-Pesa, Cash or Bank</span>' +
+              '</div>';
+          }
+
+          // Deep Details Accordions
+          var accGroup = document.querySelector(".pdp-accordion-group");
+          if (accGroup) {
+            accGroup.innerHTML = '<div class="pdp-accordion-item open">' +
+              '<div class="pdp-accordion-header">' +
+              '<span>' + (activeP.kind === "service" || isService ? "Service Information" : "Product Details") + '</span>' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>' +
+              '</div>' +
+              '<div class="pdp-accordion-content">' +
+              esc(activeP.desc || ("High quality " + (activeP.kind === "service" || isService ? "service" : "item") + " provided directly by " + B.name + ".")) +
+              '</div>' +
+              '</div>' +
+              '<div class="pdp-accordion-item">' +
+              '<div class="pdp-accordion-header">' +
+              '<span>' + (activeP.kind === "service" || isService ? "Booking & Appointment Info" : "Fulfilment & Delivery Information") + '</span>' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>' +
+              '</div>' +
+              '<div class="pdp-accordion-content">' +
+              (activeP.kind === "service" || isService ? "Book your appointment online or contact us directly on WhatsApp to confirm availability." : "Orders are prepared and dispatched directly by the seller. Track status and coordinate delivery on WhatsApp.") +
+              '</div>' +
+              '</div>';
+            accGroup.querySelectorAll(".pdp-accordion-item").forEach(function (acc) {
+              var h = acc.querySelector(".pdp-accordion-header");
+              if (h) {
+                h.onclick = function () { acc.classList.toggle("open"); };
+              }
+            });
+          }
+
+          // Back link
+          var backLink = document.querySelector(".pdp-back-link");
+          if (backLink) {
+            backLink.textContent = "← Back to " + B.name;
+            backLink.setAttribute("href", (B.root || "") + "/index.html");
+          }
         }
-        var simGrid = document.querySelector(".similar-products-grid");
+
+        var relHeading = document.getElementById("related-heading");
+        if (relHeading) relHeading.textContent = "More from " + B.name;
+        var simGrid = document.querySelector(".similar-products-grid, .pdp-related-container .product-cards-grid");
         if (simGrid) {
           var related = ITEMS.filter(function (x) { return !activeP || x.id !== activeP.id; }).slice(0, 4);
           simGrid.innerHTML = related.map(function (p) {
             var itemDetailPage = p.kind === "service" ? "service.html" : (tplKey === "zuribeauty" ? "service.html" : "product.html");
-            return '<a href="' + itemDetailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-id="' + esc(p.id) + '" data-prod-name="' + esc(p.name) + '">' +
+            var bzParam = B.slug ? "&bz=" + encodeURIComponent(B.slug) : "";
+            return '<a href="' + itemDetailPage + '?id=' + encodeURIComponent(p.id) + bzParam + '" class="menu-card" data-prod-id="' + esc(p.id) + '" data-prod-name="' + esc(p.name) + '">' +
               '<div class="menu-card-img-box">' +
               '<img src="' + esc(pic(p)) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
               '<button class="card-add-btn" aria-label="Add ' + esc(p.name) + '" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'' + esc(p.id) + '\');">' +

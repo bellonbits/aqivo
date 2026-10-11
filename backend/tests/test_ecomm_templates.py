@@ -47,3 +47,35 @@ def test_templates_list_only_ecomm(client):
     keys = {t["key"] for t in client.get("/api/v1/templates").json()}
     assert keys == set(KEYS)
     assert client.get(f"/api/v1/templates/{KEYS[0]}/preview", follow_redirects=False).status_code == 307
+
+
+def test_ecomm_pdp_cleans_demo_products_and_renders_real_items(make_owner, client):
+    o = make_owner("kinyozi@example.com", "Barber", "Joes Kinyozi", industry="beauty")
+    svc = add_service(o, "Classic Haircut & Beard Trim", "800")
+    o.post("/api/v1/websites/me/template", json={"template_key": "mavunofresh"})
+    o.post("/api/v1/websites/me/publish")
+
+    # 1. PDP accessed via merchant path: /joeskinyozi/service.html?id=...
+    r = client.get(f"/{o.slug}/service.html?id={svc['id']}")
+    assert r.status_code == 200
+    html = r.text
+    assert "Classic Haircut" in html
+    assert "800" in html
+    # Assert demo agriculture strings are purged
+    assert "Hass Avocados" not in html
+    assert "Murang’a" not in html and "Murang'a" not in html
+    assert "Kandara" not in html
+    assert "compostable fruit bag" not in html
+    assert "530 verified Nairobi households" not in html
+
+    # 2. PDP preview accessed via template preview endpoint: /ecomm-templates/mavunofresh/service.html?id=...
+    r2 = client.get(f"/ecomm-templates/mavunofresh/service.html?id={svc['id']}")
+    assert r2.status_code == 200
+    html2 = r2.text
+    assert "Classic Haircut" in html2
+    assert "Joes Kinyozi" in html2
+    assert "Hass Avocados" not in html2
+    assert "Murang’a" not in html2 and "Murang'a" not in html
+    assert "Kandara" not in html2
+    assert "compostable fruit bag" not in html2
+

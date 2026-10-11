@@ -75,6 +75,96 @@ app.add_middleware(
 app.include_router(api_router)
 app.mount("/media", StaticFiles(directory=settings.media_dir, check_dir=False), name="media")
 app.mount("/static", StaticFiles(directory=BASE / "public" / "static"), name="static")
+
+NOSTORE = {"Cache-Control": "no-store"}
+
+
+@app.get("/ecomm-templates/{key}", include_in_schema=False)
+@app.get("/ecomm-templates/{key}/", include_in_schema=False)
+@app.get("/ecomm-templates/{key}/{page_name:path}", include_in_schema=False)
+def ecomm_template_preview_page(key: str, request: Request, page_name: str = "index.html", db: Session = Depends(get_db)):
+    from app.services import ecomm_site
+    import uuid
+    if not ecomm_site.is_ecomm(key):
+        direct_file = BASE / "public" / "ecomm_templates" / key
+        if direct_file.is_file():
+            return FileResponse(direct_file)
+        target = direct_file / (page_name.strip("/") or "index.html") if page_name else direct_file
+        if target.is_file():
+            return FileResponse(target)
+        raise HTTPException(404, "Template asset not found")
+
+    cleaned_name = page_name.strip("/") if page_name else ""
+    if not cleaned_name:
+        cleaned_name = "index.html"
+    elif not ("." in cleaned_name.split("/")[-1]):
+        cleaned_name = f"{cleaned_name}.html"
+
+    is_html = cleaned_name.endswith(".html")
+    target_file = BASE / "public" / "ecomm_templates" / key / cleaned_name
+    if not is_html:
+        if target_file.is_file():
+            return FileResponse(target_file)
+        raise HTTPException(404, "Template asset not found")
+
+    business = None
+    bz_slug = request.query_params.get("bz")
+    if bz_slug:
+        business = db.scalar(select(Business).where(Business.slug == bz_slug))
+
+    if not business:
+        item_id = request.query_params.get("id")
+        if item_id:
+            try:
+                uid = uuid.UUID(item_id)
+                from app.models import Product, Service
+                p = db.scalar(select(Product).where(Product.id == uid))
+                if p:
+                    business = db.scalar(select(Business).where(Business.id == p.business_id))
+                else:
+                    s = db.scalar(select(Service).where(Service.id == uid))
+                    if s:
+                        business = db.scalar(select(Business).where(Business.id == s.business_id))
+            except (ValueError, TypeError):
+                pass
+
+    if not business:
+        auth_h = request.headers.get("authorization", "")
+        if auth_h.lower().startswith("bearer "):
+            try:
+                token = auth_h.split(" ", 1)[1]
+                from app.core.security import decode_token
+                claims = decode_token(token, "access")
+                uid = uuid.UUID(claims["sub"])
+                from app.models import BusinessMember
+                mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
+                if mem:
+                    business = db.scalar(select(Business).where(Business.id == mem.business_id))
+            except Exception:
+                pass
+
+    if not business:
+        referer = request.headers.get("referer", "")
+        if referer:
+            try:
+                from urllib.parse import urlparse
+                r_path = urlparse(referer).path.strip("/").split("/")
+                if r_path and r_path[0] and r_path[0] not in ("dashboard", "api", "static", "ecomm-templates"):
+                    business = db.scalar(select(Business).where(Business.slug == r_path[0]))
+            except Exception:
+                pass
+
+    if business:
+        from app.services.site_render import build_context
+        ecomm_ctx = build_context(db, business, draft=True, root=f"/{business.slug}")
+        html_out = ecomm_site.render_ecomm(db, ecomm_ctx, business, key, cleaned_name, item_id=request.query_params.get("id"))
+        return HTMLResponse(html_out, headers=NOSTORE)
+
+    if target_file.is_file():
+        return FileResponse(target_file)
+    raise HTTPException(404, "Page not found")
+
+
 app.mount("/ecomm-templates", StaticFiles(directory=BASE / "public" / "ecomm_templates", html=True), name="ecomm-templates")
 
 
@@ -213,9 +303,9 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
         if head in ("receipt", "receipt.html"):
             return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "receipt.html"), headers=NOSTORE)
         if head in ("product", "product.html"):
-            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "product.html"), headers=NOSTORE)
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "product.html", item_id=request.query_params.get("id")), headers=NOSTORE)
         if head in ("service", "service.html"):
-            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "service.html"), headers=NOSTORE)
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "service.html", item_id=request.query_params.get("id")), headers=NOSTORE)
 
     if head == "p" and n == 2:
         site = b.website

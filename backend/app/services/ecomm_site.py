@@ -187,7 +187,7 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
     return ""
 
 
-def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html") -> str:
+def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html", item_id: str | None = None) -> str:
     target_file = TEMPLATES_ROOT / key / page_name
     if not target_file.is_file():
         target_file = TEMPLATES_ROOT / key / "index.html"
@@ -197,6 +197,8 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     for brand in DEMO_BRANDS[key]:
         page = page.replace(brand, _html.escape(business.name.upper() if brand.isupper() else business.name))
     page = re.sub(r"<title>.*?</title>", f"<title>{_html.escape(ctx['seo']['title'])}</title>", page, count=1, flags=re.S)
+    # Strip any hardcoded demo meta description from static template
+    page = re.sub(r'<meta\s+[^>]*name=[\'\"]description[\'\"][^>]*>', '', page, flags=re.I)
     desc = _html.escape(ctx["seo"]["description"], quote=True)
     jsonld_tags = f'<script type="application/ld+json">{ctx["seo"]["jsonld"]}</script>'
     if ctx["seo"].get("jsonld_extra"):
@@ -283,6 +285,108 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     # Clean demo initialCart and discounts in inline script
     page = re.sub(r'initialCart:\s*\[[\s\S]*?\](?=,\s*\n|\s*store|\s*defaultPromo|\s*\})', 'initialCart: []', page)
     page = re.sub(r'defaultDiscount:\s*\d+', 'defaultDiscount: 0', page)
+
+    # Clean PDP (product.html / service.html) demo data
+    items = data.get("items") or []
+    if ("pdp-content-grid" in page or page_name in ("product.html", "service.html")) and items:
+        is_service = business.industry in ("salon", "barbershop", "beauty") or key == "zuribeauty" or any(i.get("kind") == "service" for i in items)
+        active_item = None
+        if item_id:
+            active_item = next((it for it in items if str(it.get("id")) == str(item_id)), None)
+        if not active_item:
+            active_item = items[0]
+
+        # Replace breadcrumbs and title
+        page = re.sub(r'<span class="current" id="pdp-crumb-title">.*?</span>', lambda _: f'<span class="current" id="pdp-crumb-title">{_html.escape(active_item["name"])}</span>', page)
+        page = re.sub(r'<span id="pdp-crumb-cat">.*?</span>', lambda _: f'<span id="pdp-crumb-cat">{_html.escape(active_item.get("category") or ("Services" if is_service else "Catalogue"))}</span>', page)
+        page = re.sub(r'<h1 class="pdp-item-title" id="pdp-item-title">.*?</h1>', lambda _: f'<h1 class="pdp-item-title" id="pdp-item-title">{_html.escape(active_item["name"])}</h1>', page)
+        page = re.sub(r'<div class="pdp-category-tag" id="pdp-category-tag"[^>]*>.*?</div>', lambda _: f'<div class="pdp-category-tag" id="pdp-category-tag">{_html.escape(active_item.get("category") or business.name)}</div>', page)
+
+        # Replace hero image
+        img_url = active_item.get("image") or ""
+        if img_url:
+            page = re.sub(r'<img id="pdp-hero-img" src="[^"]*"', lambda _: f'<img id="pdp-hero-img" src="{_html.escape(img_url)}"', page)
+
+        # Clean rating & verified reviews
+        page = re.sub(r'<span class="pdp-verified-reviews">.*?</span>', '', page)
+        page = re.sub(r'<span class="pdp-prep-chip">.*?</span>', lambda _: f'<span class="pdp-prep-chip">{"Service" if is_service else "Item"}</span>', page)
+
+        # Price
+        cur_sym = data.get("symbol") or business.currency or "KSh"
+        p_price = f"{cur_sym} {active_item['price']:,.0f}" if isinstance(active_item['price'], (int, float)) else f"{cur_sym} {active_item['price']}"
+        page = re.sub(r'<div class="pdp-price-bold" id="pdp-price-bold">.*?</div>', lambda _: f'<div class="pdp-price-bold" id="pdp-price-bold">{p_price}</div>', page)
+        page = re.sub(r'<div class="pdp-vat-label">.*?</div>', '<div class="pdp-vat-label">Inclusive of all applicable taxes</div>', page)
+
+        # Description
+        desc_text = active_item.get("desc") or ""
+        page = re.sub(r'<p class="pdp-description-text" id="pdp-description-text">.*?</p>', lambda _: f'<p class="pdp-description-text" id="pdp-description-text">{_html.escape(desc_text)}</p>', page, flags=re.S)
+
+        # Action button
+        action_text = f"Book Service — {p_price}" if is_service else f"Add to Bag — {p_price}"
+        page = re.sub(r'<button class="pdp-cta-add-bag" id="pdp-add-bag-btn"[^>]*>.*?</button>', lambda _: f'<button class="pdp-cta-add-bag" id="pdp-add-bag-btn" onclick="window.StoreApp.addPdpToCart()">{action_text}</button>', page, flags=re.S)
+
+        # Options (hide if no variants)
+        if not active_item.get("variants"):
+            page = re.sub(r'<div class="pdp-options-section">[\s\S]*?</div>\s*(?=<!-- Purchase Actions Row -->|<div class="pdp-purchase-row")', '<div class="pdp-options-section" style="display:none;"></div>', page)
+
+        # Thumbnails (hide if single image)
+        if len(active_item.get("images") or []) <= 1:
+            page = re.sub(r'<div class="pdp-thumbnails-strip">[\s\S]*?</div>\s*(?=<!-- Trust Badges Strip -->|<div class="pdp-trust-grid")', '<div class="pdp-thumbnails-strip" style="display:none;"></div>', page)
+
+        # Trust badges strip
+        trust_html = (
+            '<div class="pdp-trust-grid">'
+            '<div class="pdp-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="trust-title">Verified Business</span><span class="trust-sub">Direct from ' + _html.escape(business.name) + '</span></div>'
+            '<div class="pdp-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span class="trust-title">' + ('Flexible Booking' if is_service else 'Fast Fulfilment') + '</span><span class="trust-sub">Order via WhatsApp or Online</span></div>'
+            '<div class="pdp-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg><span class="trust-title">Direct Payment</span><span class="trust-sub">M-Pesa, Cash or Bank</span></div>'
+            '</div>'
+        )
+        page = re.sub(r'<div class="pdp-trust-grid">[\s\S]*?</div>(?=\s*</div>\s*(?:<!--.*?-->\s*)?<div class="pdp-info-col">)', lambda _: trust_html, page)
+
+        # Accordions
+        acc_html = (
+            '<div class="pdp-accordion-group">'
+            '<div class="pdp-accordion-item open"><div class="pdp-accordion-header"><span>' + ('Service Information' if is_service else 'Product Details') + '</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="pdp-accordion-content">' + _html.escape(desc_text or f"High quality service provided directly by {business.name}.") + '</div></div>'
+            '<div class="pdp-accordion-item"><div class="pdp-accordion-header"><span>' + ('Booking & Appointment Info' if is_service else 'Fulfilment & Delivery Information') + '</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></div><div class="pdp-accordion-content">' + ('Book your appointment online or contact us directly on WhatsApp to confirm availability.' if is_service else 'Orders are prepared and dispatched directly by the seller. Track status and coordinate delivery on WhatsApp.') + '</div></div>'
+            '</div>'
+        )
+        page = re.sub(r'<div class="pdp-accordion-group">[\s\S]*?</div>(?=(?:\s*</div>)+\s*(?:<!--.*?-->\s*)?<section class="pdp-related-container")', lambda _: acc_html, page)
+
+        # Related heading
+        page = re.sub(r'<h2 class="pdp-related-title"[^>]*>.*?</h2>', lambda _: f'<h2 class="pdp-related-title" id="related-heading">More from {_html.escape(business.name)}</h2>', page)
+
+        # Related items grid: replace hardcoded demo products with real merchant items
+        related_items = [it for it in items if str(it.get("id")) != str(active_item.get("id"))]
+        if not related_items:
+            related_items = items[:4]
+        else:
+            related_items = related_items[:4]
+
+        prefix = f"/{business.slug}" if business.slug else ""
+        rel_cards_html = "".join(
+            f'<a href="{prefix}/{"service.html" if it.get("kind") == "service" else "product.html"}?id={_html.escape(str(it["id"]))}" class="menu-card" data-prod-name="{_html.escape(it["name"])}">'
+            f'<div class="menu-card-img-box">'
+            f'{"<img src=" + chr(34) + _html.escape(it["image"]) + chr(34) + " alt=" + chr(34) + _html.escape(it["name"]) + chr(34) + " loading=" + chr(34) + "lazy" + chr(34) + " />" if it.get("image") else ""}'
+            f'<button class="card-add-btn" aria-label="Add" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'{it["id"]}\');">'
+            f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+            f'</button>'
+            f'</div>'
+            f'<div class="menu-card-price">{cur_sym} {it["price"]:,.0f}</div>'
+            f'<h3 class="menu-card-title">{_html.escape(it["name"])}</h3>'
+            f'</a>'
+            for it in related_items
+        )
+        page = re.sub(
+            r'(<section class="pdp-related-container"[\s\S]*?<div class="product-cards-grid">)[\s\S]*?(</div>\s*</section>)',
+            lambda m: m.group(1) + rel_cards_html + m.group(2),
+            page
+        )
+
+    # Inject real products into inline createWebStorefront config
+    if items:
+        safe_items_js = _safe_json(items)
+        clean_phone = (business.phone or business.whatsapp or "").replace("+", "").replace(" ", "")
+        page = re.sub(r'store:\s*\{[\s\S]*?products:\s*\[[\s\S]*?\][\s\S]*?\}', lambda _: f'store: {{ name: {_safe_json(business.name)}, whatsappPhone: {_safe_json(clean_phone)}, products: {safe_items_js} }}', page)
 
     # Render custom sections (e.g. rich text, custom html, video, ig feed, google reviews, collections)
     draft_mode = bool(ctx.get("draft") or ctx.get("editing"))
