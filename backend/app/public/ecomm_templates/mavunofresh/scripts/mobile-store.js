@@ -156,7 +156,8 @@
     }
 
     function addToCart(prodId, opt, qty) {
-      var prod = state.store.products.find(function (p) { return p.id === prodId; });
+      var prods = (state.store && state.store.products) || (window.StoreApp && window.StoreApp.store && window.StoreApp.store.products) || (window.__BZ && window.__BZ.items) || [];
+      var prod = prods.find(function (p) { return p.id === prodId; });
       if (!prod) return;
       var quantity = qty || 1;
       var option = opt || '';
@@ -1263,6 +1264,7 @@
 
     /* Product / Service Description generator */
     function getProductDescription(prod) {
+      if (prod && (prod.desc || prod.description)) return prod.desc || prod.description;
       var name = (prod.name || '').toLowerCase();
       if (name.indexOf('streetwise 3 meal') > -1) {
         return 'Signature KFC-style meal featuring 3 pieces of golden, crunchy fried chicken seasoned with our 11 secret herbs and spices, a large portion of crisp spiced fries, and a chilled 350ml beverage.';
@@ -1360,7 +1362,8 @@
     }
 
     function openProductDetail(prodId) {
-      var prod = state.store.products.find(function (p) { return p.id === prodId; });
+      var prods = (state.store && state.store.products) || (window.StoreApp && window.StoreApp.store && window.StoreApp.store.products) || (window.__BZ && window.__BZ.items) || [];
+      var prod = prods.find(function (p) { return p.id === prodId; });
       if (!prod) return;
 
       state.activeDetailItem = prod;
@@ -1598,6 +1601,9 @@
     }
 
     window.StoreApp = {
+      state: state,
+      store: state.store,
+      setStore: function (s) { state.store = s; },
       addToCart: addToCart,
       updateQty: updateQty,
       openCart: openCart,

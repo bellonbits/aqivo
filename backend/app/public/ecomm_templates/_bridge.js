@@ -337,6 +337,13 @@
       document.querySelectorAll(".hero-store-title, .site-brand-logo span, .site-brand-logo").forEach(function (el) {
         if (el.tagName === "SPAN" || el.classList.contains("hero-store-title")) el.textContent = B.name;
       });
+      document.querySelectorAll(".site-brand-logo").forEach(function (el) {
+        el.setAttribute("href", "javascript:void(0)");
+        el.onclick = function (e) {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+      });
 
       var heroDesc = document.querySelector(".hero-store-desc");
       if (heroDesc) {
@@ -417,10 +424,45 @@
         window.StoreApp.store.name = B.name;
         window.StoreApp.store.whatsappPhone = B.phone || B.wa || "";
         window.StoreApp.store.products = ITEMS;
+        if (window.StoreApp.state) {
+          window.StoreApp.state.store = window.StoreApp.store;
+        }
         if (window.StoreApp.cart) {
           window.StoreApp.cart = window.StoreApp.cart.filter(function (ci) { return !!byId[ci.id]; });
           window.StoreApp.updateCartUI();
         }
+
+        var origOpen = window.StoreApp.openProductDetail;
+        window.StoreApp.openProductDetail = function (prodId) {
+          var p = ITEMS.find(function (x) { return x.id === prodId; });
+          if (origOpen) origOpen(prodId);
+          if (!p) return;
+          var titleEl = document.getElementById("detail-modal-title");
+          if (titleEl) titleEl.textContent = p.name;
+          var priceEl = document.getElementById("detail-modal-price");
+          if (priceEl) priceEl.textContent = fmt(p.price);
+          var descEl = document.getElementById("detail-modal-desc");
+          if (descEl) descEl.textContent = p.desc || p.description || "";
+          var imgEl = document.getElementById("detail-modal-img");
+          if (imgEl && (p.image || (p.images && p.images[0]))) {
+            imgEl.src = p.image || p.images[0];
+            imgEl.alt = p.name;
+          }
+          var btnEl = document.getElementById("detail-modal-add-btn");
+          if (btnEl) btnEl.textContent = isService ? "Book Service" : "Add to Bag";
+          var tagsWrap = document.getElementById("detail-modal-tags");
+          if (tagsWrap) {
+            if (isService) {
+              tagsWrap.innerHTML = '<span class="product-detail-tag-pill">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' +
+                (p.duration ? p.duration + " Mins" : "Appointment") + "</span>";
+            } else {
+              tagsWrap.innerHTML = '<span class="product-detail-tag-pill">' +
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>' +
+                "Guaranteed Quality</span>";
+            }
+          }
+        };
       }
 
       // 3. Clear fake demo addresses in checkout
@@ -525,7 +567,7 @@
               g.items.map(function (p) {
                 var priceStr = fmt(p.price);
                 var imgUrl = pic(p);
-                return '<a href="' + detailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-name="' + esc(p.name) + '">' +
+                return '<a href="javascript:void(0)" onclick="event.preventDefault(); window.StoreApp && window.StoreApp.openProductDetail && window.StoreApp.openProductDetail(\'' + esc(p.id) + '\');" class="menu-card" data-prod-id="' + esc(p.id) + '" data-prod-name="' + esc(p.name) + '">' +
                   '<div class="menu-card-img-box">' +
                   (p.featured ? '<span class="card-popular-badge">Popular</span>' : '') +
                   '<img src="' + esc(imgUrl) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
@@ -560,7 +602,7 @@
         if (simGrid) {
           var related = ITEMS.filter(function (x) { return !activeP || x.id !== activeP.id; }).slice(0, 4);
           simGrid.innerHTML = related.map(function (p) {
-            return '<a href="' + detailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-name="' + esc(p.name) + '">' +
+            return '<a href="javascript:void(0)" onclick="event.preventDefault(); window.StoreApp && window.StoreApp.openProductDetail && window.StoreApp.openProductDetail(\'' + esc(p.id) + '\');" class="menu-card" data-prod-id="' + esc(p.id) + '" data-prod-name="' + esc(p.name) + '">' +
               '<div class="menu-card-img-box">' +
               '<img src="' + esc(pic(p)) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
               '<button class="card-add-btn" aria-label="Add ' + esc(p.name) + '" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'' + esc(p.id) + '\');">' +
@@ -572,6 +614,33 @@
               '</a>';
           }).join("");
         }
+      }
+
+      // 8. Global delegated click interceptor: prevent navigating away to static template files
+      document.addEventListener("click", function (e) {
+        var card = e.target.closest(".menu-card");
+        if (!card) return;
+        if (e.target.closest(".card-add-btn")) return; // Let addToCart handle button clicks
+        e.preventDefault();
+        e.stopPropagation();
+        var prodId = card.getAttribute("data-prod-id");
+        if (!prodId) {
+          var name = card.getAttribute("data-prod-name");
+          var item = ITEMS.find(function (x) { return x.name === name; });
+          if (item) prodId = item.id;
+        }
+        if (!prodId && ITEMS.length) prodId = ITEMS[0].id;
+        if (prodId && window.StoreApp && window.StoreApp.openProductDetail) {
+          window.StoreApp.openProductDetail(prodId);
+        }
+      }, true);
+
+      // 9. Auto-open modal if URL query param ?id= was supplied
+      var initialId = new URLSearchParams(window.location.search).get("id");
+      if (initialId && window.StoreApp && window.StoreApp.openProductDetail) {
+        setTimeout(function () {
+          window.StoreApp.openProductDetail(initialId);
+        }, 150);
       }
     });
   }
