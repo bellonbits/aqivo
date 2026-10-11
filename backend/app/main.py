@@ -283,6 +283,11 @@ def catch_all(full_path: str, request: Request):
         return root(request)
     parts = [p for p in full_path.split("/") if p]
     first = parts[0].lower() if parts else ""
+    if any(p.startswith(".") for p in parts) or any(p in RESERVED_SLUGS for p in parts):
+        resp = _spa(full_path)
+        if resp is not None:
+            return resp
+        return _message("Page not found", "We couldn't find that page.", 404)
     if is_potential_slug(first) and not (DIST / full_path).is_file():
         db = SessionLocal()
         try:

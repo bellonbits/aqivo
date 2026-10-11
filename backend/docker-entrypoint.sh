@@ -18,6 +18,13 @@ max_retries = 30
 for i in range(1, max_retries + 1):
     try:
         conn = psycopg.connect(conn_url, connect_timeout=10)
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE pid <> pg_backend_pid() AND usename = current_user AND state IN ('idle', 'idle in transaction');")
+            conn.commit()
+            print("Cleaned up any stale/idle connection slots.")
+        except Exception as cle:
+            pass
         conn.close()
         print(f"Database connection established successfully on attempt {i}.")
         sys.exit(0)

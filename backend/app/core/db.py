@@ -17,6 +17,7 @@ if settings.database_url.startswith("postgresql"):
         "keepalives_idle": 30,
         "keepalives_interval": 10,
         "keepalives_count": 3,
+        "options": "-c idle_in_transaction_session_timeout=15000 -c statement_timeout=30000",
     }
 
 if settings.db_pool_size <= 0:
