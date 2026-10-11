@@ -249,7 +249,7 @@ def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
     )
 
 
-def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html", item_id: str | None = None, draft: bool = False) -> str:
+def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html", item_id: str | None = None, draft: bool = False, precomputed_data: dict | None = None) -> str:
     from app.services.theme_studio import DRAFTS_ROOT
     target_file = None
     if draft:
@@ -261,7 +261,10 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
         if not target_file.is_file():
             target_file = TEMPLATES_ROOT / key / "index.html"
     page = target_file.read_text(encoding="utf-8")
-    data = build_data(db, ctx, business)
+    if precomputed_data is not None:
+        data = dict(precomputed_data)
+    else:
+        data = build_data(db, ctx, business)
     data["key"] = key
     for brand in DEMO_BRANDS.get(key, []):
         page = page.replace(brand, _html.escape(business.name.upper() if brand.isupper() else business.name))

@@ -1,4 +1,5 @@
 import logging
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from urllib.parse import quote
@@ -78,6 +79,30 @@ app.mount("/static", StaticFiles(directory=BASE / "public" / "static"), name="st
 
 NOSTORE = {"Cache-Control": "no-store"}
 
+_PREVIEW_CTX_CACHE: dict[str, tuple[float, any, dict, dict]] = {}
+_PREVIEW_CACHE_TTL = 60.0  # seconds
+
+
+def _snapshot_business(b: Business):
+    from types import SimpleNamespace
+    return SimpleNamespace(
+        id=getattr(b, "id", None),
+        name=getattr(b, "name", "Aqivo Store"),
+        slug=getattr(b, "slug", "demo"),
+        industry=getattr(b, "industry", "retail"),
+        tagline=getattr(b, "tagline", None),
+        description=getattr(b, "description", None),
+        address=getattr(b, "address", None),
+        city=getattr(b, "city", None),
+        phone=getattr(b, "phone", None),
+        whatsapp=getattr(b, "whatsapp", None),
+        email=getattr(b, "email", None),
+        currency=getattr(b, "currency", "KES"),
+        logo_url=getattr(b, "logo_url", None),
+        cover_image_url=getattr(b, "cover_image_url", None),
+        website=getattr(b, "website", None),
+    )
+
 
 @app.get("/ecomm-templates/{key}", include_in_schema=False)
 @app.get("/ecomm-templates/{key}/", include_in_schema=False)
@@ -114,14 +139,24 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
             return FileResponse(target_file, headers=NOSTORE)
         raise HTTPException(404, "Template asset not found")
 
-    business = None
     bz_slug = request.query_params.get("bz")
-    if bz_slug:
-        business = db.scalar(select(Business).where(Business.slug == bz_slug))
+    item_id = request.query_params.get("id")
+    order_id = request.query_params.get("orderId")
+    is_preview_mode = request.query_params.get("preview") == "1" or not bz_slug
+    root_path = f"/ecomm-templates/{key}"
 
-    if not business:
-        item_id = request.query_params.get("id")
-        if item_id:
+    cache_key = f"{key}:{bz_slug or 'demo'}:{root_path}"
+    cached_entry = _PREVIEW_CTX_CACHE.get(cache_key)
+    now = time.time()
+
+    if is_preview_mode and cached_entry and (now - cached_entry[0] < _PREVIEW_CACHE_TTL):
+        _, business, ecomm_ctx, precomputed_data = cached_entry
+    else:
+        business = None
+        if bz_slug:
+            business = db.scalar(select(Business).where(Business.slug == bz_slug))
+
+        if not business and item_id:
             try:
                 uid = uuid.UUID(item_id)
                 from app.models import Product, Service
@@ -135,9 +170,7 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
             except (ValueError, TypeError):
                 pass
 
-    if not business:
-        order_id = request.query_params.get("orderId")
-        if order_id:
+        if not business and order_id:
             try:
                 from app.models import Order
                 ord_obj = db.scalar(select(Order).where(Order.token == order_id))
@@ -146,88 +179,93 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
             except Exception:
                 pass
 
-    if not business:
-        auth_h = request.headers.get("authorization", "")
-        if auth_h.lower().startswith("bearer "):
-            try:
-                token = auth_h.split(" ", 1)[1]
-                from app.core.security import decode_token
-                claims = decode_token(token, "access")
-                uid = uuid.UUID(claims["sub"])
-                from app.models import BusinessMember
-                mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
-                if mem:
-                    business = db.scalar(select(Business).where(Business.id == mem.business_id))
-            except Exception:
-                pass
+        if not business:
+            auth_h = request.headers.get("authorization", "")
+            if auth_h.lower().startswith("bearer "):
+                try:
+                    token = auth_h.split(" ", 1)[1]
+                    from app.core.security import decode_token
+                    claims = decode_token(token, "access")
+                    uid = uuid.UUID(claims["sub"])
+                    from app.models import BusinessMember
+                    mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
+                    if mem:
+                        business = db.scalar(select(Business).where(Business.id == mem.business_id))
+                except Exception:
+                    pass
 
-    if not business:
-        refresh_tok = request.cookies.get("bz_refresh")
-        if refresh_tok:
-            try:
-                from app.core.security import decode_token
-                claims = decode_token(refresh_tok, "refresh")
-                uid = uuid.UUID(claims["sub"])
-                from app.models import BusinessMember
-                mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
-                if mem:
-                    business = db.scalar(select(Business).where(Business.id == mem.business_id))
-            except Exception:
-                pass
+        if not business:
+            refresh_tok = request.cookies.get("bz_refresh")
+            if refresh_tok:
+                try:
+                    from app.core.security import decode_token
+                    claims = decode_token(refresh_tok, "refresh")
+                    uid = uuid.UUID(claims["sub"])
+                    from app.models import BusinessMember
+                    mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
+                    if mem:
+                        business = db.scalar(select(Business).where(Business.id == mem.business_id))
+                except Exception:
+                    pass
 
-    if not business:
-        for c_name in request.cookies:
-            if c_name.startswith("bz_customer_"):
-                c_slug = c_name[len("bz_customer_"):]
-                if c_slug:
-                    business = db.scalar(select(Business).where(Business.slug == c_slug))
-                    if business:
-                        break
+        if not business:
+            for c_name in request.cookies:
+                if c_name.startswith("bz_customer_"):
+                    c_slug = c_name[len("bz_customer_"):]
+                    if c_slug:
+                        business = db.scalar(select(Business).where(Business.slug == c_slug))
+                        if business:
+                            break
 
-    if not business:
-        referer = request.headers.get("referer", "")
-        if referer:
-            try:
-                from urllib.parse import urlparse
-                r_path = urlparse(referer).path.strip("/").split("/")
-                if r_path and r_path[0] and r_path[0] not in ("dashboard", "api", "static", "ecomm-templates"):
-                    business = db.scalar(select(Business).where(Business.slug == r_path[0]))
-            except Exception:
-                pass
+        if not business:
+            referer = request.headers.get("referer", "")
+            if referer:
+                try:
+                    from urllib.parse import urlparse
+                    r_path = urlparse(referer).path.strip("/").split("/")
+                    if r_path and r_path[0] and r_path[0] not in ("dashboard", "api", "static", "ecomm-templates"):
+                        business = db.scalar(select(Business).where(Business.slug == r_path[0]))
+                except Exception:
+                    pass
 
-    if not business:
-        business = db.scalars(select(Business).where(Business.status == BusinessStatus.ACTIVE, Business.deleted_at.is_(None))).first()
-    if not business:
-        business = db.scalars(select(Business).where(Business.deleted_at.is_(None))).first()
+        if not business:
+            business = db.scalars(select(Business).where(Business.status == BusinessStatus.ACTIVE, Business.deleted_at.is_(None))).first()
+        if not business:
+            business = db.scalars(select(Business).where(Business.deleted_at.is_(None))).first()
 
-    if not business:
-        brand_name = ecomm_site.DEMO_BRANDS.get(key, ["Aqivo Demo Store"])[0]
-        business = Business(
-            name=brand_name,
-            slug=key,
-            currency="KSh",
-            industry="retail",
-            address="Kilimani, Nairobi, Kenya",
-            phone="+254700000000",
-            email="demo@aqivo.shop",
-            description=f"Official {brand_name} catalogue and store preview powered by Aqivo.",
-            status=BusinessStatus.ACTIVE,
-        )
+        if not business:
+            brand_name = ecomm_site.DEMO_BRANDS.get(key, ["Aqivo Demo Store"])[0]
+            business = Business(
+                name=brand_name,
+                slug=key,
+                currency="KSh",
+                industry="retail",
+                address="Kilimani, Nairobi, Kenya",
+                phone="+254700000000",
+                email="demo@aqivo.shop",
+                description=f"Official {brand_name} catalogue and store preview powered by Aqivo.",
+                status=BusinessStatus.ACTIVE,
+            )
 
-    # If explicit merchant slug was provided and not in preview mode, redirect to merchant URL
-    if bz_slug and request.query_params.get("preview") != "1":
-        qs = str(request.url.query)
-        target_url = f"/{business.slug}/{cleaned_name}" + (f"?{qs}" if qs else "")
-        return RedirectResponse(target_url, status_code=302)
+        # If explicit merchant slug was provided and not in preview mode, redirect to merchant URL
+        if bz_slug and request.query_params.get("preview") != "1":
+            qs = str(request.url.query)
+            target_url = f"/{business.slug}/{cleaned_name}" + (f"?{qs}" if qs else "")
+            return RedirectResponse(target_url, status_code=302)
 
-    from app.services.site_render import build_context
-    root_path = f"/ecomm-templates/{key}"
-    ecomm_ctx = build_context(db, business, draft=True, root=root_path)
+        from app.services.site_render import build_context
+        ecomm_ctx = build_context(db, business, draft=True, root=root_path)
+        precomputed_data = ecomm_site.build_data(db, ecomm_ctx, business)
+        business = _snapshot_business(business)
+        if is_preview_mode:
+            _PREVIEW_CTX_CACHE[cache_key] = (now, business, ecomm_ctx, precomputed_data)
+
     try:
         html_out = ecomm_site.render_ecomm(
             db, ecomm_ctx, business, key, cleaned_name,
             item_id=request.query_params.get("id"),
-            draft=is_draft
+            draft=is_draft,
+            precomputed_data=precomputed_data,
         )
         return HTMLResponse(html_out, headers=NOSTORE)
     except Exception as exc:

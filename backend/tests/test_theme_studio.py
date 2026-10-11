@@ -155,3 +155,8 @@ def test_preview_route_renders_demo_store(client: TestClient):
     assert "text/html" in res.headers.get("content-type", "")
     assert "<html" in res.text.lower()
 
+    # Second call uses in-memory cached context and returns 200 immediately
+    res2 = client.get("/ecomm-templates/zuribeauty/index.html?preview=1")
+    assert res2.status_code == 200
+    assert "<html" in res2.text.lower()
+
