@@ -411,9 +411,13 @@
       var branding = getStoreBranding();
       var receiptNo = generateReceiptNumber();
 
+      var bz = window.__BZ || {};
       var order = {
         orderId: receiptNo,
         receiptNo: receiptNo,
+        businessSlug: bz.slug || '',
+        businessRoot: bz.root || '',
+        businessName: bz.name || branding.name,
         store: branding.name,
         storeTagline: branding.tagline,
         storeContact: branding.contact,
@@ -1082,9 +1086,17 @@
     function getReceiptPageUrl(order) {
       var o = order || state.activeReceiptOrder || state.lastOrder;
       var receiptNo = o ? (o.receiptNo || o.orderId) : '';
-      var path = window.location.pathname || '';
       var origin = window.location.origin || '';
-      
+      var bz = window.__BZ || {};
+      var slug = (o && o.businessSlug) || bz.slug || '';
+      var root = (o && o.businessRoot) || bz.root || '';
+
+      if (root || slug) {
+        var base = (root || ('/' + slug)).replace(/\/+$/, '');
+        return origin + base + '/receipt.html' + (receiptNo ? '?orderId=' + encodeURIComponent(receiptNo) : '');
+      }
+
+      var path = window.location.pathname || '';
       // If already on receipt.html
       if (path.indexOf('receipt.html') !== -1) {
         return origin + path + (receiptNo ? '?orderId=' + encodeURIComponent(receiptNo) : '');

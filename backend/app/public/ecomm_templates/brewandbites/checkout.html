@@ -133,6 +133,52 @@
     .checkout-preview-price {
       font-weight: 700;
     }
+    .cart-btn-checkout {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: var(--store-primary, #D97706);
+      color: #FFFFFF;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 16px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+    }
+    .cart-btn-checkout:hover {
+      background: var(--store-primary-hover, #B45309);
+      transform: translateY(-1px);
+    }
+    .cart-btn-whatsapp {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: #25D366;
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 13px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      box-sizing: border-box;
+    }
+    .cart-btn-whatsapp:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 <body>
@@ -156,7 +202,7 @@
 
   <main class="checkout-page-wrapper">
     <div class="checkout-page-breadcrumbs">
-      <a href="index.html">Market</a>
+      <a href="index.html">Home</a>
       <span>/</span>
       <a href="cart.html">Cart</a>
       <span>/</span>

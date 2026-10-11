@@ -187,6 +187,64 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
     return ""
 
 
+def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
+    escaped_name = _html.escape(business.name)
+    tagline_raw = business.tagline or business.description or (
+        f"Professional {business.industry} services & direct customer bookings"
+        if business.industry in ("salon", "barbershop", "beauty")
+        else f"Quality products and direct online ordering from {business.name}."
+    )
+    escaped_tagline = _html.escape(tagline_raw)
+
+    phone = business.phone or business.whatsapp or ""
+    contact_parts = []
+    if business.address:
+        contact_parts.append(f'<div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:6px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{_html.escape(business.address)}</div>')
+    if phone:
+        contact_parts.append(f'<div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:6px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:{_html.escape(phone)}" style="color:inherit;text-decoration:none;">{_html.escape(phone)}</a></div>')
+    if business.email:
+        contact_parts.append(f'<div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:6px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:{_html.escape(business.email)}" style="color:inherit;text-decoration:none;">{_html.escape(business.email)}</a></div>')
+
+    wa_clean = (business.whatsapp or business.phone or "").replace("+", "").replace(" ", "")
+    wa_btn = ""
+    if wa_clean:
+        wa_btn = f'<a href="https://wa.me/{wa_clean}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 14px;background:#25D366;color:#FFF;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Chat on WhatsApp</a>'
+
+    hours_html = '<div style="margin-top:8px;font-size:12.5px;color:#94A3B8;">Operating daily with scheduled orders & bookings.</div>'
+
+    from datetime import date
+    year = date.today().year
+
+    return (
+        '<footer class="site-storefront-footer" style="background:#0F172A;color:#F8FAFC;padding:52px 20px 24px;margin-top:64px;font-family:inherit;border-top:1px solid #1E293B;">'
+        '<div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:36px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,0.08);">'
+        '<div>'
+        f'<h3 style="font-size:19px;font-weight:800;color:#FFFFFF;margin:0 0 10px;letter-spacing:-0.02em;">{escaped_name}</h3>'
+        f'<p style="font-size:13.5px;color:#94A3B8;line-height:1.6;margin:0 0 10px;">{escaped_tagline}</p>'
+        f'{wa_btn}'
+        '</div>'
+        '<div>'
+        '<h4 style="font-size:13px;font-weight:700;color:#E2E8F0;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 14px;">Store Links</h4>'
+        '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;font-size:13.5px;">'
+        '<li><a href="index.html" style="color:#94A3B8;text-decoration:none;">Home</a></li>'
+        '<li><a href="cart.html" style="color:#94A3B8;text-decoration:none;">Shopping Bag</a></li>'
+        '<li><a href="checkout.html" style="color:#94A3B8;text-decoration:none;">Checkout</a></li>'
+        '</ul>'
+        '</div>'
+        '<div>'
+        '<h4 style="font-size:13px;font-weight:700;color:#E2E8F0;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 14px;">Contact & Location</h4>'
+        f'<div style="font-size:13.5px;color:#94A3B8;display:flex;flex-direction:column;gap:10px;">{"".join(contact_parts) if contact_parts else "<div>Contact merchant directly online.</div>"}</div>'
+        f'{hours_html}'
+        '</div>'
+        '</div>'
+        '<div style="max-width:1200px;margin:0 auto;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;font-size:12.5px;color:#64748B;">'
+        f'<div>© {year} {escaped_name}. All rights reserved.</div>'
+        '<div>Powered by <a href="https://aqivo.shop" style="color:#38BDF8;font-weight:600;text-decoration:none;">Aqivo</a></div>'
+        '</div>'
+        '</footer>'
+    )
+
+
 def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html", item_id: str | None = None) -> str:
     target_file = TEMPLATES_ROOT / key / page_name
     if not target_file.is_file():
@@ -218,7 +276,9 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
     accent = ctx.get("theme", {}).get("accent")
     style_tag = f'<style>:root{{--accent:{accent};}}</style>' if accent else ''
-    head = (f'<base href="{URL_BASE}/{key}/">'
+    root = ctx.get("root") or (f"/{business.slug}" if business and business.slug else "")
+    store_base = f"{root.rstrip('/')}/" if root else f"{URL_BASE}/{key}/"
+    head = (f'<base href="{store_base}">'
             f'<meta name="description" content="{desc}">'
             f'<link rel="canonical" href="{_html.escape(ctx["seo"]["canonical"], quote=True)}">'
             f'<meta name="robots" content="{ctx["seo"]["robots"]}">'
@@ -394,8 +454,14 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     if custom_sections_html:
         page = re.sub(r'(<body[^>]*>)', rf'\g<1><div id="bz-custom-sections">{custom_sections_html}</div>', page, count=1)
 
-    # Branding footer if enabled
-    if ctx.get("show_branding"):
+    # Purge demo 'Market' breadcrumb with 'Home'
+    page = re.sub(r'<a href="index\.html">Market</a>', '<a href="index.html">Home</a>', page)
+
+    # Storefront footer (includes business info, hours, store links, and Powered by Aqivo)
+    if business and 'class="site-storefront-footer"' not in page:
+        footer_html = _render_store_footer(business, ctx, data)
+        page = page.replace("</body>", footer_html + "</body>", 1)
+    elif ctx.get("show_branding") and 'aqivo-branding' not in page:
         page = page.replace("</body>", '<footer class="aqivo-branding" style="text-align:center;padding:16px;font-size:13px;color:#888;">Powered by <a href="https://aqivo.shop" style="color:inherit;font-weight:600;">Aqivo</a></footer></body>', 1)
 
     # Inject cart drawer if the storefront has any products (needed for WhatsApp bag checkout)
@@ -425,6 +491,11 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
         page = page.replace(marker_store, inject + bridge + marker_store, 1)
     else:  # no data.js: still inject before the app script
         page = page.replace("</body>", inject + bridge + "</body>", 1)
+
+    # Rewrite relative asset paths to absolute template paths so they load regardless of base href
+    page = re.sub(r'(href|src)=["\']styles/', rf'\1="{URL_BASE}/{key}/styles/', page)
+    page = re.sub(r'(href|src)=["\']scripts/', rf'\1="{URL_BASE}/{key}/scripts/', page)
+    page = re.sub(r'(href|src)=["\']\.\./_bridge\.js["\']', rf'\1="{URL_BASE}/_bridge.js"', page)
     return page
 
 

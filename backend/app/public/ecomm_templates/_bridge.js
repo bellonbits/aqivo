@@ -16,6 +16,24 @@
   try {
     sessionStorage.setItem("aqivo_active_bz", JSON.stringify(B));
   } catch (e) {}
+
+  // Redirect away from raw /ecomm-templates/<key>/<page> if merchant context exists
+  if (window.location.pathname.indexOf("/ecomm-templates/") !== -1) {
+    var redirectSlug = (B && B.slug) || "";
+    if (!redirectSlug) {
+      try {
+        var orders = JSON.parse(localStorage.getItem("aqivo_orders") || "[]");
+        if (orders.length && orders[0].businessSlug) redirectSlug = orders[0].businessSlug;
+      } catch (e) {}
+    }
+    if (redirectSlug && window.location.search.indexOf("preview=1") === -1) {
+      var parts = window.location.pathname.split("/").filter(Boolean);
+      var page = parts.length ? parts[parts.length - 1] : "index.html";
+      if (page.indexOf(".html") === -1) page = "index.html";
+      window.location.replace("/" + encodeURIComponent(redirectSlug) + "/" + page + (window.location.search || ""));
+      return;
+    }
+  }
   var KEY = B.key, ITEMS = B.items || [], CATS = B.categories || [];
   var byId = {}; ITEMS.forEach(function (p) { byId[p.id] = p; });
 
@@ -795,7 +813,33 @@
         document.title = "Order Receipt \u2014 " + B.name;
         var backBtn = document.getElementById("receipt-back-btn-text");
         if (backBtn) backBtn.textContent = "Back to " + B.name;
+        var backLink = document.getElementById("receipt-back-btn");
+        if (backLink) {
+          var rootUrl = (B.root || ("/" + B.slug)).replace(/\/+$/, "") + "/";
+          backLink.href = rootUrl;
+        }
       }
+
+      // 9. Override getReceiptPageUrl on StoreApp to guarantee merchant root
+      if (window.StoreApp && typeof window.StoreApp.getReceiptPageUrl === "function") {
+        window.StoreApp.getReceiptPageUrl = function (order) {
+          var o = order || (window.StoreApp.getState && window.StoreApp.getState().lastOrder);
+          var receiptNo = o ? (o.receiptNo || o.orderId) : "";
+          var root = (B.root || ("/" + B.slug)).replace(/\/+$/, "");
+          return window.location.origin + root + "/receipt.html" + (receiptNo ? "?orderId=" + encodeURIComponent(receiptNo) : "");
+        };
+      }
+
+      // 10. Update breadcrumbs and navigation to merchant root
+      var storeHome = (B.root || ("/" + B.slug)).replace(/\/+$/, "") + "/";
+      document.querySelectorAll(".checkout-page-breadcrumbs a, .cart-page-breadcrumbs a, .pdp-breadcrumbs a, .site-brand-logo").forEach(function (el) {
+        if (el.textContent.trim().toLowerCase() === "market") {
+          el.textContent = "Home";
+        }
+        if (el.getAttribute("href") === "index.html") {
+          el.setAttribute("href", storeHome);
+        }
+      });
     });
   }
 

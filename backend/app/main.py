@@ -129,6 +129,17 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
                 pass
 
     if not business:
+        order_id = request.query_params.get("orderId")
+        if order_id:
+            try:
+                from app.models import Order
+                ord_obj = db.scalar(select(Order).where(Order.token == order_id))
+                if ord_obj:
+                    business = db.scalar(select(Business).where(Business.id == ord_obj.business_id))
+            except Exception:
+                pass
+
+    if not business:
         auth_h = request.headers.get("authorization", "")
         if auth_h.lower().startswith("bearer "):
             try:
@@ -144,6 +155,29 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
                 pass
 
     if not business:
+        refresh_tok = request.cookies.get("bz_refresh")
+        if refresh_tok:
+            try:
+                from app.core.security import decode_token
+                claims = decode_token(refresh_tok, "refresh")
+                uid = uuid.UUID(claims["sub"])
+                from app.models import BusinessMember
+                mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
+                if mem:
+                    business = db.scalar(select(Business).where(Business.id == mem.business_id))
+            except Exception:
+                pass
+
+    if not business:
+        for c_name in request.cookies:
+            if c_name.startswith("bz_customer_"):
+                c_slug = c_name[len("bz_customer_"):]
+                if c_slug:
+                    business = db.scalar(select(Business).where(Business.slug == c_slug))
+                    if business:
+                        break
+
+    if not business:
         referer = request.headers.get("referer", "")
         if referer:
             try:
@@ -155,6 +189,12 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
                 pass
 
     if business:
+        # User or business should never see /ecomm-templates in URL: redirect to merchant storefront path
+        if request.query_params.get("preview") != "1":
+            qs = str(request.url.query)
+            target_url = f"/{business.slug}/{cleaned_name}" + (f"?{qs}" if qs else "")
+            return RedirectResponse(target_url, status_code=302)
+
         from app.services.site_render import build_context
         ecomm_ctx = build_context(db, business, draft=True, root=f"/{business.slug}")
         html_out = ecomm_site.render_ecomm(db, ecomm_ctx, business, key, cleaned_name, item_id=request.query_params.get("id"))
@@ -296,6 +336,8 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
     ecomm_key = b.website.template.key if (b.website and b.website.template) else None
     if ecomm_site.is_ecomm(ecomm_key):
         ecomm_ctx = build_context(db, b, root=root)
+        if head in ("index", "index.html", "home"):
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "index.html"), headers=NOSTORE)
         if head in ("cart", "cart.html"):
             return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "cart.html"), headers=NOSTORE)
         if head in ("checkout", "checkout.html"):
@@ -306,6 +348,18 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
             return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "product.html", item_id=request.query_params.get("id")), headers=NOSTORE)
         if head in ("service", "service.html"):
             return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "service.html", item_id=request.query_params.get("id")), headers=NOSTORE)
+        if head in ("styles", "scripts") and n >= 2:
+            from pathlib import Path
+            from fastapi.responses import FileResponse
+            asset_path = (Path(__file__).resolve().parent / "public" / "ecomm_templates" / ecomm_key).joinpath(*rest)
+            if asset_path.is_file():
+                return FileResponse(asset_path)
+        if head == "_bridge.js":
+            from pathlib import Path
+            from fastapi.responses import FileResponse
+            asset_path = Path(__file__).resolve().parent / "public" / "ecomm_templates" / "_bridge.js"
+            if asset_path.is_file():
+                return FileResponse(asset_path)
 
     if head == "p" and n == 2:
         site = b.website

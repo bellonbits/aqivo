@@ -23,7 +23,9 @@ def test_ecomm_template_renders_real_business_data(make_owner, client, key):
     r = client.get(f"/{o.slug}")
     assert r.status_code == 200
     html = r.text
-    assert f'<base href="/ecomm-templates/{key}/">' in html and "/ecomm-templates/_bridge.js" in html
+    assert f'<base href="/{o.slug}/">' in html and "/ecomm-templates/_bridge.js" in html
+    assert 'class="site-storefront-footer"' in html
+    assert 'Powered by <a href="https://aqivo.shop"' in html
     data = _bz(html)
     assert data["slug"] == o.slug and data["key"] == key
     assert [i["name"] for i in data["items"]] == ["Summer Dress"] and data["items"][0]["price"] == 2500
@@ -40,7 +42,11 @@ def test_ecomm_template_renders_real_business_data(make_owner, client, key):
     for sub in ["cart", "cart.html", "checkout", "checkout.html", "product", "product.html", "service", "service.html", "receipt", "receipt.html"]:
         resp = client.get(f"/{o.slug}/{sub}")
         assert resp.status_code == 200
-        assert f'<base href="/ecomm-templates/{key}/">' in resp.text
+        assert f'<base href="/{o.slug}/">' in resp.text
+        assert 'class="site-storefront-footer"' in resp.text
+        if "checkout" in sub:
+            assert "cart-btn-checkout" in resp.text
+            assert "cart-btn-whatsapp" in resp.text
 
 
 def test_templates_list_only_ecomm(client):
@@ -78,4 +84,32 @@ def test_ecomm_pdp_cleans_demo_products_and_renders_real_items(make_owner, clien
     assert "Murang’a" not in html2 and "Murang'a" not in html
     assert "Kandara" not in html2
     assert "compostable fruit bag" not in html2
+
+
+def test_ecomm_template_receipt_redirects_to_merchant_url(make_owner, client):
+    o = make_owner("joe@example.com", "Joe", "Joes Kinyozi", industry="beauty")
+    add_service(o, "Knotless Braids", "1500")
+    o.post("/api/v1/websites/me/template", json={"template_key": "mavunofresh"})
+    o.post("/api/v1/websites/me/publish")
+
+    # Access receipt on template URL with merchant auth/cookie -> redirects to /joeskinyozi/receipt.html
+    token = o.token
+    resp = client.get(
+        "/ecomm-templates/mavunofresh/receipt.html?orderId=AQ-20261011-001",
+        headers={"Authorization": f"Bearer {token}"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 302
+    assert resp.headers["location"] == f"/{o.slug}/receipt.html?orderId=AQ-20261011-001"
+
+    # Following redirect lands on merchant receipt page with footer and base href
+    final_resp = client.get(
+        "/ecomm-templates/mavunofresh/receipt.html?orderId=AQ-20261011-001",
+        headers={"Authorization": f"Bearer {token}"},
+        follow_redirects=True,
+    )
+    assert final_resp.status_code == 200
+    assert f'<base href="/{o.slug}/">' in final_resp.text
+    assert 'class="site-storefront-footer"' in final_resp.text
+    assert "Joes Kinyozi" in final_resp.text
 
