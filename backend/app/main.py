@@ -101,10 +101,17 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
         cleaned_name = f"{cleaned_name}.html"
 
     is_html = cleaned_name.endswith(".html")
+    is_draft = request.query_params.get("draft") == "1"
+    if is_draft:
+        from app.services.theme_studio import DRAFTS_ROOT
+        draft_asset = DRAFTS_ROOT / key / cleaned_name
+        if draft_asset.is_file():
+            return FileResponse(draft_asset, headers=NOSTORE)
+
     target_file = BASE / "public" / "ecomm_templates" / key / cleaned_name
     if not is_html:
         if target_file.is_file():
-            return FileResponse(target_file)
+            return FileResponse(target_file, headers=NOSTORE)
         raise HTTPException(404, "Template asset not found")
 
     business = None
@@ -197,11 +204,17 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
 
         from app.services.site_render import build_context
         ecomm_ctx = build_context(db, business, draft=True, root=f"/{business.slug}")
-        html_out = ecomm_site.render_ecomm(db, ecomm_ctx, business, key, cleaned_name, item_id=request.query_params.get("id"))
+        html_out = ecomm_site.render_ecomm(db, ecomm_ctx, business, key, cleaned_name, item_id=request.query_params.get("id"), draft=is_draft)
         return HTMLResponse(html_out, headers=NOSTORE)
 
+    if is_draft:
+        from app.services.theme_studio import DRAFTS_ROOT
+        draft_target = DRAFTS_ROOT / key / cleaned_name
+        if draft_target.is_file():
+            return FileResponse(draft_target, headers=NOSTORE)
+
     if target_file.is_file():
-        return FileResponse(target_file)
+        return FileResponse(target_file, headers=NOSTORE)
     raise HTTPException(404, "Page not found")
 
 

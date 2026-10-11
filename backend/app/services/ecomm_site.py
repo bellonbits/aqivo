@@ -28,7 +28,7 @@ DEMO_BRANDS = {
 
 
 def is_ecomm(key: str | None) -> bool:
-    return bool(key) and key in DEMO_BRANDS and (TEMPLATES_ROOT / key / "index.html").is_file()
+    return bool(key) and ((TEMPLATES_ROOT / key / "index.html").is_file() or key in DEMO_BRANDS)
 
 
 def _f(v) -> float | None:
@@ -249,14 +249,21 @@ def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
     )
 
 
-def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html", item_id: str | None = None) -> str:
-    target_file = TEMPLATES_ROOT / key / page_name
-    if not target_file.is_file():
-        target_file = TEMPLATES_ROOT / key / "index.html"
+def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html", item_id: str | None = None, draft: bool = False) -> str:
+    from app.services.theme_studio import DRAFTS_ROOT
+    target_file = None
+    if draft:
+        draft_candidate = DRAFTS_ROOT / key / page_name
+        if draft_candidate.is_file():
+            target_file = draft_candidate
+    if not target_file:
+        target_file = TEMPLATES_ROOT / key / page_name
+        if not target_file.is_file():
+            target_file = TEMPLATES_ROOT / key / "index.html"
     page = target_file.read_text(encoding="utf-8")
     data = build_data(db, ctx, business)
     data["key"] = key
-    for brand in DEMO_BRANDS[key]:
+    for brand in DEMO_BRANDS.get(key, []):
         page = page.replace(brand, _html.escape(business.name.upper() if brand.isupper() else business.name))
     page = re.sub(r"<title>.*?</title>", f"<title>{_html.escape(ctx['seo']['title'])}</title>", page, count=1, flags=re.S)
     # Strip any hardcoded demo meta description from static template

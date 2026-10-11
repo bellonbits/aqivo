@@ -6,6 +6,7 @@ import {
   BadgeCheck,
   Bell,
   CheckCircle2,
+  Code2,
   CreditCard,
   Download,
   ExternalLink,
@@ -23,6 +24,7 @@ import {
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '@/lib/api'
 import { useAuth } from '@/features/auth/AuthContext'
+import { ThemeStudio } from './ThemeStudio'
 import { useToast } from '@/hooks/useToast'
 import {
   Badge,
@@ -1205,6 +1207,7 @@ export function AdminSubscriptions() {
 // 5. STOREFRONTS & THEMES MANAGEMENT
 // ============================================================================
 export function AdminStorefronts() {
+  const [studioThemeKey, setStudioThemeKey] = useState<string | null>(null)
   const q = useQuery({
     queryKey: ['admin-storefronts'],
     queryFn: () => api.get<{ templates: any[]; featured: any[]; domains: any[] }>('/admin/storefronts')
@@ -1212,18 +1215,34 @@ export function AdminStorefronts() {
   const [previewTpl, setPreviewTpl] = useState<any | null>(null)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
 
+  if (studioThemeKey) {
+    return <ThemeStudio initialThemeKey={studioThemeKey} onBack={() => setStudioThemeKey(null)} />
+  }
+
   if (!q.data) return <PageLoading />
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Storefronts & Themes"
-        sub="Control global theme templates, preview responsive layouts, and monitor verified custom domains."
+        sub="Control global theme templates, edit actual storefront source code, and monitor verified custom domains."
+        actions={
+          <Button
+            variant="primary"
+            onClick={() => setStudioThemeKey(q.data.templates[0]?.key || 'twosidesboutique')}
+            className="bg-[#5B21F5] hover:bg-[#4a18d1] text-white flex items-center gap-2"
+          >
+            <Code2 className="size-4" /> Open Theme Code Studio
+          </Button>
+        }
       />
 
       {/* Available Themes Library */}
       <div>
-        <h3 className="text-lg font-bold text-slate-900 mb-3">Default Storefront Templates</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-bold text-slate-900">Default Storefront Templates</h3>
+          <span className="text-xs text-slate-500 font-medium">Click "Edit Code" on any template to open source files & live simulator</span>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {q.data.templates.map((tpl) => (
             <Card key={tpl.key} className="bg-white overflow-hidden p-5 flex flex-col justify-between border border-slate-200">
@@ -1242,11 +1261,21 @@ export function AdminStorefronts() {
                   ))}
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5">
                 <span className="text-[11px] font-mono text-slate-400">/{tpl.key}</span>
-                <Button size="sm" variant="secondary" onClick={() => setPreviewTpl(tpl)}>
-                  Preview
-                </Button>
+                <div className="flex items-center gap-1.5">
+                  <Button size="sm" variant="secondary" onClick={() => setPreviewTpl(tpl)}>
+                    Preview
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => setStudioThemeKey(tpl.key)}
+                    className="bg-[#5B21F5] hover:bg-[#4a18d1] text-white flex items-center gap-1 px-2.5"
+                  >
+                    <Code2 className="size-3" /> Edit Code
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}

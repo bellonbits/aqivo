@@ -1,0 +1,23 @@
+{
+  "accent": "#059669",
+  "bg": "#FFFFFF",
+  "ink": "#111111",
+  "surface": "#FFFFFF",
+  "border": "#E5E7EB",
+  "radius": "12px",
+  "font_display": "'Inter', system-ui, sans-serif",
+  "font_body": "'Inter', system-ui, sans-serif",
+  "hero_layout": "split",
+  "sections": [
+    "hero",
+    "category_grid",
+    "product_grid",
+    "product_carousel",
+    "why_us",
+    "reviews",
+    "contact"
+  ],
+  "accent_ink": "#FFFFFF",
+  "muted": "#6B7280",
+  "hero": "split"
+}

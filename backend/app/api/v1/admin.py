@@ -35,6 +35,7 @@ from app.services.industries import INDUSTRIES
 from app.services.notifications import notify
 from app.services.plans import FEATURES, LIMIT_LABELS, get_plan, get_subscription, refresh_subscription_state
 from app.services.subscriptions import SubscriptionService, price_for
+from app.services import theme_studio
 from app.services.website import publish as publish_site
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -693,10 +694,40 @@ def get_admin_order_detail(oid: uuid.UUID, admin: User = Depends(require_platfor
     }
 
 
-# ------------------------------- 5. STOREFRONTS & THEMES --------------------------------
+# ------------------------------- 5. STOREFRONTS & THEMES CODE STUDIO --------------------------------
+class CreateThemeIn(BaseModel):
+    key: str = Field(min_length=3, max_length=48)
+    name: str = Field(min_length=2, max_length=120)
+    industry: str = Field(default="retail", max_length=32)
+    description: str = Field(default="", max_length=400)
+    clone_from: str | None = None
+
+class DuplicateThemeIn(BaseModel):
+    new_key: str = Field(min_length=3, max_length=48)
+    new_name: str = Field(min_length=2, max_length=120)
+
+class UpdateThemeMetadataIn(BaseModel):
+    name: str | None = None
+    industry: str | None = None
+    description: str | None = None
+    is_active: bool | None = None
+    features: list | None = None
+    theme: dict | None = None
+
+class SaveDraftFileIn(BaseModel):
+    path: str
+    content: str
+
+class CreateFileIn(BaseModel):
+    path: str
+    content: str = ""
+
+class PublishThemeIn(BaseModel):
+    notes: str = ""
+
 @router.get("/storefronts")
 def list_storefront_templates(admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
-    templates = db.scalars(select(Template)).all()
+    templates_data = theme_studio.list_all_themes(db)
     featured_businesses = db.scalars(
         select(Business).where(Business.deleted_at.is_(None))
     ).all()
@@ -708,22 +739,118 @@ def list_storefront_templates(admin: User = Depends(require_platform_admin), db:
         {"business_id": str(b.id), "name": b.name, "slug": b.slug, "primary_domain": b.primary_domain, "ssl_active": True}
         for b in featured_businesses if b.primary_domain
     ]
+    test_merchants = [
+        {"id": str(b.id), "name": b.name, "slug": b.slug, "industry": b.industry, "city": b.city}
+        for b in featured_businesses[:20]
+    ]
     return {
-        "templates": [
-            {
-                "key": t.key,
-                "name": t.name,
-                "industry": t.industry,
-                "description": t.description,
-                "features": t.features,
-                "theme": t.theme,
-                "is_active": t.is_active,
-            }
-            for t in templates
-        ],
+        "templates": templates_data,
         "featured": featured,
         "domains": domains,
+        "test_merchants": test_merchants,
     }
+
+@router.post("/storefronts/themes")
+def create_theme_template(body: CreateThemeIn, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.create_theme(
+        db=db,
+        key=body.key,
+        name=body.name,
+        industry=body.industry,
+        description=body.description,
+        clone_from=body.clone_from,
+        user=admin
+    )
+
+@router.post("/storefronts/themes/{key}/duplicate")
+def duplicate_theme_template(key: str, body: DuplicateThemeIn, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.duplicate_theme(
+        db=db,
+        source_key=key,
+        new_key=body.new_key,
+        new_name=body.new_name,
+        user=admin
+    )
+
+@router.patch("/storefronts/themes/{key}")
+def update_theme_template_meta(key: str, body: UpdateThemeMetadataIn, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.update_theme_metadata(
+        db=db,
+        theme_key=key,
+        data=body.model_dump(exclude_unset=True),
+        user=admin
+    )
+
+@router.delete("/storefronts/themes/{key}")
+def delete_theme_template(key: str, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.delete_theme(db=db, theme_key=key, user=admin)
+
+@router.get("/storefronts/themes/{key}/files")
+def get_theme_files_tree(key: str, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.get_theme_file_tree(theme_key=key, db=db)
+
+@router.get("/storefronts/themes/{key}/file")
+def get_theme_single_file(key: str, path: str = Query(...), source: str = Query("draft"), admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.read_theme_file(theme_key=key, rel_path=path, source=source, db=db)
+
+@router.put("/storefronts/themes/{key}/file")
+def save_theme_draft_file_content(key: str, body: SaveDraftFileIn, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.save_draft_file(
+        theme_key=key,
+        rel_path=body.path,
+        content=body.content,
+        user=admin,
+        db=db
+    )
+
+@router.post("/storefronts/themes/{key}/files/create")
+def create_theme_file_item(key: str, body: CreateFileIn, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.create_theme_file(
+        theme_key=key,
+        rel_path=body.path,
+        content=body.content,
+        user=admin,
+        db=db
+    )
+
+@router.delete("/storefronts/themes/{key}/file")
+def delete_theme_file_item(key: str, path: str = Query(...), admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.delete_theme_file(
+        theme_key=key,
+        rel_path=path,
+        user=admin,
+        db=db
+    )
+
+@router.post("/storefronts/themes/{key}/validate")
+def validate_theme_code_syntax(key: str, admin: User = Depends(require_platform_admin)):
+    return theme_studio.validate_theme_code(theme_key=key)
+
+@router.get("/storefronts/themes/{key}/diff")
+def get_theme_code_diff(key: str, admin: User = Depends(require_platform_admin)):
+    return theme_studio.get_theme_diff_summary(theme_key=key)
+
+@router.post("/storefronts/themes/{key}/publish")
+def publish_theme_draft(key: str, body: PublishThemeIn, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.publish_theme_changes(
+        db=db,
+        theme_key=key,
+        user=admin,
+        notes=body.notes
+    )
+
+@router.get("/storefronts/themes/{key}/versions")
+def list_theme_version_history(key: str, admin: User = Depends(require_platform_admin)):
+    return theme_studio.list_theme_versions(theme_key=key)
+
+@router.post("/storefronts/themes/{key}/rollback/{version_id}")
+def rollback_theme_version_snapshot(key: str, version_id: str, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    return theme_studio.rollback_theme_version(
+        db=db,
+        theme_key=key,
+        version_id=version_id,
+        user=admin
+    )
 
 
 # ------------------------------- 6. CATEGORIES & CONTENT --------------------------------
