@@ -7,7 +7,8 @@ import {
   RotateCcw, UploadCloud, History, Smartphone, Tablet,
   Monitor, RefreshCw, Sliders, GitCompare, ChevronDown,
   ExternalLink, X, Palette, Settings2,
-  ShieldCheck, ArrowLeft, Sun, Moon
+  ShieldCheck, ArrowLeft, Sun, Moon,
+  ChevronLeft
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/cn'
@@ -127,6 +128,28 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
   const [newFilePath, setNewFilePath] = useState('')
   const [newThemeModalOpen, setNewThemeModalOpen] = useState(false)
   const [themeSettingsModalOpen, setThemeSettingsModalOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [previewOpen, setPreviewOpen] = useState(true)
+  const [deleteThemeModalOpen, setDeleteThemeModalOpen] = useState(false)
+
+  // Delete theme mutation
+  const deleteThemeMutation = useMutation({
+    mutationFn: () => api.del(`/admin/storefronts/themes/${activeThemeKey}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-storefronts'] })
+      setDeleteThemeModalOpen(false)
+      setThemeSettingsModalOpen(false)
+      const remaining = themes.filter((t) => t.key !== activeThemeKey)
+      if (remaining.length > 0) {
+        setActiveThemeKey(remaining[0].key)
+      } else if (onBack) {
+        onBack()
+      }
+    },
+    onError: (err: any) => {
+      alert(err.message || 'Failed to delete theme')
+    }
+  })
 
   // Load active tab file content if not cached
   useEffect(() => {
@@ -319,30 +342,44 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
       {/* =========================================================================
           1. TOP DEVELOPER TOOLBAR
          ========================================================================= */}
-      <header className="h-14 bg-slate-950 border-b border-slate-800 px-4 flex items-center justify-between shrink-0 gap-3">
-        {/* Left: Back, Theme Selector & Status */}
-        <div className="flex items-center gap-3">
+      <header className="h-14 bg-slate-950 border-b border-slate-800 px-3 sm:px-4 flex items-center justify-between shrink-0 gap-2 min-w-0">
+        {/* Left: Back, Sidebar Toggle, Theme Selector & Status */}
+        <div className="flex items-center gap-2 shrink-0">
           {onBack && (
             <button
               onClick={onBack}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0"
               title="Return to Admin Overview"
             >
               <ArrowLeft className="size-4" />
             </button>
           )}
 
-          <div className="flex items-center gap-2">
+          {/* Toggle File Explorer Button */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className={cn(
+              'p-1.5 rounded-lg border text-xs font-bold transition-colors shrink-0',
+              sidebarOpen
+                ? 'bg-slate-800 border-slate-700 text-white'
+                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+            )}
+            title={sidebarOpen ? 'Collapse Files Explorer' : 'Expand Files Explorer'}
+          >
+            <Folder className="size-4 text-amber-400" />
+          </button>
+
+          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
             <span className="p-1.5 rounded-lg bg-[#5B21F5]/20 text-[#A78BFA]">
-              <Code2 className="size-4.5" />
+              <Code2 className="size-4" />
             </span>
-            <span className="font-extrabold text-sm text-white tracking-tight hidden sm:inline">Theme Studio</span>
+            <span className="font-extrabold text-sm text-white tracking-tight hidden md:inline">Theme Studio</span>
           </div>
 
-          <span className="text-slate-700">|</span>
+          <span className="text-slate-800 hidden sm:inline">|</span>
 
           {/* Theme Selector Dropdown */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
             <select
               value={activeThemeKey}
               onChange={(e) => {
@@ -354,83 +391,107 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
                 setOriginalContents({})
                 setPublishedContents({})
               }}
-              className="bg-slate-900 border border-slate-700 text-white rounded-lg px-2.5 py-1 text-xs font-bold focus:outline-none focus:border-[#5B21F5]"
+              className="bg-slate-900 border border-slate-700 text-white rounded-lg px-2 py-1 text-xs font-bold focus:outline-none focus:border-[#5B21F5] max-w-[130px] sm:max-w-[180px] md:max-w-[220px] truncate"
             >
               {themes.map((t) => (
                 <option key={t.key} value={t.key}>
-                  {t.name} ({t.key}) {t.has_draft ? '• [Draft Changes]' : ''}
+                  {t.name} ({t.key}) {t.has_draft ? '• [Draft]' : ''}
                 </option>
               ))}
             </select>
 
-            <span className="text-[11px] font-mono text-slate-400 hidden md:inline">
+            <span className="text-[11px] font-mono text-slate-400 hidden xl:inline shrink-0">
               {activeTheme.stores_count} live {activeTheme.stores_count === 1 ? 'store' : 'stores'}
             </span>
 
             {activeTheme.has_draft || hasUnsavedChanges ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold text-amber-400">
-                <span className="size-1.5 rounded-full bg-amber-400 animate-pulse" /> Draft Modified
+              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold text-amber-400 shrink-0">
+                <span className="size-1.5 rounded-full bg-amber-400 animate-pulse" /> Draft
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                <ShieldCheck className="size-3" /> Live Synced
+              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400 shrink-0">
+                <ShieldCheck className="size-3" /> Live
               </span>
             )}
           </div>
         </div>
 
         {/* Center: Mode Switchers (Editor / Diff / Visual Tokens) */}
-        <div className="hidden lg:flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-xl">
+        <div className="hidden lg:flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-xl shrink-0">
           <button
             onClick={() => setActiveView('editor')}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg transition-colors',
+              'flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg transition-colors',
               activeView === 'editor' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
             )}
+            title="Edit Template Source Code"
           >
-            <Code2 className="size-3.5" /> Source Code
+            <Code2 className="size-3.5" />
+            <span className="hidden xl:inline">Source Code</span>
+            <span className="xl:hidden">Code</span>
           </button>
           <button
             onClick={() => setActiveView('diff')}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg transition-colors',
+              'flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg transition-colors',
               activeView === 'diff' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
             )}
+            title="Inspect Live vs Draft Diff"
           >
-            <GitCompare className="size-3.5" /> Diff Inspector
+            <GitCompare className="size-3.5" />
+            <span className="hidden xl:inline">Diff Inspector</span>
+            <span className="xl:hidden">Diff</span>
           </button>
           <button
             onClick={() => setActiveView('visual_tokens')}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg transition-colors',
+              'flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg transition-colors',
               activeView === 'visual_tokens' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
             )}
+            title="Design Tokens & Theme Schema"
           >
-            <Palette className="size-3.5" /> Design Tokens
+            <Palette className="size-3.5" />
+            <span className="hidden xl:inline">Design Tokens</span>
+            <span className="xl:hidden">Tokens</span>
           </button>
         </div>
 
-        {/* Right: Actions (Save Draft, Validate, History, Publish) */}
-        <div className="flex items-center gap-2">
+        {/* Right: Actions (Preview Toggle, Validate, History, Save Draft, Publish, Settings, Delete) */}
+        <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+          {/* Toggle Live Simulator Button */}
+          <button
+            onClick={() => setPreviewOpen(!previewOpen)}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-colors shrink-0',
+              previewOpen
+                ? 'bg-[#5B21F5]/20 border-[#5B21F5]/60 text-purple-300'
+                : 'bg-slate-900 border-slate-700 text-slate-300 hover:text-white'
+            )}
+            title={previewOpen ? 'Hide Live Preview' : 'Show Live Preview'}
+          >
+            <Monitor className="size-3.5" />
+            <span className="hidden sm:inline">{previewOpen ? 'Hide Preview' : 'Show Preview'}</span>
+          </button>
+
           {/* Validate Button */}
           <button
             onClick={() => validateMutation.mutate()}
             disabled={validateMutation.isPending}
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 transition-colors"
+            className="hidden md:inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 transition-colors shrink-0"
             title="Run syntax & template structural validation"
           >
             <CheckCircle2 className="size-3.5 text-emerald-400" />
-            <span className="hidden md:inline">Validate</span>
+            <span className="hidden xl:inline">Validate</span>
           </button>
 
           {/* History Button */}
           <button
             onClick={() => setHistoryModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 transition-colors"
+            className="hidden md:inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 hover:bg-slate-800 text-xs font-bold text-slate-300 transition-colors shrink-0"
             title="Version History & Rollback"
           >
             <History className="size-3.5 text-blue-400" />
-            <span className="hidden md:inline">Versions</span>
+            <span className="hidden xl:inline">Versions</span>
           </button>
 
           {/* Save Draft Button */}
@@ -438,11 +499,12 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
             onClick={() => saveDraftMutation.mutate()}
             disabled={saveDraftMutation.isPending || !hasUnsavedChanges}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm',
+              'inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm shrink-0',
               hasUnsavedChanges
                 ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold'
                 : 'bg-slate-800 text-slate-400 cursor-not-allowed'
             )}
+            title="Save draft changes to isolated workspace"
           >
             <Save className="size-3.5" />
             <span>Save Draft</span>
@@ -453,10 +515,11 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
             )}
           </button>
 
-          {/* Publish Theme Button */}
+          {/* Publish Theme Button - NEVER cut off */}
           <button
             onClick={() => setPublishModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold transition-colors shadow-sm shrink-0"
+            title="Deploy changes to live merchant storefronts"
           >
             <UploadCloud className="size-3.5" />
             <span>Publish</span>
@@ -465,32 +528,55 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
           {/* Theme Settings & Options Menu */}
           <button
             onClick={() => setThemeSettingsModalOpen(true)}
-            className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
-            title="Theme Settings & Cloning"
+            className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800 shrink-0"
+            title="Theme Settings & Details"
           >
             <Settings2 className="size-4" />
+          </button>
+
+          {/* Delete Theme Button */}
+          <button
+            onClick={() => setDeleteThemeModalOpen(true)}
+            className="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/40 transition-colors shrink-0"
+            title="Delete this template"
+          >
+            <Trash2 className="size-4" />
           </button>
         </div>
       </header>
 
       {/* =========================================================================
           2. MAIN WORKSPACE (LEFT EXPLORER | CENTER EDITOR | RIGHT LIVE PREVIEW)
-         ========================================================================= */}
+          ========================================================================= */}
       <div className="flex-1 flex overflow-hidden">
         
         {/* ----------------- LEFT SIDEBAR: FILE EXPLORER ----------------- */}
-        <aside className="w-60 bg-slate-950 border-r border-slate-800 flex flex-col shrink-0 select-none">
+        <aside
+          className={cn(
+            'bg-slate-950 border-r border-slate-800 flex flex-col shrink-0 select-none transition-all duration-200',
+            sidebarOpen ? 'w-56 lg:w-60' : 'w-0 overflow-hidden border-r-0'
+          )}
+        >
           <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Folder className="size-3.5 text-amber-400" /> Files & Assets
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 truncate">
+              <Folder className="size-3.5 text-amber-400 shrink-0" /> Files & Assets
             </span>
-            <button
-              onClick={() => setNewFileModalOpen(true)}
-              className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
-              title="Create new template or style file"
-            >
-              <Plus className="size-3.5" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setNewFileModalOpen(true)}
+                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                title="Create new template or style file"
+              >
+                <Plus className="size-3.5" />
+              </button>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                title="Collapse sidebar"
+              >
+                <ChevronLeft className="size-3.5" />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-2 space-y-3 font-mono text-xs">
@@ -649,6 +735,17 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
           
           {/* Tabs Bar */}
           <div className="h-10 bg-slate-950/60 border-b border-slate-800 flex items-center px-2 gap-1 overflow-x-auto shrink-0 select-none">
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="h-7 px-2 mr-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center gap-1.5 text-xs font-bold shrink-0 transition-colors"
+                title="Expand File Explorer"
+              >
+                <Folder className="size-3 text-amber-400" />
+                <span className="hidden sm:inline">Files</span>
+              </button>
+            )}
+
             {openTabs.map((tab) => (
               <div
                 key={tab}
@@ -676,7 +773,17 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
               </div>
             ))}
 
-            <div className="ml-auto flex items-center gap-1.5 pr-2">
+            <div className="ml-auto flex items-center gap-1.5 pr-2 shrink-0">
+              {!previewOpen && (
+                <button
+                  onClick={() => setPreviewOpen(true)}
+                  className="h-7 px-2 rounded bg-[#5B21F5]/10 border border-[#5B21F5]/30 text-purple-300 hover:bg-[#5B21F5]/20 flex items-center gap-1 text-xs font-bold transition-colors"
+                  title="Show Live Preview Simulator"
+                >
+                  <Monitor className="size-3.5" />
+                  <span className="hidden sm:inline">Preview</span>
+                </button>
+              )}
               <button
                 onClick={() => setEditorTheme(editorTheme === 'vs-dark' ? 'light' : 'vs-dark')}
                 className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-800"
@@ -921,82 +1028,90 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
         </section>
 
         {/* ----------------- RIGHT PANEL: LIVE STOREFRONT PREVIEW ----------------- */}
-        <section className="w-[420px] xl:w-[480px] bg-slate-950 flex flex-col shrink-0 overflow-hidden">
-          
-          {/* Top Preview Controls Toolbar */}
-          <div className="p-2.5 border-b border-slate-800 flex flex-col gap-2 shrink-0 bg-slate-950">
-            <div className="flex items-center justify-between gap-2">
-              {/* Responsive Device Toggles */}
-              <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-lg">
-                <button
-                  onClick={() => setPreviewDevice('desktop')}
-                  className={cn(
-                    'p-1.5 rounded text-xs font-bold transition-colors',
-                    previewDevice === 'desktop' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
-                  )}
-                  title="Desktop 100% View"
-                >
-                  <Monitor className="size-3.5" />
-                </button>
-                <button
-                  onClick={() => setPreviewDevice('tablet')}
-                  className={cn(
-                    'p-1.5 rounded text-xs font-bold transition-colors',
-                    previewDevice === 'tablet' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
-                  )}
-                  title="Tablet 768px View"
-                >
-                  <Tablet className="size-3.5" />
-                </button>
-                <button
-                  onClick={() => setPreviewDevice('mobile')}
-                  className={cn(
-                    'p-1.5 rounded text-xs font-bold transition-colors',
-                    previewDevice === 'mobile' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
-                  )}
-                  title="Mobile 375px View"
-                >
-                  <Smartphone className="size-3.5" />
-                </button>
-              </div>
+        {previewOpen && (
+          <section className="w-[360px] md:w-[400px] lg:w-[440px] xl:w-[480px] bg-slate-950 flex flex-col shrink-0 border-l border-slate-800 overflow-hidden">
+            
+            {/* Top Preview Controls Toolbar */}
+            <div className="p-2.5 border-b border-slate-800 flex flex-col gap-2 shrink-0 bg-slate-950">
+              <div className="flex items-center justify-between gap-2">
+                {/* Responsive Device Toggles */}
+                <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-lg">
+                  <button
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={cn(
+                      'p-1.5 rounded text-xs font-bold transition-colors',
+                      previewDevice === 'desktop' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
+                    )}
+                    title="Desktop 100% View"
+                  >
+                    <Monitor className="size-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setPreviewDevice('tablet')}
+                    className={cn(
+                      'p-1.5 rounded text-xs font-bold transition-colors',
+                      previewDevice === 'tablet' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
+                    )}
+                    title="Tablet 768px View"
+                  >
+                    <Tablet className="size-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={cn(
+                      'p-1.5 rounded text-xs font-bold transition-colors',
+                      previewDevice === 'mobile' ? 'bg-[#5B21F5] text-white' : 'text-slate-400 hover:text-white'
+                    )}
+                    title="Mobile 375px View"
+                  >
+                    <Smartphone className="size-3.5" />
+                  </button>
+                </div>
 
-              {/* Draft vs Published Preview Toggle */}
-              <button
-                onClick={() => {
-                  setPreviewDraft(!previewDraft)
-                  setPreviewRefreshKey(Date.now())
-                }}
-                className={cn(
-                  'px-2 py-1 rounded-lg text-[11px] font-bold border transition-colors',
-                  previewDraft
-                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
-                    : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                )}
-                title="Toggle between previewing Draft edits or Published live version"
-              >
-                {previewDraft ? 'Draft Preview' : 'Live Preview'}
-              </button>
-
-              {/* Reload & Open External */}
-              <div className="flex items-center gap-1">
+                {/* Draft vs Published Preview Toggle */}
                 <button
-                  onClick={() => setPreviewRefreshKey(Date.now())}
-                  className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
-                  title="Reload Preview"
+                  onClick={() => {
+                    setPreviewDraft(!previewDraft)
+                    setPreviewRefreshKey(Date.now())
+                  }}
+                  className={cn(
+                    'px-2 py-1 rounded-lg text-[11px] font-bold border transition-colors shrink-0',
+                    previewDraft
+                      ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                      : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                  )}
+                  title="Toggle between previewing Draft edits or Published live version"
                 >
-                  <RefreshCw className="size-3.5" />
+                  {previewDraft ? 'Draft Preview' : 'Live Preview'}
                 </button>
-                <a
-                  href={previewUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
-                  title="Open in new window"
-                >
-                  <ExternalLink className="size-3.5" />
-                </a>
+
+                {/* Reload, Open External & Close Panel */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => setPreviewRefreshKey(Date.now())}
+                    className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
+                    title="Reload Preview"
+                  >
+                    <RefreshCw className="size-3.5" />
+                  </button>
+                  <a
+                    href={previewUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
+                    title="Open in new window"
+                  >
+                    <ExternalLink className="size-3.5" />
+                  </a>
+                  <button
+                    onClick={() => setPreviewOpen(false)}
+                    className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
+                    title="Close Preview Panel"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
               </div>
-            </div>
 
             {/* Page & Merchant Selectors */}
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -1063,6 +1178,7 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
             </div>
           </div>
         </section>
+        )}
       </div>
 
       {/* =========================================================================
@@ -1313,6 +1429,28 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
             </button>
           </div>
 
+          {/* Danger Zone */}
+          <div className="pt-3 border-t border-slate-100 space-y-2">
+            <span className="font-bold text-red-600 block">Danger Zone</span>
+            <div className="p-3 bg-red-50/70 border border-red-200 rounded-xl flex items-center justify-between">
+              <div>
+                <p className="font-bold text-red-900 text-xs">Delete Theme Template</p>
+                <p className="text-[11px] text-red-700">
+                  {activeTheme.stores_count > 0
+                    ? `Used by ${activeTheme.stores_count} live storefronts (cannot delete)`
+                    : 'Permanently remove from catalog and archive files'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDeleteThemeModalOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 shrink-0"
+              >
+                <Trash2 className="size-3.5" /> Delete
+              </button>
+            </div>
+          </div>
+
           <div className="flex justify-between items-center pt-3 border-t border-slate-100">
             <button
               type="button"
@@ -1359,6 +1497,67 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
               </Button>
             </div>
           </div>
+        </div>
+      </Modal>
+
+      {/* F. DELETE THEME CONFIRMATION MODAL */}
+      <Modal
+        open={deleteThemeModalOpen}
+        onClose={() => setDeleteThemeModalOpen(false)}
+        title={`Delete Theme: ${activeTheme.name}`}
+      >
+        <div className="space-y-4 text-slate-900 text-xs">
+          {activeTheme.stores_count > 0 ? (
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="size-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-xs text-amber-800 space-y-1">
+                  <p className="font-bold text-sm text-amber-900">Theme In Use By Merchants</p>
+                  <p>
+                    Theme <strong>{activeTheme.name}</strong> is currently powering <strong>{activeTheme.stores_count} live storefront(s)</strong>.
+                  </p>
+                  <p>
+                    To prevent active customer storefront outages, templates in use cannot be deleted. You can archive the theme instead or reassign stores to another template.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <Button variant="secondary" onClick={() => setDeleteThemeModalOpen(false)}>
+                  Dismiss
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-4">
+                <Trash2 className="size-5 text-red-600 shrink-0 mt-0.5" />
+                <div className="text-xs text-red-800 space-y-1">
+                  <p className="font-bold text-sm text-red-900">Are you sure you want to delete this theme?</p>
+                  <p>
+                    Theme <strong>{activeTheme.name}</strong> (<code className="font-mono text-red-900">/{activeTheme.key}</code>) and its workspace will be archived and removed from the active catalog.
+                  </p>
+                  <p className="text-[11px] text-red-700">
+                    A safe copy of all template files will be preserved in server backups.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="secondary" onClick={() => setDeleteThemeModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  disabled={deleteThemeMutation.isPending}
+                  onClick={() => deleteThemeMutation.mutate()}
+                  className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5"
+                >
+                  <Trash2 className="size-3.5" />
+                  {deleteThemeMutation.isPending ? 'Deleting...' : 'Delete Theme'}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </Modal>
 

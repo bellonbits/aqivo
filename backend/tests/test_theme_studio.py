@@ -119,3 +119,39 @@ def test_path_traversal_prevention(client: TestClient, admin_user):
     # Forbidden extension must be rejected with 400
     res = client.get("/api/v1/admin/storefronts/themes/twosidesboutique/file?path=evil.exe", headers=headers)
     assert res.status_code == 400
+
+
+def test_delete_theme_endpoint(client: TestClient, admin_user):
+    headers = _auth_header(client, "superadmin@aqivo.shop", "adminpass123")
+
+    # 1. Create a theme
+    create_res = client.post(
+        "/api/v1/admin/storefronts/themes",
+        headers=headers,
+        json={
+            "key": "test_deletable_theme",
+            "name": "Deletable Theme",
+            "industry": "retail",
+            "description": "A temporary theme for deletion test",
+            "clone_from": "twosidesboutique"
+        }
+    )
+    assert create_res.status_code == 200
+
+    # 2. Delete the theme
+    del_res = client.delete("/api/v1/admin/storefronts/themes/test_deletable_theme", headers=headers)
+    assert del_res.status_code == 200
+    assert del_res.json()["success"] is True
+
+    # 3. Verify it is gone
+    get_res = client.get("/api/v1/admin/storefronts/themes/test_deletable_theme/files", headers=headers)
+    assert get_res.status_code == 404
+
+
+def test_preview_route_renders_demo_store(client: TestClient):
+    # GET /ecomm-templates/{key}/index.html?preview=1 should return 200 and HTML
+    res = client.get("/ecomm-templates/zuribeauty/index.html?preview=1")
+    assert res.status_code == 200
+    assert "text/html" in res.headers.get("content-type", "")
+    assert "<html" in res.text.lower()
+

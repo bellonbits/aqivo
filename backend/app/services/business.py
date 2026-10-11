@@ -23,7 +23,7 @@ RESERVED_SLUGS = {
     "health", "readiness", "media", "static", "assets", "sitemap", "robots", "review", "book", "about", "contact",
     "help", "support", "terms", "privacy", "bizora", "docs", "blog", "mail", "ftp", "demo", "s", "sitemap.xml",
     "robots.txt", "favicon.ico", "forgot-password", "reset-password", "public", "storage", "wp-admin", "wp-content",
-    "wp-includes", "config", "env", ".env", "actuator", "cgi-bin", "telescope", "debug",
+    "wp-includes", "config", "env", ".env", "actuator", "cgi-bin", "telescope", "debug", "ecomm-templates",
 }
 
 

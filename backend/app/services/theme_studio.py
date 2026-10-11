@@ -838,32 +838,37 @@ def update_theme_metadata(db: Session, theme_key: str, data: dict, user: User) -
 
 
 def delete_theme(db: Session, theme_key: str, user: User) -> dict:
-    tpl = db.scalar(select(Template).where(Template.key == theme_key))
-    if not tpl:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Theme '{theme_key}' not found.")
+    clean_key = theme_key.strip().lower()
+    tpl = db.scalar(select(Template).where(Template.key == clean_key))
+    t_dir = TEMPLATES_ROOT / clean_key
 
-    # Guard: Cannot delete if businesses currently rely on this template
-    stores_count = db.scalar(select(func.count(Website.id)).where(Website.template_id == tpl.id)) or 0
-    if stores_count > 0:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            f"Cannot delete theme '{tpl.name}' because {stores_count} live storefront(s) are currently using it. Please switch those stores to another theme or archive this theme instead."
-        )
+    if not tpl and not t_dir.is_dir():
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Theme '{clean_key}' not found.")
 
-    t_dir = TEMPLATES_ROOT / theme_key
-    # Move to backup archive instead of destroying
+    theme_name = clean_key
+    if tpl:
+        theme_name = tpl.name
+        # Guard: Cannot delete if businesses currently rely on this template
+        stores_count = db.scalar(select(func.count(Website.id)).where(Website.template_id == tpl.id)) or 0
+        if stores_count > 0:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                f"Cannot delete theme '{tpl.name}' because {stores_count} live storefront(s) are currently using it. Please switch those stores to another theme first."
+            )
+        db.delete(tpl)
+
+    # Move template files to backup archive instead of hard delete
     if t_dir.is_dir():
-        backup_dir = BACKUPS_ROOT / theme_key / f"deleted_{int(time.time())}"
+        backup_dir = BACKUPS_ROOT / clean_key / f"deleted_{int(time.time())}"
         backup_dir.mkdir(parents=True, exist_ok=True)
-        shutil.move(str(t_dir), str(backup_dir / theme_key))
+        shutil.move(str(t_dir), str(backup_dir / clean_key))
 
-    # Clear drafts
-    d_dir = DRAFTS_ROOT / theme_key
+    # Clear drafts workspace
+    d_dir = DRAFTS_ROOT / clean_key
     if d_dir.is_dir():
         shutil.rmtree(d_dir, ignore_errors=True)
 
-    db.delete(tpl)
-    audit(db, "admin.theme_delete", user_id=user.id, resource_type="theme", resource_id=theme_key, meta={"name": tpl.name})
+    audit(db, "admin.theme_delete", user_id=user.id, resource_type="theme", resource_id=clean_key, meta={"name": theme_name})
     db.commit()
 
-    return {"success": True, "deleted": theme_key}
+    return {"success": True, "deleted": clean_key, "name": theme_name}

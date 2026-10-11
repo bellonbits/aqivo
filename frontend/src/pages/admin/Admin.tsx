@@ -19,7 +19,9 @@ import {
   Send,
   Server,
   ShoppingBag,
-  Store
+  Store,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { api } from '@/lib/api'
@@ -1207,13 +1209,28 @@ export function AdminSubscriptions() {
 // 5. STOREFRONTS & THEMES MANAGEMENT
 // ============================================================================
 export function AdminStorefronts() {
+  const qc = useQueryClient()
+  const toast = useToast()
   const [studioThemeKey, setStudioThemeKey] = useState<string | null>(null)
+  const [templateToDelete, setTemplateToDelete] = useState<any | null>(null)
   const q = useQuery({
     queryKey: ['admin-storefronts'],
     queryFn: () => api.get<{ templates: any[]; featured: any[]; domains: any[] }>('/admin/storefronts')
   })
   const [previewTpl, setPreviewTpl] = useState<any | null>(null)
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop')
+
+  const deleteThemeMutation = useMutation({
+    mutationFn: (themeKey: string) => api.del(`/admin/storefronts/themes/${themeKey}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-storefronts'] })
+      toast.ok('Template deleted and safely archived.')
+      setTemplateToDelete(null)
+    },
+    onError: (err: any) => {
+      toast.err(err.message || 'Failed to delete template')
+    }
+  })
 
   if (studioThemeKey) {
     return <ThemeStudio initialThemeKey={studioThemeKey} onBack={() => setStudioThemeKey(null)} />
@@ -1275,6 +1292,13 @@ export function AdminStorefronts() {
                   >
                     <Code2 className="size-3" /> Edit Code
                   </Button>
+                  <button
+                    onClick={() => setTemplateToDelete(tpl)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    title={`Delete template ${tpl.name}`}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
                 </div>
               </div>
             </Card>
@@ -1387,6 +1411,69 @@ export function AdminStorefronts() {
             )}
           </div>
         </div>
+      </Modal>
+
+      {/* Delete Template Confirmation Modal */}
+      <Modal
+        open={!!templateToDelete}
+        onClose={() => setTemplateToDelete(null)}
+        title={templateToDelete ? `Delete Template: ${templateToDelete.name}` : 'Delete Template'}
+      >
+        {templateToDelete && (
+          <div className="space-y-4">
+            {templateToDelete.stores_count > 0 ? (
+              <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="size-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="text-xs text-amber-800 space-y-1">
+                    <p className="font-bold text-sm text-amber-900">Cannot Delete Active Template</p>
+                    <p>
+                      This template is currently used by <strong>{templateToDelete.stores_count} live storefront(s)</strong>.
+                    </p>
+                    <p>
+                      To prevent merchant storefront errors, please reassign those stores to another template before deleting.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <Button variant="secondary" onClick={() => setTemplateToDelete(null)}>
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-4">
+                  <Trash2 className="size-5 text-red-600 shrink-0 mt-0.5" />
+                  <div className="text-xs text-red-800 space-y-1">
+                    <p className="font-bold text-sm text-red-900">Are you sure you want to delete this template?</p>
+                    <p>
+                      Template <strong>{templateToDelete.name}</strong> (<code className="font-mono text-red-900">/{templateToDelete.key}</code>) will be permanently removed from the storefront catalog.
+                    </p>
+                    <p className="text-[11px] text-red-700">
+                      A backup copy of all source files will be safely archived on the server.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="secondary" onClick={() => setTemplateToDelete(null)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="danger"
+                    disabled={deleteThemeMutation.isPending}
+                    onClick={() => deleteThemeMutation.mutate(templateToDelete.key)}
+                    className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-1.5"
+                  >
+                    <Trash2 className="size-3.5" />
+                    {deleteThemeMutation.isPending ? 'Deleting...' : 'Delete Template'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   )

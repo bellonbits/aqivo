@@ -195,27 +195,51 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
             except Exception:
                 pass
 
-    if business:
-        # User or business should never see /ecomm-templates in URL: redirect to merchant storefront path
-        if request.query_params.get("preview") != "1":
-            qs = str(request.url.query)
-            target_url = f"/{business.slug}/{cleaned_name}" + (f"?{qs}" if qs else "")
-            return RedirectResponse(target_url, status_code=302)
+    if not business:
+        business = db.scalars(select(Business).where(Business.status == BusinessStatus.ACTIVE, Business.deleted_at.is_(None))).first()
+    if not business:
+        business = db.scalars(select(Business).where(Business.deleted_at.is_(None))).first()
 
-        from app.services.site_render import build_context
-        ecomm_ctx = build_context(db, business, draft=True, root=f"/{business.slug}")
-        html_out = ecomm_site.render_ecomm(db, ecomm_ctx, business, key, cleaned_name, item_id=request.query_params.get("id"), draft=is_draft)
+    if not business:
+        brand_name = ecomm_site.DEMO_BRANDS.get(key, ["Aqivo Demo Store"])[0]
+        business = Business(
+            name=brand_name,
+            slug=key,
+            currency="KSh",
+            industry="retail",
+            address="Kilimani, Nairobi, Kenya",
+            phone="+254700000000",
+            email="demo@aqivo.shop",
+            description=f"Official {brand_name} catalogue and store preview powered by Aqivo.",
+            status=BusinessStatus.ACTIVE,
+        )
+
+    # If explicit merchant slug was provided and not in preview mode, redirect to merchant URL
+    if bz_slug and request.query_params.get("preview") != "1":
+        qs = str(request.url.query)
+        target_url = f"/{business.slug}/{cleaned_name}" + (f"?{qs}" if qs else "")
+        return RedirectResponse(target_url, status_code=302)
+
+    from app.services.site_render import build_context
+    root_path = f"/ecomm-templates/{key}"
+    ecomm_ctx = build_context(db, business, draft=True, root=root_path)
+    try:
+        html_out = ecomm_site.render_ecomm(
+            db, ecomm_ctx, business, key, cleaned_name,
+            item_id=request.query_params.get("id"),
+            draft=is_draft
+        )
         return HTMLResponse(html_out, headers=NOSTORE)
-
-    if is_draft:
-        from app.services.theme_studio import DRAFTS_ROOT
-        draft_target = DRAFTS_ROOT / key / cleaned_name
-        if draft_target.is_file():
-            return FileResponse(draft_target, headers=NOSTORE)
-
-    if target_file.is_file():
-        return FileResponse(target_file, headers=NOSTORE)
-    raise HTTPException(404, "Page not found")
+    except Exception as exc:
+        log.warning("render_ecomm preview fallback for %s/%s: %s", key, cleaned_name, exc)
+        if is_draft:
+            from app.services.theme_studio import DRAFTS_ROOT
+            draft_target = DRAFTS_ROOT / key / cleaned_name
+            if draft_target.is_file():
+                return FileResponse(draft_target, headers=NOSTORE)
+        if target_file.is_file():
+            return FileResponse(target_file, headers=NOSTORE)
+        raise HTTPException(404, "Page not found")
 
 
 app.mount("/ecomm-templates", StaticFiles(directory=BASE / "public" / "ecomm_templates", html=True), name="ecomm-templates")
@@ -455,6 +479,14 @@ def catch_all(full_path: str, request: Request):
         return root(request)
     parts = [p for p in full_path.split("/") if p]
     first = parts[0].lower() if parts else ""
+    if first == "ecomm-templates":
+        key = parts[1] if len(parts) > 1 else ""
+        subpath = "/".join(parts[2:]) if len(parts) > 2 else "index.html"
+        _db = SessionLocal()
+        try:
+            return ecomm_template_preview_page(key=key, request=request, page_name=subpath, db=_db)
+        finally:
+            _db.close()
     if any(p.startswith(".") for p in parts) or any(p in RESERVED_SLUGS for p in parts):
         resp = _spa(full_path)
         if resp is not None:
