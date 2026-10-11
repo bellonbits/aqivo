@@ -36,6 +36,7 @@ def main():
             user.email_verified = True
             user.failed_logins = 0
             user.locked_until = None
+            user.deleted_at = None
             if full_name:
                 user.full_name = full_name
             db.commit()
@@ -55,10 +56,19 @@ def main():
             db.commit()
             print(f"SUCCESS: New admin user '{email}' created with SUPER_ADMIN privileges!")
 
+        # Self-verification check simulating /api/v1/auth/login
+        from app.core.security import verify_password
+        chk = db.scalars(select(User).where(User.email == email, User.deleted_at.is_(None))).first()
+        if not chk or not chk.is_active or not verify_password(password, chk.password_hash):
+            print("ERROR: Self-verification test failed!")
+            sys.exit(1)
+
         print("\n-------------------------------------------")
         print(f"Email:    {email}")
         print(f"Password: {password}")
         print(f"Role:     SUPER_ADMIN")
+        print("Status:   ACTIVE & VERIFIED")
+        print("Self-test: Auth verification PASSED")
         print("-------------------------------------------\n")
 
 

@@ -1,8 +1,9 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from './AuthContext'
 import { api } from '@/lib/api'
-import { Button, TextField } from '@/components/ui'
+import { Button, Input, TextField } from '@/components/ui'
 import { Logo } from '@/components/Logo'
 
 function AuthShell({ title, sub, children, footer }: { title: string; sub: string; children: ReactNode; footer: ReactNode }) {
@@ -50,7 +51,11 @@ export function LoginPage() {
   const loc = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { error, busy, submit } = useSubmit(async () => { await login(email, password); nav((loc.state as { from?: string } | null)?.from ?? '/dashboard', { replace: true }) })
+  const [showPassword, setShowPassword] = useState(false)
+  const { error, busy, submit } = useSubmit(async () => {
+    await login(email.trim().toLowerCase(), password)
+    nav((loc.state as { from?: string } | null)?.from ?? '/dashboard', { replace: true })
+  })
   const tryGuest = useSubmit(async () => { await guest(); nav('/dashboard', { replace: true }) })
   return (
     <AuthShell
@@ -60,7 +65,28 @@ export function LoginPage() {
     >
       <form onSubmit={submit} className="space-y-4">
         <TextField label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        <TextField label="Password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-ink">Password</label>
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+              tabIndex={-1}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
+        </div>
         {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">{error}</p>}
         <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy}>Sign in</Button>
         <p className="text-center text-sm"><Link to="/forgot-password" className="font-semibold underline text-[#5B21F5]">Forgot password?</Link></p>
