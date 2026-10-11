@@ -1932,10 +1932,135 @@
       if (thumbEl) thumbEl.classList.add('active');
     }
 
+    function selectServiceForBooking(id, name, price, duration) {
+      addToCart(id);
+      var selectEl = document.getElementById('book-service');
+      if (selectEl) {
+        for (var i = 0; i < selectEl.options.length; i++) {
+          if (selectEl.options[i].value.toLowerCase().indexOf(name.toLowerCase().substring(0, 10)) !== -1) {
+            selectEl.selectedIndex = i;
+            break;
+          }
+        }
+      }
+      var bookingSec = document.getElementById('booking-form-section');
+      if (bookingSec) {
+        bookingSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('Selected ' + name + ' (' + (duration || '') + '). Choose your date & time.');
+      } else {
+        openCheckout();
+      }
+    }
+
+    function submitInlineBooking(formEl) {
+      var name = formEl.elements['name'] ? formEl.elements['name'].value : '';
+      var phone = formEl.elements['phone'] ? formEl.elements['phone'].value : '';
+      var service = formEl.elements['service'] ? formEl.elements['service'].value : '';
+      var date = formEl.elements['date'] ? formEl.elements['date'].value : '';
+      var time = formEl.elements['time'] ? formEl.elements['time'].value : '';
+      var locationType = formEl.elements['locationType'] ? formEl.elements['locationType'].value : 'Studio Visit';
+      var notes = formEl.elements['notes'] ? formEl.elements['notes'].value : '';
+
+      if (!name || !phone || !service || !date || !time) {
+        showToast('Please fill in your name, phone, service, date, and time.');
+        return;
+      }
+
+      var priceMatch = service.match(/Ksh\s*([\d,]+)/i);
+      var estimatedPrice = priceMatch ? parseInt(priceMatch[1].replace(/,/g, ''), 10) : 0;
+
+      var receiptNo = generateReceiptNumber();
+      var orderId = 'BK-' + Math.floor(1000 + Math.random() * 9000);
+      var bookingOrder = {
+        orderId: orderId,
+        receiptNo: receiptNo,
+        customer: { name: name, phone: phone },
+        items: [{
+          id: 'service-' + Date.now(),
+          name: service,
+          price: estimatedPrice,
+          qty: 1,
+          total: estimatedPrice
+        }],
+        subtotal: estimatedPrice,
+        deliveryFee: 0,
+        taxFee: 0,
+        discount: 0,
+        total: estimatedPrice,
+        fulfilment: locationType,
+        address: locationType === 'Studio Visit' ? 'Rose Ave, Kilimani (Opposite Quickmart)' : (notes || 'House Call'),
+        paymentMethod: 'Cash or M-Pesa Till at Studio',
+        booking: {
+          date: date,
+          time: time,
+          service: service,
+          notes: notes
+        },
+        status: 'Pending Confirmation',
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        var existing = JSON.parse(localStorage.getItem('aqivo_orders') || '[]');
+        existing.unshift(bookingOrder);
+        localStorage.setItem('aqivo_orders', JSON.stringify(existing));
+      } catch (e) {}
+
+      state.lastOrder = bookingOrder;
+
+      var refEl = document.getElementById('order-success-ref');
+      if (refEl) refEl.textContent = 'Booking Request #' + bookingOrder.receiptNo;
+
+      var nameEl = document.getElementById('order-success-name');
+      if (nameEl) nameEl.textContent = name;
+
+      var phoneEl = document.getElementById('order-success-phone');
+      if (phoneEl) phoneEl.textContent = phone;
+
+      var fulEl = document.getElementById('order-success-fulfilment');
+      if (fulEl) fulEl.textContent = locationType + ' • ' + date + ' ' + time;
+
+      var payEl = document.getElementById('order-success-payment');
+      if (payEl) payEl.textContent = 'Cash or M-Pesa Till at Studio';
+
+      var totalEl = document.getElementById('order-success-total');
+      if (totalEl) totalEl.textContent = state.currencySymbol + ' ' + fmt(estimatedPrice);
+
+      var modalDesc = document.getElementById('order-success-desc');
+      if (modalDesc) modalDesc.textContent = "Your booking request has been received. We'll confirm via WhatsApp/SMS shortly.";
+
+      var successModal = document.getElementById('order-success-modal');
+      if (successModal) {
+        successModal.classList.add('active');
+      }
+
+      showToast("Booking request received! We'll confirm shortly.");
+    }
+
+    function submitBookingViaWhatsApp(formEl) {
+      var name = formEl && formEl.elements['name'] ? formEl.elements['name'].value : '';
+      var service = formEl && formEl.elements['service'] ? formEl.elements['service'].value : 'an appointment';
+      var date = formEl && formEl.elements['date'] ? formEl.elements['date'].value : '';
+      var time = formEl && formEl.elements['time'] ? formEl.elements['time'].value : '';
+      var notes = formEl && formEl.elements['notes'] ? formEl.elements['notes'].value : '';
+
+      var serviceName = service.split('—')[0].split('-')[0].trim();
+      var msg = "Hi, I'd like to book a " + serviceName + (date ? " on " + date : "") + (time ? " at " + time : "");
+      if (name) msg += ". Name: " + name;
+      if (notes) msg += ". Notes: " + notes;
+
+      var waPhone = (state.store && state.store.whatsappPhone) || '254744567890';
+      var waUrl = "https://wa.me/" + waPhone + "?text=" + encodeURIComponent(msg);
+      window.open(waUrl, '_blank');
+    }
+
     window.StoreApp = {
       state: state,
       store: state.store,
       setStore: function (s) { state.store = s; },
+      selectServiceForBooking: selectServiceForBooking,
+      submitInlineBooking: submitInlineBooking,
+      submitBookingViaWhatsApp: submitBookingViaWhatsApp,
       addToCart: addToCart,
       removeItem: removeItem,
       updateQty: updateQty,

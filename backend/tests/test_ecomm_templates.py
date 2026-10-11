@@ -173,4 +173,64 @@ def test_store_ai_classification_and_blueprint():
     assert classify_business("Two Sides Boutique", "Women fashion and dresses", "retail", "Boutique") == "PRODUCT"
 
 
+def test_template_html_and_css_alignment():
+    from pathlib import Path
+    base_tpl = Path("/Users/mac/bazorafrica/backend/app/public/ecomm_templates")
+
+    # 1. Zuri Beauty (Service / Booking)
+    zuri_html = (base_tpl / "zuribeauty/index.html").read_text()
+    assert "nav-book-btn" in zuri_html
+    assert "Book Appointment Now" in zuri_html
+    assert "Book on WhatsApp" in zuri_html
+    assert "service-duration-badge" in zuri_html
+    assert "inline-booking-form" in zuri_html
+    assert "studio-policy-strip" in zuri_html
+    assert "Studio Location & Landmark" in zuri_html
+    assert "Walk-in & Booking Policy" in zuri_html
+    assert "Booking Request Received!" in zuri_html
+    assert "Your booking request has been received. We'll confirm via WhatsApp/SMS shortly." in zuri_html
+    assert "4.9 (1.4k)" not in zuri_html
+
+    zuri_css = (base_tpl / "zuribeauty/styles/mobile-store.css").read_text()
+    assert ".nav-book-btn" in zuri_css
+    assert ".service-duration-badge" in zuri_css
+    assert ".booking-section-container" in zuri_css
+    assert ".studio-policy-strip" in zuri_css
+
+    zuri_checkout = (base_tpl / "zuribeauty/checkout.html").read_text()
+    assert "Service & Appointment Booking" in zuri_checkout
+    assert "Appointment Schedule & Location" in zuri_checkout
+    assert "Studio Visit" in zuri_checkout
+    assert "House Call" in zuri_checkout
+    assert "Doorstep Delivery" not in zuri_checkout
+
+    zuri_cart = (base_tpl / "zuribeauty/cart.html").read_text()
+    assert "Selected Services & Treatments" in zuri_cart
+    assert "Proceed to Schedule Appointment" in zuri_cart
+
+    # 2. Mavuno Fresh (Shop / Product - Groceries)
+    mavuno_html = (base_tpl / "mavunofresh/index.html").read_text()
+    assert "4.8 (1.4k)" not in mavuno_html
+    assert "Nairobi Delivery: Flat Ksh 150" in mavuno_html
+    assert "Order on WhatsApp" in mavuno_html
+
+    # 3. Two Sides Boutique (Shop / Product - Fashion)
+    two_html = (base_tpl / "twosidesboutique/index.html").read_text()
+    assert "4.9 (890)" not in two_html
+    assert "Same-Day Nairobi Courier: Ksh 200" in two_html
+    assert "Order on WhatsApp" in two_html
+
+    # 4. Brew & Bites (Food / Restaurant)
+    brew_html = (base_tpl / "brewandbites/index.html").read_text()
+    assert "4.9 (2.1k)" not in brew_html
+    assert "15–25 min Prep Time" in brew_html
+    assert "Kitchen Closes: 10:00 PM" in brew_html
+
+    brew_checkout = (base_tpl / "brewandbites/checkout.html").read_text()
+    assert "Dine-in" in brew_checkout
+    assert "Table Number" in brew_checkout
+    assert "Takeaway" in brew_checkout
+
+
+
 
