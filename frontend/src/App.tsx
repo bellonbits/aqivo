@@ -34,7 +34,10 @@ const AI = page(() => import('@/pages/dashboard/AI'))
 const Settings = page(() => import('@/pages/dashboard/Settings'))
 const adm = <K extends string>(k: K) => lazy(() => import('@/pages/admin/Admin').then((m) => ({ default: (m as unknown as Record<K, React.ComponentType>)[k] })))
 const AdminDashboard = adm('AdminDashboard'), AdminBusinesses = adm('AdminBusinesses'), AdminNewBusiness = adm('AdminNewBusiness'), AdminBusinessDetail = adm('AdminBusinessDetail'),
-  AdminSales = adm('AdminSales'), AdminSupport = adm('AdminSupport'), AdminPlans = adm('AdminPlans'), AdminAudit = adm('AdminAudit')
+  AdminSales = adm('AdminSales'), AdminSupport = adm('AdminSupport'), AdminPlans = adm('AdminPlans'), AdminAudit = adm('AdminAudit'),
+  AdminOrders = adm('AdminOrders'), AdminSubscriptions = adm('AdminSubscriptions'), AdminStorefronts = adm('AdminStorefronts'),
+  AdminCategories = adm('AdminCategories'), AdminNotifications = adm('AdminNotifications'), AdminStaff = adm('AdminStaff'),
+  AdminAnalytics = adm('AdminAnalytics'), AdminHealth = adm('AdminHealth'), AdminSettings = adm('AdminSettings')
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 15_000 } } })
 
@@ -78,10 +81,20 @@ export default function App() {
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="businesses" element={<AdminBusinesses />} />
+                  <Route path="merchants" element={<Navigate to="/admin/businesses" replace />} />
                   <Route path="businesses/new" element={<AdminNewBusiness />} />
                   <Route path="businesses/:id" element={<AdminBusinessDetail />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="subscriptions" element={<AdminSubscriptions />} />
+                  <Route path="storefronts" element={<AdminStorefronts />} />
+                  <Route path="categories" element={<AdminCategories />} />
                   <Route path="sales" element={<AdminSales />} />
                   <Route path="support" element={<AdminSupport />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="staff" element={<AdminStaff />} />
+                  <Route path="health" element={<AdminHealth />} />
+                  <Route path="settings" element={<AdminSettings />} />
                   <Route path="plans" element={<AdminPlans />} />
                   <Route path="audit" element={<AdminAudit />} />
                 </Route>
