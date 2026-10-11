@@ -187,8 +187,11 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
     return ""
 
 
-def render_ecomm(db: Session, ctx: dict, business: Business, key: str) -> str:
-    page = (TEMPLATES_ROOT / key / "index.html").read_text(encoding="utf-8")
+def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html") -> str:
+    target_file = TEMPLATES_ROOT / key / page_name
+    if not target_file.is_file():
+        target_file = TEMPLATES_ROOT / key / "index.html"
+    page = target_file.read_text(encoding="utf-8")
     data = build_data(db, ctx, business)
     data["key"] = key
     for brand in DEMO_BRANDS[key]:

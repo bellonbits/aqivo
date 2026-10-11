@@ -3,7 +3,19 @@
  * catalogue/services (window.__BZ, injected by services/ecomm_site.py) and routes checkout / bookings to the backend. */
 (function () {
   var B = window.__BZ;
+  if (!B) {
+    try {
+      var saved = sessionStorage.getItem("aqivo_active_bz");
+      if (saved) {
+        window.__BZ = JSON.parse(saved);
+        B = window.__BZ;
+      }
+    } catch (e) {}
+  }
   if (!B) return;
+  try {
+    sessionStorage.setItem("aqivo_active_bz", JSON.stringify(B));
+  } catch (e) {}
   var KEY = B.key, ITEMS = B.items || [], CATS = B.categories || [];
   var byId = {}; ITEMS.forEach(function (p) { byId[p.id] = p; });
 
@@ -338,11 +350,17 @@
         if (el.tagName === "SPAN" || el.classList.contains("hero-store-title")) el.textContent = B.name;
       });
       document.querySelectorAll(".site-brand-logo").forEach(function (el) {
-        el.setAttribute("href", "javascript:void(0)");
-        el.onclick = function (e) {
-          e.preventDefault();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        };
+        el.setAttribute("href", "index.html");
+      });
+      document.querySelectorAll(".nav-cart-btn").forEach(function (el) {
+        if (el.tagName === "BUTTON") {
+          el.onclick = function (e) {
+            e.preventDefault();
+            window.location.href = "cart.html";
+          };
+        } else if (el.tagName === "A") {
+          el.setAttribute("href", "cart.html");
+        }
       });
 
       var heroDesc = document.querySelector(".hero-store-desc");
@@ -431,6 +449,8 @@
           window.StoreApp.cart = window.StoreApp.cart.filter(function (ci) { return !!byId[ci.id]; });
           window.StoreApp.updateCartUI();
         }
+        window.StoreApp.openCart = function () { window.location.href = "cart.html"; };
+        window.StoreApp.openCheckout = function () { window.location.href = "checkout.html"; };
 
         var origOpen = window.StoreApp.openProductDetail;
         window.StoreApp.openProductDetail = function (prodId) {
@@ -567,7 +587,8 @@
               g.items.map(function (p) {
                 var priceStr = fmt(p.price);
                 var imgUrl = pic(p);
-                return '<a href="javascript:void(0)" onclick="event.preventDefault(); window.StoreApp && window.StoreApp.openProductDetail && window.StoreApp.openProductDetail(\'' + esc(p.id) + '\');" class="menu-card" data-prod-id="' + esc(p.id) + '" data-prod-name="' + esc(p.name) + '">' +
+                var itemDetailPage = p.kind === "service" ? "service.html" : (tplKey === "zuribeauty" ? "service.html" : "product.html");
+                return '<a href="' + itemDetailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-id="' + esc(p.id) + '" data-prod-name="' + esc(p.name) + '">' +
                   '<div class="menu-card-img-box">' +
                   (p.featured ? '<span class="card-popular-badge">Popular</span>' : '') +
                   '<img src="' + esc(imgUrl) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
@@ -593,16 +614,41 @@
         var activeP = ITEMS.find(function (x) { return x.id === prodId; }) || ITEMS[0];
         if (activeP) {
           var crumb = document.getElementById("pdp-crumb-title"); if (crumb) crumb.textContent = activeP.name;
+          var crumbCat = document.getElementById("pdp-crumb-cat"); if (crumbCat) crumbCat.textContent = activeP.category || (isService ? "Services" : "Catalogue");
           var title = document.getElementById("pdp-item-title"); if (title) title.textContent = activeP.name;
+          var catTag = document.getElementById("pdp-category-tag"); if (catTag) catTag.textContent = activeP.category || B.name;
           var hImg = document.getElementById("pdp-hero-img"); if (hImg) { hImg.src = pic(activeP); hImg.alt = activeP.name; }
+          var thumb0 = document.querySelector("#pdp-thumb-0 img"); if (thumb0) thumb0.src = pic(activeP);
           var desc = document.getElementById("pdp-description-text"); if (desc) desc.textContent = activeP.desc || "";
           var prc = document.getElementById("pdp-price-bold"); if (prc) prc.textContent = fmt(activeP.price);
+          var addBtn = document.getElementById("pdp-add-bag-btn");
+          if (addBtn) {
+            addBtn.textContent = (activeP.kind === "service" || isService ? "Book Service — " : "Add to Bag — ") + fmt(activeP.price);
+            addBtn.onclick = function (e) {
+              e.preventDefault();
+              var qty = (window.StoreApp.state && window.StoreApp.state.pdpQty) || 1;
+              window.StoreApp.addToCart(activeP.id, "", qty);
+            };
+          }
+          var waBtn = document.querySelector(".pdp-cta-whatsapp");
+          if (waBtn) {
+            waBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> ' +
+              (activeP.kind === "service" || isService ? "Book on WhatsApp" : "Order on WhatsApp");
+            waBtn.onclick = function (e) {
+              e.preventDefault();
+              var phone = (B.phone || B.wa || "").replace(/\+/g, "").replace(/\s+/g, "");
+              var actionWord = (activeP.kind === "service" || isService) ? "book: " : "order: ";
+              var msg = encodeURIComponent("Hello " + B.name + ", I would like to " + actionWord + activeP.name + " (" + fmt(activeP.price) + ")");
+              window.open("https://wa.me/" + phone + "?text=" + msg, "_blank");
+            };
+          }
         }
         var simGrid = document.querySelector(".similar-products-grid");
         if (simGrid) {
           var related = ITEMS.filter(function (x) { return !activeP || x.id !== activeP.id; }).slice(0, 4);
           simGrid.innerHTML = related.map(function (p) {
-            return '<a href="javascript:void(0)" onclick="event.preventDefault(); window.StoreApp && window.StoreApp.openProductDetail && window.StoreApp.openProductDetail(\'' + esc(p.id) + '\');" class="menu-card" data-prod-id="' + esc(p.id) + '" data-prod-name="' + esc(p.name) + '">' +
+            var itemDetailPage = p.kind === "service" ? "service.html" : (tplKey === "zuribeauty" ? "service.html" : "product.html");
+            return '<a href="' + itemDetailPage + '?id=' + encodeURIComponent(p.id) + '" class="menu-card" data-prod-id="' + esc(p.id) + '" data-prod-name="' + esc(p.name) + '">' +
               '<div class="menu-card-img-box">' +
               '<img src="' + esc(pic(p)) + '" alt="' + esc(p.name) + '" loading="lazy" />' +
               '<button class="card-add-btn" aria-label="Add ' + esc(p.name) + '" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'' + esc(p.id) + '\');">' +
@@ -614,33 +660,6 @@
               '</a>';
           }).join("");
         }
-      }
-
-      // 8. Global delegated click interceptor: prevent navigating away to static template files
-      document.addEventListener("click", function (e) {
-        var card = e.target.closest(".menu-card");
-        if (!card) return;
-        if (e.target.closest(".card-add-btn")) return; // Let addToCart handle button clicks
-        e.preventDefault();
-        e.stopPropagation();
-        var prodId = card.getAttribute("data-prod-id");
-        if (!prodId) {
-          var name = card.getAttribute("data-prod-name");
-          var item = ITEMS.find(function (x) { return x.name === name; });
-          if (item) prodId = item.id;
-        }
-        if (!prodId && ITEMS.length) prodId = ITEMS[0].id;
-        if (prodId && window.StoreApp && window.StoreApp.openProductDetail) {
-          window.StoreApp.openProductDetail(prodId);
-        }
-      }, true);
-
-      // 9. Auto-open modal if URL query param ?id= was supplied
-      var initialId = new URLSearchParams(window.location.search).get("id");
-      if (initialId && window.StoreApp && window.StoreApp.openProductDetail) {
-        setTimeout(function () {
-          window.StoreApp.openProductDetail(initialId);
-        }, 150);
       }
     });
   }

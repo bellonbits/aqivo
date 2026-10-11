@@ -202,6 +202,17 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
             return _message("Page not found", "We couldn't find that page.", 404)
         return HTMLResponse(render(tpl, **ctx), headers=headers or CACHE)
 
+    from app.services import ecomm_site
+    ecomm_key = b.website.template.key if (b.website and b.website.template) else None
+    if ecomm_site.is_ecomm(ecomm_key):
+        ecomm_ctx = build_context(db, b, root=root)
+        if head in ("cart", "cart.html"):
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "cart.html"), headers=NOSTORE)
+        if head in ("checkout", "checkout.html"):
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "checkout.html"), headers=NOSTORE)
+        if head in ("product.html", "service.html", "receipt.html"):
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, head), headers=NOSTORE)
+
     if head == "p" and n == 2:
         site = b.website
         pg = db.scalars(select(WebsitePage).where(WebsitePage.website_id == site.id, WebsitePage.slug == rest[1].lower())).first() if site else None

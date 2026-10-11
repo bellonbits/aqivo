@@ -89,6 +89,8 @@
 
       var cartCountLabel = document.getElementById('cart-drawer-count');
       if (cartCountLabel) cartCountLabel.textContent = totalQty + (totalQty === 1 ? ' item' : ' items');
+      var cartPageCount = document.getElementById('cart-item-count-label');
+      if (cartPageCount) cartPageCount.textContent = totalQty + (totalQty === 1 ? ' item' : ' items');
 
       var container = document.getElementById('cart-items-container');
       if (!container) return;
@@ -96,14 +98,17 @@
       if (state.cart.length === 0) {
         container.innerHTML = '<div style="text-align:center; padding: 48px 16px; color:#71717A;">' +
           '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#A1A1AA" stroke-width="1.5" style="margin-bottom:12px;"><circle cx="9" cy="21" r="1.5"/><circle cx="20" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>' +
-          '<h4 style="font-size:16px; font-weight:800; color:#18181B; margin-bottom:4px;">Your cart is empty</h4>' +
-          '<p style="font-size:13px;">Add some items to start your order.</p>' +
+          '<h4 style="font-size:18px; font-weight:800; color:#18181B; margin-bottom:6px;">Your basket is empty</h4>' +
+          '<p style="font-size:14px; margin-bottom:18px;">Browse our catalogue to add items.</p>' +
+          '<a href="index.html" class="btn-continue-shopping" style="display:inline-flex; align-items:center; gap:6px; background:#18181B; color:#fff; font-weight:700; font-size:13px; padding:10px 22px; border-radius:9999px; text-decoration:none;">Explore Catalogue</a>' +
           '</div>';
         
         var summaryBox = document.getElementById('cart-summary-box');
         if (summaryBox) summaryBox.style.display = 'none';
         var checkoutBtn = document.getElementById('cart-checkout-btn');
         if (checkoutBtn) checkoutBtn.disabled = true;
+        var proceedBtn = document.getElementById('cart-btn-proceed');
+        if (proceedBtn) proceedBtn.style.display = 'none';
         return;
       }
 
@@ -111,13 +116,15 @@
       if (summaryBox) summaryBox.style.display = 'block';
       var checkoutBtn = document.getElementById('cart-checkout-btn');
       if (checkoutBtn) checkoutBtn.disabled = false;
+      var proceedBtn = document.getElementById('cart-btn-proceed');
+      if (proceedBtn) proceedBtn.style.display = 'flex';
 
       var html = '';
       state.cart.forEach(function (item, index) {
         var optStr = item.option ? ' <span style="font-size:11px; color:#71717A;">(' + item.option + ')</span>' : '';
-        html += '<div class="cart-drawer-item">';
+        html += '<div class="cart-drawer-item" style="position:relative;">';
         html += '  <img src="' + item.image + '" alt="' + item.name + '" class="cart-drawer-thumb">';
-        html += '  <div class="cart-drawer-info">';
+        html += '  <div class="cart-drawer-info" style="flex:1;">';
         html += '    <h4 class="cart-drawer-item-title">' + item.name + optStr + '</h4>';
         html += '    <div class="cart-drawer-item-price">' + state.currencySymbol + ' ' + fmt(item.price) + '</div>';
         html += '    <div class="cart-stepper">';
@@ -126,6 +133,7 @@
         html += '      <button class="cart-stepper-btn plus" onclick="window.StoreApp.updateQty(' + index + ', 1)">+</button>';
         html += '    </div>';
         html += '  </div>';
+        html += '  <button type="button" class="cart-item-delete-btn" aria-label="Remove ' + item.name + '" onclick="window.StoreApp.removeItem(' + index + ')" style="background:none; border:none; color:#94A3B8; cursor:pointer; font-size:18px; padding:6px 10px; border-radius:6px;">✕</button>';
         html += '</div>';
       });
       container.innerHTML = html;
@@ -187,10 +195,16 @@
       updateCartUI();
     }
 
+    function removeItem(index) {
+      if (index >= 0 && index < state.cart.length) {
+        state.cart.splice(index, 1);
+        saveCartToStorage();
+        updateCartUI();
+      }
+    }
+
     function openCart() {
-      var overlay = document.getElementById('cart-drawer-overlay');
-      if (overlay) overlay.classList.add('active');
-      updateCartUI();
+      window.location.href = 'cart.html';
     }
 
     function closeCart() {
@@ -465,7 +479,11 @@
       }
 
       var successModal = document.getElementById('order-success-modal');
-      if (successModal) successModal.classList.add('active');
+      if (successModal) {
+        successModal.classList.add('active');
+      } else {
+        window.location.href = getReceiptPageUrl(order);
+      }
 
       showToast('Receipt ' + order.receiptNo + ' generated & order saved!');
     }
@@ -1605,6 +1623,7 @@
       store: state.store,
       setStore: function (s) { state.store = s; },
       addToCart: addToCart,
+      removeItem: removeItem,
       updateQty: updateQty,
       openCart: openCart,
       closeCart: closeCart,
