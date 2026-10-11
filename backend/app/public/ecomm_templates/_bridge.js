@@ -371,6 +371,10 @@
         el.setAttribute("href", "index.html");
       });
       document.querySelectorAll(".nav-cart-btn").forEach(function (el) {
+        if (isService) {
+          el.style.display = "none";
+          return;
+        }
         if (el.tagName === "BUTTON") {
           el.onclick = function (e) {
             e.preventDefault();
@@ -379,6 +383,16 @@
         } else if (el.tagName === "A") {
           el.setAttribute("href", "cart.html");
         }
+      });
+      if (isService) {
+        document.querySelectorAll(".nav-cart-badge").forEach(function (el) {
+          el.style.display = "none";
+        });
+      }
+
+      // Always remove any View Cart / View Bag / Order Food buttons in the hero
+      document.querySelectorAll(".hero-store-content a[href*='cart.html'], .hero-cta-buttons a[href*='cart.html'], .hero-cta-group a[href*='cart.html']").forEach(function (el) {
+        el.remove();
       });
 
       var heroDesc = document.querySelector(".hero-store-desc");
@@ -427,12 +441,36 @@
       }
 
       var allChips = document.querySelectorAll(".hero-meta-chip");
-      if (allChips.length >= 3) {
-        if (isService) {
-          allChips[0].innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Appointments';
+      if (isService) {
+        allChips.forEach(function (chip) {
+          var t = chip.textContent.toLowerCase();
+          if (t.indexOf("delivery") !== -1 || t.indexOf("dispatch") !== -1 || t.indexOf("courier") !== -1 || t.indexOf("prep time") !== -1) {
+            chip.style.display = "none";
+          }
+        });
+        if (allChips[0]) {
+          allChips[0].innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Appointments Priority \u2022 Walk-ins Welcome';
+          allChips[0].style.display = "";
         }
+        if (allChips[1] && locText) {
+          allChips[1].innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + esc(locText);
+          allChips[1].style.display = "";
+        }
+      } else {
         if (!locText && allChips[2]) {
           allChips[2].style.display = "none";
+        }
+      }
+
+      var heroWaBtn = document.querySelector(".hero-action-wa-btn, .hero-whatsapp-booking-btn, .hero-store-content a[href*='wa.me']");
+      if (heroWaBtn) {
+        var cleanPhone = (B.phone || B.wa || "254700000000").replace(/\+/g, "").replace(/\s+/g, "");
+        var waMsg = isService 
+          ? ("Hi, I'd like to book an appointment with " + B.name)
+          : ("Hi, I'd like to order from " + B.name);
+        heroWaBtn.href = "https://wa.me/" + cleanPhone + "?text=" + encodeURIComponent(waMsg);
+        if (isService) {
+          heroWaBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Book on WhatsApp';
         }
       }
 

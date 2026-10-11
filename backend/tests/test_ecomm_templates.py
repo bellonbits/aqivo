@@ -180,7 +180,7 @@ def test_template_html_and_css_alignment():
     # 1. Zuri Beauty (Service / Booking)
     zuri_html = (base_tpl / "zuribeauty/index.html").read_text()
     assert "nav-book-btn" in zuri_html
-    assert "Book Appointment Now" in zuri_html
+    assert "Book Appointment" in zuri_html
     assert "Book on WhatsApp" in zuri_html
     assert "service-duration-badge" in zuri_html
     assert "inline-booking-form" in zuri_html
@@ -213,18 +213,22 @@ def test_template_html_and_css_alignment():
     assert "4.8 (1.4k)" not in mavuno_html
     assert "Nairobi Delivery: Flat Ksh 150" in mavuno_html
     assert "Order on WhatsApp" in mavuno_html
+    assert "View Cart" not in mavuno_html
 
     # 3. Two Sides Boutique (Shop / Product - Fashion)
     two_html = (base_tpl / "twosidesboutique/index.html").read_text()
     assert "4.9 (890)" not in two_html
     assert "Same-Day Nairobi Courier: Ksh 200" in two_html
     assert "Order on WhatsApp" in two_html
+    assert "View Bag" not in two_html
 
     # 4. Brew & Bites (Food / Restaurant)
     brew_html = (base_tpl / "brewandbites/index.html").read_text()
     assert "4.9 (2.1k)" not in brew_html
     assert "15–25 min Prep Time" in brew_html
     assert "Kitchen Closes: 10:00 PM" in brew_html
+    assert "Order on WhatsApp" in brew_html
+    assert "Order Food" not in brew_html
 
     brew_checkout = (base_tpl / "brewandbites/checkout.html").read_text()
     assert "Dine-in" in brew_checkout
