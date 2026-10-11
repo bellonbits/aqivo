@@ -11,9 +11,11 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - MEDIA_DIR=/app/storage
+      - FRONTEND_DIST_DIR=/app/dist
     volumes:
       - media_storage:/app/storage
       - ./backend/app:/app/app
+      - ./frontend/dist:/app/dist:ro
     expose:
       - "8000"
     ports:
