@@ -702,14 +702,53 @@
 
     function getStoreBranding() {
       var s = state.store || {};
+      var bz = null;
+      if (typeof window !== 'undefined') {
+        if (window.__BZ) bz = window.__BZ;
+        else {
+          try {
+            var rawBz = sessionStorage.getItem('aqivo_active_bz');
+            if (rawBz) bz = JSON.parse(rawBz);
+          } catch (e) {}
+        }
+      }
+
+      if (bz && bz.name) {
+        var bzColor = (bz.theme && bz.theme.accent) || (state.currencySymbol ? '#059669' : '#059669');
+        var bzPhone = (bz.phone || bz.wa || s.whatsappPhone || '').replace(/\+/g, '').replace(/\s+/g, '');
+        var bzAddr = bz.address ? bz.address + (bzPhone ? ' \u00b7 ' + bzPhone : '') : (bzPhone ? 'Kenya \u00b7 ' + bzPhone : 'Kenya');
+        var bzIcon = (bz.industry === 'restaurant' || bz.industry === 'food') ? 'food' : ((bz.industry === 'salon' || bz.industry === 'beauty') ? 'beauty' : ((bz.industry === 'agriculture' || bz.industry === 'produce') ? 'leaf' : 'bag'));
+        return {
+          name: bz.name.toUpperCase(),
+          tagline: bz.tagline || (bz.industry ? 'Quality ' + bz.industry + ' services & products' : 'Online Storefront'),
+          contact: bzAddr,
+          phone: bzPhone || '254700000000',
+          color: bzColor,
+          iconBg: '#F3F4F6',
+          iconType: bzIcon
+        };
+      }
+
       var storeName = s.name || 'Two Sides Boutique';
       var lower = storeName.toLowerCase();
+      var isDemoName = (lower === 'two sides boutique' || lower === 'mavuno fresh' || lower === 'brew & bites' || lower === 'zuri beauty studio');
+      if (!isDemoName && s.name) {
+        return {
+          name: storeName.toUpperCase(),
+          tagline: s.tagline || 'Online Storefront',
+          contact: s.contact || ('Nairobi, Kenya \u00b7 ' + (s.whatsappPhone || '0700 000 000')),
+          phone: (s.whatsappPhone || '254700000000').replace(/\+/g, '').replace(/\s+/g, ''),
+          color: '#059669',
+          iconBg: '#E6F9F0',
+          iconType: 'bag'
+        };
+      }
 
       if (lower.indexOf('two sides') !== -1 || lower.indexOf('boutique') !== -1) {
         return {
           name: 'TWO SIDES BOUTIQUE',
           tagline: 'Fashion for every side of you',
-          contact: 'Nairobi, Kenya · 0722 987 654',
+          contact: 'Nairobi, Kenya \u00b7 0722 987 654',
           phone: s.whatsappPhone || '254722987654',
           color: '#059669',
           iconBg: '#E6F9F0',
@@ -719,7 +758,7 @@
         return {
           name: 'MAVUNO FRESH',
           tagline: 'Farm-fresh organic Kenyan produce',
-          contact: 'Nairobi, Kenya · 0711 456 789',
+          contact: 'Nairobi, Kenya \u00b7 0711 456 789',
           phone: s.whatsappPhone || '254711456789',
           color: '#16A34A',
           iconBg: '#E6F9F0',
@@ -729,7 +768,7 @@
         return {
           name: 'BREW & BITES',
           tagline: 'Artisan Coffee & Flame Fried Kitchen',
-          contact: 'Kilimani, Nairobi · 0733 123 456',
+          contact: 'Kilimani, Nairobi \u00b7 0733 123 456',
           phone: s.whatsappPhone || '254733123456',
           color: '#D97706',
           iconBg: '#FEF3C7',
@@ -739,7 +778,7 @@
         return {
           name: 'ZURI BEAUTY STUDIO',
           tagline: 'Luxe Braids & Holistic Beauty Care',
-          contact: 'Rose Avenue, Kilimani · 0744 567 890',
+          contact: 'Rose Avenue, Kilimani \u00b7 0744 567 890',
           phone: s.whatsappPhone || '254744567890',
           color: '#9333EA',
           iconBg: '#F3E8FF',
@@ -750,7 +789,7 @@
       return {
         name: storeName.toUpperCase(),
         tagline: s.tagline || 'Online Storefront',
-        contact: s.contact || 'Nairobi, Kenya · ' + (s.whatsappPhone || '0700 000 000'),
+        contact: s.contact || 'Nairobi, Kenya \u00b7 ' + (s.whatsappPhone || '0700 000 000'),
         phone: s.whatsappPhone || '254700000000',
         color: '#059669',
         iconBg: '#E6F9F0',
@@ -1022,10 +1061,16 @@
       if (path.indexOf('receipt.html') !== -1) {
         return origin + path + (receiptNo ? '?orderId=' + encodeURIComponent(receiptNo) : '');
       }
-      
-      // If in a subfolder like /twosidesboutique/ or root
-      var dir = path.substring(0, path.lastIndexOf('/') + 1);
-      return origin + dir + 'receipt.html' + (receiptNo ? '?orderId=' + encodeURIComponent(receiptNo) : '');
+
+      var parts = path.split('/').filter(Boolean);
+      if (parts.length > 0) {
+        var lastPart = parts[parts.length - 1];
+        if (lastPart.indexOf('.html') !== -1 || lastPart === 'cart' || lastPart === 'checkout' || lastPart === 'product' || lastPart === 'service' || lastPart === 'receipt') {
+          parts.pop();
+        }
+      }
+      var basePath = '/' + (parts.length ? parts.join('/') + '/' : '');
+      return origin + basePath + 'receipt.html' + (receiptNo ? '?orderId=' + encodeURIComponent(receiptNo) : '');
     }
 
     function openReceiptPage(order, newTab) {

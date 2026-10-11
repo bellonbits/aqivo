@@ -165,7 +165,7 @@
   <header class="receipt-page-header">
     <a href="index.html" class="receipt-back-btn" id="receipt-back-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Boutique
+      <span id="receipt-back-btn-text">Back to Store</span>
     </a>
     <div class="receipt-badge-top">
       Verified Aqivo Receipt
@@ -211,6 +211,7 @@
   <div class="receipt-toast" id="receipt-toast">Details copied to clipboard!</div>
 
   <script src="scripts/mobile-store.js"></script>
+  <script src="../_bridge.js"></script>
   <script>
     var currentReceiptOrder = null;
 
@@ -335,8 +336,26 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+      var bz = (typeof window !== 'undefined' && window.__BZ) ? window.__BZ : null;
+      if (!bz) {
+        try {
+          var saved = sessionStorage.getItem('aqivo_active_bz');
+          if (saved) bz = JSON.parse(saved);
+        } catch (e) {}
+      }
+
       if (window.createWebStorefront) {
-        window.createWebStorefront({ store: { name: 'Two Sides Boutique', whatsappPhone: '254722987654' } });
+        window.createWebStorefront({
+          store: {
+            name: (bz && bz.name) || 'Two Sides Boutique',
+            whatsappPhone: (bz && (bz.phone || bz.wa)) || '254722987654'
+          }
+        });
+      }
+
+      var backBtnText = document.getElementById('receipt-back-btn-text');
+      if (backBtnText) {
+        backBtnText.textContent = (bz && bz.name) ? 'Back to ' + bz.name : 'Back to Store';
       }
 
       var params = new URLSearchParams(window.location.search);
@@ -357,24 +376,43 @@
         } catch (e) {}
       }
 
-      // 2. Fallback to latest boutique order in localStorage
+      // 2. Fallback to latest order in localStorage
       if (!orderToDisplay) {
         try {
           var raw2 = localStorage.getItem('aqivo_orders');
           if (raw2) {
             var list2 = JSON.parse(raw2);
-            var boutiqueOrder = list2.find(function(it) {
-              return it.store && it.store.indexOf('TWO SIDES') !== -1;
-            });
-            if (boutiqueOrder) orderToDisplay = boutiqueOrder;
-            else if (list2.length > 0) orderToDisplay = list2[0];
+            if (bz && bz.name) {
+              orderToDisplay = list2.find(function(it) {
+                return it.store && it.store.toLowerCase().indexOf(bz.name.toLowerCase()) !== -1;
+              });
+            }
+            if (!orderToDisplay) {
+              var boutiqueOrder = list2.find(function(it) {
+                return it.store && it.store.indexOf('TWO SIDES') !== -1;
+              });
+              if (boutiqueOrder) orderToDisplay = boutiqueOrder;
+              else if (list2.length > 0) orderToDisplay = list2[0];
+            }
           }
         } catch (e) {}
       }
 
-      // 3. Fallback to default boutique receipt
+      // 3. Fallback to default receipt, adapted for active store if available
       if (!orderToDisplay) {
-        orderToDisplay = DEFAULT_RECEIPT;
+        orderToDisplay = JSON.parse(JSON.stringify(DEFAULT_RECEIPT));
+        if (bz && bz.name) {
+          orderToDisplay.store = bz.name.toUpperCase();
+          orderToDisplay.storeTagline = bz.tagline || (bz.industry ? 'Quality ' + bz.industry + ' services & products' : 'Official Receipt');
+          orderToDisplay.storeContact = (bz.address ? bz.address + (bz.phone ? ' · ' + bz.phone : '') : (bz.phone || 'Kenya'));
+          orderToDisplay.storePhone = (bz.phone || bz.wa || '').replace(/\+/g, '').replace(/\s+/g, '');
+          orderToDisplay.currencySymbol = bz.symbol || bz.currency || 'KSh';
+          if (bz.items && bz.items.length) {
+            orderToDisplay.items = [{ name: bz.items[0].name, price: bz.items[0].price, qty: 1 }];
+            orderToDisplay.subtotal = bz.items[0].price;
+            orderToDisplay.total = bz.items[0].price + (orderToDisplay.deliveryFee || 0);
+          }
+        }
       }
 
       renderOrder(orderToDisplay);

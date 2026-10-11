@@ -210,8 +210,12 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
             return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "cart.html"), headers=NOSTORE)
         if head in ("checkout", "checkout.html"):
             return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "checkout.html"), headers=NOSTORE)
-        if head in ("product.html", "service.html", "receipt.html"):
-            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, head), headers=NOSTORE)
+        if head in ("receipt", "receipt.html"):
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "receipt.html"), headers=NOSTORE)
+        if head in ("product", "product.html"):
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "product.html"), headers=NOSTORE)
+        if head in ("service", "service.html"):
+            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "service.html"), headers=NOSTORE)
 
     if head == "p" and n == 2:
         site = b.website

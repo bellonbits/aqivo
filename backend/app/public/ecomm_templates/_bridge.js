@@ -661,6 +661,14 @@
           }).join("");
         }
       }
+
+      // 8. Order Receipt Page
+      var receiptMount = document.getElementById("receipt-card-mount");
+      if (receiptMount && B && B.name) {
+        document.title = "Order Receipt \u2014 " + B.name;
+        var backBtn = document.getElementById("receipt-back-btn-text");
+        if (backBtn) backBtn.textContent = "Back to " + B.name;
+      }
     });
   }
 

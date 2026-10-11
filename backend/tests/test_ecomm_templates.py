@@ -33,10 +33,11 @@ def test_ecomm_template_renders_real_business_data(make_owner, client, key):
     assert client.get(f"/ecomm-templates/{key}/checkout.html").status_code == 200
     assert client.get(f"/ecomm-templates/{key}/product.html").status_code == 200
     assert client.get(f"/ecomm-templates/{key}/service.html").status_code == 200
+    assert client.get(f"/ecomm-templates/{key}/receipt.html").status_code == 200
     assert client.get(f"/ecomm-templates/_bridge.js").status_code == 200
 
     # Multi-page routing on merchant slug
-    for sub in ["cart", "cart.html", "checkout", "checkout.html", "product.html", "service.html"]:
+    for sub in ["cart", "cart.html", "checkout", "checkout.html", "product", "product.html", "service", "service.html", "receipt", "receipt.html"]:
         resp = client.get(f"/{o.slug}/{sub}")
         assert resp.status_code == 200
         assert f'<base href="/ecomm-templates/{key}/">' in resp.text
