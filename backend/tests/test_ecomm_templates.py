@@ -113,3 +113,47 @@ def test_ecomm_template_receipt_redirects_to_merchant_url(make_owner, client):
     assert 'class="site-storefront-footer"' in final_resp.text
     assert "Joes Kinyozi" in final_resp.text
 
+
+def test_ecomm_meta_og_image_and_booking_fields(make_owner, client):
+    o = make_owner("kinyozi@example.com", "Barber Joe", "Joes Barber", industry="beauty", category="Barbershop")
+    # Add service with image
+    o.post(
+        "/api/v1/services",
+        json={
+            "name": "Fade & Beard Grooming",
+            "price": "800",
+            "duration_minutes": 60,
+            "image_url": "https://images.unsplash.com/photo-barber.jpg",
+        },
+    )
+    o.post("/api/v1/websites/me/template", json={"template_key": "zuribeauty"})
+    o.post("/api/v1/websites/me/publish")
+
+    # Fetch store page
+    r = client.get(f"/{o.slug}/")
+    assert r.status_code == 200
+    html = r.text
+
+    # Verify OpenGraph and Twitter card tags with absolute image URL for WhatsApp preview
+    assert '<meta property="og:image" content="https://images.unsplash.com/photo-barber.jpg"' in html
+    assert '<meta property="og:image:width" content="1200"' in html
+    assert '<meta name="twitter:card" content="summary_large_image"' in html
+    assert '<meta property="og:site_name" content="Joes Barber"' in html
+
+    # Verify bridge.js contains booking date / time injections
+    from pathlib import Path
+    bridge_code = Path("/Users/mac/bazorafrica/backend/app/public/ecomm_templates/_bridge.js").read_text()
+    assert "booking-date" in bridge_code
+    assert "booking-time" in bridge_code
+    assert "Appointment Schedule & Location" in bridge_code
+    assert "House Call / Mobile Service" in bridge_code
+    assert "Studio / Salon Visit" in bridge_code
+
+    # Verify mobile-store.js contains formatWhatsAppOrderMessage with photo and receipt url
+    for tpl in ["mavunofresh", "brewandbites", "zuribeauty", "twosidesboutique"]:
+        ms_code = Path(f"/Users/mac/bazorafrica/backend/app/public/ecomm_templates/{tpl}/scripts/mobile-store.js").read_text()
+        assert "formatWhatsAppOrderMessage" in ms_code
+        assert "📸 Photo:" in ms_code
+        assert "BOOKING & SERVICE RECEIPT" in ms_code
+
+

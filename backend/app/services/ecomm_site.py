@@ -80,6 +80,7 @@ def build_data(db: Session, ctx: dict, business: Business) -> dict:
         "sections": ctx.get("sections", []),
         "industry": business.industry,
         "is_commerce": business.industry in ("retail", "restaurant") or bool(ctx.get("products")),
+        "is_service": business.industry in ("salon", "barbershop", "beauty", "services") or bool(services and not ctx.get("products")),
     }
 
 
@@ -265,7 +266,45 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     if ctx["seo"].get("jsonld_extra"):
         jsonld_tags += f'<script type="application/ld+json">{ctx["seo"]["jsonld_extra"]}</script>'
     
-    og_image_tag = f'<meta property="og:image" content="{_html.escape(ctx["seo"]["og_image"], quote=True)}">' if ctx.get("seo", {}).get("og_image") else ''
+    items = data.get("items") or []
+    og_img = ctx.get("seo", {}).get("og_image")
+    if not og_img:
+        if item_id and items:
+            matched_item = next((it for it in items if str(it.get("id")) == str(item_id)), None)
+            if matched_item and matched_item.get("image"):
+                og_img = matched_item["image"]
+        if not og_img and items:
+            first_with_img = next((it for it in items if it.get("image")), None)
+            if first_with_img:
+                og_img = first_with_img["image"]
+        if not og_img and getattr(business, "logo_url", None):
+            og_img = business.logo_url
+        if not og_img and getattr(business, "cover_image_url", None):
+            og_img = business.cover_image_url
+        if not og_img and ctx.get("cover_image"):
+            og_img = ctx["cover_image"]
+
+    og_image_tag = ''
+    if og_img:
+        if not og_img.startswith("http://") and not og_img.startswith("https://"):
+            og_img = f"https://www.aqivo.shop/{og_img.lstrip('/')}"
+        og_image_tag = (
+            f'<meta property="og:image" content="{_html.escape(og_img, quote=True)}">'
+            f'<meta property="og:image:secure_url" content="{_html.escape(og_img, quote=True)}">'
+            f'<meta property="og:image:width" content="1200">'
+            f'<meta property="og:image:height" content="630">'
+            f'<meta name="twitter:image" content="{_html.escape(og_img, quote=True)}">'
+            f'<meta name="twitter:card" content="summary_large_image">'
+        )
+    page_title = _html.escape(ctx["seo"]["title"], quote=True)
+    og_tags = (
+        f'<meta property="og:title" content="{page_title}">'
+        f'<meta property="og:description" content="{desc}">'
+        f'<meta property="og:site_name" content="{_html.escape(business.name, quote=True)}">'
+        f'<meta property="og:type" content="website">'
+        f'<meta property="og:url" content="{_html.escape(ctx["seo"]["canonical"], quote=True)}">'
+        f'{og_image_tag}'
+    )
 
     tracking_tags = ''
     tracking = ctx.get("tracking")
@@ -285,7 +324,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
             f'<meta name="description" content="{desc}">'
             f'<link rel="canonical" href="{_html.escape(ctx["seo"]["canonical"], quote=True)}">'
             f'<meta name="robots" content="{ctx["seo"]["robots"]}">'
-            f'{og_image_tag}'
+            f'{og_tags}'
             f'{style_tag}'
             f'{jsonld_tags}'
             f'{tracking_tags}')

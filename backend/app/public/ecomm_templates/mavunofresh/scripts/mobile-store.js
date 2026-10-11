@@ -443,6 +443,10 @@
         paymentMethod: chosenMethod,
         paymentInstructions: payInstructions,
         notes: orderNotes,
+        bookingDate: (document.getElementById('booking-date') && document.getElementById('booking-date').value) || '',
+        bookingTime: (document.getElementById('booking-time') && document.getElementById('booking-time').value) || '',
+        bookingNotes: (document.getElementById('booking-notes') && document.getElementById('booking-notes').value) || (document.getElementById('checkout-notes') && document.getElementById('checkout-notes').value) || '',
+        isService: Boolean(bz.is_service || (bz.industry in {salon: 1, barbershop: 1, beauty: 1}) || (state.cart && state.cart.some(function(i){ return i.kind === 'service'; }))),
         orderStatus: 'Order confirmed',
         paymentStatus: 'Awaiting payment confirmation',
         status: 'Unpaid' // Can later be updated to 'Payment reported', 'Paid', 'Refunded'
@@ -614,33 +618,123 @@
       showToast('Payment reported! The seller will verify your payment directly.');
     }
 
+    function formatWhatsAppOrderMessage(o) {
+      var storeName = (state.store && state.store.name) || o.store || 'Store';
+      var receiptUrl = getReceiptPageUrl(o);
+      var bz = window.__BZ || {};
+      var isService = Boolean(o.isService || bz.is_service || (bz.industry in {salon: 1, barbershop: 1, beauty: 1}) || (o.items && o.items.some(function(i){ return i.kind === 'service'; })));
+
+      var header = isService ? '💈 *NEW APPOINTMENT & BOOKING REQUEST*' : '🛍️ *NEW STORE ORDER INQUIRY*';
+      var lines = [
+        header,
+        '━━━━━━━━━━━━━━━━━━━━━',
+        '📍 *Business:* ' + storeName,
+        '🧾 *Receipt / Tracking:* ' + receiptUrl,
+        '━━━━━━━━━━━━━━━━━━━━━',
+        isService ? '💇 *Selected Services:*' : '📦 *Order Items:*'
+      ];
+
+      (o.items || []).forEach(function (it, idx) {
+        var optStr = it.option ? ' (' + it.option + ')' : '';
+        var priceStr = (o.currencySymbol || state.currencySymbol || 'KSh') + ' ' + fmt(it.price * it.qty);
+        lines.push((idx + 1) + '. *' + it.name + optStr + '* × ' + it.qty + ' — ' + priceStr);
+        if (it.image) {
+          var imgUrl = (it.image.indexOf('http') === 0) ? it.image : (window.location.origin + (it.image.charAt(0) === '/' ? '' : '/') + it.image);
+          lines.push('   📸 Photo: ' + imgUrl);
+        }
+      });
+
+      lines.push('─────────────────────');
+      lines.push('💰 *Total Amount:* ' + (o.currencySymbol || state.currencySymbol || 'KSh') + ' ' + fmt(o.total || o.subtotal));
+
+      if (isService || o.bookingDate || o.bookingTime) {
+        lines.push('');
+        lines.push('📅 *Booking & Schedule Details:*');
+        if (o.bookingDate) lines.push('• *Preferred Date:* ' + o.bookingDate);
+        if (o.bookingTime) lines.push('• *Time Slot:* ' + o.bookingTime);
+        lines.push('• *Service Mode:* ' + (o.fulfilment === 'delivery' ? 'House Call / Mobile Service' : 'Visit Studio / Shop'));
+        if (o.customer && o.customer.name) lines.push('• *Client Name:* ' + o.customer.name);
+        if (o.customer && o.customer.phone) lines.push('• *Contact Phone:* ' + o.customer.phone);
+        if (o.bookingNotes || o.notes) lines.push('• *Stylist / Booking Notes:* ' + (o.bookingNotes || o.notes));
+      } else {
+        if (o.customer && (o.customer.name || o.customer.phone)) {
+          lines.push('');
+          lines.push('👤 *Customer Details:*');
+          if (o.customer.name) lines.push('• *Name:* ' + o.customer.name);
+          if (o.customer.phone) lines.push('• *Phone:* ' + o.customer.phone);
+          if (o.address) lines.push('• *Fulfilment:* ' + (o.fulfilment === 'delivery' ? 'Delivery to ' + o.address : 'Store Pickup'));
+        }
+      }
+
+      if (o.paymentMethod) {
+        lines.push('• *Payment Preference:* ' + o.paymentMethod);
+      }
+
+      lines.push('━━━━━━━━━━━━━━━━━━━━━');
+      lines.push(isService 
+        ? 'Please confirm appointment availability and booking confirmation.' 
+        : 'Please confirm item availability, delivery or pickup options, and payment instructions.');
+      lines.push('');
+      lines.push('🔗 View digital receipt: ' + receiptUrl);
+
+      return lines.join('\n');
+    }
+
     function chatOrderOnWhatsApp() {
-      var o = state.lastOrder;
       var phone = (state.store && state.store.whatsappPhone) || '254711456789';
-      var storeName = (state.store && state.store.name) || 'Store';
+      var o = state.lastOrder;
+      var bz = window.__BZ || {};
+      var isService = Boolean((bz.is_service) || (bz.industry in {salon: 1, barbershop: 1, beauty: 1}) || (state.cart && state.cart.some(function(i){ return i.kind === 'service'; })));
+
+      if (!o && state.cart.length > 0) {
+        var receiptNo = generateReceiptNumber();
+        var branding = getStoreBranding();
+        var sub = getSubtotal();
+        var disc = state.discountAmount || 0;
+        var delFee = state.fulfilment === 'delivery' ? (state.deliveryFee || 0) : 0;
+        var tot = Math.max(0, sub - disc + delFee);
+        o = {
+          orderId: receiptNo,
+          receiptNo: receiptNo,
+          businessSlug: bz.slug || '',
+          businessRoot: bz.root || '',
+          businessName: bz.name || branding.name,
+          store: branding.name,
+          createdAt: new Date().toISOString(),
+          dateFormatted: formatDateStandard(new Date()),
+          customer: {
+            name: (document.getElementById('checkout-name') && document.getElementById('checkout-name').value) || '',
+            phone: (document.getElementById('checkout-phone') && document.getElementById('checkout-phone').value) || ''
+          },
+          fulfilment: state.fulfilment || (isService ? 'pickup' : 'delivery'),
+          address: (document.getElementById('checkout-address') && document.getElementById('checkout-address').value) || (isService ? 'Visit Studio / Shop' : 'Store Pickup'),
+          items: JSON.parse(JSON.stringify(state.cart)),
+          subtotal: sub,
+          total: tot,
+          currencySymbol: state.currencySymbol || 'KSh',
+          paymentMethod: 'Lipa Na M-Pesa / WhatsApp Arrangement',
+          status: 'Unpaid',
+          bookingDate: (document.getElementById('booking-date') && document.getElementById('booking-date').value) || '',
+          bookingTime: (document.getElementById('booking-time') && document.getElementById('booking-time').value) || '',
+          bookingNotes: (document.getElementById('booking-notes') && document.getElementById('booking-notes').value) || (document.getElementById('checkout-notes') && document.getElementById('checkout-notes').value) || '',
+          isService: isService
+        };
+        try {
+          var rawOrders = localStorage.getItem('aqivo_orders');
+          var ordersList = rawOrders ? JSON.parse(rawOrders) : [];
+          ordersList.unshift(o);
+          localStorage.setItem('aqivo_orders', JSON.stringify(ordersList));
+        } catch (e) {}
+        state.lastOrder = o;
+      }
 
       if (!o) {
-        var fallbackMsg = 'Hello! I would like to inquire about my order from ' + storeName + '.';
+        var fallbackMsg = 'Hello! I would like to inquire with ' + ((state.store && state.store.name) || 'your business') + '.';
         window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(fallbackMsg), '_blank');
         return;
       }
 
-      var itemsList = o.items.map(function (it) {
-        return '• ' + it.name + (it.option ? ' (' + it.option + ')' : '') + ' x' + it.qty + ' (KSh ' + fmt(it.price * it.qty) + ')';
-      }).join('\n');
-
-      var receiptUrl = getReceiptPageUrl(o);
-      var msg = 'Hello! I\'d like to confirm my order from ' + storeName + '.\n\n' +
-        'Order Ref: ' + o.orderId + '\n' +
-        'Receipt: ' + receiptUrl + '\n' +
-        'Customer: ' + o.customer.name + ' (' + o.customer.phone + ')\n' +
-        'Fulfilment: ' + (o.fulfilment === 'delivery' ? 'Delivery to ' + o.address : 'Store Pickup') + '\n\n' +
-        'Items:\n' + itemsList + '\n\n' +
-        'Estimated Total: KSh ' + fmt(o.total) + '\n' +
-        'Preferred Payment: ' + o.paymentMethod +
-        (o.paymentInstructions ? ' (' + o.paymentInstructions + ')' : '') + '\n\n' +
-        'Please confirm availability, delivery or pickup options, total cost and payment instructions.';
-
+      var msg = formatWhatsAppOrderMessage(o);
       window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
     }
 
@@ -648,49 +742,102 @@
       var prod = state.activeDetailItem || (state.store && state.store.products && state.store.products[0]);
       if (!prod) return;
 
-      var storeName = (state.store && state.store.name) || 'Store';
       var phone = (state.store && state.store.whatsappPhone) || '254711456789';
-
+      var bz = window.__BZ || {};
+      var isService = Boolean(bz.is_service || (bz.industry in {salon: 1, barbershop: 1, beauty: 1}) || prod.kind === 'service');
       var variant = [state.pdpSelectedOption1, state.pdpSelectedOption2].filter(Boolean).join(' • ');
       var unitPrice = prod.price + (state.pdpExtraPrice || 0);
       var qty = state.pdpQty || 1;
       var totalPrice = unitPrice * qty;
-      var prodLink = window.location.href;
+      var receiptNo = generateReceiptNumber();
+      var branding = getStoreBranding();
 
-      var msg = 'Hello! I\'d like to order from ' + storeName + '.\n\n' +
-        'Product: ' + prod.name + '\n' +
-        (variant ? 'Selected variant: ' + variant + '\n' : '') +
-        'Quantity: ' + qty + '\n' +
-        'Price: KSh ' + fmt(totalPrice) + '\n' +
-        'Product link: ' + prodLink + '\n\n' +
-        'Please confirm availability, delivery or pickup options, total cost and payment instructions.';
+      var order = {
+        orderId: receiptNo,
+        receiptNo: receiptNo,
+        businessSlug: bz.slug || '',
+        businessRoot: bz.root || '',
+        businessName: bz.name || branding.name,
+        store: branding.name,
+        createdAt: new Date().toISOString(),
+        dateFormatted: formatDateStandard(new Date()),
+        items: [{
+          id: prod.id,
+          name: prod.name,
+          price: unitPrice,
+          qty: qty,
+          option: variant,
+          image: prod.image || ''
+        }],
+        subtotal: totalPrice,
+        total: totalPrice,
+        currencySymbol: state.currencySymbol || 'KSh',
+        paymentMethod: 'WhatsApp Arrangement',
+        status: 'Unpaid',
+        isService: isService
+      };
 
+      try {
+        var rawOrders = localStorage.getItem('aqivo_orders');
+        var ordersList = rawOrders ? JSON.parse(rawOrders) : [];
+        ordersList.unshift(order);
+        localStorage.setItem('aqivo_orders', JSON.stringify(ordersList));
+      } catch (e) {}
+      state.lastOrder = order;
+
+      var msg = formatWhatsAppOrderMessage(order);
       window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
     }
 
     function orderCartOnWhatsApp() {
       if (state.cart.length === 0) {
-        showToast('Your cart is empty. Add products to order via WhatsApp.');
+        showToast('Your cart is empty. Please add items to proceed.');
         return;
       }
 
-      var storeName = (state.store && state.store.name) || 'Store';
       var phone = (state.store && state.store.whatsappPhone) || '254711456789';
+      var bz = window.__BZ || {};
+      var isService = Boolean(bz.is_service || (bz.industry in {salon: 1, barbershop: 1, beauty: 1}) || state.cart.some(function(i){ return i.kind === 'service'; }));
+      var receiptNo = generateReceiptNumber();
+      var branding = getStoreBranding();
+      var sub = getSubtotal();
 
-      var itemsList = state.cart.map(function (it) {
-        var optStr = it.option ? ' (' + it.option + ')' : '';
-        return '• ' + it.name + optStr + ' ×' + it.qty + ' — KSh ' + fmt(it.price * it.qty);
-      }).join('\n');
+      var order = {
+        orderId: receiptNo,
+        receiptNo: receiptNo,
+        businessSlug: bz.slug || '',
+        businessRoot: bz.root || '',
+        businessName: bz.name || branding.name,
+        store: branding.name,
+        createdAt: new Date().toISOString(),
+        dateFormatted: formatDateStandard(new Date()),
+        customer: {
+          name: (document.getElementById('checkout-name') && document.getElementById('checkout-name').value) || '',
+          phone: (document.getElementById('checkout-phone') && document.getElementById('checkout-phone').value) || ''
+        },
+        fulfilment: isService ? 'pickup' : 'delivery',
+        address: isService ? 'Visit Studio / Shop' : 'Delivery arrangement',
+        items: JSON.parse(JSON.stringify(state.cart)),
+        subtotal: sub,
+        total: sub,
+        currencySymbol: state.currencySymbol || 'KSh',
+        paymentMethod: 'WhatsApp Arrangement',
+        status: 'Unpaid',
+        bookingDate: (document.getElementById('booking-date') && document.getElementById('booking-date').value) || '',
+        bookingTime: (document.getElementById('booking-time') && document.getElementById('booking-time').value) || '',
+        bookingNotes: (document.getElementById('booking-notes') && document.getElementById('booking-notes').value) || (document.getElementById('checkout-notes') && document.getElementById('checkout-notes').value) || '',
+        isService: isService
+      };
 
-      var subtotal = getSubtotal();
-      var cartLink = window.location.origin + window.location.pathname;
+      try {
+        var rawOrders = localStorage.getItem('aqivo_orders');
+        var ordersList = rawOrders ? JSON.parse(rawOrders) : [];
+        ordersList.unshift(order);
+        localStorage.setItem('aqivo_orders', JSON.stringify(ordersList));
+      } catch (e) {}
+      state.lastOrder = order;
 
-      var msg = 'Hello! I\'d like to order from ' + storeName + '.\n\n' +
-        'Cart Items:\n' + itemsList + '\n\n' +
-        'Estimated Subtotal: KSh ' + fmt(subtotal) + '\n' +
-        'Store link: ' + cartLink + '\n\n' +
-        'Please confirm availability, delivery or pickup options, total cost and payment instructions.';
-
+      var msg = formatWhatsAppOrderMessage(order);
       window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
     }
 
@@ -930,13 +1077,15 @@
         var optStr = it.option ? ' (' + it.option + ')' : '';
         var unitPriceStr = currency + ' ' + fmt(it.price);
         var lineTotalStr = currency + ' ' + fmt(it.price * it.qty);
-        return '<div class="receipt-item-row">' +
-          '<div class="receipt-item-left">' +
-            '<div class="receipt-item-name">' + escapeHtml(it.name) + '</div>' +
-            '<div class="receipt-item-sub">Qty: ' + it.qty + ' × ' + unitPriceStr + optStr + '</div>' +
+        var imgHtml = it.image ? '<img src="' + escapeHtml(it.image) + '" alt="' + escapeHtml(it.name) + '" style="width:48px; height:48px; object-fit:cover; border-radius:10px; border:1px solid #E2E8F0; flex-shrink:0;" />' : '';
+        return '<div class="receipt-item-row" style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #F1F5F9;">' +
+          imgHtml +
+          '<div class="receipt-item-left" style="flex:1;">' +
+            '<div class="receipt-item-name" style="font-weight:700; color:#1E293B;">' + escapeHtml(it.name) + '</div>' +
+            '<div class="receipt-item-sub" style="font-size:12.5px; color:#64748B;">Qty: ' + it.qty + ' × ' + unitPriceStr + optStr + '</div>' +
           '</div>' +
           '<div class="receipt-item-right">' +
-            '<span class="receipt-item-total">' + lineTotalStr + '</span>' +
+            '<span class="receipt-item-total" style="font-weight:800; color:#0F172A;">' + lineTotalStr + '</span>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -965,7 +1114,7 @@
         '<div class="receipt-divider"></div>' +
 
         '<div class="receipt-title-block">' +
-          '<h2 class="receipt-title">ORDER RECEIPT</h2>' +
+          '<h2 class="receipt-title">' + (o.isService || o.bookingDate ? "BOOKING & SERVICE RECEIPT" : "ORDER RECEIPT") + '</h2>' +
           '<div class="receipt-number">Receipt No. ' + escapeHtml(o.receiptNo || o.orderId) + '</div>' +
           '<div class="receipt-status-pill-wrap">' +
             '<span class="' + statusPillClass + '" id="receipt-status-pill">' + escapeHtml(o.orderStatus || 'Order confirmed') + '</span>' +
@@ -977,18 +1126,30 @@
             '<span class="receipt-meta-label">Order date</span>' +
             '<span class="receipt-meta-val">' + escapeHtml(o.dateFormatted || formatDateStandard(o.createdAt)) + '</span>' +
           '</div>' +
+          (o.bookingDate || o.bookingTime ? (
+            '<div class="receipt-meta-row" style="background:#F0FDF4; padding:8px 10px; border-radius:8px; margin:4px 0; border:1px solid #BBF7D0;">' +
+              '<span class="receipt-meta-label" style="color:#166534; font-weight:700;">📅 Appointment</span>' +
+              '<span class="receipt-meta-val" style="color:#166534; font-weight:800;">' + escapeHtml(o.bookingDate + (o.bookingTime ? ' at ' + o.bookingTime : '')) + '</span>' +
+            '</div>'
+          ) : '') +
           '<div class="receipt-meta-row">' +
             '<span class="receipt-meta-label">Customer</span>' +
             '<span class="receipt-meta-val">' + escapeHtml(o.customer ? o.customer.name : 'Customer name') + '</span>' +
           '</div>' +
           '<div class="receipt-meta-row">' +
-            '<span class="receipt-meta-label">Order type</span>' +
-            '<span class="receipt-meta-val">' + (o.fulfilment === 'delivery' ? 'Delivery' : 'Store Pickup') + '</span>' +
+            '<span class="receipt-meta-label">Service / Order Mode</span>' +
+            '<span class="receipt-meta-val">' + (o.fulfilment === 'delivery' ? (o.isService ? 'House Call / Mobile Service' : 'Delivery') : (o.isService ? 'Studio / Salon Visit' : 'Store Pickup')) + '</span>' +
           '</div>' +
           (o.fulfilment === 'delivery' && o.address ? (
             '<div class="receipt-meta-row">' +
               '<span class="receipt-meta-label">Destination</span>' +
               '<span class="receipt-meta-val">' + escapeHtml(o.address) + '</span>' +
+            '</div>'
+          ) : '') +
+          (o.bookingNotes ? (
+            '<div class="receipt-meta-row">' +
+              '<span class="receipt-meta-label">Special Requests</span>' +
+              '<span class="receipt-meta-val">' + escapeHtml(o.bookingNotes) + '</span>' +
             '</div>'
           ) : '') +
         '</div>' +

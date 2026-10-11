@@ -360,7 +360,7 @@
 
   function mapMobileStore(tplKey) {
     onReady(function () {
-      var isService = tplKey === "zuribeauty" || !B.is_commerce;
+      var isService = Boolean(B.is_service || tplKey === "zuribeauty" || (B.industry && (B.industry === "salon" || B.industry === "barbershop" || B.industry === "beauty" || B.industry === "spa" || B.industry === "services")) || !B.is_commerce);
       var detailPage = isService ? "service.html" : "product.html";
 
       // 1. Update branding, titles, hero copy
@@ -516,26 +516,130 @@
         promoInp.value = "";
       }
 
-      // 4. Booking specific adjustments (no delivery or pickup for salon/booking)
+      // 4. Booking & Services specific adjustments (appointment calendar, time slots, studio vs mobile visit)
       if (isService) {
-        var toggleGroup = document.querySelector(".checkout-toggle-group");
-        if (toggleGroup) {
-          var blk = toggleGroup.closest(".checkout-section-block");
-          if (blk) blk.style.display = "none";
+        var today = new Date();
+        var todayISO = today.toISOString().split("T")[0];
+
+        // --- A. Adapt Checkout Page ---
+        var chkTitle = document.querySelector(".checkout-page-title");
+        if (chkTitle) chkTitle.textContent = "Appointment Booking & Checkout";
+        if (window.location.pathname.indexOf("checkout.html") !== -1) {
+          document.title = "Book Appointment \u2014 " + B.name;
         }
-        var delGroup = document.getElementById("delivery-address-group");
-        if (delGroup) delGroup.style.display = "none";
-        var pickInfo = document.getElementById("pickup-location-info");
-        if (pickInfo) pickInfo.style.display = "none";
-        var delSumRow = document.getElementById("checkout-delivery-row");
-        if (delSumRow) delSumRow.style.display = "none";
+
+        // Section 2 Heading: Appointment Schedule & Location
+        var sec2Toggle = document.querySelector(".checkout-toggle-group");
+        if (sec2Toggle) {
+          var sec2Card = sec2Toggle.closest(".checkout-card");
+          if (sec2Card) {
+            var cardH2 = sec2Card.querySelector(".checkout-card-heading");
+            if (cardH2) {
+              cardH2.innerHTML = '<span class="step-number">2</span> Appointment Schedule & Location';
+            }
+
+            // Inject Appointment Date & Time picker if not present
+            if (!document.getElementById("booking-schedule-group")) {
+              var schedDiv = document.createElement("div");
+              schedDiv.id = "booking-schedule-group";
+              schedDiv.style.marginBottom = "18px";
+              schedDiv.innerHTML = '<div class="checkout-form-row">' +
+                '<div>' +
+                  '<label class="checkout-field-label" for="booking-date">Appointment Date <span class="req">*</span></label>' +
+                  '<input type="date" id="booking-date" class="checkout-input-control" value="' + todayISO + '" min="' + todayISO + '" required />' +
+                '</div>' +
+                '<div>' +
+                  '<label class="checkout-field-label" for="booking-time">Preferred Time Slot <span class="req">*</span></label>' +
+                  '<select id="booking-time" class="checkout-input-control">' +
+                    '<option value="09:00 AM">09:00 AM - 10:00 AM (Morning)</option>' +
+                    '<option value="10:30 AM">10:30 AM - 11:30 AM (Morning)</option>' +
+                    '<option value="12:00 PM">12:00 PM - 01:00 PM (Midday)</option>' +
+                    '<option value="02:00 PM" selected>02:00 PM - 03:00 PM (Afternoon)</option>' +
+                    '<option value="03:30 PM">03:30 PM - 04:30 PM (Afternoon)</option>' +
+                    '<option value="05:00 PM">05:00 PM - 06:00 PM (Evening)</option>' +
+                    '<option value="06:30 PM">06:30 PM - 07:30 PM (Evening)</option>' +
+                  '</select>' +
+                '</div>' +
+              '</div>';
+              sec2Card.insertBefore(schedDiv, sec2Toggle);
+            }
+
+            // Relabel Mode Toggles
+            var btnDel = document.getElementById("toggle-delivery");
+            if (btnDel) {
+              btnDel.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> House Call / Mobile Service';
+            }
+            var btnPick = document.getElementById("toggle-pickup");
+            if (btnPick) {
+              btnPick.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Studio / Salon Visit';
+            }
+
+            // Update Studio Visit Info
+            var pickInfo = document.getElementById("pickup-location-info");
+            if (pickInfo) {
+              pickInfo.innerHTML = '<strong>Studio Visit:</strong> Visit us at ' + esc(B.address || 'our studio') + '. Please arrive 5 minutes before your scheduled appointment time. Free of travel charges.';
+            }
+
+            // Update House Call Address Label & Placeholder
+            var addrLabel = document.querySelector('label[for="checkout-address"]');
+            if (addrLabel) addrLabel.innerHTML = 'Your Location / House Address <span class="req">*</span>';
+            var addrInput = document.getElementById("checkout-address");
+            if (addrInput) addrInput.placeholder = 'e.g. Kilimani, Ring Road Court, House 4B';
+
+            // Update Notes label & placeholder
+            var notesLabel = document.querySelector('label[for="checkout-notes"]');
+            if (notesLabel) notesLabel.textContent = 'Stylist / Appointment Notes (Optional)';
+            var notesInput = document.getElementById("checkout-notes");
+            if (notesInput) notesInput.placeholder = 'e.g. Preferred hair styling, allergies, or gate directions';
+          }
+        }
+
+        // Relabel Submit and WhatsApp buttons on Checkout
+        var subBtn = document.getElementById("btn-submit-order");
+        if (subBtn) {
+          subBtn.innerHTML = 'Confirm Appointment Booking — <span id="checkout-submit-total">' + (window.StoreApp && window.StoreApp.state ? (window.StoreApp.state.currencySymbol + ' ' + fmt(window.StoreApp.getSubtotal ? window.StoreApp.getSubtotal() : 0)) : '') + '</span>';
+        }
+        var waBtn = document.querySelector(".checkout-page-grid .cart-btn-whatsapp");
+        if (waBtn) {
+          waBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Book & Confirm via WhatsApp';
+        }
+
+        // Checkout Right Column Summary
+        var chkSumTitle = document.querySelector(".checkout-card h3");
+        if (chkSumTitle && chkSumTitle.textContent.indexOf("Order") !== -1) {
+          chkSumTitle.textContent = "Booking Summary";
+        }
+        var chkDelLabel = document.querySelector("#checkout-delivery-val");
+        if (chkDelLabel && chkDelLabel.previousElementSibling) {
+          chkDelLabel.previousElementSibling.textContent = "Service Mode";
+        }
+
+        // Default to Studio Visit for services (no delivery fee)
+        if (window.StoreApp && typeof window.StoreApp.setFulfilment === "function") {
+          window.StoreApp.setFulfilment("pickup");
+        }
+
+        // --- B. Adapt Cart Page ---
+        var cartPageTitle = document.querySelector(".cart-page-title");
+        if (cartPageTitle) cartPageTitle.textContent = "Your Selected Services";
+        var cartBtnProceed = document.getElementById("cart-btn-proceed");
+        if (cartBtnProceed) {
+          cartBtnProceed.innerHTML = 'Proceed to Appointment Booking <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+        }
+        var cartWaBtn = document.querySelector("#cart-summary-box .cart-btn-whatsapp");
+        if (cartWaBtn) {
+          cartWaBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Book via WhatsApp';
+        }
         var cartSummary = document.getElementById("cart-summary-box");
         if (cartSummary) {
-          cartSummary.querySelectorAll(".cart-summary-line").forEach(function (line) {
-            if (line.textContent.indexOf("Delivery") !== -1 || line.textContent.indexOf("Sanitation") !== -1) {
-              line.style.display = "none";
-            }
-          });
+          var cSumTitle = cartSummary.querySelector(".cart-summary-title");
+          if (cSumTitle) cSumTitle.textContent = "Booking Summary";
+          var delLine = document.getElementById("cart-delivery-line");
+          if (delLine) {
+            delLine.innerHTML = '<span>Service Visit</span><span id="cart-delivery-val">Included</span>';
+          }
+          var taxLine = document.getElementById("cart-tax-line");
+          if (taxLine) taxLine.style.display = "none";
         }
         var chkBtn = document.getElementById("cart-checkout-btn");
         if (chkBtn) chkBtn.textContent = "Book Appointment";
