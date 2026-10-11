@@ -20,7 +20,7 @@ TEMPLATES = [
     _tpl("twosidesboutique", "Two Sides Boutique", "retail", "Contemporary fashion atelier storefront with ready-to-wear collections and size variants.", ["Collections", "Size Variants", "Atelier Sales", "Online Checkout"], "#059669", sections=SHOP_ORDER),
     _tpl("mavunofresh", "Mavuno Fresh", "retail", "Farm-fresh groceries and produce storefront with fresh vegetable boxes and rapid dispatch.", ["Farm Produce", "Harvest Deals", "Quantity Steppers", "M-Pesa Checkout"], "#16A34A", sections=SHOP_ORDER),
     _tpl("brewandbites", "Brew & Bites", "restaurant", "Modern food & dining storefront with real-time cart, countdown offers, and delivery tracking.", ["Menu & Pizzas", "Special Offers", "Quantity Steppers", "Online Checkout"], "#D97706", sections=SHOP_ORDER),
-    _tpl("zuribeauty", "Zuri Beauty Studio", "retail", "Luxe beauty salon and services storefront with appointment booking and clean haircare.", ["Beauty Services", "Salon Bookings", "Haircare Shop", "Online Checkout"], "#9333EA", sections=SECTION_ORDER),
+    _tpl("zuribeauty", "Zuri Beauty Studio", "beauty", "Luxe beauty salon, barbershop and service storefront with appointment booking and grooming.", ["Beauty & Grooming", "Salon & Barbershop Bookings", "Service Durations", "WhatsApp Confirmation"], "#9333EA", sections=SECTION_ORDER),
 ]
 
 

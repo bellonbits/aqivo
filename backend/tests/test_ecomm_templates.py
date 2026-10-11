@@ -157,3 +157,20 @@ def test_ecomm_meta_og_image_and_booking_fields(make_owner, client):
         assert "BOOKING & SERVICE RECEIPT" in ms_code
 
 
+def test_store_ai_classification_and_blueprint():
+    from app.services.store_ai import classify_business, STORE_GENERATOR_SYSTEM_PROMPT
+    assert "STEP 1: CLASSIFY THE BUSINESS" in STORE_GENERATOR_SYSTEM_PROMPT
+    assert "SERVICE/BOOKING business" in STORE_GENERATOR_SYSTEM_PROMPT
+    assert "SHOP/PRODUCT business" in STORE_GENERATOR_SYSTEM_PROMPT
+
+    # Barbershop / Salon must be SERVICE
+    assert classify_business("Joe's Kinyozi", "Barbershop Kilimani", "beauty", "Barbershop") == "SERVICE"
+    assert classify_business("Zuri Beauty Studio", "Nails & hair salon", "beauty", "Beauty Salon") == "SERVICE"
+    assert classify_business("Nairobi Auto Garage", "Car repair and diagnostics", "auto", "Garage") == "SERVICE"
+
+    # Grocery / Fashion must be PRODUCT
+    assert classify_business("Mavuno Fresh", "Farm groceries and produce", "retail", "Grocery") == "PRODUCT"
+    assert classify_business("Two Sides Boutique", "Women fashion and dresses", "retail", "Boutique") == "PRODUCT"
+
+
+

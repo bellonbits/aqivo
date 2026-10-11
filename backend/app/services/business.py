@@ -154,6 +154,10 @@ def create_business(db: Session, *, owner: User | None, name: str, industry: str
 def create_website(db: Session, business: Business, template_key: str) -> Website:
     template = db.scalars(select(Template).where(Template.key == template_key, Template.is_active.is_(True))).first()
     if template is None:
+        from app.services.store_ai import select_store_template
+        rec_key = select_store_template(business)
+        template = db.scalars(select(Template).where(Template.key == rec_key, Template.is_active.is_(True))).first()
+    if template is None:
         ind = get_industry(business.industry)
         template = db.scalars(select(Template).where(Template.key == ind.template, Template.is_active.is_(True))).first()
     if template is None:
