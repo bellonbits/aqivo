@@ -15,7 +15,6 @@ import { sectionIcon } from '@/features/website/sectionIcons'
 import { PagesPanel } from '@/features/website/PagesPanel'
 import { PhotosTab, SeoTab, TestimonialsEditor } from './Website'
 import { cn } from '@/lib/cn'
-import { PhoneFrame } from '@/components/PhoneFrame'
 import type { Registry, Section, SectionDef, Template, Website } from '@/types'
 
 type Tab = 'sections' | 'pages' | 'style' | 'photos' | 'settings'
@@ -88,7 +87,6 @@ export default function Editor() {
   const [regen, setRegen] = useState(false)
   const [state, setState] = useState<'saved' | 'saving' | 'error'>('saved')
   const [boxW, setBoxW] = useState(800)
-  const [boxH, setBoxH] = useState(800)
   const site = useQuery({ queryKey: ['website'], queryFn: () => api.get<Website>('/websites/me'), enabled: has('website') })
   const registry = useQuery({ queryKey: ['registry'], queryFn: () => api.get<Registry>('/websites/me/registry'), enabled: has('website'), staleTime: 5 * 60_000 })
   const pending = useRef<Pending>(emptyPending())
@@ -153,7 +151,6 @@ export default function Editor() {
     if (!el) return
     const ro = new ResizeObserver(() => {
       setBoxW(el.clientWidth)
-      setBoxH(el.clientHeight)
     })
     ro.observe(el)
     return () => ro.disconnect()
@@ -314,7 +311,6 @@ export default function Editor() {
   )
 
   const scale = Math.min(1, (boxW - 8) / DEVICE_W[device])
-  const mobileScale = Math.min(1, Math.max(0.35, (boxW - 24) / 420), Math.max(0.35, (boxH - 24) / 874))
   const preview = (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center justify-between gap-2 border-b border-white/70 px-3 py-2.5">
@@ -325,24 +321,12 @@ export default function Editor() {
         </div>
       </div>
       <div ref={box} className="min-h-0 flex-1 overflow-auto bg-white/30 p-3">
-        {html === null ? <PageLoading /> : device === 'mobile' ? (
-          <div className="flex h-full min-h-0 w-full items-center justify-center overflow-auto py-2">
-            <PhoneFrame width={390} scale={mobileScale} label="Storefront mobile preview">
-              <iframe
-                ref={frame}
-                title="Storefront preview"
-                sandbox="allow-scripts"
-                srcDoc={html}
-                className="h-full w-full border-0 bg-white"
-                style={{ width: 390, height: 844 }}
-              />
-            </PhoneFrame>
-          </div>
-        ) : (
+        {html === null ? <PageLoading /> : (
           <div className="mx-auto overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5" style={{ width: DEVICE_W[device] * scale, height: '100%' }}>
             <iframe ref={frame} title="Storefront preview" sandbox="allow-scripts" srcDoc={html} className="origin-top-left border-0 bg-white"
               style={{ width: DEVICE_W[device], height: `${100 / scale}%`, transform: `scale(${scale})` }} />
-          </div>)}
+          </div>
+        )}
       </div>
     </div>
   )
