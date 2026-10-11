@@ -1,5 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:slug/",
+      "destination": "/:slug",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",
@@ -20,6 +28,10 @@
     {
       "source": "/openapi.json",
       "destination": "http://143.198.30.249/openapi.json"
+    },
+    {
+      "source": "/ecomm-templates/:path*",
+      "destination": "http://143.198.30.249/ecomm-templates/:path*"
     },
     {
       "source": "/",
@@ -67,6 +79,10 @@
     },
     {
       "source": "/:slug",
+      "destination": "http://143.198.30.249/:slug"
+    },
+    {
+      "source": "/:slug/",
       "destination": "http://143.198.30.249/:slug"
     },
     {
