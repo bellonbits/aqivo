@@ -69,7 +69,15 @@
       "destination": "/index.html"
     },
     {
+      "source": "/ecomm-templates/:path*",
+      "destination": "http://143.198.30.249/ecomm-templates/:path*"
+    },
+    {
       "source": "/:slug",
+      "destination": "http://143.198.30.249/:slug"
+    },
+    {
+      "source": "/:slug/",
       "destination": "http://143.198.30.249/:slug"
     },
     {

@@ -815,7 +815,7 @@
         if (backBtn) backBtn.textContent = "Back to " + B.name;
         var backLink = document.getElementById("receipt-back-btn");
         if (backLink) {
-          var rootUrl = (B.root || ("/" + B.slug)).replace(/\/+$/, "") + "/";
+          var rootUrl = (B.root || ("/" + B.slug)).replace(/\/+$/, "");
           backLink.href = rootUrl;
         }
       }
@@ -831,7 +831,7 @@
       }
 
       // 10. Update breadcrumbs and navigation to merchant root
-      var storeHome = (B.root || ("/" + B.slug)).replace(/\/+$/, "") + "/";
+      var storeHome = (B.root || ("/" + B.slug)).replace(/\/+$/, "");
       document.querySelectorAll(".checkout-page-breadcrumbs a, .cart-page-breadcrumbs a, .pdp-breadcrumbs a, .site-brand-logo").forEach(function (el) {
         if (el.textContent.trim().toLowerCase() === "market") {
           el.textContent = "Home";

@@ -215,6 +215,9 @@ def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
     from datetime import date
     year = date.today().year
 
+    root = ctx.get("root") or (f"/{business.slug}" if business and business.slug else "")
+    home_url = root or "index.html"
+
     return (
         '<footer class="site-storefront-footer" style="background:#0F172A;color:#F8FAFC;padding:52px 20px 24px;margin-top:64px;font-family:inherit;border-top:1px solid #1E293B;">'
         '<div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:36px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,0.08);">'
@@ -226,7 +229,7 @@ def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
         '<div>'
         '<h4 style="font-size:13px;font-weight:700;color:#E2E8F0;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 14px;">Store Links</h4>'
         '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;font-size:13.5px;">'
-        '<li><a href="index.html" style="color:#94A3B8;text-decoration:none;">Home</a></li>'
+        f'<li><a href="{home_url}" style="color:#94A3B8;text-decoration:none;">Home</a></li>'
         '<li><a href="cart.html" style="color:#94A3B8;text-decoration:none;">Shopping Bag</a></li>'
         '<li><a href="checkout.html" style="color:#94A3B8;text-decoration:none;">Checkout</a></li>'
         '</ul>'
