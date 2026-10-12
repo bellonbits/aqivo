@@ -1067,6 +1067,112 @@
   }
   window.formatWhatsAppOrderMessage = formatWhatsAppOrderMessage;
 
+  /* Aqivo WhatsApp order message (click-to-chat)
+     Builds the formatted order message, opens the merchant's chat with it
+     prefilled, and returns the URL. The customer still has to tap Send.
+
+     Usage:
+       AqivoWhatsApp.sendOrder(order, { receiptBase: 'https://aqivo.shop/orders' });
+       AqivoWhatsApp.buildOrderMessage(order)   // text only
+  */
+  (function (root) {
+    'use strict';
+
+    function money(n, sym) {
+      return (sym || 'KSh') + ' ' + Number(n || 0).toLocaleString('en-KE');
+    }
+
+    // 07XX / 7XX / +254 / 254 -> digits in international format for wa.me
+    function normalisePhone(raw) {
+      var d = String(raw || '').replace(/\D/g, '');
+      if (!d) return '';
+      if (d.indexOf('254') === 0) return d;
+      if (d.charAt(0) === '0') return '254' + d.slice(1);
+      if (d.length === 9 && /^[17]/.test(d)) return '254' + d;
+      return d;
+    }
+
+    function orderNumber(o) {
+      return o.receiptNo || o.orderId || '';
+    }
+
+    function receiptUrl(o, opts) {
+      opts = opts || {};
+      if (opts.receiptUrl) return opts.receiptUrl;
+      var base = (opts.receiptBase || 'https://aqivo.shop/orders').replace(/\/$/, '');
+      return base + '/' + encodeURIComponent(orderNumber(o)) + '/receipt';
+    }
+
+    function fulfilmentLabel(o) {
+      return (o.fulfilment === 'pickup' || o.fulfilment === 'PICKUP') ? 'Walk-in / Pickup' : 'Delivery';
+    }
+
+    function buildOrderMessage(o, opts) {
+      opts = opts || {};
+      var sym = o.currencySymbol || 'KSh';
+      var no = orderNumber(o);
+      var storeName = opts.storeName || o.storeDisplayName || o.store || 'there';
+      var customer = o.customer || { name: o.customerName, phone: o.phone };
+      var isPickup = (o.fulfilment === 'pickup' || o.fulfilment === 'PICKUP');
+      var L = [];
+
+      L.push('*NEW ORDER — ' + no + '*');
+      L.push('');
+      L.push('Hello ' + storeName + ', you have received a new order!');
+      L.push('');
+      L.push('*ORDER DETAILS*');
+      L.push('Order number: ' + no);
+      (o.items || []).forEach(function (it) {
+        var qty = it.qty || 1;
+        L.push(qty + ' × ' + it.name + ' — ' + money((it.price || 0) * qty, sym));
+      });
+      L.push('');
+      L.push('Subtotal: ' + money(o.subtotal, sym));
+      if (o.discount > 0) L.push('Discount: − ' + money(o.discount, sym));
+      L.push('Delivery fee: ' + (o.deliveryFeeText || money(o.deliveryFee || 0, sym)));
+      L.push('*TOTAL: ' + money(o.total, sym) + '*');
+      L.push('');
+      L.push('*CUSTOMER DETAILS*');
+      L.push('Name: ' + (customer.name || o.customerName || '-'));
+      L.push('Phone: ' + (customer.phone || o.phone || '-'));
+      L.push('Fulfilment: ' + fulfilmentLabel(o));
+      if (!isPickup && o.address) L.push('Address: ' + o.address);
+      L.push('Payment method: ' + (o.paymentMethod || 'Pay on delivery / pickup'));
+      if (o.notes) L.push('Notes: ' + o.notes);
+      L.push('');
+      L.push('*ORDER RECEIPT*');
+      L.push(receiptUrl(o, opts));
+      L.push('');
+      L.push('Please confirm the order with your customer.');
+      L.push('Powered by Aqivo');
+      return L.join('\n');
+    }
+
+    function whatsappUrl(phone, message) {
+      return 'https://wa.me/' + normalisePhone(phone) + '?text=' + encodeURIComponent(message);
+    }
+
+    // Opens the merchant's WhatsApp chat with the message prefilled.
+    function sendOrder(order, opts) {
+      opts = opts || {};
+      var phone = opts.phone || order.storePhone;
+      if (!normalisePhone(phone)) throw new Error('Aqivo: merchant WhatsApp number is missing');
+      var url = whatsappUrl(phone, buildOrderMessage(order, opts));
+      if (opts.open !== false && typeof window !== 'undefined') {
+        window.open(url, '_blank', 'noopener');
+      }
+      return url;
+    }
+
+    root.AqivoWhatsApp = {
+      buildOrderMessage: buildOrderMessage,
+      whatsappUrl: whatsappUrl,
+      sendOrder: sendOrder,
+      normalisePhone: normalisePhone,
+      receiptUrl: receiptUrl
+    };
+  })(typeof window !== 'undefined' ? window : globalThis);
+
   MAP.aqivo = function () {
     var C = window.STORE_CONFIG || {};
     C.storeName = B.name;
@@ -2127,19 +2233,31 @@
         var storeName = B.name || "Aqivo";
         var phClean = (B.wa || B.phone || "").replace(/[^0-9]/g, "");
 
-        var itemsSummary = (order.items || []).map(function (it) {
-          return (it.qty || 1) + "x " + it.name;
-        }).join(", ");
-
-        var waText = "Hi " + storeName + ", I've placed order #" + order.receiptNo + " on your store:\n" +
-          "• Items: " + itemsSummary + "\n" +
-          "• Total: " + fmt(order.total) + "\n" +
-          "• Customer: " + (order.customerName || "") + " (" + (order.phone || "") + ")\n" +
-          "• Fulfilment: " + (order.fulfilment === "DELIVERY" ? "Delivery to " + order.address : "Store Collection") + "\n" +
-          (order.notes ? "• Notes: " + order.notes : "");
-
-        var waUrl = "https://wa.me/" + phClean + "?text=" + encodeURIComponent(waText);
         var receiptUrl = "receipt.html?orderId=" + encodeURIComponent(order.receiptNo);
+        var waUrl = "";
+        if (phClean && window.AqivoWhatsApp) {
+          try {
+            var fullReceiptUrl = window.location.origin + (B.root || ("/" + B.slug)).replace(/\/+$/, "") + "/" + receiptUrl;
+            waUrl = window.AqivoWhatsApp.whatsappUrl(phClean, window.AqivoWhatsApp.buildOrderMessage(order, {
+              phone: phClean,
+              storeName: storeName,
+              receiptUrl: fullReceiptUrl
+            }));
+          } catch (e) {
+            waUrl = "https://wa.me/" + phClean;
+          }
+        } else if (phClean) {
+          var itemsSummary = (order.items || []).map(function (it) {
+            return (it.qty || 1) + "x " + it.name;
+          }).join(", ");
+          var waText = "Hi " + storeName + ", I've placed order #" + order.receiptNo + " on your store:\n" +
+            "• Items: " + itemsSummary + "\n" +
+            "• Total: " + fmt(order.total) + "\n" +
+            "• Customer: " + (order.customerName || "") + " (" + (order.phone || "") + ")\n" +
+            "• Fulfilment: " + (order.fulfilment === "DELIVERY" ? "Delivery to " + order.address : "Store Collection") + "\n" +
+            (order.notes ? "• Notes: " + order.notes : "");
+          waUrl = "https://wa.me/" + phClean + "?text=" + encodeURIComponent(waText);
+        }
 
         var paymentMethodInfo = availablePayments.filter(function (pm) { return pm.key === order.paymentMethod; })[0];
         var payLabel = paymentMethodInfo ? paymentMethodInfo.label : order.paymentMethod;

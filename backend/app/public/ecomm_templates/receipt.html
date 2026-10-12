@@ -942,37 +942,135 @@
       window.print();
     }
 
+  /* Aqivo WhatsApp order message (click-to-chat)
+     Builds the formatted order message, opens the merchant's chat with it
+     prefilled, and returns the URL. The customer still has to tap Send.
+
+     Usage:
+       AqivoWhatsApp.sendOrder(order, { receiptBase: 'https://aqivo.shop/orders' });
+       AqivoWhatsApp.buildOrderMessage(order)   // text only
+  */
+  (function (root) {
+    'use strict';
+
+    function money(n, sym) {
+      return (sym || 'KSh') + ' ' + Number(n || 0).toLocaleString('en-KE');
+    }
+
+    // 07XX / 7XX / +254 / 254 -> digits in international format for wa.me
+    function normalisePhone(raw) {
+      var d = String(raw || '').replace(/\D/g, '');
+      if (!d) return '';
+      if (d.indexOf('254') === 0) return d;
+      if (d.charAt(0) === '0') return '254' + d.slice(1);
+      if (d.length === 9 && /^[17]/.test(d)) return '254' + d;
+      return d;
+    }
+
+    function orderNumber(o) {
+      return o.receiptNo || o.orderId || '';
+    }
+
+    function receiptUrl(o, opts) {
+      opts = opts || {};
+      if (opts.receiptUrl) return opts.receiptUrl;
+      var base = (opts.receiptBase || 'https://aqivo.shop/orders').replace(/\/$/, '');
+      return base + '/' + encodeURIComponent(orderNumber(o)) + '/receipt';
+    }
+
+    function fulfilmentLabel(o) {
+      return (o.fulfilment === 'pickup' || o.fulfilment === 'PICKUP') ? 'Walk-in / Pickup' : 'Delivery';
+    }
+
+    function buildOrderMessage(o, opts) {
+      opts = opts || {};
+      var sym = o.currencySymbol || 'KSh';
+      var no = orderNumber(o);
+      var storeName = opts.storeName || o.storeDisplayName || o.store || 'there';
+      var customer = o.customer || { name: o.customerName, phone: o.phone };
+      var isPickup = (o.fulfilment === 'pickup' || o.fulfilment === 'PICKUP');
+      var L = [];
+
+      L.push('*NEW ORDER — ' + no + '*');
+      L.push('');
+      L.push('Hello ' + storeName + ', you have received a new order!');
+      L.push('');
+      L.push('*ORDER DETAILS*');
+      L.push('Order number: ' + no);
+      (o.items || []).forEach(function (it) {
+        var qty = it.qty || 1;
+        L.push(qty + ' × ' + it.name + ' — ' + money((it.price || 0) * qty, sym));
+      });
+      L.push('');
+      L.push('Subtotal: ' + money(o.subtotal, sym));
+      if (o.discount > 0) L.push('Discount: − ' + money(o.discount, sym));
+      L.push('Delivery fee: ' + (o.deliveryFeeText || money(o.deliveryFee || 0, sym)));
+      L.push('*TOTAL: ' + money(o.total, sym) + '*');
+      L.push('');
+      L.push('*CUSTOMER DETAILS*');
+      L.push('Name: ' + (customer.name || o.customerName || '-'));
+      L.push('Phone: ' + (customer.phone || o.phone || '-'));
+      L.push('Fulfilment: ' + fulfilmentLabel(o));
+      if (!isPickup && o.address) L.push('Address: ' + o.address);
+      L.push('Payment method: ' + (o.paymentMethod || 'Pay on delivery / pickup'));
+      if (o.notes) L.push('Notes: ' + o.notes);
+      L.push('');
+      L.push('*ORDER RECEIPT*');
+      L.push(receiptUrl(o, opts));
+      L.push('');
+      L.push('Please confirm the order with your customer.');
+      L.push('Powered by Aqivo');
+      return L.join('\n');
+    }
+
+    function whatsappUrl(phone, message) {
+      return 'https://wa.me/' + normalisePhone(phone) + '?text=' + encodeURIComponent(message);
+    }
+
+    // Opens the merchant's WhatsApp chat with the message prefilled.
+    function sendOrder(order, opts) {
+      opts = opts || {};
+      var phone = opts.phone || order.storePhone;
+      if (!normalisePhone(phone)) throw new Error('Aqivo: merchant WhatsApp number is missing');
+      var url = whatsappUrl(phone, buildOrderMessage(order, opts));
+      if (opts.open !== false && typeof window !== 'undefined') {
+        window.open(url, '_blank', 'noopener');
+      }
+      return url;
+    }
+
+    root.AqivoWhatsApp = {
+      buildOrderMessage: buildOrderMessage,
+      whatsappUrl: whatsappUrl,
+      sendOrder: sendOrder,
+      normalisePhone: normalisePhone,
+      receiptUrl: receiptUrl
+    };
+  })(typeof window !== 'undefined' ? window : globalThis);
+
     function shareReceiptDoc() {
       if (!currentReceiptOrder) return;
       var o = currentReceiptOrder;
       var B = window.__BZ || {};
       var storeName = o.store || B.name || "Lydia's Shop";
       var rawPhone = B.wa || B.phone || o.storePhone || '';
-      var cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+      var opts = {
+        phone: rawPhone,
+        storeName: storeName,
+        receiptUrl: window.location.href
+      };
 
-      var lines = (o.items || []).map(function (it) {
-        return '• ' + (it.qty || 1) + 'x ' + it.name + ' (' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(it.price * (it.qty || 1)) + ')';
-      }).join('\n');
-
-      var msg = '*' + storeName.toUpperCase() + ' — ORDER RECEIPT*\n' +
-        'Receipt No: ' + (o.receiptNo || o.orderId) + '\n' +
-        'Date: ' + (o.date || 'Today') + '\n' +
-        'Customer: ' + o.customerName + ' (' + o.phone + ')\n' +
-        'Deliver to: ' + o.address + '\n\n' +
-        '*ITEMS:*\n' + lines + '\n\n' +
-        'Subtotal: ' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.subtotal) + '\n' +
-        'Delivery: ' + (o.deliveryFee > 0 ? (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.deliveryFee) : 'Free') + '\n' +
-        '*Total: ' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.total) + '*\n' +
-        'Payment Method: ' + o.paymentMethod + '\n' +
-        'Status: ' + o.paymentStatus + '\n\n' +
-        'View Official Receipt: ' + window.location.href + '\n\n' +
-        'Powered by Aqivo';
-
-      var waUrl = cleanPhone
-        ? ('https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent(msg))
-        : ('https://wa.me/?text=' + encodeURIComponent(msg));
-
-      window.open(waUrl, '_blank');
+      try {
+        if (window.AqivoWhatsApp.normalisePhone(rawPhone)) {
+          window.AqivoWhatsApp.sendOrder(o, opts);
+        } else {
+          var msg = window.AqivoWhatsApp.buildOrderMessage(o, opts);
+          window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+        }
+      } catch (err) {
+        var msgFallback = window.AqivoWhatsApp.buildOrderMessage(o, opts);
+        window.open('https://wa.me/?text=' + encodeURIComponent(msgFallback), '_blank', 'noopener');
+      }
     }
 
     function copyReceiptDoc() {
