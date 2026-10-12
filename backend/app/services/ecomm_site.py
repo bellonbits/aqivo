@@ -90,13 +90,15 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
     cls = s.get("cls") or ""
     empty = s.get("empty")
     hint = s.get("hint")
-    if empty and draft and hint:
-        return f'<div class="sx-empty">{_html.escape(hint)}</div>'
+    sid = s.get("id") or ""
     if empty:
+        if draft and hint and stype not in ("hero", "product_grid", "category_grid", "product_carousel", "reviews"):
+            return f'<div class="sx-empty" data-sid="{_html.escape(str(sid))}">{_html.escape(hint)}</div>'
         return ""
 
     title = content.get("title") or ""
     title_html = f'<h2>{_html.escape(title)}</h2>' if title else ""
+    data_attr = f'data-sid="{_html.escape(str(sid))}" data-type="{_html.escape(str(stype or ""))}"'
 
     if stype == "product_grid":
         cards = data.get("cards") or []
@@ -213,6 +215,7 @@ def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
     root = ctx.get("root") or (f"/{business.slug}" if business and business.slug else "")
     home_url = root or "index.html"
 
+    powered_by = '<div>Powered by <a href="https://aqivo.shop" style="color:#38BDF8;font-weight:600;text-decoration:none;">Aqivo</a></div>' if ctx.get("show_branding") else ''
     return (
         '<footer class="site-storefront-footer" style="background:#0F172A;color:#F8FAFC;padding:52px 20px 24px;margin-top:64px;font-family:inherit;border-top:1px solid #1E293B;">'
         '<div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:36px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,0.08);">'
@@ -237,7 +240,7 @@ def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
         '</div>'
         '<div style="max-width:1200px;margin:0 auto;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;font-size:12.5px;color:#64748B;">'
         f'<div>© {year} {escaped_name}. All rights reserved.</div>'
-        '<div>Powered by <a href="https://aqivo.shop" style="color:#38BDF8;font-weight:600;text-decoration:none;">Aqivo</a></div>'
+        f'{powered_by}'
         '</div>'
         '</footer>'
     )
@@ -326,6 +329,10 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
     accent = ctx.get("theme", {}).get("accent")
     style_tag = f'<style>:root{{--accent:{accent};}}</style>' if accent else ''
+    style_content = ''
+    style_candidate = target_file.parent / "style.css"
+    if style_candidate.is_file():
+        style_content = f'<style id="aqivo-template-styles">\n{style_candidate.read_text(encoding="utf-8")}\n</style>'
     root = ctx.get("root") or (f"/{business.slug}" if business and business.slug else "")
     store_base = f"{root.rstrip('/')}/" if root else f"{URL_BASE}/{key}/"
     head = (f'<base href="{store_base}">'
@@ -334,6 +341,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
             f'<meta name="robots" content="{ctx["seo"]["robots"]}">'
             f'{og_tags}'
             f'{style_tag}'
+            f'{style_content}'
             f'{jsonld_tags}'
             f'{tracking_tags}')
     page = page.replace("<head>", "<head>" + head, 1)
@@ -502,7 +510,10 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     draft_mode = bool(ctx.get("draft") or ctx.get("editing"))
     custom_sections_html = "".join(_render_section_html(s, draft_mode, business) for s in ctx.get("sections", []))
     if custom_sections_html:
-        page = re.sub(r'(<body[^>]*>)', rf'\g<1><div id="bz-custom-sections">{custom_sections_html}</div>', page, count=1)
+        if "</main>" in page:
+            page = page.replace("</main>", f'<div id="bz-custom-sections">{custom_sections_html}</div></main>', 1)
+        else:
+            page = re.sub(r'(<body[^>]*>)', rf'\g<1><div id="bz-custom-sections">{custom_sections_html}</div>', page, count=1)
 
     # Purge demo 'Market' breadcrumb with 'Home'
     page = re.sub(r'<a href="index\.html">Market</a>', '<a href="index.html">Home</a>', page)

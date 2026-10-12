@@ -1151,7 +1151,18 @@
 
         if (!filtered.length) {
           gridContainer.innerHTML = "";
-          if (emptyState) emptyState.classList.remove("hidden");
+          if (emptyState) {
+            emptyState.classList.remove("hidden");
+            var titleEl = emptyState.querySelector("p.font-bold");
+            var subEl = emptyState.querySelector("p.text-xs");
+            if (searchQuery) {
+              if (titleEl) titleEl.textContent = "No items match \"" + searchQuery + "\"";
+              if (subEl) subEl.textContent = "Try searching for another product or service";
+            } else {
+              if (titleEl) titleEl.textContent = "Welcome to " + (B.name || "our store") + "!";
+              if (subEl) subEl.textContent = "Products and services will appear here once added.";
+            }
+          }
           return;
         }
         if (emptyState) emptyState.classList.add("hidden");
@@ -1228,6 +1239,39 @@
 
       renderItems();
       updateCartUI();
+
+      if (window.parent && window.parent !== window) {
+        try {
+          window.parent.postMessage({ aqivo: 'ready', bizora: 'ready' }, '*');
+        } catch (e) {}
+
+        document.addEventListener('click', function (e) {
+          var sx = e.target.closest('[data-sid]');
+          if (sx) {
+            var sid = sx.getAttribute('data-sid');
+            try {
+              window.parent.postMessage({ aqivo: 'select', bizora: 'select', id: sid }, '*');
+            } catch (err) {}
+          }
+        });
+
+        window.addEventListener('message', function (e) {
+          if (!e.data || typeof e.data !== 'object') return;
+          var act = e.data.aqivo || e.data.bizora;
+          if (act === 'select' && e.data.id) {
+            document.querySelectorAll('[data-sid]').forEach(function (el) {
+              if (el.getAttribute('data-sid') === e.data.id) {
+                el.style.outline = '2px solid #5B21F5';
+                el.style.outlineOffset = '2px';
+                try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) {}
+              } else {
+                el.style.outline = '';
+                el.style.outlineOffset = '';
+              }
+            });
+          }
+        });
+      }
     });
   };
 

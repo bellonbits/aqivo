@@ -10,7 +10,7 @@ export default defineConfig({
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
   server: {
     port: 5173,
-    proxy: { '/api': backend, '/media': backend, '/static': backend },
+    proxy: { '/api': backend, '/media': backend, '/static': backend, '/ecomm-templates': backend },
   },
   build: {
     rollupOptions: {
