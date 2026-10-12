@@ -100,12 +100,22 @@ def build_data(db: Session, ctx: dict, business: Business) -> dict:
             if n:
                 cats.append({"id": str(c.id), "name": c.name, "image": c.image_url, "count": n})
     ex = _html.escape
+    hero_sec = next((s for s in ctx.get("sections", []) if s.get("type") == "hero"), None)
+    hero_content = (hero_sec.get("content") or {}) if hero_sec else {}
+    hero_headline = hero_content.get("headline") or hero_content.get("title") or business.name
+    hero_subheadline = hero_content.get("subheadline") or hero_content.get("subtitle") or business.tagline or "Discover our collection and order directly on WhatsApp."
+    hero_cta_text = hero_content.get("cta_text") or ""
+    hero_cta_url = hero_content.get("cta_url") or ""
+    sec_ids = {str(s.get("type")): str(s.get("id")) for s in ctx.get("sections", []) if s.get("id") and s.get("type")}
+
     return {
         "key": business.website.template.key if business.website else "", "root": root, "slug": business.slug,
         "name": business.name, "tagline": business.tagline or "", "phone": business.phone or "", "email": business.email or "",
         "wa": ctx["wa"], "address": ", ".join(x for x in (business.address, business.city) if x), "directions": ctx["directions"],
         "currency": business.currency, "symbol": ctx["cur_symbol"], "freeOver": ctx["free_over"] or 0, "logo": business.logo_url, "about": business.description or "",
         "items": items, "categories": cats, "services": services,
+        "hero_headline": hero_headline, "hero_subheadline": hero_subheadline, "hero_cta_text": hero_cta_text, "hero_cta_url": hero_cta_url,
+        "section_ids": sec_ids,
         "team": [{"id": str(s.id), "name": s.name, "photo": s.photo_url} for s in ctx["staff"]],
         "gallery": [{"src": g.url, "caption": g.caption or ""} for g in ctx["gallery"]][:12],
         "hours": ctx["hours"], "bookingsOn": has_feature(db, business, "bookings"),
@@ -123,7 +133,7 @@ def _safe_json(d: dict) -> str:
     return json.dumps(d, default=str).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
-def _render_section_html(s: dict, draft: bool = False, business: Business = None) -> str:
+def _render_section_html(s: dict, draft: bool = False, business: Business = None, key: str = "") -> str:
     """Renders custom website builder sections into HTML markup for storefront HTML responses."""
     stype = s.get("type")
     content = s.get("content") or {}
@@ -132,6 +142,7 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
     empty = s.get("empty")
     hint = s.get("hint")
     sid = s.get("id") or ""
+
     if empty:
         if draft and hint and stype not in ("hero", "product_grid", "category_grid", "product_carousel", "reviews"):
             return f'<div class="sx-empty" data-sid="{_html.escape(str(sid))}">{_html.escape(hint)}</div>'
@@ -141,26 +152,76 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
     title_html = f'<h2>{_html.escape(title)}</h2>' if title else ""
     data_attr = f'data-sid="{_html.escape(str(sid))}" data-type="{_html.escape(str(stype or ""))}"'
 
-    if stype == "product_grid":
-        cards = data.get("cards") or []
-        items_html = "".join(
-            f'<div class="pcard" data-id="{_html.escape(str(c.get("id", "")))}"><h3>{_html.escape(c["name"])}</h3><p>{_html.escape(c.get("desc", ""))}</p>'
-            f'{"<span>Save " + str(round((1 - (c["price"]/c["compare"] if c.get("compare") else 1))*100)) + "%</span>" if c.get("compare") and c["compare"] > c["price"] else ""}'
-            f'{"<span>Sold out</span>" if c.get("sold_out") or (c.get("track_stock") and c.get("stock_qty", 1) <= 0) else ""}'
-            f'{"<span>Choose options</span>" if c.get("has_variants") else ""}'
-            f'<a href="{_html.escape(c.get("url", ""))}">{_html.escape(c["name"])}</a>'
+    if stype == "hero":
+        headline = content.get("headline") or content.get("title") or (business.name if business else "Welcome to our store")
+        subheadline = content.get("subheadline") or content.get("subtitle") or (business.tagline if business else "") or "Discover our collection and order directly on WhatsApp."
+        cta_text = content.get("cta_text")
+        cta_url = content.get("cta_url") or "#items-grid"
+        wa_phone = (business.phone or business.whatsapp or "") if business else ""
+        if wa_phone and not cta_text:
+            cta_text = "Order on WhatsApp"
+            cta_url = f"https://wa.me/{wa_phone.replace('+', '').replace(' ', '')}"
+        cta_html = f'<a href="{_html.escape(cta_url)}" class="btn-brand">{_html.escape(cta_text)}</a>' if cta_text else ""
+        return (
+            f'<section class="store-hero-compact {cls}" {data_attr}>'
+            f'<div class="store-hero-content">'
+            f'<h2 class="store-hero-title">{_html.escape(headline)}</h2>'
+            f'<p class="store-hero-sub">{_html.escape(subheadline)}</p>'
+            f'{cta_html}'
             f'</div>'
-            for c in cards
+            f'</section>'
         )
-        return f'<section class="sx-sec {cls}">{title_html}<div class="pgrid">{items_html}</div></section>'
 
     if stype == "category_grid":
         tiles = data.get("tiles") or []
-        tiles_html = "".join(
-            f'<div class="ctile"><span>{_html.escape(t["name"])}</span><small>{t["count"]} item{"s" if t["count"] != 1 else ""}</small></div>'
-            for t in tiles
+        pills_html = ['<button type="button" class="cat-pill active" data-cat-id="all">All items</button>']
+        for t in tiles:
+            count = t.get("count", 0)
+            cnt_str = f"{count} item" if count == 1 else f"{count} items"
+            pills_html.append(
+                f'<button type="button" class="cat-pill" data-cat-id="{_html.escape(str(t.get("id", "")))}">'
+                f'<span>{_html.escape(t["name"])}</span> <span class="pill-count">({cnt_str})</span>'
+                f'</button>'
+            )
+        return (
+            f'<section class="store-category-pills-section {cls}" {data_attr}>'
+            f'{title_html}'
+            f'<div class="store-category-pills-scroll cat-pills-scroll">{"".join(pills_html)}</div>'
+            f'</section>'
         )
-        return f'<section class="sx-sec {cls}">{title_html}<div class="ctiles">{tiles_html}</div></section>'
+
+    if stype == "product_grid":
+        cards = data.get("cards") or []
+        cur_sym = data.get("symbol") or (business.currency if business else "KES")
+        items_html = []
+        for c in cards:
+            c_name = _html.escape(c.get("name") or "")
+            c_desc = _html.escape(c.get("desc") or "")
+            c_price = f"{cur_sym} {c['price']:,.0f}" if c.get("price") is not None else ""
+            c_comp = f'<s class="item-compare">{cur_sym} {c["compare"]:,.0f}</s>' if c.get("compare") and c["compare"] > c.get("price", 0) else ""
+            save_badge = ""
+            if c.get("compare") and c.get("price") and c["compare"] > c["price"]:
+                pct = round((1 - (c["price"] / c["compare"])) * 100)
+                save_badge = f'<span class="badge-discount">Save {pct}%</span>'
+            sold_badge = '<span class="badge-soldout">Sold out</span>' if c.get("sold_out") or (c.get("track_stock") and c.get("stock_qty", 1) <= 0) else ""
+            opt_badge = '<span>Choose options</span>' if c.get("has_variants") else ""
+            img_url = c.get("image") or _match_photo(c.get("name", ""), c.get("desc", ""))
+            img_html = f'<img src="{_html.escape(img_url)}" alt="{c_name}" class="w-full h-full object-cover" loading="lazy" />' if img_url else ''
+            items_html.append(
+                f'<div class="store-card product-card pcard" data-id="{_html.escape(str(c.get("id", "")))}">'
+                f'<div class="item-img-wrap aspect-square">{img_html}{save_badge}{sold_badge}</div>'
+                f'<div class="card-body">'
+                f'<h3 class="item-title">{c_name}</h3>'
+                f'{"<p class=\"item-desc\">" + c_desc + "</p>" if c_desc else ""}'
+                f'<div class="card-footer flex items-center justify-between mt-2 pt-2 border-t border-slate-100">'
+                f'<div class="item-price font-extrabold">{c_price} {c_comp}</div>'
+                f'<button type="button" class="btn-add-cart" data-id="{_html.escape(str(c.get("id", "")))}">Add</button>'
+                f'</div>'
+                f'{opt_badge}'
+                f'</div>'
+                f'</div>'
+            )
+        return f'<section class="sx-sec store-product-section {cls}" {data_attr}>{title_html}<div class="store-product-grid pgrid">{"".join(items_html)}</div></section>'
 
     if stype == "collection_grid":
         cards = data.get("cards") or []
@@ -226,63 +287,16 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
 
 
 def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
-    escaped_name = _html.escape(business.name)
-    tagline_raw = business.tagline or business.description or (
-        f"Professional {business.industry} services & direct customer bookings"
-        if business.industry in ("salon", "barbershop", "beauty")
-        else f"Quality products and direct online ordering from {business.name}."
-    )
-    escaped_tagline = _html.escape(tagline_raw)
-
-    phone = business.phone or business.whatsapp or ""
-    contact_parts = []
-    if business.address:
-        contact_parts.append(f'<div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:6px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>{_html.escape(business.address)}</div>')
-    if phone:
-        contact_parts.append(f'<div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:6px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="tel:{_html.escape(phone)}" style="color:inherit;text-decoration:none;">{_html.escape(phone)}</a></div>')
-    if business.email:
-        contact_parts.append(f'<div><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px;margin-right:6px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:{_html.escape(business.email)}" style="color:inherit;text-decoration:none;">{_html.escape(business.email)}</a></div>')
-
-    wa_clean = (business.whatsapp or business.phone or "").replace("+", "").replace(" ", "")
-    wa_btn = ""
-    if wa_clean:
-        wa_btn = f'<a href="https://wa.me/{wa_clean}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 14px;background:#25D366;color:#FFF;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Chat on WhatsApp</a>'
-
-    hours_html = '<div style="margin-top:8px;font-size:12.5px;color:#94A3B8;">Operating daily with scheduled orders & bookings.</div>'
-
-    from datetime import date
-    year = date.today().year
-
-    root = ctx.get("root") or (f"/{business.slug}" if business and business.slug else "")
-    home_url = root or "index.html"
-
-    powered_by = '<div>Powered by <a href="https://aqivo.shop" style="color:#38BDF8;font-weight:600;text-decoration:none;">Aqivo</a></div>' if ctx.get("show_branding") else ''
+    brand_url = "https://aqivo.shop"
+    escaped_name = _html.escape(business.name) if business else ""
     return (
-        '<footer class="site-storefront-footer" style="background:#0F172A;color:#F8FAFC;padding:52px 20px 24px;margin-top:64px;font-family:inherit;border-top:1px solid #1E293B;">'
-        '<div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:36px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,0.08);">'
-        '<div>'
-        f'<h3 style="font-size:19px;font-weight:800;color:#FFFFFF;margin:0 0 10px;letter-spacing:-0.02em;">{escaped_name}</h3>'
-        f'<p style="font-size:13.5px;color:#94A3B8;line-height:1.6;margin:0 0 10px;">{escaped_tagline}</p>'
-        f'{wa_btn}'
-        '</div>'
-        '<div>'
-        '<h4 style="font-size:13px;font-weight:700;color:#E2E8F0;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 14px;">Store Links</h4>'
-        '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;font-size:13.5px;">'
-        f'<li><a href="{home_url}" style="color:#94A3B8;text-decoration:none;">Home</a></li>'
-        '<li><a href="cart.html" style="color:#94A3B8;text-decoration:none;">Shopping Bag</a></li>'
-        '<li><a href="checkout.html" style="color:#94A3B8;text-decoration:none;">Checkout</a></li>'
-        '</ul>'
-        '</div>'
-        '<div>'
-        '<h4 style="font-size:13px;font-weight:700;color:#E2E8F0;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 14px;">Contact & Location</h4>'
-        f'<div style="font-size:13.5px;color:#94A3B8;display:flex;flex-direction:column;gap:10px;">{"".join(contact_parts) if contact_parts else "<div>Contact merchant directly online.</div>"}</div>'
-        f'{hours_html}'
-        '</div>'
-        '</div>'
-        '<div style="max-width:1200px;margin:0 auto;padding-top:20px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;font-size:12.5px;color:#64748B;">'
-        f'<div>© {year} {escaped_name}. All rights reserved.</div>'
-        f'{powered_by}'
-        '</div>'
+        '<footer class="site-storefront-footer" data-section="aqivo-attribution" style="text-align:center;padding:36px 16px 48px;font-size:12.5px;color:#94A3B8;font-family:inherit;">'
+        f'<div style="display:none;" data-merchant-name="{escaped_name}">{escaped_name}</div>'
+        f'<a href="{brand_url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;color:#64748B;text-decoration:none;font-weight:500;transition:opacity 0.2s;" onmouseover="this.style.opacity=\'0.8\'" onmouseout="this.style.opacity=\'1\'">'
+        '<span>Powered by</span>'
+        '<img src="/static/brand/aqivo-mark.png" alt="Aqivo" style="height:15px;width:15px;object-fit:contain;display:inline-block;vertical-align:middle;" />'
+        '<span style="font-weight:700;color:#0B1736;letter-spacing:-0.01em;">Aqivo</span>'
+        '</a>'
         '</footer>'
     )
 
@@ -549,7 +563,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
     # Render custom sections (e.g. rich text, custom html, video, ig feed, google reviews, collections)
     draft_mode = bool(ctx.get("draft") or ctx.get("editing"))
-    custom_sections_html = "".join(_render_section_html(s, draft_mode, business) for s in ctx.get("sections", []))
+    custom_sections_html = "".join(_render_section_html(s, draft_mode, business, key) for s in ctx.get("sections", []))
     if custom_sections_html:
         if "</main>" in page:
             page = page.replace("</main>", f'<div id="bz-custom-sections">{custom_sections_html}</div></main>', 1)
@@ -559,12 +573,12 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     # Purge demo 'Market' breadcrumb with 'Home'
     page = re.sub(r'<a href="index\.html">Market</a>', '<a href="index.html">Home</a>', page)
 
-    # Storefront footer (includes business info, hours, store links, and Powered by Aqivo)
-    if business and 'class="site-storefront-footer"' not in page:
+    # Storefront footer (Powered by Aqivo attribution)
+    if business and 'class="aqivo-attribution"' not in page and 'class="site-storefront-footer"' not in page:
         footer_html = _render_store_footer(business, ctx, data)
         page = page.replace("</body>", footer_html + "</body>", 1)
-    elif ctx.get("show_branding") and 'aqivo-branding' not in page:
-        page = page.replace("</body>", '<footer class="aqivo-branding" style="text-align:center;padding:16px;font-size:13px;color:#888;">Powered by <a href="https://aqivo.shop" style="color:inherit;font-weight:600;">Aqivo</a></footer></body>', 1)
+    elif ctx.get("show_branding") and 'aqivo-branding' not in page and 'aqivo-attribution' not in page:
+        page = page.replace("</body>", '<footer class="aqivo-attribution" style="text-align:center;padding:32px 16px;font-size:12.5px;color:#94A3B8;"><a href="https://aqivo.shop" style="color:inherit;font-weight:600;text-decoration:none;">Powered by Aqivo</a></footer></body>', 1)
 
     # Inject cart drawer if the storefront has any products (needed for WhatsApp bag checkout)
     if data.get("items") and 'id="bag"' not in page:

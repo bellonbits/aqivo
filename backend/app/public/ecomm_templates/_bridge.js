@@ -1089,7 +1089,7 @@
         }
       }
 
-      // 2. Identity
+      // 2. Identity & Hero
       var nameEl = document.getElementById("store-name");
       if (nameEl) nameEl.textContent = B.name;
       var tagEl = document.getElementById("store-tagline");
@@ -1103,15 +1103,62 @@
         }
       }
 
+      var heroTitleEl = document.getElementById("store-hero-title");
+      if (heroTitleEl) {
+        heroTitleEl.textContent = B.hero_headline || ("Welcome to " + (B.name || "our store"));
+      }
+      var heroSubEl = document.getElementById("store-hero-sub");
+      if (heroSubEl) {
+        heroSubEl.textContent = B.hero_subheadline || B.tagline || "Discover our collection and order directly on WhatsApp.";
+      }
+      var heroWaBtn = document.getElementById("store-hero-wa-btn");
+      var phClean = (B.wa || B.phone || "").replace(/[^0-9]/g, "");
+      if (heroWaBtn) {
+        if (phClean) {
+          heroWaBtn.href = "https://wa.me/" + phClean + "?text=" + encodeURIComponent("Hi " + (B.name || "") + ", I'd like to place an order from your store:");
+          heroWaBtn.style.display = "";
+        } else {
+          heroWaBtn.style.display = "none";
+        }
+      }
+
       // 3. WhatsApp contact
       var waBtn = document.getElementById("wa-btn");
       if (waBtn) {
-        var ph = (B.wa || B.phone || "").replace(/[^0-9]/g, "");
-        if (ph) {
-          waBtn.href = "https://wa.me/" + ph + "?text=" + encodeURIComponent("Hi, I want to inquire with " + B.name);
+        if (phClean) {
+          waBtn.href = "https://wa.me/" + phClean + "?text=" + encodeURIComponent("Hi " + (B.name || "") + ", I want to inquire with your store");
+          waBtn.style.display = "";
         } else {
           waBtn.style.display = "none";
         }
+      }
+
+      // Section IDs binding for builder two-way selection
+      if (B.section_ids) {
+        if (B.section_ids.hero) {
+          var heroEl = document.getElementById("store-hero");
+          if (heroEl) heroEl.setAttribute("data-sid", B.section_ids.hero);
+        }
+        if (B.section_ids.category_grid) {
+          var catPillsEl = document.getElementById("category-pills");
+          if (catPillsEl) {
+            var navParent = catPillsEl.closest(".store-catalogue-nav") || catPillsEl;
+            navParent.setAttribute("data-sid", B.section_ids.category_grid);
+          }
+        }
+        if (B.section_ids.product_grid) {
+          var gridEl = document.getElementById("items-grid");
+          if (gridEl) gridEl.setAttribute("data-sid", B.section_ids.product_grid);
+        }
+      }
+
+      // Hide duplicate server-rendered custom sections if native aqivo components are present
+      var customSec = document.getElementById("bz-custom-sections");
+      if (customSec) {
+        var dupCats = customSec.querySelectorAll(".store-category-pills-section");
+        dupCats.forEach(function (el) { el.style.display = "none"; });
+        var dupProds = customSec.querySelectorAll(".store-product-section");
+        dupProds.forEach(function (el) { el.style.display = "none"; });
       }
 
       // 4. Cart State
@@ -1159,50 +1206,90 @@
       var activeCat = "all";
       var searchQuery = "";
 
+      var PILL_ACTIVE_CLS = "cat-pill active whitespace-nowrap px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-[#0B1736] text-white border border-[#0B1736] shadow-sm";
+      var PILL_INACTIVE_CLS = "cat-pill whitespace-nowrap px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-sm";
+
       if (pillsContainer) {
-        var cats = [{ id: "all", name: "All Items", count: ITEMS.length }];
+        var cats = [{ id: "all", name: "All items", count: ITEMS.length }];
         var seenCats = {};
         CATS.forEach(function (c) {
           if (!seenCats[c.id]) {
             seenCats[c.id] = true;
-            var cnt = ITEMS.filter(function (it) { return it.cid === str(c.id); }).length;
+            var cnt = ITEMS.filter(function (it) { return String(it.cid) === String(c.id) || it.category === c.name; }).length;
             cats.push({ id: c.id, name: c.name, count: cnt });
           }
         });
         ITEMS.forEach(function (it) {
           if (it.cid && !seenCats[it.cid]) {
             seenCats[it.cid] = true;
-            cats.push({ id: it.cid, name: it.category || "General", count: 1 });
+            var cnt = ITEMS.filter(function (x) { return String(x.cid) === String(it.cid); }).length;
+            cats.push({ id: it.cid, name: it.category || "General", count: cnt });
           }
         });
 
         pillsContainer.innerHTML = cats.map(function (c, idx) {
-          var cls = idx === 0 ? "active bg-[#0B1736] text-white shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200";
-          var countText = c.count ? ' <span class="opacity-70 text-[11px] font-medium">(' + c.count + ')</span>' : '';
-          return '<button type="button" class="cat-pill whitespace-nowrap px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all ' + cls + '" data-cat-id="' + esc(c.id) + '">' + esc(c.name) + countText + '</button>';
+          var cls = idx === 0 ? PILL_ACTIVE_CLS : PILL_INACTIVE_CLS;
+          var countText = c.count ? ' <span class="pill-count opacity-75 font-semibold text-[11px]">(' + c.count + ')</span>' : '';
+          return '<button type="button" class="' + cls + '" data-cat-id="' + esc(c.id) + '">' + esc(c.name) + countText + '</button>';
         }).join("");
 
         pillsContainer.addEventListener("click", function (e) {
           var btn = e.target.closest(".cat-pill");
           if (!btn) return;
           pillsContainer.querySelectorAll(".cat-pill").forEach(function (b) {
-            b.classList.remove("active", "bg-[#0B1736]", "text-white", "shadow-sm");
-            b.classList.add("bg-slate-100", "text-slate-700");
+            b.className = PILL_INACTIVE_CLS;
           });
-          btn.classList.add("active", "bg-[#0B1736]", "text-white", "shadow-sm");
-          btn.classList.remove("bg-slate-100", "text-slate-700");
+          btn.className = PILL_ACTIVE_CLS;
           activeCat = btn.getAttribute("data-cat-id") || "all";
           renderItems();
         });
       }
 
+      // Search Inputs & Clear Actions
+      var clearBtnDesktop = document.getElementById("search-clear-desktop");
+      var clearBtnMobile = document.getElementById("search-clear-mobile");
+      var emptyClearBtn = document.getElementById("empty-clear-btn");
+
+      function updateClearButtons(val) {
+        if (clearBtnDesktop) {
+          if (val) clearBtnDesktop.classList.remove("hidden");
+          else clearBtnDesktop.classList.add("hidden");
+        }
+        if (clearBtnMobile) {
+          if (val) clearBtnMobile.classList.remove("hidden");
+          else clearBtnMobile.classList.add("hidden");
+        }
+      }
+
+      function clearSearch() {
+        searchQuery = "";
+        var dInp = document.getElementById("search-input");
+        var mInp = document.getElementById("search-input-mobile");
+        if (dInp) dInp.value = "";
+        if (mInp) mInp.value = "";
+        updateClearButtons("");
+        renderItems();
+        if (dInp && window.innerWidth >= 640) dInp.focus();
+        else if (mInp) mInp.focus();
+      }
+
+      if (clearBtnDesktop) clearBtnDesktop.addEventListener("click", clearSearch);
+      if (clearBtnMobile) clearBtnMobile.addEventListener("click", clearSearch);
+      if (emptyClearBtn) emptyClearBtn.addEventListener("click", clearSearch);
+
       function bindSearch(inp) {
         if (!inp) return;
         inp.addEventListener("input", function (e) {
           searchQuery = (e.target.value || "").toLowerCase().trim();
+          updateClearButtons(searchQuery);
           var other = inp.id === "search-input" ? document.getElementById("search-input-mobile") : document.getElementById("search-input");
           if (other && other.value !== inp.value) other.value = inp.value;
           renderItems();
+        });
+        inp.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            clearSearch();
+          }
         });
       }
       bindSearch(document.getElementById("search-input"));
@@ -1211,12 +1298,13 @@
       function renderItems() {
         if (!gridContainer) return;
         var filtered = ITEMS.filter(function (it) {
-          var matchCat = activeCat === "all" || it.cid === activeCat || it.category === activeCat;
+          var matchCat = activeCat === "all" || String(it.cid) === activeCat || it.category === activeCat;
           if (!matchCat) return false;
           if (searchQuery) {
             var nameMatch = (it.name || "").toLowerCase().indexOf(searchQuery) !== -1;
             var descMatch = (it.desc || "").toLowerCase().indexOf(searchQuery) !== -1;
-            return nameMatch || descMatch;
+            var catMatch = (it.category || "").toLowerCase().indexOf(searchQuery) !== -1;
+            return nameMatch || descMatch || catMatch;
           }
           return true;
         });
@@ -1229,14 +1317,14 @@
           gridContainer.innerHTML = "";
           if (emptyState) {
             emptyState.classList.remove("hidden");
-            var titleEl = emptyState.querySelector("p.font-bold");
-            var subEl = emptyState.querySelector("p.text-xs");
+            var titleEl = document.getElementById("empty-title");
+            var subEl = document.getElementById("empty-subtitle");
             if (searchQuery) {
-              if (titleEl) titleEl.textContent = "No items match \"" + searchQuery + "\"";
-              if (subEl) subEl.textContent = "Try searching for another product or service";
+              if (titleEl) titleEl.textContent = 'No products found for "' + searchQuery + '"';
+              if (subEl) subEl.textContent = 'Check your spelling or try another search term';
             } else {
-              if (titleEl) titleEl.textContent = "Welcome to " + (B.name || "our store") + "!";
-              if (subEl) subEl.textContent = "Products and services will appear here once added.";
+              if (titleEl) titleEl.textContent = 'No products in this category';
+              if (subEl) subEl.textContent = 'Select "All items" to view all available products';
             }
           }
           return;
@@ -1245,33 +1333,31 @@
 
         gridContainer.innerHTML = filtered.map(function (it) {
           var isSvc = it.kind === "service";
-          var actionLabel = isSvc ? "Book" : "Add to Cart";
+          var actionLabel = isSvc ? "Book" : "Add";
           var durationBadge = isSvc && it.duration ? '<span class="text-[11px] text-slate-400 font-medium">⏱ ' + esc(it.duration) + 'm</span>' : '';
-          var saleBadge = it.compare && it.compare > it.price ? '<span class="absolute top-2.5 left-2.5 bg-emerald-500 text-white text-[11px] font-black px-2.5 py-0.5 rounded-lg shadow-sm">' + pct(it) + '</span>' : '';
-          var compPriceHtml = (it.compare && it.compare > it.price) ? '<s class="text-xs text-slate-400 font-semibold ml-1.5">' + fmt(it.compare) + '</s>' : durationBadge;
-          var categoryTagHtml = it.category ? '<span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">' + esc(it.category) + '</span>' : '';
+          var saleBadge = it.compare && it.compare > it.price ? '<span class="absolute top-2.5 left-2.5 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">' + pct(it) + '</span>' : '';
+          var compPriceHtml = (it.compare && it.compare > it.price) ? '<s class="text-xs text-slate-400 font-medium ml-1.5">' + fmt(it.compare) + '</s>' : durationBadge;
+          var categoryTagHtml = it.category ? '<span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1 truncate">' + esc(it.category) + '</span>' : '';
           var itemDetailPage = isSvc ? "service.html" : "product.html";
-          var bzParam = B.slug ? "?id=" + encodeURIComponent(it.id) : "?id=" + encodeURIComponent(it.id);
+          var bzParam = "?id=" + encodeURIComponent(it.id);
           var detailUrl = itemDetailPage + bzParam;
 
-          return '<div class="store-card group bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between relative overflow-hidden" data-item-id="' + esc(it.id) + '">' +
+          return '<div class="store-card group bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between relative overflow-hidden" data-item-id="' + esc(it.id) + '">' +
             '<a href="' + detailUrl + '" class="block group">' +
-              '<div class="relative w-full aspect-square rounded-xl sm:rounded-2xl bg-slate-50 mb-3.5 overflow-hidden flex items-center justify-center border border-slate-100">' +
-                '<img src="' + esc(pic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" loading="lazy" />' +
+              '<div class="relative w-full aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden flex items-center justify-center border border-slate-100">' +
+                '<img src="' + esc(pic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out" loading="lazy" />' +
                 saleBadge +
               '</div>' +
-              '<div class="mb-3">' +
+              '<div class="mb-2.5">' +
                 categoryTagHtml +
-                '<h3 class="font-bold text-sm sm:text-base text-[#0B1736] group-hover:text-[#5B21F5] transition-colors line-clamp-2 leading-snug mb-1.5">' + esc(it.name) + '</h3>' +
-                (it.desc ? '<p class="text-xs sm:text-[13px] text-slate-500 line-clamp-2 leading-relaxed">' + esc(it.desc) + '</p>' : '') +
+                '<h4 class="font-bold text-sm text-[#0B1736] group-hover:text-[#5B21F5] transition-colors line-clamp-2 leading-snug mb-1">' + esc(it.name) + '</h4>' +
+                (it.desc ? '<p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">' + esc(it.desc) + '</p>' : '') +
               '</div>' +
             '</a>' +
-            '<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-3">' +
-              '<div class="min-w-0">' +
-                '<div class="font-black text-base sm:text-lg text-[#5B21F5] tracking-tight leading-none">' + fmt(it.price) + compPriceHtml + '</div>' +
-              '</div>' +
-              '<button type="button" class="btn-add-cart h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs sm:text-sm font-bold transition-all active:scale-95 flex items-center gap-1.5 shadow-md shadow-[#5B21F5]/20 shrink-0" data-id="' + esc(it.id) + '">' +
-                '<svg width="15" height="15" class="size-3.5 fill-current shrink-0" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>' +
+            '<div class="mt-auto pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">' +
+              '<div class="min-w-0 font-extrabold text-sm sm:text-base text-[#0B1736] tracking-tight leading-none">' + fmt(it.price) + compPriceHtml + '</div>' +
+              '<button type="button" class="btn-add-cart h-8 sm:h-9 px-3 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm shrink-0" data-id="' + esc(it.id) + '">' +
+                '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
                 '<span>' + actionLabel + '</span>' +
               '</button>' +
             '</div>' +

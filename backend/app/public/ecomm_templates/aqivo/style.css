@@ -297,65 +297,109 @@ header.sticky {
   box-shadow: 0 0 0 3px var(--accent-ring, rgba(91, 33, 245, 0.15));
 }
 
-/* Category Pills */
+/* Compact Hero Section */
+.store-hero {
+  margin-top: 4px;
+}
+
+.store-hero-card {
+  background: var(--surface, #FFFFFF);
+  border: 1px solid var(--border-strong, #E2E8F0);
+  border-radius: var(--radius-xl, 20px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.store-hero-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--ink, #0B1736);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+@media (min-width: 640px) {
+  .store-hero-title {
+    font-size: 22px;
+  }
+}
+
+.store-hero-sub {
+  font-size: 13px;
+  color: var(--muted, #64748B);
+  line-height: 1.5;
+}
+
+/* Category Filter Pills (Horizontal Rounded Filters) */
 #category-pills {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cat-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
   border-radius: var(--radius-full, 9999px);
   font-size: 12.5px;
   font-weight: 700;
   white-space: nowrap;
-  background-color: #F1F5F9;
+  background-color: #FFFFFF;
   color: #475569;
-  border: 1px solid transparent;
+  border: 1px solid var(--border-strong, #E2E8F0);
   transition: all 0.15s ease;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
 }
 
 .cat-pill:hover {
-  background-color: #E2E8F0;
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
   color: #0F172A;
 }
 
 .cat-pill.active {
-  background-color: var(--ink, #0B1736);
-  color: #FFFFFF;
+  background-color: var(--ink, #0B1736) !important;
+  color: #FFFFFF !important;
+  border-color: var(--ink, #0B1736) !important;
   box-shadow: 0 2px 4px rgba(11, 23, 54, 0.15);
 }
 
-/* Main Catalogue Grid (Responsive 2 cols mobile, 3 cols desktop) */
+.cat-pill .pill-count {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-left: 4px;
+}
+
+/* Main Catalogue Grid (2 cols mobile, 3 cols tablet, 4 cols wide desktop) */
 .store-product-grid, #items-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 @media (min-width: 640px) {
   .store-product-grid, #items-grid {
+    gap: 16px;
+  }
+}
+
+@media (min-width: 820px) {
+  .store-product-grid, #items-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
   }
 }
 
-@media (min-width: 860px) {
+@media (min-width: 1024px) {
   .store-product-grid, #items-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .store-product-grid, #items-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
   }
 }
 

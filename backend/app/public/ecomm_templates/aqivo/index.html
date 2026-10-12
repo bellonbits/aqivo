@@ -15,23 +15,23 @@
     <span id="announcement-text">Welcome to our official online store!</span>
   </div>
 
-  <!-- Store Header (Modern Responsive Commerce Header) -->
+  <!-- Store Header (Compact, Modern E-Commerce Header) -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-100 shadow-sm transition-all">
-    <div class="store-container mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4">
-      <div class="header-main-row flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+    <div class="store-container mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5">
+      <div class="header-main-row flex items-center justify-between gap-3 sm:gap-6">
         <!-- Store Identity: Avatar, Name, Location/Status -->
-        <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-          <div id="store-logo" class="size-12 sm:size-14 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center font-black text-lg sm:text-xl text-[#5B21F5] shrink-0 shadow-sm">
+        <div class="flex items-center gap-3 min-w-0">
+          <div id="store-logo" class="size-11 sm:size-12 rounded-xl sm:rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center font-black text-lg text-[#5B21F5] shrink-0 shadow-sm">
             A
           </div>
           <div class="min-w-0">
-            <h1 id="store-name" class="text-base sm:text-xl font-black text-[#0B1736] truncate leading-tight tracking-tight">Aqivo Store</h1>
+            <h1 id="store-name" class="text-base sm:text-lg font-black text-[#0B1736] truncate leading-tight tracking-tight">Aqivo Store</h1>
             <div class="flex items-center gap-2 mt-0.5">
-              <span id="store-tagline" class="text-xs sm:text-sm text-slate-500 truncate font-medium flex items-center gap-1">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-slate-400 shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span id="store-tagline" class="text-xs text-slate-500 truncate font-medium flex items-center gap-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-slate-400 shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 <span id="store-location-text">Order online · Fast delivery</span>
               </span>
-              <span class="store-open-pill inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+              <span class="store-open-pill inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
                 <span class="size-1.5 rounded-full bg-emerald-500"></span>
                 Open
               </span>
@@ -41,63 +41,81 @@
 
         <!-- Desktop Search Bar (Centered on tablet/desktop) -->
         <div class="header-search-wrap flex-1 max-w-md hidden sm:block mx-2">
-          <div class="relative">
-            <input id="search-input" type="search" placeholder="Search catalogue, products, or categories..." class="w-full h-11 pl-10 pr-4 rounded-xl bg-slate-100 border border-transparent focus:border-[#5B21F5] focus:bg-white text-sm outline-none transition-all placeholder:text-slate-400">
-            <svg width="18" height="18" class="size-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <div class="relative flex items-center">
+            <svg width="16" height="16" class="size-4 text-slate-400 absolute left-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input id="search-input" type="search" placeholder="Search products..." class="w-full h-10 pl-10 pr-9 rounded-xl bg-slate-100 border border-transparent focus:border-[#5B21F5] focus:bg-white text-sm outline-none transition-all placeholder:text-slate-400">
+            <button type="button" id="search-clear-desktop" class="hidden absolute right-3 size-4 text-slate-400 hover:text-slate-600 font-bold" aria-label="Clear search">✕</button>
           </div>
         </div>
 
-        <!-- Quick Actions (WhatsApp & Bag) -->
-        <div class="flex items-center gap-2.5 shrink-0">
-          <a id="wa-btn" href="#" target="_blank" rel="noopener" class="h-10 px-3.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 flex items-center gap-2 transition-all shadow-sm font-bold text-xs sm:text-sm active:scale-95" aria-label="Chat on WhatsApp">
-            <svg width="18" height="18" class="size-4.5 fill-current text-emerald-600 shrink-0" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+        <!-- WhatsApp Contact Button -->
+        <div class="flex items-center gap-2 shrink-0">
+          <a id="wa-btn" href="#" target="_blank" rel="noopener" class="h-9 sm:h-10 px-3 sm:px-3.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 flex items-center gap-2 transition-all shadow-sm font-bold text-xs sm:text-sm active:scale-95" aria-label="Chat on WhatsApp">
+            <svg width="18" height="18" class="size-4 fill-current text-emerald-600 shrink-0" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
             <span class="hidden sm:inline">WhatsApp</span>
           </a>
         </div>
       </div>
 
       <!-- Mobile Search Field -->
-      <div class="header-mobile-search sm:hidden pt-3">
-        <div class="relative">
-          <input id="search-input-mobile" type="search" placeholder="Search catalogue..." class="w-full h-10 pl-9 pr-4 rounded-xl bg-slate-100 border border-transparent focus:border-[#5B21F5] focus:bg-white text-sm outline-none transition-all placeholder:text-slate-400">
-          <svg width="16" height="16" class="size-4 text-slate-400 absolute left-3 top-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        </div>
-      </div>
-
-      <!-- Category Filter Navigation -->
-      <div class="header-categories-row pt-3 flex items-center justify-between border-t border-slate-100/80 mt-3">
-        <div id="category-pills" class="flex gap-2 overflow-x-auto no-scrollbar scroll-smooth w-full py-0.5">
-          <button class="cat-pill active whitespace-nowrap px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-[#0B1736] text-white shadow-sm">All Items</button>
+      <div class="header-mobile-search sm:hidden pt-2.5">
+        <div class="relative flex items-center">
+          <svg width="16" height="16" class="size-4 text-slate-400 absolute left-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="search-input-mobile" type="search" placeholder="Search products..." class="w-full h-9 pl-9 pr-8 rounded-xl bg-slate-100 border border-transparent focus:border-[#5B21F5] focus:bg-white text-sm outline-none transition-all placeholder:text-slate-400">
+          <button type="button" id="search-clear-mobile" class="hidden absolute right-2.5 size-4 text-slate-400 hover:text-slate-600 font-bold" aria-label="Clear search">✕</button>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Catalogue Section -->
-  <main class="store-container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-32">
-    <!-- Section Title & Item Count -->
-    <div class="store-section-header flex items-center justify-between mb-5">
-      <div>
-        <h2 id="section-title" class="text-lg sm:text-xl font-black text-[#0B1736] tracking-tight">Our Catalogue</h2>
-        <p id="section-subtitle" class="text-xs sm:text-sm text-slate-500 font-medium">Browse products & order directly via WhatsApp</p>
+  <!-- Main Storefront Body -->
+  <main class="store-container mx-auto px-4 sm:px-6 lg:px-8 py-5 pb-28">
+    <!-- Compact Hero Section directly below header -->
+    <section id="store-hero" class="store-hero mb-6">
+      <div class="store-hero-card bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="min-w-0 max-w-xl">
+          <h2 id="store-hero-title" class="text-xl sm:text-2xl font-black text-[#0B1736] tracking-tight leading-tight">Welcome to our store</h2>
+          <p id="store-hero-sub" class="text-xs sm:text-sm text-slate-500 font-medium mt-1 leading-relaxed">Discover our collection and order directly on WhatsApp.</p>
+        </div>
+        <div class="store-hero-actions shrink-0">
+          <a id="store-hero-wa-btn" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs sm:text-sm shadow-sm transition-all active:scale-95">
+            <svg width="18" height="18" class="fill-current shrink-0" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+            <span>Order on WhatsApp</span>
+          </a>
+        </div>
       </div>
-      <div id="items-count-badge" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200/60">
-        Items
+    </section>
+
+    <!-- Catalogue Header & Category Pills -->
+    <div class="store-catalogue-nav mb-5">
+      <div class="flex items-center justify-between gap-3 mb-3">
+        <h3 id="catalogue-title" class="text-base sm:text-lg font-black text-[#0B1736] tracking-tight">Our Collection</h3>
+        <div id="items-count-badge" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200/60">
+          Loading items...
+        </div>
+      </div>
+
+      <!-- Horizontal Rounded Category Filter Pills -->
+      <div id="category-pills" class="flex gap-2 overflow-x-auto no-scrollbar scroll-smooth w-full py-1">
+        <button type="button" class="cat-pill active" data-cat-id="all">All items</button>
       </div>
     </div>
 
     <!-- Responsive Product Grid -->
     <div id="items-grid" class="store-product-grid">
-      <!-- Items dynamically populated via store data -->
+      <!-- Dynamically populated via store data -->
     </div>
 
     <!-- Empty State -->
     <div id="empty-state" class="hidden py-16 text-center">
       <div class="size-16 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
-        <svg width="32" height="32" class="size-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
       </div>
-      <p class="font-bold text-slate-700">No items found</p>
-      <p class="text-xs text-slate-400 mt-1">Try searching for something else</p>
+      <p class="font-bold text-slate-800 text-base" id="empty-title">No products found</p>
+      <p class="text-xs sm:text-sm text-slate-400 mt-1 mb-4" id="empty-subtitle">Check your spelling or try another search term</p>
+      <button type="button" id="empty-clear-btn" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all">
+        Clear search
+      </button>
     </div>
   </main>
 
