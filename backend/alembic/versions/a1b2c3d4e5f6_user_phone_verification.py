@@ -18,12 +18,30 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column('users', sa.Column('phone_verified', sa.Boolean(), server_default=sa.text('false'), nullable=False))
-    op.add_column('users', sa.Column('phone_otp_hash', sa.String(length=64), nullable=True))
-    op.add_column('users', sa.Column('phone_otp_expires_at', sa.DateTime(timezone=True), nullable=True))
+    conn = op.get_bind()
+    if conn.dialect.name == 'postgresql':
+        op.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT false NOT NULL")
+        op.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_otp_hash VARCHAR(64)")
+        op.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_otp_expires_at TIMESTAMPTZ")
+    else:
+        inspector = sa.inspect(conn)
+        columns = [c['name'] for c in inspector.get_columns('users')]
+        if 'phone_verified' not in columns:
+            op.add_column('users', sa.Column('phone_verified', sa.Boolean(), server_default=sa.text('false'), nullable=False))
+        if 'phone_otp_hash' not in columns:
+            op.add_column('users', sa.Column('phone_otp_hash', sa.String(length=64), nullable=True))
+        if 'phone_otp_expires_at' not in columns:
+            op.add_column('users', sa.Column('phone_otp_expires_at', sa.DateTime(timezone=True), nullable=True))
 
 
 def downgrade() -> None:
-    op.drop_column('users', 'phone_otp_expires_at')
-    op.drop_column('users', 'phone_otp_hash')
-    op.drop_column('users', 'phone_verified')
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
+    columns = [c['name'] for c in inspector.get_columns('users')]
+    if 'phone_otp_expires_at' in columns:
+        op.drop_column('users', 'phone_otp_expires_at')
+    if 'phone_otp_hash' in columns:
+        op.drop_column('users', 'phone_otp_hash')
+    if 'phone_verified' in columns:
+        op.drop_column('users', 'phone_verified')
+
