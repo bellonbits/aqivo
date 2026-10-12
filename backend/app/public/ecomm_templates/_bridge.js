@@ -2082,6 +2082,8 @@
           store: B.name,
           businessSlug: B.slug,
           total: orderTotal,
+          subtotal: totals ? totals.subtotal : orderTotal,
+          deliveryFee: totals ? totals.deliveryFee : 0,
           currencySymbol: B.symbol || B.currency || "KSh",
           items: cart.map(function (ci) {
             return {
@@ -2090,14 +2092,20 @@
               price: ci.price
             };
           }),
+          customer: {
+            name: orderIn.name,
+            phone: orderIn.phone
+          },
           customerName: orderIn.name,
           phone: orderIn.phone,
           fulfilment: orderIn.delivery_method,
-          address: orderIn.address,
+          address: orderIn.address || (orderIn.delivery_method === "PICKUP" ? "Store Collection" : ""),
           notes: orderIn.notes,
-          paymentStatus: (orderIn.payment === "cash" ? "Pay on delivery" : "Awaiting payment"),
+          paymentStatus: (orderIn.payment === "cash" ? "Pay on delivery" : "Awaiting payment confirmation"),
           paymentMethod: orderIn.payment,
-          date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+          date: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+          dateFormatted: new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+          createdAt: new Date().toISOString()
         };
 
         try {

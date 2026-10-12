@@ -8,29 +8,49 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles/mobile-store.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <style>
+    :root {
+      --accent: #D8F29E;
+      --accent-hover: #CBEA85;
+      --accent-deep: #B7DB66;
+      --on-accent: #111111;
+      --bg: #F4F4F4;
+      --surface: #FFFFFF;
+      --surface-soft: #F9FAFB;
+      --ink: #111111;
+      --muted: #6B7280;
+      --subtle: #9CA3AF;
+      --border: #EFEFEF;
+      --border-strong: #E5E7EB;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      background: #F3F4F6;
-      color: #111827;
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 30px 16px 60px;
-      margin: 0;
+      padding: 24px 16px 48px;
+      -webkit-font-smoothing: antialiased;
     }
 
     .receipt-page-header {
       width: 100%;
-      max-width: 480px;
+      max-width: 440px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .receipt-back-btn {
@@ -39,107 +59,435 @@
       gap: 6px;
       font-size: 13px;
       font-weight: 700;
-      color: #4B5563;
+      color: var(--ink);
       text-decoration: none;
-      padding: 8px 14px;
-      background: #FFFFFF;
-      border: 1px solid #E5E7EB;
-      border-radius: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      padding: 9px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 9999px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: all 0.15s ease;
     }
+
     .receipt-back-btn:hover {
-      background: #F9FAFB;
-      color: #111827;
+      background: var(--surface-soft);
       transform: translateY(-1px);
     }
 
-    .receipt-store-switcher {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: #FFFFFF;
-      border: 1px solid #E5E7EB;
-      border-radius: 10px;
-      padding: 4px;
-      margin-bottom: 20px;
-      width: 100%;
-      max-width: 480px;
-      overflow-x: auto;
-    }
-
-    .switcher-btn {
-      flex: 1;
-      padding: 7px 10px;
-      font-size: 11.5px;
+    .receipt-verified-tag {
+      font-size: 11px;
       font-weight: 700;
-      border-radius: 8px;
-      border: none;
-      background: transparent;
-      color: #6B7280;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s ease;
-    }
-    .switcher-btn:hover {
-      color: #111827;
-    }
-    .switcher-btn.active {
-      background: #111827;
-      color: #FFFFFF;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
 
     .receipt-wrapper {
       width: 100%;
-      max-width: 480px;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
+    /* Aqivo Receipt Card */
+    .aqivo-receipt-card {
+      width: 100%;
+      background: var(--surface);
+      border-radius: 28px;
+      padding: 26px 24px 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border);
+    }
+
+    .receipt-store-header-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .receipt-store-avatar-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background: #F3F4F6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .receipt-store-avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .receipt-store-title-text {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.3px;
+      line-height: 1.25;
+    }
+
+    .receipt-bar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0 12px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .receipt-bar-label {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--ink);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .receipt-confirmed-pill {
+      background: var(--accent);
+      color: var(--ink);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .receipt-confirmed-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #15803D;
+    }
+
+    .receipt-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 16px;
+      padding: 16px 0 12px;
+    }
+
+    .receipt-meta-cell {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .receipt-meta-cell.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .receipt-meta-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    .receipt-meta-val {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .receipt-items-header {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 12px 0 10px;
+    }
+
+    .receipt-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .receipt-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .receipt-item-left {
+      flex: 1;
+    }
+
+    .receipt-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.3;
+    }
+
+    .receipt-item-sub {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .receipt-item-right {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .receipt-dashed-divider {
+      border: none;
+      border-top: 1px dashed var(--border-strong);
+      margin: 16px 0 14px;
+    }
+
+    .receipt-breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .receipt-breakdown-val {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .receipt-total-pill {
+      background: var(--accent);
+      border-radius: 18px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 16px 0 14px;
+    }
+
+    .receipt-total-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .receipt-total-amount {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--ink);
+      letter-spacing: -0.5px;
+    }
+
+    .receipt-payment-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 2px 0 16px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .receipt-payment-method-text {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .receipt-payment-method-text strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .receipt-payment-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .receipt-payment-status-badge.awaiting {
+      background: #E5E7EB;
+      color: #4B5563;
+    }
+    .receipt-payment-status-badge.awaiting .status-dot {
+      background: #6B7280;
+    }
+
+    .receipt-payment-status-badge.reported {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+    .receipt-payment-status-badge.reported .status-dot {
+      background: #D97706;
+    }
+
+    .receipt-payment-status-badge.paid {
+      background: var(--accent);
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .receipt-payment-status-badge.paid .status-dot {
+      background: #15803D;
+    }
+
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .receipt-card-brand-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* Actions Bar */
     .receipt-controls-bar {
       display: flex;
       gap: 8px;
-      margin-top: 18px;
+      margin-top: 16px;
       width: 100%;
     }
 
     .receipt-ctrl-btn {
-      flex: 1;
+      height: 48px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 12px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      border-radius: 12px;
-      border: 1px solid #E5E7EB;
-      background: #FFFFFF;
-      color: #111827;
+      gap: 7px;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--ink);
       cursor: pointer;
-      transition: all 0.18s ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .receipt-ctrl-btn:hover {
-      background: #F9FAFB;
-      border-color: #D1D5DB;
-      transform: translateY(-1px);
-    }
-    .receipt-ctrl-btn.primary {
-      background: #059669;
-      color: #FFFFFF;
-      border-color: #059669;
-    }
-    .receipt-ctrl-btn.primary:hover {
-      background: #047857;
-    }
-    .receipt-ctrl-btn.whatsapp {
-      background: #25D366;
-      color: #FFFFFF;
-      border-color: #25D366;
-    }
-    .receipt-ctrl-btn.whatsapp:hover {
-      background: #1EBE5D;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      flex: 1;
+      padding: 0 14px;
     }
 
+    .receipt-ctrl-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .receipt-ctrl-btn.btn-print {
+      background: var(--accent);
+      color: var(--ink);
+      border-color: var(--accent);
+    }
+    .receipt-ctrl-btn.btn-print:hover {
+      background: var(--accent-hover);
+    }
+
+    .receipt-ctrl-btn.btn-wa {
+      background: #050505;
+      color: #FFFFFF;
+      border-color: #050505;
+      flex: 1.25;
+    }
+    .receipt-ctrl-btn.btn-wa:hover {
+      background: #1F2937;
+    }
+
+    .receipt-ctrl-btn.btn-copy {
+      background: var(--surface);
+      color: var(--ink);
+      border-color: var(--border-strong);
+    }
+    .receipt-ctrl-btn.btn-copy:hover {
+      background: var(--surface-soft);
+    }
+
+    /* Payment Status Manager */
+    .receipt-status-manager {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 18px 20px 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .receipt-manager-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .receipt-manager-heading {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .receipt-manager-subtitle {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--subtle);
+    }
+
+    .receipt-status-segmented {
+      background: #EBEBEB;
+      padding: 4px;
+      border-radius: 9999px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .receipt-segmented-tab {
+      flex: 1;
+      padding: 9px 0;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: 9999px;
+      border: none;
+      background: transparent;
+      color: #4B5563;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .receipt-segmented-tab.active {
+      background: #050505;
+      color: #FFFFFF;
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Floating Toast */
     .receipt-toast {
       position: fixed;
       bottom: 24px;
@@ -151,22 +499,23 @@
       font-weight: 600;
       padding: 12px 22px;
       border-radius: 9999px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 9999;
       pointer-events: none;
     }
+
     .receipt-toast.active {
       transform: translateX(-50%) translateY(0);
     }
 
+    /* Print Styles */
     @media print {
       body {
         background: #FFFFFF !important;
         padding: 0 !important;
       }
       .receipt-page-header,
-      .receipt-store-switcher,
       .receipt-controls-bar,
       .receipt-status-manager,
       .receipt-toast {
@@ -176,9 +525,10 @@
         max-width: 480px !important;
         margin: 0 auto !important;
       }
-      #aqivo-receipt-card {
+      .aqivo-receipt-card {
         box-shadow: none !important;
         border: 1px solid #E5E7EB !important;
+        border-radius: 16px !important;
       }
     }
   </style>
@@ -187,217 +537,71 @@
 
   <!-- Top Navigation & Return -->
   <header class="receipt-page-header">
-    <a href="javascript:history.back()" class="receipt-back-btn" id="receipt-back-btn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Back to Store
+    <a href="index.html" class="receipt-back-btn" id="receipt-back-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>Back to Store</span>
     </a>
-    <div style="font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">
+    <div class="receipt-verified-tag">
       Verified Aqivo Receipt
     </div>
   </header>
 
-  <!-- Interactive Store Branding Demo Switcher -->
-  <nav class="receipt-store-switcher" aria-label="Template Receipt Switcher">
-    <button type="button" class="switcher-btn active" onclick="loadReceiptForStore('twosidesboutique', this)">Two Sides</button>
-    <button type="button" class="switcher-btn" onclick="loadReceiptForStore('mavunofresh', this)">Mavuno Fresh</button>
-    <button type="button" class="switcher-btn" onclick="loadReceiptForStore('brewandbites', this)">Brew & Bites</button>
-    <button type="button" class="switcher-btn" onclick="loadReceiptForStore('zuribeauty', this)">Zuri Beauty</button>
-  </nav>
-
   <!-- Branded Receipt Container -->
   <main class="receipt-wrapper">
-    <div id="receipt-card-mount">
-      <!-- Receipt Card Rendered via JS -->
+    <div id="receipt-card-mount" style="width: 100%;">
+      <!-- Card Rendered Dynamically via JS -->
     </div>
 
     <!-- Actions Bar -->
     <div class="receipt-controls-bar">
-      <button type="button" class="receipt-ctrl-btn primary" onclick="printReceiptDoc()">
+      <button type="button" class="receipt-ctrl-btn btn-print" onclick="printReceiptDoc()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Print / PDF
+        <span>Print / PDF</span>
       </button>
-      <button type="button" class="receipt-ctrl-btn whatsapp" onclick="shareReceiptDoc()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        WhatsApp
+      <button type="button" class="receipt-ctrl-btn btn-wa" onclick="shareReceiptDoc()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span>Share on WhatsApp</span>
       </button>
-      <button type="button" class="receipt-ctrl-btn" onclick="copyReceiptDoc()">
+      <button type="button" class="receipt-ctrl-btn btn-copy" onclick="copyReceiptDoc()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copy Link
+        <span>Copy Link</span>
       </button>
     </div>
 
     <!-- Merchant Payment Status Simulator -->
     <div class="receipt-status-manager">
-      <div class="receipt-manager-title">
-        <span>Payment Status Manager</span>
-        <span style="font-size:10px; font-weight:400; color:#9CA3AF;">Live receipt update</span>
+      <div class="receipt-manager-title-row">
+        <span class="receipt-manager-heading">Payment Status Manager</span>
+        <span class="receipt-manager-subtitle">Live receipt update</span>
       </div>
-      <div class="receipt-status-chips">
-        <button type="button" class="receipt-status-chip active" id="btn-status-awaiting" onclick="setReceiptPaymentStatus('Awaiting payment confirmation')">Awaiting Confirmation</button>
-        <button type="button" class="receipt-status-chip" id="btn-status-reported" onclick="setReceiptPaymentStatus('Payment reported (Customer notified seller)')">Payment Reported</button>
-        <button type="button" class="receipt-status-chip" id="btn-status-paid" onclick="setReceiptPaymentStatus('Paid (Confirmed by seller)')">Paid ✓</button>
+      <div class="receipt-status-segmented">
+        <button type="button" class="receipt-segmented-tab active" id="tab-status-awaiting" onclick="setReceiptPaymentStatus('Awaiting payment confirmation')">Awaiting</button>
+        <button type="button" class="receipt-segmented-tab" id="tab-status-reported" onclick="setReceiptPaymentStatus('Payment reported (Customer notified seller)')">Reported</button>
+        <button type="button" class="receipt-segmented-tab" id="tab-status-paid" onclick="setReceiptPaymentStatus('Paid (Confirmed by seller)')">Paid</button>
       </div>
     </div>
   </main>
 
-  <div class="receipt-toast" id="receipt-toast">Details copied to clipboard!</div>
+  <div class="receipt-toast" id="receipt-toast">Receipt link copied!</div>
 
-  <script src="scripts/mobile-store.js"></script>
   <script>
     var currentReceiptOrder = null;
 
-    var SAMPLE_RECEIPTS = {
-      twosidesboutique: {
-        orderId: 'AQ-20261010-001',
-        receiptNo: 'AQ-20261010-001',
-        store: 'TWO SIDES BOUTIQUE',
-        storeTagline: 'Fashion for every side of you',
-        storeContact: 'Nairobi, Kenya · 07XX XXX XXX',
-        storePhone: '254722987654',
-        storeBrandColor: '#059669',
-        storeIconBg: '#E6F9F0',
-        storeIconType: 'bag',
-        createdAt: '2026-10-10T14:30:00.000Z',
-        dateFormatted: '10 Oct 2026',
-        customer: {
-          name: 'Customer name',
-          phone: '07XX XXX XXX'
-        },
-        fulfilment: 'delivery',
-        address: 'Nairobi, Kenya',
-        items: [
-          {
-            name: 'Classic handbag',
-            price: 2500,
-            qty: 1
-          }
-        ],
-        subtotal: 2500,
-        discount: 0,
-        deliveryFee: 0,
-        deliveryFeeText: 'To be confirmed',
-        total: 2500,
-        currencySymbol: 'KSh',
-        paymentMethod: 'M-Pesa',
-        paymentStatus: 'Awaiting payment confirmation',
-        orderStatus: 'Order confirmed'
-      },
-      mavunofresh: {
-        orderId: 'AQ-20261010-002',
-        receiptNo: 'AQ-20261010-002',
-        store: 'MAVUNO FRESH',
-        storeTagline: 'Farm-fresh organic Kenyan produce',
-        storeContact: 'Nairobi, Kenya · 0711 456 789',
-        storePhone: '254711456789',
-        storeBrandColor: '#16A34A',
-        storeIconBg: '#E6F9F0',
-        storeIconType: 'leaf',
-        createdAt: '2026-10-10T15:10:00.000Z',
-        dateFormatted: '10 Oct 2026',
-        customer: {
-          name: 'Wanjiku Mwangi',
-          phone: '0711 000 000'
-        },
-        fulfilment: 'delivery',
-        address: 'Westlands, Nairobi',
-        items: [
-          {
-            name: 'Organic Hass Avocados (Pack of 4)',
-            price: 450,
-            qty: 2
-          },
-          {
-            name: 'Fresh Crisp Spinach Bunch',
-            price: 120,
-            qty: 3
-          }
-        ],
-        subtotal: 1260,
-        discount: 0,
-        deliveryFee: 150,
-        deliveryFeeText: 'KSh 150 (Seller confirms)',
-        total: 1410,
-        currencySymbol: 'Ksh',
-        paymentMethod: 'M-Pesa',
-        paymentStatus: 'Awaiting payment confirmation',
-        orderStatus: 'Order confirmed'
-      },
-      brewandbites: {
-        orderId: 'AQ-20261010-003',
-        receiptNo: 'AQ-20261010-003',
-        store: 'BREW & BITES',
-        storeTagline: 'Artisan Coffee & Flame Fried Kitchen',
-        storeContact: 'Kilimani, Nairobi · 0733 123 456',
-        storePhone: '254733123456',
-        storeBrandColor: '#D97706',
-        storeIconBg: '#FEF3C7',
-        storeIconType: 'food',
-        createdAt: '2026-10-10T16:45:00.000Z',
-        dateFormatted: '10 Oct 2026',
-        customer: {
-          name: 'Brian Kamau',
-          phone: '0733 000 000'
-        },
-        fulfilment: 'delivery',
-        address: '12 Riverside Drive, Kilimani',
-        items: [
-          {
-            name: 'Streetwise 3 Meal (Extra Crispy)',
-            price: 800,
-            qty: 1
-          },
-          {
-            name: 'Kenyan AA Cold Brew (750ml)',
-            price: 450,
-            qty: 1
-          }
-        ],
-        subtotal: 1250,
-        discount: 200,
-        deliveryFee: 150,
-        deliveryFeeText: 'KSh 150 (Seller confirms)',
-        total: 1200,
-        currencySymbol: 'Ksh',
-        paymentMethod: 'Cash on Delivery',
-        paymentStatus: 'Awaiting payment confirmation',
-        orderStatus: 'Order confirmed'
-      },
-      zuribeauty: {
-        orderId: 'AQ-20261010-004',
-        receiptNo: 'AQ-20261010-004',
-        store: 'ZURI BEAUTY STUDIO',
-        storeTagline: 'Luxe Braids & Holistic Beauty Care',
-        storeContact: 'Rose Avenue, Kilimani · 0744 567 890',
-        storePhone: '254744567890',
-        storeBrandColor: '#9333EA',
-        storeIconBg: '#F3E8FF',
-        storeIconType: 'beauty',
-        createdAt: '2026-10-10T17:15:00.000Z',
-        dateFormatted: '10 Oct 2026',
-        customer: {
-          name: 'Amani Wanjiru',
-          phone: '0744 000 000'
-        },
-        fulfilment: 'pickup',
-        address: 'Rose Avenue Studio, Kilimani',
-        items: [
-          {
-            name: 'Knotless Goddess Braids (Waist Length)',
-            price: 3800,
-            qty: 1
-          }
-        ],
-        subtotal: 3800,
-        discount: 200,
-        deliveryFee: 0,
-        deliveryFeeText: 'Free Studio Visit',
-        total: 3700,
-        currencySymbol: 'Ksh',
-        paymentMethod: 'M-Pesa',
-        paymentStatus: 'Awaiting payment confirmation',
-        orderStatus: 'Order confirmed'
-      }
-    };
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function fmtNumber(num) {
+      var n = Number(num);
+      if (isNaN(n)) return '0';
+      return n.toLocaleString('en-US');
+    }
 
     function showToast(msg) {
       var t = document.getElementById('receipt-toast');
@@ -407,45 +611,321 @@
       setTimeout(function () { t.classList.remove('active'); }, 2600);
     }
 
+    function getStoreHomeUrl() {
+      var B = window.__BZ || {};
+      if (B.root) return B.root.replace(/\/+$/, '') || '/';
+      if (B.slug) return '/' + B.slug;
+      var path = window.location.pathname || '';
+      if (path.indexOf('receipt.html') !== -1) {
+        var prefix = path.replace(/receipt\.html.*$/, '');
+        if (prefix) return prefix;
+      }
+      return 'index.html';
+    }
+
+    function generateShowcaseOrder() {
+      var B = window.__BZ || {};
+      var storeName = B.name || "Lydia's Shop";
+      var currency = B.symbol || B.currency || 'KSh';
+
+      // Use real products from active shop if available
+      var showcaseItems = [];
+      if (B.items && B.items.length > 0) {
+        var p1 = B.items[0];
+        showcaseItems.push({
+          name: p1.name,
+          price: Number(p1.price) || 2500,
+          qty: 1
+        });
+      } else {
+        showcaseItems.push({
+          name: 'Summer Dress',
+          price: 2500,
+          qty: 1
+        });
+      }
+
+      var subtotal = showcaseItems.reduce(function (sum, it) {
+        return sum + (it.price * (it.qty || 1));
+      }, 0);
+
+      var deliveryFee = 0;
+      var total = subtotal + deliveryFee;
+
+      var today = new Date().toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+
+      return {
+        receiptNo: '1002',
+        orderId: '1002',
+        store: storeName,
+        businessSlug: B.slug || 'lydiasshop',
+        storePhone: B.phone || B.wa || '+254 712 345 678',
+        logo: B.logo || '',
+        customerName: 'Sarah Mwangi',
+        customer: { name: 'Sarah Mwangi', phone: '+254 712 345 678' },
+        phone: '+254 712 345 678',
+        fulfilment: 'DELIVERY',
+        address: B.address || 'Westlands, Nairobi',
+        date: today,
+        dateFormatted: today,
+        createdAt: new Date().toISOString(),
+        items: showcaseItems,
+        subtotal: subtotal,
+        deliveryFee: deliveryFee,
+        deliveryFeeText: 'Free',
+        total: total,
+        currencySymbol: currency,
+        paymentMethod: 'cash',
+        paymentStatus: 'Awaiting payment confirmation',
+        orderStatus: 'Order confirmed',
+        isShowcase: true
+      };
+    }
+
+    function normalizeOrder(o) {
+      var B = window.__BZ || {};
+      var storeName = o.store || B.name || "Lydia's Shop";
+      var currency = o.currencySymbol || B.symbol || B.currency || 'KSh';
+
+      var items = (o.items && o.items.length > 0) ? o.items.map(function (it) {
+        return {
+          name: it.name || 'Store Item',
+          price: Number(it.price) || 0,
+          qty: Number(it.qty) || 1
+        };
+      }) : [
+        { name: 'Summer Dress', price: Number(o.total) || 2500, qty: 1 }
+      ];
+
+      var subtotal = Number(o.subtotal);
+      if (!subtotal || subtotal <= 0) {
+        subtotal = items.reduce(function (sum, it) {
+          return sum + (it.price * it.qty);
+        }, 0);
+      }
+
+      var deliveryFee = Number(o.deliveryFee) || 0;
+      var total = Number(o.total) || (subtotal + deliveryFee);
+
+      var customerName = o.customerName || (o.customer && o.customer.name) || 'Guest Customer';
+      var phone = o.phone || (o.customer && o.customer.phone) || '—';
+      var address = o.address || (o.fulfilment === 'PICKUP' ? 'Store Collection' : (B.address || 'Standard Delivery'));
+
+      var dateVal = o.date || o.dateFormatted;
+      if (!dateVal && o.createdAt) {
+        try {
+          dateVal = new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch (e) {}
+      }
+      if (!dateVal) {
+        dateVal = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      }
+
+      var payMethod = o.paymentMethod || o.payment || 'cash';
+      var payStatus = o.paymentStatus || 'Awaiting payment confirmation';
+
+      return {
+        receiptNo: o.receiptNo || o.orderId || o.number || '1002',
+        orderId: o.orderId || o.receiptNo || o.number || '1002',
+        token: o.token || '',
+        store: storeName,
+        businessSlug: o.businessSlug || B.slug || '',
+        storePhone: o.storePhone || B.phone || B.wa || '',
+        logo: o.logo || B.logo || '',
+        customerName: customerName,
+        customer: { name: customerName, phone: phone },
+        phone: phone,
+        fulfilment: o.fulfilment || 'DELIVERY',
+        address: address,
+        date: dateVal,
+        dateFormatted: dateVal,
+        createdAt: o.createdAt || new Date().toISOString(),
+        items: items,
+        subtotal: subtotal,
+        deliveryFee: deliveryFee,
+        deliveryFeeText: deliveryFee > 0 ? (currency + ' ' + fmtNumber(deliveryFee)) : 'Free',
+        total: total,
+        currencySymbol: currency,
+        paymentMethod: payMethod,
+        paymentStatus: payStatus,
+        orderStatus: o.orderStatus || 'Order confirmed',
+        isShowcase: false
+      };
+    }
+
+    function renderReceiptCardHTML(o) {
+      var currency = o.currencySymbol || 'KSh';
+      var storeName = o.store || "Lydia's Shop";
+
+      // Status pill styling
+      var statusBadgeClass = 'awaiting';
+      var statusBadgeText = 'Awaiting payment confirmation';
+      if (o.paymentStatus === 'Paid' || (o.paymentStatus && o.paymentStatus.indexOf('Paid') !== -1)) {
+        statusBadgeClass = 'paid';
+        statusBadgeText = 'Paid ✓';
+      } else if (o.paymentStatus && o.paymentStatus.toLowerCase().indexOf('reported') !== -1) {
+        statusBadgeClass = 'reported';
+        statusBadgeText = 'Payment reported';
+      }
+
+      // Store avatar or bag icon
+      var avatarContent = '';
+      if (o.logo) {
+        avatarContent = '<img src="' + esc(o.logo) + '" alt="' + esc(storeName) + '" class="receipt-store-avatar-img" />';
+      } else {
+        avatarContent = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>' +
+          '<path d="M3 6h18"/>' +
+          '<path d="M16 10a4 4 0 0 1-8 0"/>' +
+          '</svg>';
+      }
+
+      // Items list
+      var itemsHtml = (o.items || []).map(function (it) {
+        var qty = it.qty || 1;
+        var unitPrice = it.price || 0;
+        var lineTotal = unitPrice * qty;
+        return '<div class="receipt-item-row">' +
+          '<div class="receipt-item-left">' +
+            '<div class="receipt-item-name">' + esc(it.name) + '</div>' +
+            '<div class="receipt-item-sub">' + qty + ' × ' + currency + ' ' + fmtNumber(unitPrice) + '</div>' +
+          '</div>' +
+          '<div class="receipt-item-right">' + currency + ' ' + fmtNumber(lineTotal) + '</div>' +
+        '</div>';
+      }).join('');
+
+      var deliveryText = o.deliveryFee > 0 ? (currency + ' ' + fmtNumber(o.deliveryFee)) : 'Free';
+
+      return '<div class="aqivo-receipt-card" id="aqivo-receipt-card">' +
+        '<!-- Store Info -->' +
+        '<div class="receipt-store-header-row">' +
+          '<div class="receipt-store-avatar-box">' +
+            avatarContent +
+          '</div>' +
+          '<h1 class="receipt-store-title-text">' + esc(storeName) + '</h1>' +
+        '</div>' +
+
+        '<!-- Receipt Bar -->' +
+        '<div class="receipt-bar-row">' +
+          '<span class="receipt-bar-label">Receipt</span>' +
+          '<span class="receipt-confirmed-pill">' +
+            '<span class="receipt-confirmed-dot"></span>' +
+            '<span>Order confirmed</span>' +
+          '</span>' +
+        '</div>' +
+
+        '<!-- Metadata Grid -->' +
+        '<div class="receipt-meta-grid">' +
+          '<div class="receipt-meta-cell">' +
+            '<span class="receipt-meta-label">Receipt No.</span>' +
+            '<span class="receipt-meta-val">' + esc(o.receiptNo) + '</span>' +
+          '</div>' +
+          '<div class="receipt-meta-cell">' +
+            '<span class="receipt-meta-label">Date</span>' +
+            '<span class="receipt-meta-val">' + esc(o.date) + '</span>' +
+          '</div>' +
+          '<div class="receipt-meta-cell">' +
+            '<span class="receipt-meta-label">Customer</span>' +
+            '<span class="receipt-meta-val">' + esc(o.customerName) + '</span>' +
+          '</div>' +
+          '<div class="receipt-meta-cell">' +
+            '<span class="receipt-meta-label">Phone</span>' +
+            '<span class="receipt-meta-val">' + esc(o.phone) + '</span>' +
+          '</div>' +
+          '<div class="receipt-meta-cell full-width">' +
+            '<span class="receipt-meta-label">Deliver To</span>' +
+            '<span class="receipt-meta-val">' + esc(o.address) + '</span>' +
+          '</div>' +
+        '</div>' +
+
+        '<!-- Items Section -->' +
+        '<div class="receipt-items-header">Items</div>' +
+        '<div class="receipt-items-list">' +
+          itemsHtml +
+        '</div>' +
+
+        '<hr class="receipt-dashed-divider" />' +
+
+        '<!-- Subtotal & Delivery -->' +
+        '<div class="receipt-breakdown-row">' +
+          '<span>Subtotal</span>' +
+          '<span class="receipt-breakdown-val">' + currency + ' ' + fmtNumber(o.subtotal) + '</span>' +
+        '</div>' +
+        '<div class="receipt-breakdown-row">' +
+          '<span>Delivery</span>' +
+          '<span class="receipt-breakdown-val">' + esc(deliveryText) + '</span>' +
+        '</div>' +
+
+        '<!-- Lime Total Pill -->' +
+        '<div class="receipt-total-pill">' +
+          '<span class="receipt-total-label">Total</span>' +
+          '<span class="receipt-total-amount">' + currency + ' ' + fmtNumber(o.total) + '</span>' +
+        '</div>' +
+
+        '<!-- Payment Method & Live Status Pill -->' +
+        '<div class="receipt-payment-row">' +
+          '<span class="receipt-payment-method-text">Paid via <strong>' + esc(o.paymentMethod) + '</strong></span>' +
+          '<span class="receipt-payment-status-badge ' + statusBadgeClass + '" id="receipt-card-status-badge">' +
+            '<span class="status-dot"></span>' +
+            '<span>' + esc(statusBadgeText) + '</span>' +
+          '</span>' +
+        '</div>' +
+
+        '<!-- Aqivo Attribution Footer -->' +
+        '<div class="receipt-card-brand-footer">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="m3 20 9-16 9 16"/>' +
+            '<path d="M6.5 14h11"/>' +
+          '</svg>' +
+          '<span>Powered by Aqivo</span>' +
+        '</div>' +
+      '</div>';
+    }
+
     function renderOrder(order) {
       currentReceiptOrder = order;
       var mount = document.getElementById('receipt-card-mount');
-      if (mount && window.StoreApp) {
-        mount.innerHTML = window.StoreApp.renderReceiptHTML(order);
+      if (mount) {
+        mount.innerHTML = renderReceiptCardHTML(order);
       }
       syncStatusChips(order.paymentStatus);
     }
 
     function syncStatusChips(status) {
-      var bWait = document.getElementById('btn-status-awaiting');
-      var bRep = document.getElementById('btn-status-reported');
-      var bPaid = document.getElementById('btn-status-paid');
-      if (!bWait || !bRep || !bPaid) return;
+      var tabWait = document.getElementById('tab-status-awaiting');
+      var tabRep = document.getElementById('tab-status-reported');
+      var tabPaid = document.getElementById('tab-status-paid');
+      if (!tabWait || !tabRep || !tabPaid) return;
 
-      bWait.classList.remove('active');
-      bRep.classList.remove('active');
-      bPaid.classList.remove('active');
+      tabWait.classList.remove('active');
+      tabRep.classList.remove('active');
+      tabPaid.classList.remove('active');
 
-      if (status === 'Paid' || status === 'Paid (Confirmed by seller)') {
-        bPaid.classList.add('active');
-      } else if (status && status.indexOf('reported') !== -1) {
-        bRep.classList.add('active');
+      if (status === 'Paid' || (status && status.indexOf('Paid') !== -1)) {
+        tabPaid.classList.add('active');
+      } else if (status && status.toLowerCase().indexOf('reported') !== -1) {
+        tabRep.classList.add('active');
       } else {
-        bWait.classList.add('active');
+        tabWait.classList.add('active');
       }
     }
 
     function setReceiptPaymentStatus(newStatus) {
       if (!currentReceiptOrder) return;
       currentReceiptOrder.paymentStatus = newStatus;
-      
-      // Update in localStorage if found
+
+      // Update order in localStorage if present
       try {
         var raw = localStorage.getItem('aqivo_orders');
         if (raw) {
           var list = JSON.parse(raw);
-          var found = list.find(function(it) {
-            return it.receiptNo === currentReceiptOrder.receiptNo || it.orderId === currentReceiptOrder.orderId;
+          var found = list.find(function (it) {
+            return String(it.receiptNo) === String(currentReceiptOrder.receiptNo) ||
+                   String(it.orderId) === String(currentReceiptOrder.orderId);
           });
           if (found) {
             found.paymentStatus = newStatus;
@@ -455,20 +935,7 @@
       } catch (e) {}
 
       renderOrder(currentReceiptOrder);
-      showToast('Receipt updated: ' + newStatus);
-    }
-
-    function loadReceiptForStore(key, clickedBtn) {
-      document.querySelectorAll('.switcher-btn').forEach(function(b) { b.classList.remove('active'); });
-      if (clickedBtn) {
-        clickedBtn.classList.add('active');
-      } else {
-        var match = document.querySelector('.switcher-btn[onclick*="' + key + '"]');
-        if (match) match.classList.add('active');
-      }
-
-      var order = SAMPLE_RECEIPTS[key] || SAMPLE_RECEIPTS.twosidesboutique;
-      renderOrder(order);
+      showToast('Payment status updated: ' + (newStatus.indexOf('Paid') !== -1 ? 'Paid ✓' : newStatus));
     }
 
     function printReceiptDoc() {
@@ -476,67 +943,117 @@
     }
 
     function shareReceiptDoc() {
-      if (!currentReceiptOrder || !window.StoreApp) return;
-      window.StoreApp.shareReceiptWhatsApp(currentReceiptOrder);
+      if (!currentReceiptOrder) return;
+      var o = currentReceiptOrder;
+      var B = window.__BZ || {};
+      var storeName = o.store || B.name || "Lydia's Shop";
+      var rawPhone = B.wa || B.phone || o.storePhone || '';
+      var cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+
+      var lines = (o.items || []).map(function (it) {
+        return '• ' + (it.qty || 1) + 'x ' + it.name + ' (' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(it.price * (it.qty || 1)) + ')';
+      }).join('\n');
+
+      var msg = '*' + storeName.toUpperCase() + ' — ORDER RECEIPT*\n' +
+        'Receipt No: ' + (o.receiptNo || o.orderId) + '\n' +
+        'Date: ' + (o.date || 'Today') + '\n' +
+        'Customer: ' + o.customerName + ' (' + o.phone + ')\n' +
+        'Deliver to: ' + o.address + '\n\n' +
+        '*ITEMS:*\n' + lines + '\n\n' +
+        'Subtotal: ' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.subtotal) + '\n' +
+        'Delivery: ' + (o.deliveryFee > 0 ? (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.deliveryFee) : 'Free') + '\n' +
+        '*Total: ' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.total) + '*\n' +
+        'Payment Method: ' + o.paymentMethod + '\n' +
+        'Status: ' + o.paymentStatus + '\n\n' +
+        'View Official Receipt: ' + window.location.href + '\n\n' +
+        'Powered by Aqivo';
+
+      var waUrl = cleanPhone
+        ? ('https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent(msg))
+        : ('https://wa.me/?text=' + encodeURIComponent(msg));
+
+      window.open(waUrl, '_blank');
     }
 
     function copyReceiptDoc() {
       if (!currentReceiptOrder) return;
-      var text = currentReceiptOrder.store + ' — Receipt No. ' + currentReceiptOrder.receiptNo + '\n' +
-        'Total: ' + (currentReceiptOrder.currencySymbol || 'Ksh') + ' ' + currentReceiptOrder.total + '\n' +
-        'Status: ' + currentReceiptOrder.paymentStatus + '\n' +
+      var o = currentReceiptOrder;
+      var text = (o.store || 'Aqivo Store') + ' — Receipt No. ' + (o.receiptNo || o.orderId) + '\n' +
+        'Total: ' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.total) + '\n' +
+        'Status: ' + o.paymentStatus + '\n' +
         'Receipt URL: ' + window.location.href;
-      
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(function() {
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
           showToast('Receipt details copied!');
+        }).catch(function () {
+          showToast('Copied to clipboard');
         });
+      } else {
+        showToast('Receipt link copied!');
       }
     }
 
+    // Expose StoreApp interface for backwards compatibility and integration tests
+    window.StoreApp = {
+      renderReceiptHTML: renderReceiptCardHTML,
+      shareReceiptWhatsApp: shareReceiptDoc,
+      printReceipt: printReceiptDoc,
+      copyReceipt: copyReceiptDoc,
+      setPaymentStatus: setReceiptPaymentStatus
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
-      // Initialize StoreApp if not loaded
-      if (window.createWebStorefront) {
-        window.createWebStorefront({ store: { name: 'Two Sides Boutique' } });
+      // Connect Back button to active storefront
+      var backBtn = document.getElementById('receipt-back-btn');
+      if (backBtn) {
+        backBtn.href = getStoreHomeUrl();
       }
 
-      // Check query params
       var params = new URLSearchParams(window.location.search);
-      var queryOrderId = params.get('orderId');
-      var queryStore = params.get('store');
+      var queryOrderId = params.get('orderId') || params.get('order') || params.get('receipt');
+      var queryToken = params.get('token');
 
-      var orderToDisplay = null;
+      var resolvedOrder = null;
 
-      // 1. Check if matching order in localStorage
-      if (queryOrderId) {
-        try {
-          var raw = localStorage.getItem('aqivo_orders');
-          if (raw) {
-            var list = JSON.parse(raw);
-            orderToDisplay = list.find(function(it) {
-              return it.receiptNo === queryOrderId || it.orderId === queryOrderId;
-            });
+      // 1. Search localStorage for matching order
+      try {
+        var raw = localStorage.getItem('aqivo_orders');
+        if (raw) {
+          var list = JSON.parse(raw);
+          if (Array.isArray(list) && list.length > 0) {
+            if (queryOrderId) {
+              resolvedOrder = list.find(function (it) {
+                return String(it.receiptNo) === String(queryOrderId) ||
+                       String(it.orderId) === String(queryOrderId) ||
+                       String(it.number) === String(queryOrderId);
+              });
+            }
+            if (!resolvedOrder && queryToken) {
+              resolvedOrder = list.find(function (it) {
+                return it.token === queryToken;
+              });
+            }
+            // If no explicit order in URL, check latest order for this store
+            if (!resolvedOrder && !queryOrderId && !queryToken) {
+              var B = window.__BZ || {};
+              var storeOrder = list.find(function (it) {
+                return (B.slug && it.businessSlug === B.slug) || (B.name && it.store === B.name);
+              });
+              if (storeOrder) {
+                resolvedOrder = storeOrder;
+              }
+            }
           }
-        } catch (e) {}
-      }
+        }
+      } catch (e) {}
 
-      // 2. Check latest order in localStorage
-      if (!orderToDisplay && !queryStore) {
-        try {
-          var raw2 = localStorage.getItem('aqivo_orders');
-          if (raw2) {
-            var list2 = JSON.parse(raw2);
-            if (list2.length > 0) orderToDisplay = list2[0];
-          }
-        } catch (e) {}
+      // 2. Normalize found order or generate showcase order connected to shop
+      if (resolvedOrder) {
+        renderOrder(normalizeOrder(resolvedOrder));
+      } else {
+        renderOrder(generateShowcaseOrder());
       }
-
-      // 3. Fallback to store query or Two Sides Boutique sample
-      if (!orderToDisplay) {
-        orderToDisplay = SAMPLE_RECEIPTS[queryStore] || SAMPLE_RECEIPTS.twosidesboutique;
-      }
-
-      renderOrder(orderToDisplay);
     });
   </script>
 </body>
