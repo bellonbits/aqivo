@@ -29,6 +29,36 @@ def _f(v) -> float | None:
     return float(v) if v is not None else None
 
 
+CURATED_FALLBACK_PHOTOS = {
+    "dress": "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80",
+    "clothing": "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=800&q=80",
+    "fashion": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
+    "bag": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+    "handbag": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+    "leather": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+    "hamper": "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80",
+    "gift": "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=800&q=80",
+    "shoe": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+    "sneaker": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80",
+    "beauty": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
+    "skincare": "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80",
+    "hair": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80",
+    "coffee": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80",
+    "food": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
+    "electronics": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+    "phone": "https://images.unsplash.com/photo-1511707171634-5f897ff02547?auto=format&fit=crop&w=800&q=80",
+    "grocery": "https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=800&q=80",
+}
+
+
+def _match_photo(name: str, desc: str = "") -> str | None:
+    txt = f"{name} {desc}".lower()
+    for kw, u in CURATED_FALLBACK_PHOTOS.items():
+        if kw in txt:
+            return u
+    return None
+
+
 def build_data(db: Session, ctx: dict, business: Business) -> dict:
     root = ctx["root"]
     cat_names = {str(c.id): c.name for c in ctx["categories"]}
@@ -41,14 +71,25 @@ def build_data(db: Session, ctx: dict, business: Business) -> dict:
             variants.setdefault(str(v.product_id), []).append({"id": str(v.id), "title": v.title, "price": _f(v.price)})
         for p in products[:200]:
             imgs = [u for u in (p.images or []) if u]
+            if not imgs:
+                matched = _match_photo(p.name, p.short_description or p.description or "")
+                if matched:
+                    imgs = [matched]
             items.append({"id": str(p.id), "kind": "product", "name": p.name, "price": _f(p.price) or 0, "compare": _f(p.compare_at_price),
                           "image": imgs[0] if imgs else None, "images": imgs, "cid": str(p.category_id) if p.category_id else "",
                           "category": cat_names.get(str(p.category_id), ""), "desc": p.short_description or p.description or "", "featured": bool(p.featured),
                           "variants": variants.get(str(p.id), []), "soldout": bool(p.track_stock and not variants.get(str(p.id)) and p.stock_qty <= 0)})
     services = []
     for s in ctx["services"]:
-        services.append({"id": str(s.id), "kind": "service", "name": s.name, "price": _f(s.price) or 0, "compare": None, "image": images.get(str(s.id)),
-                         "images": [images[str(s.id)]] if images.get(str(s.id)) else [], "cid": str(s.category_id) if s.category_id else "",
+        s_img = images.get(str(s.id))
+        s_imgs = [s_img] if s_img else []
+        if not s_imgs:
+            matched = _match_photo(s.name, s.description or "")
+            if matched:
+                s_imgs = [matched]
+                s_img = matched
+        services.append({"id": str(s.id), "kind": "service", "name": s.name, "price": _f(s.price) or 0, "compare": None, "image": s_img,
+                         "images": s_imgs, "cid": str(s.category_id) if s.category_id else "",
                          "category": cat_names.get(str(s.category_id), ""), "desc": s.description or "", "duration": s.duration_minutes, "variants": [], "featured": False})
     if not items:
         items = services  # menus / catalogues built from services

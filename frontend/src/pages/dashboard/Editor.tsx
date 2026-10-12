@@ -20,7 +20,8 @@ import type { Registry, Section, SectionDef, Template, Website } from '@/types'
 type Tab = 'sections' | 'pages' | 'style' | 'photos' | 'settings'
 const TABS: [Tab, string][] = [['sections', 'Sections'], ['pages', 'Pages & menu'], ['style', 'Style'], ['photos', 'Photos'], ['settings', 'Settings']]
 type Device = 'desktop' | 'tablet' | 'mobile'
-const DEVICE_W: Record<Device, number> = { desktop: 1280, tablet: 820, mobile: 390 }
+type ZoomMode = 'fit' | '75%' | '100%'
+const DEVICE_W: Record<Device, number> = { desktop: 1200, tablet: 768, mobile: 390 }
 
 const FONT_HINT: Record<string, string> = { Fraunces: 'Elegant serif', 'Playfair Display': 'Classic serif', 'DM Serif Display': 'Bold serif', Manrope: 'Clean sans', Inter: 'Neutral sans', Poppins: 'Friendly sans', 'Space Grotesk': 'Techy sans', Outfit: 'Rounded sans' }
 
@@ -77,6 +78,7 @@ export default function Editor() {
   const [tab, setTab] = useState<Tab>(params.get('template') ? 'style' : 'sections')
   const [pane, setPane] = useState<'edit' | 'preview'>('edit')
   const [device, setDevice] = useState<Device>(typeof window !== 'undefined' && window.innerWidth < 768 ? 'mobile' : 'desktop')
+  const [zoom, setZoom] = useState<ZoomMode>('fit')
   const [html, setHtml] = useState<string | null>(null)
   const [previewTpl, setPreviewTpl] = useState<string | null>(params.get('template'))
   const [selected, setSelected] = useState<string | null>(null)
@@ -310,21 +312,67 @@ export default function Editor() {
     </div>
   )
 
-  const scale = Math.min(1, (boxW - 8) / DEVICE_W[device])
+  const fitScale = Math.min(1, Math.max(0.35, (boxW - 16) / DEVICE_W[device]))
+  const scale = zoom === '100%' ? 1 : zoom === '75%' ? 0.75 : fitScale
+  const previewWidth = DEVICE_W[device] * scale
+
   const preview = (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-white/70 px-3 py-2.5">
-        <div className="flex rounded-full bg-white/80 p-1 ring-1 ring-line">{([['desktop', Monitor], ['tablet', Tablet], ['mobile', Smartphone]] as const).map(([m, Icon]) => <button key={m} aria-label={`${m} preview`} aria-pressed={device === m} onClick={() => setDevice(m)} className={cn('grid size-8 place-items-center rounded-full', device === m ? 'btn-brand' : 'text-muted')}><Icon className="size-4" /></button>)}</div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/70 px-3 py-2.5">
+        <div className="flex items-center gap-2">
+          {/* Device toggle */}
+          <div className="flex rounded-full bg-white/80 p-1 ring-1 ring-line">
+            {([['desktop', Monitor], ['tablet', Tablet], ['mobile', Smartphone]] as const).map(([m, Icon]) => (
+              <button
+                key={m}
+                aria-label={`${m} preview`}
+                aria-pressed={device === m}
+                onClick={() => setDevice(m)}
+                className={cn('grid size-8 place-items-center rounded-full transition-colors', device === m ? 'btn-brand shadow-sm' : 'text-muted hover:text-ink')}
+              >
+                <Icon className="size-4" />
+              </button>
+            ))}
+          </div>
+
+          {/* Zoom controls */}
+          <div className="flex items-center rounded-full bg-white/80 p-1 ring-1 ring-line text-xs font-bold text-muted">
+            {(['fit', '75%', '100%'] as const).map((z) => (
+              <button
+                key={z}
+                onClick={() => setZoom(z)}
+                aria-pressed={zoom === z}
+                className={cn('px-2.5 py-1 rounded-full capitalize transition-colors', zoom === z ? 'bg-ink text-white shadow-sm' : 'hover:text-ink')}
+              >
+                {z === 'fit' ? 'Fit' : z}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex items-center gap-2 text-xs font-semibold text-muted">
           {previewTpl && <Badge tone="warn">Previewing another preset</Badge>}
           <span aria-live="polite">{state === 'saving' ? 'Saving…' : state === 'error' ? 'Not saved' : w.has_unpublished_changes ? 'Saved · unpublished' : 'All changes published'}</span>
         </div>
       </div>
-      <div ref={box} className="min-h-0 flex-1 overflow-auto bg-white/30 p-3">
+      <div ref={box} className="min-h-0 flex-1 overflow-auto bg-slate-100/50 p-3 sm:p-4">
         {html === null ? <PageLoading /> : (
-          <div className="mx-auto overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black/5" style={{ width: DEVICE_W[device] * scale, height: '100%' }}>
-            <iframe ref={frame} title="Storefront preview" sandbox="allow-scripts" srcDoc={html} className="origin-top-left border-0 bg-white"
-              style={{ width: DEVICE_W[device], height: `${100 / scale}%`, transform: `scale(${scale})` }} />
+          <div
+            className="mx-auto overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-black/10 transition-all duration-200"
+            style={{ width: previewWidth, height: '100%' }}
+          >
+            <iframe
+              ref={frame}
+              title="Storefront preview"
+              sandbox="allow-scripts"
+              srcDoc={html}
+              className="origin-top-left border-0 bg-white"
+              style={{
+                width: DEVICE_W[device],
+                height: `${100 / scale}%`,
+                transform: `scale(${scale})`,
+              }}
+            />
           </div>
         )}
       </div>

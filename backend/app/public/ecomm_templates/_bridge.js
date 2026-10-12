@@ -51,8 +51,69 @@
   function img(p) { return p.image || ""; }
   function deals(list) { var d = list.filter(function (p) { return p.compare && p.compare > p.price; }); return d.length ? d : list; }
   function cycle(list, n) { var out = []; for (var i = 0; i < n && list.length; i++) out.push(list[i % list.length]); return out; }
-  var FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#eceff3"/><text x="200" y="210" font-size="22" text-anchor="middle" fill="#9aa3af" font-family="sans-serif">No image</text></svg>');
-  function pic(p) { return img(p) || FALLBACK_IMG; }
+  var CURATED_PHOTOS = {
+    dress: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80",
+    clothing: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=800&q=80",
+    fashion: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
+    bag: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+    handbag: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+    leather: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
+    hamper: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=800&q=80",
+    gift: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=800&q=80",
+    shoe: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+    sneaker: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80",
+    beauty: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
+    skincare: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80",
+    hair: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80",
+    coffee: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80",
+    food: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
+    electronics: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+    phone: "https://images.unsplash.com/photo-1511707171634-5f897ff02547?auto=format&fit=crop&w=800&q=80",
+    grocery: "https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=800&q=80",
+  };
+
+  function makeDesignedPlaceholder(name, category) {
+    var label = String(name || category || "STORE ITEM").slice(0, 18).toUpperCase();
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">' +
+      '<defs>' +
+        '<linearGradient id="pBg" x1="0%" y1="0%" x2="100%" y2="100%">' +
+          '<stop offset="0%" stop-color="#F8FAFC"/>' +
+          '<stop offset="100%" stop-color="#E2E8F0"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="pIcon" x1="0%" y1="0%" x2="100%" y2="100%">' +
+          '<stop offset="0%" stop-color="#7C3AED"/>' +
+          '<stop offset="100%" stop-color="#5B21F5"/>' +
+        '</linearGradient>' +
+      '</defs>' +
+      '<rect width="600" height="600" fill="url(#pBg)"/>' +
+      '<circle cx="300" cy="260" r="88" fill="#FFFFFF" opacity="0.9"/>' +
+      '<path d="M265 240 L300 215 L335 240 L335 295 L265 295 Z" fill="none" stroke="url(#pIcon)" stroke-width="7" stroke-linejoin="round"/>' +
+      '<path d="M265 240 L300 265 L335 240" fill="none" stroke="url(#pIcon)" stroke-width="7" stroke-linejoin="round"/>' +
+      '<line x1="300" y1="265" x2="300" y2="295" stroke="url(#pIcon)" stroke-width="7"/>' +
+      '<text x="300" y="405" font-family="-apple-system, system-ui, sans-serif" font-size="16" font-weight="800" letter-spacing="3" fill="#475569" text-anchor="middle">' + esc(label) + '</text>' +
+      '<text x="300" y="430" font-family="-apple-system, system-ui, sans-serif" font-size="12" font-weight="600" letter-spacing="1" fill="#94A3B8" text-anchor="middle">OFFICIAL STORE CATALOGUE</text>' +
+    '</svg>';
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+  }
+
+  function getSmartFallbackImage(p) {
+    if (!p) return makeDesignedPlaceholder("PRODUCT", "");
+    var text = ((p.name || "") + " " + (p.category || "") + " " + (p.desc || "")).toLowerCase();
+    var keys = Object.keys(CURATED_PHOTOS);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (text.indexOf(k) !== -1) return CURATED_PHOTOS[k];
+    }
+    return makeDesignedPlaceholder(p.name, p.category);
+  }
+
+  var FALLBACK_IMG = makeDesignedPlaceholder("PRODUCT", "");
+  function pic(p) {
+    if (typeof p === "string" && p) return p;
+    var directImg = p ? (p.image || (p.images && p.images[0])) : "";
+    if (directImg) return directImg;
+    return getSmartFallbackImage(p);
+  }
 
   function hide(ids) {
     ids.forEach(function (id) {
@@ -1090,51 +1151,62 @@
       var pillsContainer = document.getElementById("category-pills");
       var gridContainer = document.getElementById("items-grid");
       var emptyState = document.getElementById("empty-state");
-      var searchInput = document.getElementById("search-input");
+      var countBadge = document.getElementById("items-count-badge");
+      var locText = document.getElementById("store-location-text");
+      if (locText) {
+        locText.textContent = B.address || B.tagline || "Order online · Direct delivery";
+      }
       var activeCat = "all";
       var searchQuery = "";
 
       if (pillsContainer) {
-        var cats = [{ id: "all", name: "All Items" }];
+        var cats = [{ id: "all", name: "All Items", count: ITEMS.length }];
         var seenCats = {};
         CATS.forEach(function (c) {
           if (!seenCats[c.id]) {
             seenCats[c.id] = true;
-            cats.push({ id: c.id, name: c.name });
+            var cnt = ITEMS.filter(function (it) { return it.cid === str(c.id); }).length;
+            cats.push({ id: c.id, name: c.name, count: cnt });
           }
         });
         ITEMS.forEach(function (it) {
           if (it.cid && !seenCats[it.cid]) {
             seenCats[it.cid] = true;
-            cats.push({ id: it.cid, name: it.category || "General" });
+            cats.push({ id: it.cid, name: it.category || "General", count: 1 });
           }
         });
 
         pillsContainer.innerHTML = cats.map(function (c, idx) {
-          var cls = idx === 0 ? "active bg-[#0B1736] text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200";
-          return '<button type="button" class="cat-pill whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ' + cls + '" data-cat-id="' + esc(c.id) + '">' + esc(c.name) + '</button>';
+          var cls = idx === 0 ? "active bg-[#0B1736] text-white shadow-sm" : "bg-slate-100 text-slate-700 hover:bg-slate-200";
+          var countText = c.count ? ' <span class="opacity-70 text-[11px] font-medium">(' + c.count + ')</span>' : '';
+          return '<button type="button" class="cat-pill whitespace-nowrap px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all ' + cls + '" data-cat-id="' + esc(c.id) + '">' + esc(c.name) + countText + '</button>';
         }).join("");
 
         pillsContainer.addEventListener("click", function (e) {
           var btn = e.target.closest(".cat-pill");
           if (!btn) return;
           pillsContainer.querySelectorAll(".cat-pill").forEach(function (b) {
-            b.classList.remove("active", "bg-[#0B1736]", "text-white");
+            b.classList.remove("active", "bg-[#0B1736]", "text-white", "shadow-sm");
             b.classList.add("bg-slate-100", "text-slate-700");
           });
-          btn.classList.add("active", "bg-[#0B1736]", "text-white");
+          btn.classList.add("active", "bg-[#0B1736]", "text-white", "shadow-sm");
           btn.classList.remove("bg-slate-100", "text-slate-700");
           activeCat = btn.getAttribute("data-cat-id") || "all";
           renderItems();
         });
       }
 
-      if (searchInput) {
-        searchInput.addEventListener("input", function (e) {
+      function bindSearch(inp) {
+        if (!inp) return;
+        inp.addEventListener("input", function (e) {
           searchQuery = (e.target.value || "").toLowerCase().trim();
+          var other = inp.id === "search-input" ? document.getElementById("search-input-mobile") : document.getElementById("search-input");
+          if (other && other.value !== inp.value) other.value = inp.value;
           renderItems();
         });
       }
+      bindSearch(document.getElementById("search-input"));
+      bindSearch(document.getElementById("search-input-mobile"));
 
       function renderItems() {
         if (!gridContainer) return;
@@ -1148,6 +1220,10 @@
           }
           return true;
         });
+
+        if (countBadge) {
+          countBadge.textContent = filtered.length + " item" + (filtered.length !== 1 ? "s" : "");
+        }
 
         if (!filtered.length) {
           gridContainer.innerHTML = "";
@@ -1169,29 +1245,33 @@
 
         gridContainer.innerHTML = filtered.map(function (it) {
           var isSvc = it.kind === "service";
-          var actionLabel = isSvc ? "Book" : "Add";
-          var durationBadge = isSvc && it.duration ? '<span class="text-[10px] text-slate-400 font-medium">⏱ ' + esc(it.duration) + 'm</span>' : '';
-          var saleBadge = it.compare && it.compare > it.price ? '<span class="absolute top-2 left-2 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm">' + pct(it) + '</span>' : '';
+          var actionLabel = isSvc ? "Book" : "Add to Cart";
+          var durationBadge = isSvc && it.duration ? '<span class="text-[11px] text-slate-400 font-medium">⏱ ' + esc(it.duration) + 'm</span>' : '';
+          var saleBadge = it.compare && it.compare > it.price ? '<span class="absolute top-2.5 left-2.5 bg-emerald-500 text-white text-[11px] font-black px-2.5 py-0.5 rounded-lg shadow-sm">' + pct(it) + '</span>' : '';
+          var compPriceHtml = (it.compare && it.compare > it.price) ? '<s class="text-xs text-slate-400 font-semibold ml-1.5">' + fmt(it.compare) + '</s>' : durationBadge;
+          var categoryTagHtml = it.category ? '<span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">' + esc(it.category) + '</span>' : '';
           var itemDetailPage = isSvc ? "service.html" : "product.html";
           var bzParam = B.slug ? "?id=" + encodeURIComponent(it.id) : "?id=" + encodeURIComponent(it.id);
           var detailUrl = itemDetailPage + bzParam;
 
-          return '<div class="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow relative overflow-hidden" data-item-id="' + esc(it.id) + '">' +
-            '<a href="' + detailUrl + '" class="block">' +
-              '<div class="relative w-full aspect-square rounded-xl bg-slate-50 mb-2.5 overflow-hidden flex items-center justify-center">' +
-                '<img src="' + esc(pic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />' +
+          return '<div class="store-card group bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all flex flex-col justify-between relative overflow-hidden" data-item-id="' + esc(it.id) + '">' +
+            '<a href="' + detailUrl + '" class="block group">' +
+              '<div class="relative w-full aspect-square rounded-xl sm:rounded-2xl bg-slate-50 mb-3.5 overflow-hidden flex items-center justify-center border border-slate-100">' +
+                '<img src="' + esc(pic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out" loading="lazy" />' +
                 saleBadge +
               '</div>' +
-              '<h3 class="font-bold text-sm text-[#0B1736] line-clamp-2 leading-tight mb-1">' + esc(it.name) + '</h3>' +
-              (it.desc ? '<p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-2">' + esc(it.desc) + '</p>' : '') +
-            '</a>' +
-            '<div class="mt-2 pt-2 border-t border-slate-50 flex items-center justify-between gap-2">' +
-              '<div>' +
-                '<div class="font-extrabold text-sm text-[#5B21F5]">' + fmt(it.price) + '</div>' +
-                durationBadge +
+              '<div class="mb-3">' +
+                categoryTagHtml +
+                '<h3 class="font-bold text-sm sm:text-base text-[#0B1736] group-hover:text-[#5B21F5] transition-colors line-clamp-2 leading-snug mb-1.5">' + esc(it.name) + '</h3>' +
+                (it.desc ? '<p class="text-xs sm:text-[13px] text-slate-500 line-clamp-2 leading-relaxed">' + esc(it.desc) + '</p>' : '') +
               '</div>' +
-              '<button type="button" class="btn-add-cart px-3 py-1.5 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm" data-id="' + esc(it.id) + '">' +
-                '<svg class="size-3.5 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>' +
+            '</a>' +
+            '<div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-3">' +
+              '<div class="min-w-0">' +
+                '<div class="font-black text-base sm:text-lg text-[#5B21F5] tracking-tight leading-none">' + fmt(it.price) + compPriceHtml + '</div>' +
+              '</div>' +
+              '<button type="button" class="btn-add-cart h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs sm:text-sm font-bold transition-all active:scale-95 flex items-center gap-1.5 shadow-md shadow-[#5B21F5]/20 shrink-0" data-id="' + esc(it.id) + '">' +
+                '<svg width="15" height="15" class="size-3.5 fill-current shrink-0" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>' +
                 '<span>' + actionLabel + '</span>' +
               '</button>' +
             '</div>' +
