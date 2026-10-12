@@ -15,6 +15,7 @@ services:
     volumes:
       - media_storage:/app/storage
       - ./backend/app:/app/app
+      - ./backend/alembic:/app/alembic
       - ./frontend/dist:/app/dist:ro
     expose:
       - "8000"

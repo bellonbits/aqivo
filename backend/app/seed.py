@@ -348,6 +348,19 @@ def ensure_demo_store(db: Session) -> None:
     db.commit()
 
 
+def ensure_schema_compatibility(db: Session) -> None:
+    try:
+        from sqlalchemy import text
+        db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT FALSE"))
+        db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_otp_hash VARCHAR(64)"))
+        db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_otp_expires_at TIMESTAMP WITH TIME ZONE"))
+        db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT FALSE"))
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        log.warning("Schema compatibility check: %s", exc)
+
+
 def bootstrap(demo: bool = False) -> None:
     db = SessionLocal()
     try:
@@ -356,6 +369,7 @@ def bootstrap(demo: bool = False) -> None:
             db.execute(text("SELECT pg_advisory_xact_lock(hashtext('bizora_bootstrap'))"))
         except Exception:
             pass
+        ensure_schema_compatibility(db)
         seed_roles(db)
         seed_plans(db)
         seed_templates(db)
