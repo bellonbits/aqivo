@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useQueryClient } from '@tanstack/react-query'
 import { api, setAccessToken, setBusinessOverride, tryRefresh } from '@/lib/api'
 import { setLocale } from '@/lib/i18n'
-import type { Me } from '@/types'
+import type { Me, User } from '@/types'
 
 interface AuthState {
   me: Me | null
@@ -12,6 +12,7 @@ interface AuthState {
   guest: () => Promise<void>
   logout: () => Promise<void>
   reload: () => Promise<Me | null>
+  updateProfile: (data: { full_name?: string; phone?: string; locale?: string }) => Promise<User>
   requestPhoneCode: (phone?: string) => Promise<{ message: string; phone: string }>
   verifyPhone: (code: string, phone?: string) => Promise<{ message: string; phone_verified: boolean; phone: string }>
   resendEmailVerification: () => Promise<void>
@@ -67,6 +68,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAccessToken(r.access_token)
       qc.clear()
       await reload()
+    },
+    updateProfile: async (data) => {
+      const u = await api.patch<User>('/auth/me', data)
+      await reload()
+      return u
     },
     requestPhoneCode: async (phone) => {
       return await api.post<{ message: string; phone: string }>('/auth/request-phone-code', { phone: phone || null })

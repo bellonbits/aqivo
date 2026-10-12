@@ -26,13 +26,26 @@ export default function Settings() {
 }
 
 function ProfileCard() {
-  const { me, resendEmailVerification } = useAuth()
+  const { me, updateProfile, resendEmailVerification } = useAuth()
   const toast = useToast()
   const [verifyOpen, setVerifyOpen] = useState(false)
   const [resendingEmail, setResendingEmail] = useState(false)
+  const [saving, setSaving] = useState(false)
 
-  if (!me) return null
-  const u = me.user
+  const u = me?.user
+  const [fullName, setFullName] = useState(u?.full_name || '')
+  const [phone, setPhone] = useState(u?.phone || '')
+  const [locale, setLocale] = useState(u?.locale || 'en')
+
+  useEffect(() => {
+    if (u) {
+      setFullName(u.full_name || '')
+      setPhone(u.phone || '')
+      setLocale(u.locale || 'en')
+    }
+  }, [u?.full_name, u?.phone, u?.locale])
+
+  if (!me || !u) return null
 
   const handleResendEmail = async () => {
     setResendingEmail(true)
@@ -46,13 +59,110 @@ function ProfileCard() {
     }
   }
 
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!fullName.trim()) {
+      toast.err('Full name is required.')
+      return
+    }
+    setSaving(true)
+    try {
+      const prevPhone = u.phone
+      const updated = await updateProfile({
+        full_name: fullName.trim(),
+        phone: phone.trim() || undefined,
+        locale,
+      })
+      toast.ok('Profile updated successfully!')
+      // If phone changed or not verified, prompt user to verify via OpenSMS
+      if (updated.phone && (!updated.phone_verified || updated.phone !== prevPhone)) {
+        setVerifyOpen(true)
+      }
+    } catch (err) {
+      toast.err(err instanceof Error ? err.message : 'Failed to update profile.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <Card>
       <div id="account" className="scroll-mt-24" />
       <CardHeader
-        title="Account & verification"
-        sub="Your login credentials, email confirmation, and mobile phone verified via OpenSMS."
+        title="Personal profile & verification"
+        sub="Manage your personal details, contact preferences, and OpenSMS security verifications."
       />
+
+      {/* Editable profile fields */}
+      <form onSubmit={handleSaveProfile} className="border-b border-line p-5 space-y-4">
+        <div className="grid gap-4 md:grid-cols-2">
+          <TextField
+            label="Full name"
+            required
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            hint="Your personal name displayed across your account."
+          />
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-ink">Email address</label>
+              {u.email_verified ? (
+                <Badge tone="ok" className="text-[10px]">Verified</Badge>
+              ) : (
+                <Badge tone="warn" className="text-[10px]">Unverified</Badge>
+              )}
+            </div>
+            <Input
+              type="email"
+              disabled
+              value={u.email}
+              className="bg-paper/60 text-muted cursor-not-allowed"
+            />
+            <p className="text-xs text-muted">Primary account email. To change, contact support.</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-ink">Mobile phone number</label>
+              {u.phone_verified ? (
+                <Badge tone="ok" className="text-[10px]">Verified via SMS</Badge>
+              ) : (
+                <Badge tone="warn" className="text-[10px]">Unverified</Badge>
+              )}
+            </div>
+            <Input
+              type="tel"
+              placeholder="0712 345 678"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+            <p className="text-xs text-muted">
+              Used for instant SMS order alerts & OpenSMS OTP verification.
+            </p>
+          </div>
+
+          <Field label="Preferred language" hint="Language used for notifications and interface.">
+            <Select value={locale} onChange={(e) => setLocale(e.target.value)}>
+              <option value="en">English (en)</option>
+              <option value="sw">Kiswahili (sw)</option>
+            </Select>
+          </Field>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <div className="flex items-center gap-2 text-xs text-muted">
+            <span className="font-semibold text-ink">Role:</span>
+            <Badge tone="neutral">{u.platform_role ? u.platform_role.toLowerCase() : 'Merchant'}</Badge>
+            <span className="text-muted/60">·</span>
+            <span>ID: <code className="rounded bg-paper px-1 py-0.5 font-mono text-[11px]">{u.id.slice(0, 8)}…</code></span>
+          </div>
+          <Button type="submit" loading={saving}>
+            Save profile changes
+          </Button>
+        </div>
+      </form>
+
+      {/* Verification status cards */}
       <div className="grid gap-5 p-5 sm:grid-cols-2">
         {/* Email verification card */}
         <div className="flex flex-col justify-between rounded-2xl border border-line bg-paper/50 p-4">
@@ -135,7 +245,7 @@ function ProfileCard() {
       <PhoneVerificationModal
         open={verifyOpen}
         onClose={() => setVerifyOpen(false)}
-        initialPhone={u.phone}
+        initialPhone={phone || u.phone}
       />
     </Card>
   )

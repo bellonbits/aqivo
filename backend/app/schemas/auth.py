@@ -77,3 +77,9 @@ class VerifyPhoneIn(BaseModel):
     code: str = Field(min_length=4, max_length=8)
     phone: str | None = Field(default=None, max_length=32)
     email: EmailStr | None = None
+
+
+class ProfileUpdateIn(BaseModel):
+    full_name: str | None = Field(default=None, min_length=1, max_length=160)
+    phone: str | None = Field(default=None, max_length=32)
+    locale: str | None = Field(default=None, max_length=8)

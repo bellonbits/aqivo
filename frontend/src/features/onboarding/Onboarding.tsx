@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Camera, Check, Copy, ImagePlus, Plus, Trash2 } from 'lucide-react'
+import { Camera, Check, CheckCircle2, Copy, ImagePlus, Plus, Trash2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { api } from '@/lib/api'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -39,6 +39,13 @@ export default function Onboarding() {
   useEffect(() => {
     if (loading) return
     if (!me) nav('/login', { replace: true })
+    else if (me.user?.phone) {
+      setD((s) => ({
+        ...s,
+        phone: s.phone || me.user.phone || '',
+        whatsapp: s.whatsapp || me.user.phone || '',
+      }))
+    }
   }, [loading, me, nav])
   useEffect(() => {
     if (started.current || !summary) return
@@ -123,7 +130,18 @@ export default function Onboarding() {
             {step === 3 && (
               <Step title="How should customers reach you?" sub="Aqivo opens WhatsApp with a ready-made message when customers tap your buttons.">
                 <div className="space-y-4">
-                  <Field label="Phone number" hint={country ? `Country code +${country.dial_code} is added automatically.` : undefined}><Input type="tel" inputMode="tel" value={d.phone} onChange={(e) => set('phone', e.target.value)} placeholder="0712 345 678" /></Field>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-semibold text-ink">Phone number</label>
+                      {me?.user?.phone_verified && me?.user?.phone && d.phone.replace(/\D/g, '').endsWith(me.user.phone.replace(/\D/g, '').slice(-9)) ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                          <CheckCircle2 className="size-3.5" /> Verified via OpenSMS
+                        </span>
+                      ) : null}
+                    </div>
+                    <Input type="tel" inputMode="tel" value={d.phone} onChange={(e) => set('phone', e.target.value)} placeholder="0712 345 678" />
+                    {country && <p className="text-xs text-muted">Country code +{country.dial_code} is added automatically.</p>}
+                  </div>
                   <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" checked={sameWa} onChange={(e) => setSameWa(e.target.checked)} className="size-4 accent-ink" /> My WhatsApp number is the same</label>
                   {!sameWa && <Field label="WhatsApp number"><Input type="tel" inputMode="tel" value={d.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} placeholder="0712 345 678" /></Field>}
                 </div>

@@ -150,3 +150,18 @@ def test_phone_verification_unauthenticated_guard(client):
     assert r.status_code == 400
     assert "account not found" in r.json()["detail"].lower()
 
+
+def test_update_profile(client, owner, db):
+    # Update full_name and locale
+    r = client.patch("/api/v1/auth/me", headers=owner.h, json={"full_name": "Updated Name", "locale": "sw"})
+    assert r.status_code == 200
+    assert r.json()["full_name"] == "Updated Name"
+    assert r.json()["locale"] == "sw"
+
+    # Set phone - should normalize and set phone_verified to False
+    r = client.patch("/api/v1/auth/me", headers=owner.h, json={"phone": "0712345678"})
+    assert r.status_code == 200
+    assert r.json()["phone"] == "254712345678"
+    assert r.json()["phone_verified"] is False
+
+

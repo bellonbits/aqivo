@@ -15,7 +15,7 @@ from app.core.errors import bad_request, conflict
 from app.core.rate_limit import rate_limit
 from app.core.security import (create_access_token, create_refresh_token, create_verification_token, decode_token, hash_password, verify_password)
 from app.models import Business, BusinessMember, User
-from app.schemas.auth import (ForgotIn, LoginIn, MeOut, PasswordChangeIn, RegisterIn, RequestPhoneCodeIn, ResendVerificationIn, ResetIn, TokenOut, UserOut, VerifyEmailIn, VerifyPhoneIn)
+from app.schemas.auth import (ForgotIn, LoginIn, MeOut, PasswordChangeIn, ProfileUpdateIn, RegisterIn, RequestPhoneCodeIn, ResendVerificationIn, ResetIn, TokenOut, UserOut, VerifyEmailIn, VerifyPhoneIn)
 from app.services.audit import audit
 from app.services.notifications import notify
 from app.services.sms import clean_phone, generate_otp, hash_otp, send_sms
@@ -126,6 +126,22 @@ def me(auth: AuthState = Depends(get_auth), db: Session = Depends(get_db)):
         memberships = [{"business_id": str(b.id), "business_name": b.name, "slug": b.slug, "role": "BUSINESS_OWNER"}] if b else []
     return MeOut(user=UserOut.model_validate(user), memberships=memberships, impersonating=bool(imp),
                  impersonated_business_id=imp["business_id"] if imp else None)
+
+
+@router.patch("/me", response_model=UserOut)
+def update_profile(body: ProfileUpdateIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if body.full_name is not None and body.full_name.strip():
+        user.full_name = body.full_name.strip()
+    if body.locale is not None and body.locale.strip():
+        user.locale = body.locale.strip()
+    if body.phone is not None:
+        raw_phone = body.phone.strip()
+        norm = clean_phone(raw_phone) if raw_phone else None
+        if norm != user.phone:
+            user.phone = norm
+            user.phone_verified = False  # Phone change requires fresh verification
+    db.commit()
+    return UserOut.model_validate(user)
 
 
 @router.post("/change-password", status_code=204)

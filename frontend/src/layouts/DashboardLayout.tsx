@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { BarChart3, Search, ShoppingBag, Truck, Building2, CalendarDays, CreditCard, ExternalLink, Globe, Home, Inbox, LogOut, Lock, Megaphone, MessageCircle, Plug, MoreHorizontal, Package, Phone, Scissors, Settings, Sparkles, Star, Users, X, type LucideIcon } from 'lucide-react'
+import { BarChart3, Search, ShoppingBag, Truck, Building2, CalendarDays, CreditCard, ExternalLink, Globe, Home, Inbox, LogOut, Lock, Mail, Megaphone, MessageCircle, Plug, MoreHorizontal, Package, Phone, Scissors, Settings, Sparkles, Star, Users, X, type LucideIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useBusiness } from '@/hooks/useBusiness'
@@ -117,6 +117,7 @@ export default function DashboardLayout() {
           </div>
         )}
         <SubscriptionBanner sub={sub} />
+        <EmailVerificationPromptBanner />
         <PhoneVerificationPromptBanner onOpenVerify={() => setVerifyModalOpen(true)} />
         {b.status === 'SUSPENDED' && <div className="bg-red-600 px-4 py-2 text-sm font-semibold text-white">This business is suspended. Contact Aqivo support.</div>}
         <header className="sticky top-0 z-30 flex items-center justify-between glass rounded-none border-x-0 border-t-0 px-4 py-3 md:hidden">
@@ -148,6 +149,59 @@ export default function DashboardLayout() {
         onClose={() => setVerifyModalOpen(false)}
         initialPhone={me.user.phone}
       />
+    </div>
+  )
+}
+
+function EmailVerificationPromptBanner() {
+  const { me, resendEmailVerification } = useAuth()
+  const [dismissed, setDismissed] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+  if (!me?.user || me.user.email_verified || dismissed) return null
+
+  const handleResend = async () => {
+    setSending(true)
+    try {
+      await resendEmailVerification()
+      setSent(true)
+    } catch {
+      // ignore
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs sm:text-sm font-semibold text-amber-950">
+      <div className="flex items-center gap-2">
+        <span className="grid size-5 place-items-center rounded-full bg-amber-500 text-white shrink-0">
+          <Mail className="size-3" />
+        </span>
+        <span>
+          {sent
+            ? `Verification email sent to ${me.user.email}! Please check your inbox.`
+            : `Please verify your email address (${me.user.email}) to secure your account.`}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        {!sent && (
+          <button
+            onClick={handleResend}
+            disabled={sending}
+            className="rounded-full bg-amber-600 px-3 py-1 text-xs font-bold text-white hover:bg-amber-700 transition-colors disabled:opacity-50"
+          >
+            {sending ? 'Sending…' : 'Resend Email'}
+          </button>
+        )}
+        <button
+          onClick={() => setDismissed(true)}
+          className="p-1 text-amber-800 hover:text-amber-950 transition-colors"
+          aria-label="Dismiss email verification banner"
+        >
+          <X className="size-3.5" />
+        </button>
+      </div>
     </div>
   )
 }
