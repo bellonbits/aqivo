@@ -1206,8 +1206,8 @@
       var activeCat = "all";
       var searchQuery = "";
 
-      var PILL_ACTIVE_CLS = "cat-pill active whitespace-nowrap px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-[#0B1736] text-white border border-[#0B1736] shadow-sm";
-      var PILL_INACTIVE_CLS = "cat-pill whitespace-nowrap px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-50 hover:border-slate-300 shadow-sm";
+      var PILL_ACTIVE_CLS = "cat-pill active";
+      var PILL_INACTIVE_CLS = "cat-pill";
 
       if (pillsContainer) {
         var cats = [{ id: "all", name: "All items", count: ITEMS.length }];
