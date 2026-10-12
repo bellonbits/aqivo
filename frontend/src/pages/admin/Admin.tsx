@@ -1260,45 +1260,79 @@ export function AdminStorefronts() {
           <h3 className="text-lg font-bold text-slate-900">Default Storefront Templates</h3>
           <span className="text-xs text-slate-500 font-medium">Click "Edit Code" on any template to open source files & live simulator</span>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {q.data.templates.map((tpl) => (
-            <Card key={tpl.key} className="bg-white overflow-hidden p-5 flex flex-col justify-between border border-slate-200">
+            <Card
+              key={tpl.key}
+              className="bg-white p-5 flex flex-col justify-between border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-200"
+            >
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="size-4 rounded-full border" style={{ backgroundColor: tpl.theme?.accent || '#5B21F5' }} />
-                  <Badge tone="info">{tpl.industry}</Badge>
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span
+                      className="size-3.5 rounded-full border border-black/10 shadow-2xs shrink-0"
+                      style={{ backgroundColor: tpl.theme?.accent || '#5B21F5' }}
+                      title={`Theme accent: ${tpl.theme?.accent || '#5B21F5'}`}
+                    />
+                    <Badge tone="info">{tpl.industry}</Badge>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setTemplateToDelete(tpl)
+                    }}
+                    className="p-1.5 -mr-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    title={`Delete template ${tpl.name}`}
+                    aria-label={`Delete template ${tpl.name}`}
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
                 </div>
-                <h4 className="font-extrabold text-base text-slate-900">{tpl.name}</h4>
-                <p className="mt-1 text-xs text-slate-500 line-clamp-2">{tpl.description}</p>
+                <h4 className="font-extrabold text-base text-slate-900 leading-snug">{tpl.name}</h4>
+                <p className="mt-1 text-xs text-slate-500 line-clamp-2 leading-relaxed">{tpl.description}</p>
                 <div className="mt-3 flex flex-wrap gap-1">
                   {tpl.features?.slice(0, 3).map((f: string) => (
-                    <span key={f} className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-600">
+                    <span key={f} className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
                       {f}
                     </span>
                   ))}
                 </div>
               </div>
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-1.5">
-                <span className="text-[11px] font-mono text-slate-400">/{tpl.key}</span>
-                <div className="flex items-center gap-1.5">
-                  <Button size="sm" variant="secondary" onClick={() => setPreviewTpl(tpl)}>
+
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[11px] font-mono text-slate-400 truncate max-w-[150px]" title={`/${tpl.key}`}>
+                    /{tpl.key}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setTemplateToDelete(tpl)}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 hover:text-red-600 hover:bg-red-50 px-2 py-0.5 rounded-md transition-colors"
+                    title={`Delete template ${tpl.name}`}
+                  >
+                    <Trash2 className="size-3" />
+                    <span>Delete</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setPreviewTpl(tpl)}
+                    className="w-full justify-center text-xs h-9 font-semibold"
+                  >
                     Preview
                   </Button>
                   <Button
                     size="sm"
                     variant="primary"
                     onClick={() => setStudioThemeKey(tpl.key)}
-                    className="bg-[#5B21F5] hover:bg-[#4a18d1] text-white flex items-center gap-1 px-2.5"
+                    className="w-full justify-center bg-[#5B21F5] hover:bg-[#4a18d1] text-white flex items-center gap-1.5 text-xs h-9 font-bold shadow-xs whitespace-nowrap px-2"
                   >
-                    <Code2 className="size-3" /> Edit Code
+                    <Code2 className="size-3.5 shrink-0" />
+                    <span>Edit Code</span>
                   </Button>
-                  <button
-                    onClick={() => setTemplateToDelete(tpl)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                    title={`Delete template ${tpl.name}`}
-                  >
-                    <Trash2 className="size-3.5" />
-                  </button>
                 </div>
               </div>
             </Card>
@@ -1368,19 +1402,35 @@ export function AdminStorefronts() {
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-xl bg-slate-100 p-2">
             <span className="text-xs font-bold text-slate-700">Preview Viewport</span>
-            <div className="flex gap-1">
-              <button
-                onClick={() => setDevice('desktop')}
-                className={cn('px-3 py-1 text-xs font-bold rounded-lg', device === 'desktop' ? 'bg-white shadow-2xs text-slate-900' : 'text-slate-500')}
-              >
-                Desktop
-              </button>
-              <button
-                onClick={() => setDevice('mobile')}
-                className={cn('px-3 py-1 text-xs font-bold rounded-lg', device === 'mobile' ? 'bg-white shadow-2xs text-slate-900' : 'text-slate-500')}
-              >
-                Mobile (Phone)
-              </button>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setDevice('desktop')}
+                  className={cn('px-3 py-1 text-xs font-bold rounded-lg', device === 'desktop' ? 'bg-white shadow-2xs text-slate-900' : 'text-slate-500')}
+                >
+                  Desktop
+                </button>
+                <button
+                  onClick={() => setDevice('mobile')}
+                  className={cn('px-3 py-1 text-xs font-bold rounded-lg', device === 'mobile' ? 'bg-white shadow-2xs text-slate-900' : 'text-slate-500')}
+                >
+                  Mobile (Phone)
+                </button>
+              </div>
+              {previewTpl && (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => {
+                    const key = previewTpl.key
+                    setPreviewTpl(null)
+                    setStudioThemeKey(key)
+                  }}
+                  className="bg-[#5B21F5] hover:bg-[#4a18d1] text-white flex items-center gap-1.5 text-xs h-8 min-h-0 px-3 font-bold shadow-xs"
+                >
+                  <Code2 className="size-3.5" /> Edit Code in Studio
+                </Button>
+              )}
             </div>
           </div>
 
