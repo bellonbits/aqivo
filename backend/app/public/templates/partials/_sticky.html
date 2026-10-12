@@ -1,14 +1,17 @@
-{% if sells_products %}
-<!-- Modern Mobile Bottom Navigation Bar (Matching App Reference Design) -->
+{% set ind_key = industry or business.industry or 'retail' %}
+{% set is_rest = ind_key in ('restaurant', 'food', 'cafe', 'bakery') %}
+
+{% if sells_products or settings.cart_enabled %}
+<!-- Modern Mobile Bottom Navigation Bar (Take App Style) -->
 <nav class="take-bottom-nav mobile-only" aria-label="Store navigation">
   <a href="{{ home_href or '#top' }}" class="take-bottom-tab active" aria-label="Home">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     <span>Home</span>
   </a>
 
-  <a href="{% if industry == 'restaurant' or business.industry == 'restaurant' %}#services{% else %}#shop{% endif %}" class="take-bottom-tab" aria-label="Catalog">
+  <a href="{% if is_rest %}#services{% else %}#shop{% endif %}" class="take-bottom-tab" aria-label="Catalog">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-    <span>{% if industry == 'restaurant' or business.industry == 'restaurant' %}Menu{% else %}Catalog{% endif %}</span>
+    <span>{% if is_rest %}Menu{% else %}Catalog{% endif %}</span>
   </a>
 
   <!-- Prominent Circular Cart Center Button -->
@@ -25,21 +28,22 @@
     <span>Chat</span>
   </a>
   {% else %}
-  <button type="button" class="take-bottom-tab" data-open-search aria-label="Search">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <span>Search</span>
-  </button>
-  {% endif %}
-
   <a href="#contact" class="take-bottom-tab" aria-label="Contact">
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
     <span>Contact</span>
   </a>
+  {% endif %}
+
+  <a href="{{ root }}/account" class="take-bottom-tab" aria-label="Account">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+    <span>Account</span>
+  </a>
 </nav>
-{% else %}
-<div class="sticky">
-  {% if bookings_on %}<a class="btn primary" href="{{ root or '/' }}#booking">Book</a>{% endif %}
-  {% if wa %}<a class="btn wa" href="{{ wa }}" data-track="WHATSAPP_CLICK">WhatsApp</a>{% endif %}
-  {% if business.phone %}<a class="btn" href="tel:{{ business.phone }}" data-track="PHONE_CLICK">Call</a>{% endif %}
+{% elif bookings_on or wa or business.phone %}
+<!-- Service / Booking Sticky Mobile Bar -->
+<div class="take-sticky-bar mobile-only">
+  {% if bookings_on %}<a class="take-hero-btn primary" href="{{ root or '/' }}#booking">Book</a>{% endif %}
+  {% if wa %}<a class="take-hero-btn secondary wa" href="{{ wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+  {% if business.phone %}<a class="take-hero-btn secondary" href="tel:{{ business.phone }}" data-track="PHONE_CLICK">Call</a>{% endif %}
 </div>
 {% endif %}

@@ -1,79 +1,105 @@
-<section id="location" class="cafe-location-section sx-sec" data-tab-panel="location">
-  <div class="wrap cafe-location-wrap">
-    <div class="cafe-location-card">
-      <div class="cafe-location-grid">
+{% set loc_str = [business.address, business.city]|select|join(', ') %}
+{% if loc_str or business.phone or directions or (hours and hours|length > 0) %}
+<section id="location" class="take-location-section sx-sec" data-tab-panel="location">
+  <div class="wrap take-location-wrap">
+    <div class="take-location-card">
+      <div class="take-location-grid{% if not (business.cover_image_url or (gallery and gallery|length > 0)) %} single-col{% endif %}">
         <!-- Details Column -->
-        <div class="cafe-location-info">
-          <div class="cafe-section-kicker">COME VISIT</div>
-          <h2 class="cafe-location-title">Visit {{ business.name }}</h2>
-          <p class="cafe-location-desc">Join us for dine-in, takeaway, or quick pickups in a cozy, relaxed atmosphere.</p>
+        <div class="take-location-info">
+          <div class="take-section-kicker">FIND US</div>
+          <h2 class="take-location-title">Visit {{ business.name }}</h2>
+          <p class="take-location-desc">
+            {% if loc_str %}
+              We welcome you to visit us at our location or get in touch directly.
+            {% else %}
+              Get in touch or connect with us directly online.
+            {% endif %}
+          </p>
 
-          <div class="cafe-info-list">
+          <div class="take-info-list">
             <!-- Address item -->
-            <div class="cafe-info-item">
-              <div class="cafe-info-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            {% if loc_str %}
+            <div class="take-info-item">
+              <div class="take-info-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
               </div>
-              <div class="cafe-info-text">
+              <div class="take-info-text">
                 <strong>Address</strong>
-                <span>{{ business.address or 'Roysambu' }}, {{ business.city or 'Nairobi' }}</span>
+                <span>{{ loc_str }}</span>
               </div>
             </div>
+            {% endif %}
 
-            <!-- Hours item -->
-            <div class="cafe-info-item">
-              <div class="cafe-info-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <!-- Hours item: only show real hours if configured -->
+            {% if business.opening_hours and hours %}
+            <div class="take-info-item">
+              <div class="take-info-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </div>
-              <div class="cafe-info-text">
+              <div class="take-info-text">
                 <strong>Opening Hours</strong>
-                <span>Monday – Friday: 7:00 AM – 9:00 PM</span>
-                <span>Saturday – Sunday: 8:00 AM – 10:00 PM</span>
+                <div class="take-hours-table">
+                  {% for h in hours %}
+                    {% if h.text != 'Closed' %}
+                    <div class="take-hours-row">
+                      <span>{{ h.day }}</span>
+                      <span>{{ h.text }}</span>
+                    </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
               </div>
             </div>
+            {% endif %}
 
             <!-- Phone item -->
             {% if business.phone %}
-            <div class="cafe-info-item">
-              <div class="cafe-info-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            <div class="take-info-item">
+              <div class="take-info-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               </div>
-              <div class="cafe-info-text">
-                <strong>Contact Phone</strong>
+              <div class="take-info-text">
+                <strong>Phone</strong>
                 <a href="tel:{{ business.phone }}">{{ business.phone }}</a>
               </div>
             </div>
             {% endif %}
           </div>
 
-          {% if directions %}
-          <div class="cafe-location-actions">
-            <a class="cafe-btn-primary" href="{{ directions }}" data-track="DIRECTIONS_CLICK" target="_blank" rel="noopener">
+          <!-- Actions -->
+          <div class="take-location-actions">
+            {% if directions %}
+            <a class="take-hero-btn primary" href="{{ directions }}" data-track="DIRECTIONS_CLICK" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
               <span>Get Directions</span>
             </a>
+            {% endif %}
             {% if wa %}
-            <a class="cafe-btn-secondary" href="{{ wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener">
+            <a class="take-hero-btn secondary wa" href="{{ wa }}" data-track="WHATSAPP_CLICK" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
               <span>Ask on WhatsApp</span>
             </a>
             {% endif %}
           </div>
-          {% endif %}
         </div>
 
-        <!-- Visual / Image Column -->
-        <div class="cafe-location-visual">
-          <div class="cafe-location-img-box">
-            <img src="/static/img/restaurant/restaurant-5.webp" alt="{{ business.name }} location" class="cafe-location-img" loading="lazy">
-            <div class="cafe-location-pin-badge">
-              <span style="display:inline-flex;align-items:center;gap:4px">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                {{ business.city or 'Nairobi' }}
-              </span>
+        <!-- Visual Column (Only if merchant provided an image) -->
+        {% set loc_image = business.cover_image_url or (gallery[0].url if (gallery and gallery|length > 0) else None) %}
+        {% if loc_image %}
+        <div class="take-location-visual">
+          <div class="take-location-img-box">
+            <img src="{{ loc_image }}" alt="{{ business.name }}" class="take-location-img" loading="lazy">
+            {% if business.city %}
+            <div class="take-location-pin-badge">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>{{ business.city }}</span>
             </div>
+            {% endif %}
           </div>
         </div>
+        {% endif %}
       </div>
     </div>
   </div>
 </section>
+{% endif %}

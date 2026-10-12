@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta, timezone
+import logging
+import uuid
 
 import jwt
 from pydantic import BaseModel
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -11,12 +13,14 @@ from app.core.config import get_settings
 from app.core.db import get_db
 from app.core.errors import bad_request, conflict
 from app.core.rate_limit import rate_limit
-from app.core.security import (create_access_token, create_refresh_token, decode_token, hash_password, verify_password)
+from app.core.security import (create_access_token, create_refresh_token, create_verification_token, decode_token, hash_password, verify_password)
 from app.models import Business, BusinessMember, User
-from app.schemas.auth import (ForgotIn, LoginIn, MeOut, PasswordChangeIn, RegisterIn, ResetIn, TokenOut, UserOut)
+from app.schemas.auth import (ForgotIn, LoginIn, MeOut, PasswordChangeIn, RegisterIn, RequestPhoneCodeIn, ResendVerificationIn, ResetIn, TokenOut, UserOut, VerifyEmailIn, VerifyPhoneIn)
 from app.services.audit import audit
 from app.services.notifications import notify
+from app.services.sms import clean_phone, generate_otp, hash_otp, send_sms
 
+log = logging.getLogger("bizora.auth")
 router = APIRouter(prefix="/auth", tags=["auth"])
 COOKIE = "bz_refresh"
 _DUMMY_HASH = hash_password("dummy-password-for-timing")
@@ -37,6 +41,8 @@ def register(body: RegisterIn, request: Request, response: Response, db: Session
     db.add(user)
     db.flush()
     audit(db, "auth.register", user_id=user.id, resource_type="user", resource_id=user.id, request=request)
+    v_token = create_verification_token(str(user.id), user.email)
+    notify(db, "verify_email", user.email, user_id=user.id, name=user.full_name, token=v_token)
     db.commit()
     _set_refresh(response, user)
     return TokenOut(access_token=create_access_token(str(user.id)))
@@ -161,3 +167,153 @@ def reset_password(body: ResetIn, db: Session = Depends(get_db)):
     user.failed_logins, user.locked_until = 0, None
     audit(db, "auth.password_reset", user_id=user.id)
     db.commit()
+
+
+@router.post("/verify-email", dependencies=[Depends(rate_limit("verify_email", 15, 900))])
+def verify_email(body: VerifyEmailIn, db: Session = Depends(get_db)):
+    try:
+        claims = decode_token(body.token, "verify_email")
+        user = db.get(User, claims["sub"])
+    except (jwt.PyJWTError, ValueError, KeyError):
+        raise bad_request("This verification link is invalid or has expired")
+    if not user or user.deleted_at or not user.is_active:
+        raise bad_request("This verification link is invalid or has expired")
+    if not user.email_verified:
+        user.email_verified = True
+        audit(db, "auth.email_verified", user_id=user.id)
+        db.commit()
+    return {"message": "Email verified successfully", "email_verified": True}
+
+
+@router.get("/verify-email")
+def verify_email_link(token: str, db: Session = Depends(get_db)):
+    """Handles direct browser clicks from the verification email link."""
+    from fastapi.responses import HTMLResponse, RedirectResponse
+    s = get_settings()
+    try:
+        claims = decode_token(token, "verify_email")
+        user = db.get(User, claims["sub"])
+    except (jwt.PyJWTError, ValueError, KeyError):
+        return HTMLResponse(
+            "<html><body style='font-family:-apple-system,sans-serif;text-align:center;padding:48px;background:#f8fafc;'>"
+            "<div style='max-width:440px;margin:40px auto;background:#fff;padding:36px;border-radius:12px;border:1px solid #e2e8f0;'>"
+            "<h2 style='color:#e11d48;margin-top:0;'>Invalid or Expired Link</h2>"
+            "<p style='color:#475569;'>This verification link is no longer valid or has expired.</p>"
+            f"<a href='{s.app_base_url}/login' style='display:inline-block;background:#0f172a;color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;font-weight:600;'>Return to Sign In</a>"
+            "</div></body></html>",
+            status_code=400,
+        )
+    if not user or user.deleted_at or not user.is_active:
+        return HTMLResponse("<html><body><h2>User account not found.</h2></body></html>", status_code=400)
+    if not user.email_verified:
+        user.email_verified = True
+        audit(db, "auth.email_verified", user_id=user.id)
+        db.commit()
+    return RedirectResponse(f"{s.app_base_url}/login?verified=true", status_code=302)
+
+
+@router.post("/resend-verification", dependencies=[Depends(rate_limit("resend_verify", 5, 900))])
+def resend_verification(body: ResendVerificationIn, db: Session = Depends(get_db)):
+    email = body.email.lower() if body.email else None
+    if email:
+        user = db.scalars(select(User).where(User.email == email, User.deleted_at.is_(None))).first()
+        if user and not user.email_verified:
+            v_token = create_verification_token(str(user.id), user.email)
+            notify(db, "verify_email", user.email, user_id=user.id, name=user.full_name, token=v_token)
+            db.commit()
+    return {"message": "If that email is registered and unverified, a verification link has been sent."}
+
+
+def _resolve_user_for_phone_flow(
+    authorization: str | None,
+    email: str | None,
+    phone: str | None,
+    db: Session,
+) -> User | None:
+    if authorization and authorization.lower().startswith("bearer "):
+        try:
+            claims = decode_token(authorization.split(" ", 1)[1], "access")
+            uid = uuid.UUID(claims["sub"])
+            user = db.get(User, uid)
+            if user and not user.deleted_at and user.is_active:
+                return user
+        except Exception:
+            pass
+    if email:
+        user = db.scalars(select(User).where(User.email == email.lower(), User.deleted_at.is_(None))).first()
+        if user and user.is_active:
+            return user
+    if phone:
+        norm = clean_phone(phone)
+        user = db.scalars(select(User).where(User.phone == norm, User.deleted_at.is_(None))).first()
+        if user and user.is_active:
+            return user
+    return None
+
+
+@router.post("/request-phone-code", dependencies=[Depends(rate_limit("phone_otp_req", 5, 900))])
+def request_phone_code(
+    body: RequestPhoneCodeIn,
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+):
+    user = _resolve_user_for_phone_flow(authorization, body.email, body.phone, db)
+    if not user:
+        raise bad_request("User account not found. Please sign in or provide a registered email.")
+
+    target_phone = body.phone or user.phone
+    if not target_phone:
+        raise bad_request("Phone number is required")
+    norm_phone = clean_phone(target_phone)
+    if len(norm_phone) < 9:
+        raise bad_request("Invalid phone number format")
+
+    code = generate_otp()
+    user.phone = norm_phone
+    user.phone_otp_hash = hash_otp(norm_phone, code)
+    user.phone_otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    user.phone_verified = False
+    db.commit()
+
+    sms_res = send_sms(
+        recipient=norm_phone,
+        message=f"Your Aqivo verification code is {code}. It expires in 10 minutes. Do not share this code.",
+    )
+    if sms_res.get("status") == "error":
+        log.warning("Failed to dispatch phone verification SMS to %s: %s", norm_phone, sms_res.get("message"))
+
+    return {"message": "Verification code sent to your phone", "phone": norm_phone}
+
+
+@router.post("/verify-phone", dependencies=[Depends(rate_limit("phone_otp_verify", 10, 900))])
+def verify_phone(
+    body: VerifyPhoneIn,
+    request: Request,
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+):
+    user = _resolve_user_for_phone_flow(authorization, body.email, body.phone, db)
+    if not user:
+        raise bad_request("User account not found")
+
+    target_phone = body.phone or user.phone
+    if not target_phone:
+        raise bad_request("Phone number is required")
+    norm_phone = clean_phone(target_phone)
+
+    if not user.phone_otp_expires_at or user.phone_otp_expires_at < datetime.now(timezone.utc):
+        raise bad_request("Verification code has expired. Please request a new code.")
+
+    expected_hash = hash_otp(norm_phone, body.code.strip())
+    if not user.phone_otp_hash or user.phone_otp_hash != expected_hash:
+        raise bad_request("Invalid verification code")
+
+    user.phone = norm_phone
+    user.phone_verified = True
+    user.phone_otp_hash = None
+    user.phone_otp_expires_at = None
+    audit(db, "auth.phone_verified", user_id=user.id, request=request)
+    db.commit()
+
+    return {"message": "Phone number verified successfully", "phone_verified": True, "phone": norm_phone}
+

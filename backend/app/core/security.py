@@ -36,6 +36,10 @@ def create_refresh_token(user_id: str, token_version: int) -> str:
     return _encode({"sub": user_id, "typ": "refresh", "tv": token_version}, s.refresh_token_days * 24 * 60)
 
 
+def create_verification_token(user_id: str, email: str) -> str:
+    return _encode({"sub": user_id, "typ": "verify_email", "email": email}, minutes=24 * 60)
+
+
 def decode_token(token: str, expected_type: str) -> dict[str, Any]:
     payload = jwt.decode(token, get_settings().secret_key, algorithms=["HS256"])
     if payload.get("typ") != expected_type:

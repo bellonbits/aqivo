@@ -35,6 +35,8 @@ class UserOut(ORM):
     phone: str | None
     platform_role: str | None
     locale: str
+    email_verified: bool = False
+    phone_verified: bool = False
 
 
 class MeOut(BaseModel):
@@ -56,3 +58,22 @@ class ForgotIn(BaseModel):
 class ResetIn(BaseModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+class VerifyEmailIn(BaseModel):
+    token: str
+
+
+class ResendVerificationIn(BaseModel):
+    email: EmailStr | None = None
+
+
+class RequestPhoneCodeIn(BaseModel):
+    phone: str | None = Field(default=None, max_length=32)
+    email: EmailStr | None = None
+
+
+class VerifyPhoneIn(BaseModel):
+    code: str = Field(min_length=4, max_length=8)
+    phone: str | None = Field(default=None, max_length=32)
+    email: EmailStr | None = None

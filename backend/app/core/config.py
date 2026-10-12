@@ -31,7 +31,12 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
+    resend_api_key: str = ""
     email_from: str = "Aqivo <hello@aqivo.shop>"
+
+    opensms_api_token: str = ""
+    opensms_api_url: str = "https://www.opensms.co.ke/api/v3"
+    opensms_sender_id: str = "OPENSMS"
 
     mpesa_consumer_key: str = ""
     mpesa_consumer_secret: str = ""

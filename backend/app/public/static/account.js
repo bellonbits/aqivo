@@ -16,7 +16,7 @@
     e.preventDefault(); var m = document.getElementById("otp-msg"); m.hidden = true;
     call("POST", "/otp/request", { identifier: req.elements.identifier.value }).then(function (r) {
       ident = r.identifier; req.hidden = true; ver.hidden = false;
-      document.getElementById("otp-where").textContent = r.channel === "LOG" ? "No message provider is set up on this server, so here is your code: " + r.dev_code : "We sent a code" + (r.channel === "WHATSAPP" ? " on WhatsApp" : " by email") + ". It expires in " + r.expires_minutes + " minutes.";
+      document.getElementById("otp-where").textContent = r.channel === "LOG" ? "No message provider is set up on this server, so here is your code: " + r.dev_code : "We sent a code" + (r.channel === "WHATSAPP" ? " on WhatsApp" : r.channel === "SMS" ? " via SMS" : " by email") + ". It expires in " + r.expires_minutes + " minutes.";
     }).catch(function (err) { say(m, "err", err.message); });
   });
   document.getElementById("otp-back").addEventListener("click", function () { ver.hidden = true; req.hidden = false; });

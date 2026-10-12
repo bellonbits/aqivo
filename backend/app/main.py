@@ -142,7 +142,8 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
     bz_slug = request.query_params.get("bz")
     item_id = request.query_params.get("id")
     order_id = request.query_params.get("orderId")
-    is_preview_mode = request.query_params.get("preview") == "1" or not bz_slug
+    has_auth_or_order = bool(request.headers.get("authorization") or order_id or item_id or bz_slug)
+    is_preview_mode = (request.query_params.get("preview") == "1" or not bz_slug) and not has_auth_or_order
     root_path = f"/ecomm-templates/{key}"
 
     cache_key = f"{key}:{bz_slug or 'demo'}:{root_path}"
@@ -247,8 +248,9 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
                 status=BusinessStatus.ACTIVE,
             )
 
-        # If explicit merchant slug was provided and not in preview mode, redirect to merchant URL
-        if bz_slug and request.query_params.get("preview") != "1":
+        # If explicit merchant slug was provided or merchant was identified for receipt, redirect to merchant URL
+        should_redirect = (bz_slug or (business and cleaned_name == "receipt.html")) and request.query_params.get("preview") != "1"
+        if should_redirect and business and business.slug:
             qs = str(request.url.query)
             target_url = f"/{business.slug}/{cleaned_name}" + (f"?{qs}" if qs else "")
             return RedirectResponse(target_url, status_code=302)
@@ -408,7 +410,7 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
         return HTMLResponse(render(tpl, **ctx), headers=headers or CACHE)
 
     from app.services import ecomm_site
-    ecomm_key = b.website.template.key if (b.website and b.website.template) else None
+    ecomm_key = b.website.template.key if (b.website and b.website.status == "PUBLISHED" and b.website.template) else None
     if ecomm_site.is_ecomm(ecomm_key):
         ecomm_ctx = build_context(db, b, root=root)
         if head in ("index", "index.html", "home"):
@@ -525,7 +527,7 @@ def catch_all(full_path: str, request: Request):
             return ecomm_template_preview_page(key=key, request=request, page_name=subpath, db=_db)
         finally:
             _db.close()
-    if any(p.startswith(".") for p in parts) or any(p in RESERVED_SLUGS for p in parts):
+    if any(p.startswith(".") for p in parts) or first in RESERVED_SLUGS:
         resp = _spa(full_path)
         if resp is not None:
             return resp

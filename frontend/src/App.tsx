@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MotionConfig } from 'framer-motion'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import { ToastProvider } from '@/hooks/useToast'
-import { ForgotPage, LoginPage, RegisterPage, ResetPage } from '@/features/auth/AuthPages'
+import { ForgotPage, LoginPage, RegisterPage, ResetPage, VerifyEmailPage, VerifyPhonePage } from '@/features/auth/AuthPages'
 import { PageLoading } from '@/components/ui'
 import Landing from '@/pages/Landing'
 
@@ -54,6 +54,8 @@ export default function App() {
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/verify-phone" element={<VerifyPhonePage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/forgot-password" element={<ForgotPage />} />
                 <Route path="/reset-password" element={<ResetPage />} />
                 <Route path="/onboarding" element={<Onboarding />} />

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { BarChart3, Search, ShoppingBag, Truck, Building2, CalendarDays, CreditCard, ExternalLink, Globe, Home, Inbox, LogOut, Lock, Megaphone, MessageCircle, Plug, MoreHorizontal, Package, Scissors, Settings, Sparkles, Star, Users, X, type LucideIcon } from 'lucide-react'
+import { BarChart3, Search, ShoppingBag, Truck, Building2, CalendarDays, CreditCard, ExternalLink, Globe, Home, Inbox, LogOut, Lock, Megaphone, MessageCircle, Plug, MoreHorizontal, Package, Phone, Scissors, Settings, Sparkles, Star, Users, X, type LucideIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/features/auth/AuthContext'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useT } from '@/lib/i18n'
 import { Logo } from '@/components/Logo'
 import { PageLoading, Button } from '@/components/ui'
+import { PhoneVerificationModal } from '@/features/auth/PhoneVerificationModal'
 import { cn } from '@/lib/cn'
 import { fmtDate } from '@/lib/format'
 
@@ -41,6 +42,7 @@ export default function DashboardLayout() {
   const nav = useNavigate()
   const loc = useLocation()
   const [more, setMore] = useState(false)
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false)
   useEffect(() => {
     setMore(false)
     const titles: Record<string, string> = {
@@ -115,6 +117,7 @@ export default function DashboardLayout() {
           </div>
         )}
         <SubscriptionBanner sub={sub} />
+        <PhoneVerificationPromptBanner onOpenVerify={() => setVerifyModalOpen(true)} />
         {b.status === 'SUSPENDED' && <div className="bg-red-600 px-4 py-2 text-sm font-semibold text-white">This business is suspended. Contact Aqivo support.</div>}
         <header className="sticky top-0 z-30 flex items-center justify-between glass rounded-none border-x-0 border-t-0 px-4 py-3 md:hidden">
           <Link to="/dashboard" className="min-w-0"><p className="truncate text-base font-extrabold">{b.name}</p><p className="text-xs text-muted">{summary.plan.name} plan</p></Link>
@@ -139,6 +142,46 @@ export default function DashboardLayout() {
             <button onClick={() => void logout().then(() => nav('/login'))} className="mt-2 flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold text-bad"><LogOut className="size-[18px]" /> Sign out</button></div>
         </div>
       )}
+
+      <PhoneVerificationModal
+        open={verifyModalOpen}
+        onClose={() => setVerifyModalOpen(false)}
+        initialPhone={me.user.phone}
+      />
+    </div>
+  )
+}
+
+function PhoneVerificationPromptBanner({ onOpenVerify }: { onOpenVerify: () => void }) {
+  const { me } = useAuth()
+  const [dismissed, setDismissed] = useState(false)
+  if (!me?.user || me.user.phone_verified || dismissed) return null
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-100 bg-indigo-50/90 px-4 py-2 text-xs sm:text-sm font-semibold text-[#0B1736]">
+      <div className="flex items-center gap-2">
+        <span className="grid size-5 place-items-center rounded-full bg-[#5B21F5] text-white shrink-0">
+          <Phone className="size-3" />
+        </span>
+        <span>
+          Verify your mobile phone via SMS to receive instant order alerts & OTP login.
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onOpenVerify}
+          className="rounded-full bg-[#5B21F5] px-3 py-1 text-xs font-bold text-white hover:bg-[#4a18d1] transition-colors"
+        >
+          Verify Phone
+        </button>
+        <button
+          onClick={() => setDismissed(true)}
+          className="p-1 text-muted hover:text-ink transition-colors"
+          aria-label="Dismiss verification banner"
+        >
+          <X className="size-3.5" />
+        </button>
+      </div>
     </div>
   )
 }

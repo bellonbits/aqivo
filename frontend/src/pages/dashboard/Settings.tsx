@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Download } from 'lucide-react'
+import { AlertCircle, Check, CheckCircle2, Download, Mail, Phone, ShieldCheck } from 'lucide-react'
 import { api } from '@/lib/api'
+import { useAuth } from '@/features/auth/AuthContext'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
+import { PhoneVerificationModal } from '@/features/auth/PhoneVerificationModal'
 import { Badge, Button, Card, CardHeader, ComingSoon, LinkButton, ConfirmDialog, CopyField, Field, Input, Modal, PageHeader, PageLoading, Select, StatusBadge, TextField } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { fmtDate, money } from '@/lib/format'
@@ -18,8 +20,124 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <PageHeader title="Settings" />
-      <PlanCard /><UsageCard /><ShareCard /><TeamCard /><DomainsCard /><AccountCard /><SupportCard />
+      <ProfileCard /><PlanCard /><UsageCard /><ShareCard /><TeamCard /><DomainsCard /><AccountCard /><SupportCard />
     </div>
+  )
+}
+
+function ProfileCard() {
+  const { me, resendEmailVerification } = useAuth()
+  const toast = useToast()
+  const [verifyOpen, setVerifyOpen] = useState(false)
+  const [resendingEmail, setResendingEmail] = useState(false)
+
+  if (!me) return null
+  const u = me.user
+
+  const handleResendEmail = async () => {
+    setResendingEmail(true)
+    try {
+      await resendEmailVerification()
+      toast.ok('Verification email sent! Check your inbox.')
+    } catch (err) {
+      toast.err(err instanceof Error ? err.message : 'Failed to send verification email.')
+    } finally {
+      setResendingEmail(false)
+    }
+  }
+
+  return (
+    <Card>
+      <div id="account" className="scroll-mt-24" />
+      <CardHeader
+        title="Account & verification"
+        sub="Your login credentials, email confirmation, and mobile phone verified via OpenSMS."
+      />
+      <div className="grid gap-5 p-5 sm:grid-cols-2">
+        {/* Email verification card */}
+        <div className="flex flex-col justify-between rounded-2xl border border-line bg-paper/50 p-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
+                <Mail className="size-3.5" /> Email address
+              </span>
+              {u.email_verified ? (
+                <Badge tone="ok" className="inline-flex items-center gap-1">
+                  <CheckCircle2 className="size-3" /> Verified
+                </Badge>
+              ) : (
+                <Badge tone="warn" className="inline-flex items-center gap-1">
+                  <AlertCircle className="size-3" /> Unverified
+                </Badge>
+              )}
+            </div>
+            <p className="text-base font-bold text-ink truncate">{u.email}</p>
+            <p className="text-xs text-muted">
+              {u.email_verified
+                ? 'Your email is verified for billing receipts and account recovery.'
+                : 'Confirm your email by clicking the link sent to your inbox.'}
+            </p>
+          </div>
+          {!u.email_verified && (
+            <div className="mt-4 pt-3 border-t border-line/60">
+              <Button
+                size="sm"
+                variant="secondary"
+                loading={resendingEmail}
+                onClick={handleResendEmail}
+              >
+                Resend verification email
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Phone verification card */}
+        <div className="flex flex-col justify-between rounded-2xl border border-line bg-paper/50 p-4">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted">
+                <Phone className="size-3.5" /> Mobile phone (OpenSMS)
+              </span>
+              {u.phone_verified ? (
+                <Badge tone="ok" className="inline-flex items-center gap-1">
+                  <CheckCircle2 className="size-3" /> Verified
+                </Badge>
+              ) : (
+                <Badge tone="warn" className="inline-flex items-center gap-1">
+                  <AlertCircle className="size-3" /> Unverified
+                </Badge>
+              )}
+            </div>
+            <p className="text-base font-bold text-ink">
+              {u.phone || <span className="text-muted font-normal italic">No phone number set</span>}
+            </p>
+            <p className="text-xs text-muted">
+              {u.phone_verified
+                ? 'Verified for instant order SMS alerts and customer inquiry notifications.'
+                : 'Verify via 6-digit SMS code to receive instant order alerts on your phone.'}
+            </p>
+          </div>
+          <div className="mt-4 pt-3 border-t border-line/60">
+            <Button
+              size="sm"
+              className={u.phone_verified ? '' : 'bg-[#5B21F5] hover:bg-[#4a18d1] text-white'}
+              variant={u.phone_verified ? 'secondary' : 'primary'}
+              onClick={() => setVerifyOpen(true)}
+            >
+              <ShieldCheck className="size-3.5" />
+              {u.phone_verified ? 'Update phone number' : 'Verify via SMS'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <PhoneVerificationModal
+        open={verifyOpen}
+        onClose={() => setVerifyOpen(false)}
+        initialPhone={u.phone}
+      />
+    </Card>
   )
 }
 

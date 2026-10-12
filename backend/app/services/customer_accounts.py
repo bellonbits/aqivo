@@ -66,9 +66,15 @@ def request_code(db: Session, b: Business, raw: str) -> dict:
             channel = "WHATSAPP"
         except whatsapp.WhatsAppError:
             channel = None
+    if channel is None and kind == "PHONE":
+        if get_settings().opensms_api_token:
+            from app.services import sms
+            res = sms.send_sms(ident, text)
+            if res.get("status") == "success":
+                channel = "SMS"
     if channel is None:
         email = ident if kind == "EMAIL" else (cust.email if cust else None)
-        if email and get_settings().smtp_host:
+        if email and (get_settings().resend_api_key or get_settings().smtp_host):
             notify(db, "login_code", email, business_id=b.id, code=code, business=b.name, minutes=OTP_MINUTES)
             channel = "EMAIL"
     if channel is None:

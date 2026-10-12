@@ -8,10 +8,13 @@ interface AuthState {
   me: Me | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, fullName: string) => Promise<void>
+  register: (email: string, password: string, fullName: string, phone?: string) => Promise<void>
   guest: () => Promise<void>
   logout: () => Promise<void>
   reload: () => Promise<Me | null>
+  requestPhoneCode: (phone?: string) => Promise<{ message: string; phone: string }>
+  verifyPhone: (code: string, phone?: string) => Promise<{ message: string; phone_verified: boolean; phone: string }>
+  resendEmailVerification: () => Promise<void>
   startImpersonation: (token: string) => Promise<void>
   stopImpersonation: () => Promise<void>
 }
@@ -59,11 +62,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       qc.clear()
       await reload()
     },
-    register: async (email, password, fullName) => {
-      const r = await api.post<{ access_token: string }>('/auth/register', { email, password, full_name: fullName })
+    register: async (email, password, fullName, phone) => {
+      const r = await api.post<{ access_token: string }>('/auth/register', { email, password, full_name: fullName, phone: phone || null })
       setAccessToken(r.access_token)
       qc.clear()
       await reload()
+    },
+    requestPhoneCode: async (phone) => {
+      return await api.post<{ message: string; phone: string }>('/auth/request-phone-code', { phone: phone || null })
+    },
+    verifyPhone: async (code, phone) => {
+      const r = await api.post<{ message: string; phone_verified: boolean; phone: string }>('/auth/verify-phone', { code, phone: phone || null })
+      await reload()
+      return r
+    },
+    resendEmailVerification: async () => {
+      await api.post('/auth/resend-verification', { email: me?.user.email })
     },
     guest: async () => {
       const r = await api.post<{ access_token: string }>('/auth/guest', { industry: 'retail' })

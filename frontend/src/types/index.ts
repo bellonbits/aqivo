@@ -1,4 +1,4 @@
-export interface User { id: string; email: string; full_name: string; phone: string | null; platform_role: 'SUPER_ADMIN' | 'ADMIN' | null; locale: string }
+export interface User { id: string; email: string; full_name: string; phone: string | null; platform_role: 'SUPER_ADMIN' | 'ADMIN' | null; locale: string; email_verified?: boolean; phone_verified?: boolean }
 export interface Membership { business_id: string; business_name: string; slug: string; role: string }
 export interface Me { user: User; memberships: Membership[]; impersonating: boolean; impersonated_business_id: string | null }
 

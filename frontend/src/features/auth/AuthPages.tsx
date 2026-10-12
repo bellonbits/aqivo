@@ -1,6 +1,6 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useState, useEffect, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, CheckCircle2, MessageSquare, RefreshCw, ShieldCheck } from 'lucide-react'
 import { useAuth } from './AuthContext'
 import { api } from '@/lib/api'
 import { Button, Input, TextField } from '@/components/ui'
@@ -108,8 +108,12 @@ export function RegisterPage() {
   const [params] = useSearchParams()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-  const { error, busy, submit } = useSubmit(async () => { await register(email, password, name); nav('/onboarding' + (params.get('ref') ? `?ref=${params.get('ref')}` : '') + (params.get('template') ? `${params.get('ref') ? '&' : '?'}template=${params.get('template')}` : '') + (params.get('industry') ? `${nav_q(params)}industry=${params.get('industry')}` : ''), { replace: true }) })
+  const { error, busy, submit } = useSubmit(async () => {
+    await register(email, password, name, phone.trim() || undefined)
+    nav('/onboarding' + (params.get('ref') ? `?ref=${params.get('ref')}` : '') + (params.get('template') ? `${params.get('ref') ? '&' : '?'}template=${params.get('template')}` : '') + (params.get('industry') ? `${nav_q(params)}industry=${params.get('industry')}` : ''), { replace: true })
+  })
   return (
     <AuthShell
       title="Create your Aqivo store"
@@ -119,6 +123,15 @@ export function RegisterPage() {
       <form onSubmit={submit} className="space-y-4">
         <TextField label="Your name" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} />
         <TextField label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <TextField
+          label="Mobile phone number"
+          type="tel"
+          autoComplete="tel"
+          placeholder="0712 345 678"
+          hint="For SMS order notifications & verification."
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
         <TextField label="Password" type="password" autoComplete="new-password" minLength={8} required hint="At least 8 characters." value={password} onChange={(e) => setPassword(e.target.value)} />
         {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">{error}</p>}
         <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy}>Create your store</Button>
@@ -157,6 +170,238 @@ export function ResetPage() {
         {error && <p className="text-sm font-medium text-bad" role="alert">{error}</p>}
         <Button type="submit" size="lg" className="w-full" loading={busy}>Update password</Button>
       </form>
+    </AuthShell>
+  )
+}
+
+export function VerifyPhonePage() {
+  const { me, requestPhoneCode, verifyPhone } = useAuth()
+  const [params] = useSearchParams()
+  const nav = useNavigate()
+
+  const [step, setStep] = useState<'input' | 'code' | 'done'>('input')
+  const [phone, setPhone] = useState(params.get('phone') || me?.user?.phone || '')
+  const [code, setCode] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [cooldown, setCooldown] = useState(0)
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const id = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000)
+    return () => clearInterval(id)
+  }, [cooldown])
+
+  const handleSendCode = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!phone.trim()) { setError('Please enter your phone number'); return }
+    setError(''); setBusy(true)
+    try {
+      await requestPhoneCode(phone.trim())
+      setStep('code')
+      setCooldown(60)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send verification SMS.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleVerify = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!code.trim()) { setError('Please enter the 6-digit code'); return }
+    setError(''); setBusy(true)
+    try {
+      await verifyPhone(code.trim(), phone.trim())
+      setStep('done')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid or expired verification code.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <AuthShell
+      title="Verify your mobile phone"
+      sub="We use OpenSMS to secure your account and send instant order alerts."
+      footer={<Link className="font-bold text-[#5B21F5] hover:underline" to="/dashboard">Skip to dashboard</Link>}
+    >
+      {step === 'input' && (
+        <form onSubmit={handleSendCode} className="space-y-4">
+          <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3.5 border border-line">
+            <div className="grid size-10 place-items-center rounded-xl bg-[#5B21F5]/10 text-[#5B21F5] shrink-0">
+              <ShieldCheck className="size-5" />
+            </div>
+            <p className="text-xs text-muted leading-relaxed">
+              Enter your mobile number to receive a 6-digit verification code via SMS.
+            </p>
+          </div>
+          <TextField
+            label="Mobile phone number"
+            type="tel"
+            autoComplete="tel"
+            placeholder="0712 345 678"
+            hint="Kenyan (07XX, 01XX) or international number."
+            required
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          {error && <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm font-medium text-bad" role="alert">{error}</p>}
+          <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy}>
+            Send SMS Verification Code
+          </Button>
+        </form>
+      )}
+
+      {step === 'code' && (
+        <form onSubmit={handleVerify} className="space-y-4">
+          <div className="flex items-center gap-3 rounded-2xl bg-indigo-50/70 p-3.5 border border-indigo-100">
+            <div className="grid size-10 place-items-center rounded-xl bg-[#5B21F5] text-white shrink-0">
+              <MessageSquare className="size-5" />
+            </div>
+            <div className="text-xs text-slate-700 leading-relaxed">
+              We sent an SMS with a 6-digit code to <span className="font-bold text-[#5B21F5]">{phone}</span>.
+            </div>
+          </div>
+          <div className="space-y-2 text-center">
+            <label className="block text-sm font-semibold text-ink">Enter 6-digit SMS code</label>
+            <div className="flex justify-center">
+              <Input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                className="h-14 w-52 text-center text-2xl font-extrabold tracking-[0.35em] text-[#0B1736]"
+                placeholder="······"
+                autoFocus
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between pt-1 text-xs">
+            <button type="button" onClick={() => setStep('input')} className="font-semibold text-muted hover:text-ink underline">
+              Change number
+            </button>
+            <button
+              type="button"
+              disabled={cooldown > 0 || busy}
+              onClick={(e) => void handleSendCode(e)}
+              className="inline-flex items-center gap-1 font-semibold text-[#5B21F5] hover:underline disabled:text-muted disabled:no-underline"
+            >
+              <RefreshCw className={`size-3 ${busy ? 'animate-spin' : ''}`} />
+              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend SMS code'}
+            </button>
+          </div>
+          {error && <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm font-medium text-bad" role="alert">{error}</p>}
+          <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy} disabled={code.trim().length < 4}>
+            Confirm & Verify Phone
+          </Button>
+        </form>
+      )}
+
+      {step === 'done' && (
+        <div className="space-y-4 py-4 text-center">
+          <div className="mx-auto grid size-16 place-items-center rounded-full bg-emerald-100 text-emerald-600">
+            <CheckCircle2 className="size-10" />
+          </div>
+          <h3 className="text-xl font-bold text-ink">Phone Verified!</h3>
+          <p className="text-sm text-muted">
+            Your phone number <span className="font-semibold text-ink">{phone}</span> is now confirmed and connected.
+          </p>
+          <Button size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" onClick={() => nav('/dashboard')}>
+            Continue to Dashboard
+          </Button>
+        </div>
+      )}
+    </AuthShell>
+  )
+}
+
+export function VerifyEmailPage() {
+  const [params] = useSearchParams()
+  const nav = useNavigate()
+  const { me, resendEmailVerification } = useAuth()
+  const [status, setStatus] = useState<'checking' | 'success' | 'error' | 'sent'>('checking')
+  const [errorMsg, setErrorMsg] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const token = params.get('token')
+
+  useEffect(() => {
+    if (token) {
+      api.post('/auth/verify-email', { token })
+        .then(() => setStatus('success'))
+        .catch((err) => {
+          setStatus('error')
+          setErrorMsg(err instanceof Error ? err.message : 'Invalid or expired verification token.')
+        })
+    } else {
+      setStatus('checking')
+    }
+  }, [token])
+
+  const handleResend = async () => {
+    setBusy(true)
+    try {
+      await resendEmailVerification()
+      setStatus('sent')
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to resend verification email.')
+      setStatus('error')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <AuthShell
+      title="Verify your email"
+      sub="Confirm your email address to access all features."
+      footer={<Link className="font-bold text-[#5B21F5] hover:underline" to="/dashboard">Back to dashboard</Link>}
+    >
+      <div className="space-y-4 py-4 text-center">
+        {status === 'success' && (
+          <>
+            <div className="mx-auto grid size-16 place-items-center rounded-full bg-emerald-100 text-emerald-600">
+              <CheckCircle2 className="size-10" />
+            </div>
+            <h3 className="text-xl font-bold text-ink">Email Confirmed!</h3>
+            <p className="text-sm text-muted">Your email address has been successfully verified.</p>
+            <Button size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" onClick={() => nav('/dashboard')}>
+              Go to Dashboard
+            </Button>
+          </>
+        )}
+
+        {status === 'error' && (
+          <>
+            <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm font-medium text-bad" role="alert">
+              {errorMsg || 'This verification link is invalid or has expired.'}
+            </p>
+            <Button size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy} onClick={handleResend}>
+              Resend Verification Email
+            </Button>
+          </>
+        )}
+
+        {(status === 'checking' || status === 'sent') && !token && (
+          <>
+            <p className="text-sm text-muted">
+              We sent a verification link to <span className="font-semibold text-ink">{me?.user?.email || 'your email'}</span>. Click the link in the message to verify your account.
+            </p>
+            {status === 'sent' && (
+              <p className="rounded-xl bg-emerald-50 px-3.5 py-2 text-sm text-emerald-700">
+                A fresh verification link has been sent to your email.
+              </p>
+            )}
+            <Button size="lg" variant="secondary" className="w-full" loading={busy} onClick={handleResend}>
+              Resend Verification Email
+            </Button>
+          </>
+        )}
+      </div>
     </AuthShell>
   )
 }

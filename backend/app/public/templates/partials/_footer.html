@@ -1,66 +1,118 @@
-<footer class="cafe-footer">
-  <div class="wrap cafe-footer-wrap">
-    <div class="cafe-footer-grid">
+{% set loc_str = [business.address, business.city]|select|join(', ') %}
+{% set store_logo = logo or business.logo_url or business.logo %}
+{% set footer_desc = business.tagline or business.description or '' %}
+
+<footer class="take-footer" role="contentinfo">
+  <div class="wrap take-footer-wrap">
+    <div class="take-footer-grid">
       <!-- Col 1: Brand Info -->
-      <div class="cafe-footer-col brand">
-        <a href="{{ home_href or '#top' }}" class="cafe-footer-brand">
-          {% set store_logo = logo or business.logo_url or business.logo %}
+      <div class="take-footer-col brand">
+        <a href="{{ home_href or '#top' }}" class="take-footer-brand">
           {% if store_logo %}
-          <img src="{{ store_logo }}" alt="{{ business.name }}" class="cafe-footer-logo" width="38" height="38">
+          <img src="{{ store_logo }}" alt="{{ business.name }}" class="take-footer-logo" width="38" height="38">
+          {% else %}
+          <span class="take-footer-logo-badge">{{ business.name[:1] }}</span>
           {% endif %}
-          <span class="cafe-footer-name">{{ business.name }}</span>
+          <span class="take-footer-name">{{ business.name }}</span>
         </a>
-        <p class="cafe-footer-tagline">Fresh food. Great coffee.<br>Good moments.</p>
-        <p class="cafe-footer-loc"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> {{ business.address or 'Roysambu' }}, {{ business.city or 'Nairobi' }}</p>
+
+        {% if footer_desc %}
+        <p class="take-footer-tagline">{{ footer_desc }}</p>
+        {% endif %}
+
+        {% if loc_str %}
+        <p class="take-footer-loc">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>{{ loc_str }}</span>
+        </p>
+        {% endif %}
       </div>
 
-      <!-- Col 2: Quick Links -->
-      <div class="cafe-footer-col">
-        <h4 class="cafe-footer-col-title">QUICK LINKS</h4>
-        <ul class="cafe-footer-links-list">
+      <!-- Col 2: Navigation Links -->
+      <div class="take-footer-col">
+        <h4 class="take-footer-col-title">NAVIGATION</h4>
+        <ul class="take-footer-links-list">
           <li><a href="{{ home_href or '#top' }}">Home</a></li>
-          <li><a href="#services">Our Menu</a></li>
-          <li><a href="#about">Our Story</a></li>
-          <li><a href="#gallery">Gallery</a></li>
-          <li><a href="#location">Find Us</a></li>
+          {% if sells_products %}
+          <li><a href="#shop">Store Catalog</a></li>
+          {% elif services and services|length > 0 %}
+          <li><a href="#services">Our Services</a></li>
+          {% endif %}
+          {% if categories and categories|length > 0 %}
+          <li><a href="#categories">Categories</a></li>
+          {% endif %}
+          {% if loc_str %}
+          <li><a href="#location">Location</a></li>
+          {% endif %}
           <li><a href="#contact">Contact</a></li>
         </ul>
       </div>
 
-      <!-- Col 3: Contact & Order -->
-      <div class="cafe-footer-col">
-        <h4 class="cafe-footer-col-title">CONTACT & ORDERS</h4>
-        <ul class="cafe-footer-info-list">
-          <li><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> {{ business.address or 'Roysambu' }}, {{ business.city or 'Nairobi' }}</span></li>
+      <!-- Col 3: Contact & Orders -->
+      <div class="take-footer-col">
+        <h4 class="take-footer-col-title">ORDERS & CONTACT</h4>
+        <ul class="take-footer-info-list">
           {% if business.phone %}
-          <li><a href="tel:{{ business.phone }}"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> {{ business.phone }}</a></li>
+          <li>
+            <a href="tel:{{ business.phone }}">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>{{ business.phone }}</span>
+            </a>
+          </li>
           {% endif %}
           {% if wa %}
-          <li><a href="{{ wa }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="display:inline-block;vertical-align:-2px"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg> Order on WhatsApp</a></li>
+          <li>
+            <a href="{{ wa }}" target="_blank" rel="noopener" data-track="WHATSAPP_CLICK">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+              <span>Order via WhatsApp</span>
+            </a>
+          </li>
+          {% endif %}
+          {% if business.email %}
+          <li>
+            <a href="mailto:{{ business.email }}">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <span>{{ business.email }}</span>
+            </a>
+          </li>
           {% endif %}
         </ul>
       </div>
 
-      <!-- Col 4: Hours & Socials -->
-      <div class="cafe-footer-col">
-        <h4 class="cafe-footer-col-title">OPENING HOURS</h4>
-        <div class="cafe-footer-hours">
-          <p><strong>Mon – Fri:</strong> 7:00 AM – 9:00 PM</p>
-          <p><strong>Sat – Sun:</strong> 8:00 AM – 10:00 PM</p>
+      <!-- Col 4: Opening Hours & Socials -->
+      <div class="take-footer-col">
+        <h4 class="take-footer-col-title">OPENING HOURS</h4>
+        {% if business.opening_hours and hours %}
+        <div class="take-footer-hours">
+          {% for h in hours %}
+            {% if h.text != 'Closed' %}
+            <div class="take-footer-hours-line">
+              <strong>{{ h.day[:3] }}:</strong> <span>{{ h.text }}</span>
+            </div>
+            {% endif %}
+          {% endfor %}
         </div>
-        <div class="cafe-footer-socials">
-          {% for k, v in (business.social_links or {}).items() if v %}
+        {% else %}
+        <p class="take-footer-hours-note">Open for online orders & enquiries.</p>
+        {% endif %}
+
+        {% if business.social_links %}
+        <div class="take-footer-socials">
+          {% for k, v in business.social_links.items() if v %}
           <a href="{{ v }}" rel="noopener me" target="_blank" aria-label="{{ k }}">{{ k }}</a>
           {% endfor %}
         </div>
+        {% endif %}
       </div>
     </div>
 
     <!-- Bottom Bar -->
-    <div class="cafe-footer-bottom">
+    <div class="take-footer-bottom">
       <span>© {{ year }} {{ business.name }}. All rights reserved.</span>
-      <div class="cafe-footer-bottom-links">
+      <div class="take-footer-bottom-links">
+        {% if urls and urls.review %}
         <a href="{{ urls.review }}">Leave a review</a>
+        {% endif %}
         {% if show_branding %}
         <span class="dot-sep">·</span>
         <a href="https://aqivo.shop" target="_blank" rel="noopener" class="powered-by">Powered by <strong>Aqivo.shop</strong></a>

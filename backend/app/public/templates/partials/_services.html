@@ -1,38 +1,53 @@
 {% from "sections/_m.html" import store_product_card with context %}
-{% from "partials/_macros.html" import add_btn %}
+{% set ind_key = industry or business.industry or 'retail' %}
+{% set is_rest = ind_key in ('restaurant', 'food', 'cafe', 'bakery') %}
+{% set is_beauty = ind_key in ('beauty', 'salon', 'barbershop', 'spa') %}
 
-<section class="cafe-menu-section sx-sec" id="services">
-  <div class="wrap cafe-menu-wrap">
+<section class="take-catalog-section sx-sec" id="services">
+  <div class="wrap take-catalog-wrap">
     <!-- Header: Kicker, Title, Subtitle -->
-    <div class="cafe-section-header center">
-      <div class="cafe-section-kicker">OUR MENU</div>
-      <h2 class="cafe-section-title">Popular Favourites</h2>
-      <p class="cafe-section-sub">Handcrafted with fresh local ingredients. Tap any dish to order or ask on WhatsApp.</p>
+    <div class="take-section-header center">
+      <div class="take-section-kicker">
+        {% if is_rest %}
+          OUR MENU
+        {% elif is_beauty %}
+          SERVICES & TREATMENTS
+        {% else %}
+          OUR SERVICES
+        {% endif %}
+      </div>
+      <h2 class="take-section-title">
+        {{ c.title or ('Popular Dishes & Drinks' if is_rest else ('Our Services' if is_beauty else 'Services')) }}
+      </h2>
+      <p class="take-section-sub">
+        {{ c.subtitle or ('Browse our menu and order online.' if is_rest else ('Book an appointment or message us on WhatsApp.' if is_beauty else 'Choose a service to get started.')) }}
+      </p>
     </div>
 
-    <!-- Dishes Grid: 4-6 items with mouth-watering photos -->
-    <div class="cafe-products-area">
-      <div class="cafe-products-grid">
-        {% set items = d.cards if (d and d.cards) else [] %}
+    <!-- Items Grid -->
+    <div class="take-products-area">
+      <div class="take-products-grid">
+        {% set items = d.cards if (d and d.cards) else (services if services else []) %}
         {% for it in items %}
           {{ store_product_card(it) }}
         {% endfor %}
       </div>
+
       {% if not items or items|length == 0 %}
-      <div class="ecom-no-products">
-        <p class="ecom-no-products-title">Menu coming soon</p>
+      <div class="take-no-products">
+        <p class="take-no-products-title">Services coming soon</p>
       </div>
       {% endif %}
     </div>
 
-    <!-- View full menu action -->
-    <div class="cafe-menu-footer-action">
-      {% if wa %}
-      <a href="{{ wa }}" class="cafe-view-full-btn" target="_blank" rel="noopener" data-track="WHATSAPP_CLICK">
-        <span>Order on WhatsApp</span>
+    <!-- Footer Action -->
+    {% if wa %}
+    <div class="take-catalog-footer-action">
+      <a href="{{ wa }}" class="take-hero-btn secondary wa" target="_blank" rel="noopener" data-track="WHATSAPP_CLICK">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+        <span>Enquire on WhatsApp</span>
       </a>
-      {% endif %}
     </div>
+    {% endif %}
   </div>
 </section>

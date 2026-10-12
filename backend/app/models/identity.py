@@ -17,6 +17,9 @@ class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     platform_role: Mapped[str | None] = mapped_column(String(32))  # SUPER_ADMIN | ADMIN | None
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    phone_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    phone_otp_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    phone_otp_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     failed_logins: Mapped[int] = mapped_column(Integer, default=0)
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     token_version: Mapped[int] = mapped_column(Integer, default=0)
