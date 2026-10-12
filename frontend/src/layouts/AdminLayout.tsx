@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Activity,
   BarChart3,
@@ -13,6 +13,7 @@ import {
   LifeBuoy,
   LogOut,
   Palette,
+  PanelLeft,
   Plus,
   Radio,
   Settings,
@@ -87,7 +88,13 @@ export default function AdminLayout() {
   const { me, loading, logout } = useAuth()
   const nav = useNavigate()
   const loc = useLocation()
+  const [searchParams] = useSearchParams()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true)
+
+  const isFullBleed =
+    loc.pathname.startsWith('/admin/storefronts') &&
+    (searchParams.has('theme') || searchParams.has('studio') || searchParams.get('view') === 'studio')
 
   useEffect(() => {
     document.title = 'Aqivo Admin — Platform Administration'
@@ -104,7 +111,12 @@ export default function AdminLayout() {
   return (
     <div className="min-h-dvh bg-[#F8FAFC] text-[#0F172A] flex">
       {/* DESKTOP SIDEBAR */}
-      <aside className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col border-r border-slate-200/80 bg-white shadow-sm lg:flex">
+      <aside
+        className={cn(
+          'sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-slate-200/80 bg-white shadow-sm lg:flex transition-all duration-200 overflow-hidden',
+          desktopSidebarOpen ? 'w-72' : 'w-0 border-r-0'
+        )}
+      >
         {/* Brand header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
           <Link to="/admin" className="flex items-center gap-2.5">
@@ -196,6 +208,14 @@ export default function AdminLayout() {
             >
               {mobileMenuOpen ? <X className="size-5" /> : <Radio className="size-5" />}
             </button>
+            <button
+              onClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+              className="hidden lg:grid size-10 place-items-center rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 transition"
+              title={desktopSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+              aria-label="Toggle sidebar"
+            >
+              <PanelLeft className="size-5" />
+            </button>
             <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-500">
               <span className="rounded-md bg-slate-100 px-2 py-1 font-mono text-[11px] text-slate-700">
                 Aqivo Operations v2.4
@@ -272,7 +292,12 @@ export default function AdminLayout() {
         </AnimatePresence>
 
         {/* Content Page Outlet */}
-        <main className="flex-1 p-4 md:p-8 max-w-7xl w-full mx-auto">
+        <main
+          className={cn(
+            'flex-1 w-full min-w-0 transition-all duration-200',
+            isFullBleed ? 'p-0 max-w-none overflow-hidden' : 'p-4 md:p-8 max-w-7xl mx-auto'
+          )}
+        >
           <Outlet />
         </main>
       </div>

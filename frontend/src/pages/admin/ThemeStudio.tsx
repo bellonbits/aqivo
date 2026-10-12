@@ -8,7 +8,7 @@ import {
   Monitor, RefreshCw, Sliders, GitCompare, ChevronDown,
   ExternalLink, X, Palette, Settings2,
   ShieldCheck, ArrowLeft, Sun, Moon,
-  ChevronLeft
+  ChevronLeft, Maximize2, Minimize2
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/cn'
@@ -131,6 +131,16 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [previewOpen, setPreviewOpen] = useState(true)
   const [deleteThemeModalOpen, setDeleteThemeModalOpen] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  // Escape key to exit fullscreen
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) setIsFullscreen(false)
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [isFullscreen])
 
   // Delete theme mutation
   const deleteThemeMutation = useMutation({
@@ -337,7 +347,14 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
   if (themesQuery.isLoading || !activeTheme) return <PageLoading />
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4.5rem)] bg-slate-900 text-slate-100 rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
+    <div
+      className={cn(
+        'flex flex-col bg-slate-900 text-slate-100 overflow-hidden transition-all duration-200',
+        isFullscreen
+          ? 'fixed inset-0 z-50 w-screen h-screen'
+          : 'w-full h-[calc(100dvh-4rem)] rounded-none border-0 shadow-none'
+      )}
+    >
       
       {/* =========================================================================
           1. TOP DEVELOPER TOOLBAR
@@ -367,6 +384,21 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
             title={sidebarOpen ? 'Collapse Files Explorer' : 'Expand Files Explorer'}
           >
             <Folder className="size-4 text-amber-400" />
+          </button>
+
+          {/* Fullscreen Edge-to-Edge Toggle Button */}
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className={cn(
+              'p-1.5 rounded-lg border text-xs font-bold transition-colors shrink-0',
+              isFullscreen
+                ? 'bg-[#5B21F5] border-[#5B21F5] text-white shadow-sm'
+                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+            )}
+            title={isFullscreen ? 'Exit Fullscreen (Esc)' : 'Expand Fullscreen Edge-to-Edge (Zen Mode)'}
+            aria-label="Toggle Fullscreen"
+          >
+            {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
           </button>
 
           <div className="hidden sm:flex items-center gap-1.5 shrink-0">

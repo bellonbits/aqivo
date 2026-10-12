@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Activity,
@@ -1211,7 +1211,23 @@ export function AdminSubscriptions() {
 export function AdminStorefronts() {
   const qc = useQueryClient()
   const toast = useToast()
-  const [studioThemeKey, setStudioThemeKey] = useState<string | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [localThemeKey, setLocalThemeKey] = useState<string | null>(null)
+  const studioThemeKey = searchParams.get('theme') || searchParams.get('studio') || localThemeKey
+
+  const setStudioThemeKey = (key: string | null) => {
+    setLocalThemeKey(key)
+    const next = new URLSearchParams(searchParams)
+    if (key) {
+      next.set('theme', key)
+      setSearchParams(next)
+    } else {
+      next.delete('theme')
+      next.delete('studio')
+      setSearchParams(next)
+    }
+  }
+
   const [templateToDelete, setTemplateToDelete] = useState<any | null>(null)
   const q = useQuery({
     queryKey: ['admin-storefronts'],
