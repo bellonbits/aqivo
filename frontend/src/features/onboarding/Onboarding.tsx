@@ -29,7 +29,7 @@ export default function Onboarding() {
   const [d, setD] = useState<Draft>({ name: '', industry: 'beauty', category: 'Beauty Salon', country: 'KE', city: '', address: '', phone: '', whatsapp: '' })
   const [sameWa, setSameWa] = useState(true)
   const [rows, setRows] = useState<Row[]>([{ name: '', price: '', minutes: '60' }])
-  const [template, setTemplate] = useState(params.get('template') ?? 'twosidesboutique')
+  const [template, setTemplate] = useState(params.get('template') ?? 'aqivo')
   const [published, setPublished] = useState(false)
   const countries = useQuery({ queryKey: ['config'], queryFn: () => api.get<{ countries: CountryConfig[]; industries: IndustryConfig[] }>('/businesses/config'), staleTime: Infinity })
   const templates = useQuery({ queryKey: ['templates'], queryFn: () => api.get<Template[]>('/templates') })
@@ -166,7 +166,7 @@ export default function Onboarding() {
             {step === 6 && <Step title="Add your logo" sub="Optional — you can skip this and add it later."><LogoStep logo={business?.logo_url ?? null} onDone={refresh} /></Step>}
             {step === 7 && (
               <Step title="Choose a design" sub="Your website is generated from your details. You can switch designs any time.">
-                <div className="grid gap-3 sm:grid-cols-2">{(templates.data ?? []).filter((t) => t.industry === activeKey).map((t) => (
+                <div className="grid gap-3 sm:grid-cols-2">{(templates.data ?? []).filter((t) => !t.industry || t.industry === activeKey || (templates.data?.length ?? 0) <= 2).map((t) => (
                   <button key={t.key} onClick={() => setTemplate(t.key)} aria-pressed={template === t.key} className={cn('overflow-hidden rounded-2xl border text-left', template === t.key ? 'border-ink ring-2 ring-ink' : 'border-line hover:border-ink')}>
                     <div className="h-36 overflow-hidden bg-line"><iframe title={t.name} src={t.preview_url} loading="lazy" tabIndex={-1} className="pointer-events-none h-[1000px] w-[1200px] origin-top-left border-0" style={{ transform: 'scale(0.29)' }} /></div>
                     <div className="flex items-center justify-between p-3"><div><p className="font-extrabold">{t.name}</p><p className="line-clamp-1 text-xs text-muted">{t.description}</p></div>{template === t.key && <Check className="size-5" />}</div>

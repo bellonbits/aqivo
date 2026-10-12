@@ -143,14 +143,7 @@ def classify_business(name: str, description: str = "", industry: str = "", cate
 
 def select_store_template(business: Business) -> str:
     """Select the exact matching storefront template."""
-    b_type = classify_business(business.name, business.description or "", business.industry or "", business.category or "")
-    if b_type in {"SERVICE", "HYBRID"}:
-        return "zuribeauty"
-    if business.industry == "restaurant":
-        return "brewandbites"
-    if any(w in (business.category or "").lower() for w in ["grocery", "produce", "farm", "fruit", "veg"]):
-        return "mavunofresh"
-    return "twosidesboutique"
+    return "aqivo"
 
 
 def get_storefront_blueprint(business: Business) -> dict[str, Any]:
@@ -161,7 +154,7 @@ def get_storefront_blueprint(business: Business) -> dict[str, Any]:
     if is_service:
         return {
             "business_type": b_type,
-            "template_key": "zuribeauty",
+            "template_key": "aqivo",
             "is_service": True,
             "primary_action": "Book Now",
             "whatsapp_action": "Book on WhatsApp",
@@ -174,10 +167,9 @@ def get_storefront_blueprint(business: Business) -> dict[str, Any]:
             "payment_methods": ["Cash", "Lipa Na M-Pesa"],
         }
     else:
-        tpl = "brewandbites" if business.industry == "restaurant" else ("mavunofresh" if "grocery" in (business.category or "").lower() else "twosidesboutique")
         return {
             "business_type": "PRODUCT",
-            "template_key": tpl,
+            "template_key": "aqivo",
             "is_service": False,
             "primary_action": "Order Online",
             "whatsapp_action": "Order on WhatsApp",

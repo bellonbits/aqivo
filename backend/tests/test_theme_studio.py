@@ -59,14 +59,14 @@ def test_theme_studio_admin_authorization(client: TestClient, admin_user, regula
     data = res.json()
     assert "templates" in data
     assert len(data["templates"]) >= 1
-    assert any(t["key"] == "twosidesboutique" for t in data["templates"])
+    assert any(t["key"] == "aqivo" for t in data["templates"])
 
 
 def test_theme_file_tree_and_content(client: TestClient, admin_user):
     headers = _auth_header(client, "superadmin@aqivo.shop", "adminpass123")
 
     # 1. Get file tree
-    res = client.get("/api/v1/admin/storefronts/themes/twosidesboutique/files", headers=headers)
+    res = client.get("/api/v1/admin/storefronts/themes/aqivo/files", headers=headers)
     assert res.status_code == 200
     data = res.json()
     assert "categories" in data
@@ -74,7 +74,7 @@ def test_theme_file_tree_and_content(client: TestClient, admin_user):
     assert any(f["path"] == "index.html" for f in data["categories"]["templates"])
 
     # 2. Read file content
-    res = client.get("/api/v1/admin/storefronts/themes/twosidesboutique/file?path=index.html", headers=headers)
+    res = client.get("/api/v1/admin/storefronts/themes/aqivo/file?path=index.html", headers=headers)
     assert res.status_code == 200
     f = res.json()
     assert f["language"] == "html"
@@ -87,7 +87,7 @@ def test_theme_draft_save_validate_diff(client: TestClient, admin_user):
     # 1. Save draft edit
     sample_edit = "<!-- Draft update test -->\n<!DOCTYPE html><html><head><title>Test</title></head><body><h1>Draft Edit</h1></body></html>"
     res = client.put(
-        "/api/v1/admin/storefronts/themes/twosidesboutique/file",
+        "/api/v1/admin/storefronts/themes/aqivo/file",
         headers=headers,
         json={"path": "index.html", "content": sample_edit}
     )
@@ -95,14 +95,14 @@ def test_theme_draft_save_validate_diff(client: TestClient, admin_user):
     assert res.json()["success"] is True
 
     # 2. Run syntax validation
-    res = client.post("/api/v1/admin/storefronts/themes/twosidesboutique/validate", headers=headers)
+    res = client.post("/api/v1/admin/storefronts/themes/aqivo/validate", headers=headers)
     assert res.status_code == 200
     val = res.json()
     assert "valid" in val
     assert "files_checked" in val
 
     # 3. Inspect diff
-    res = client.get("/api/v1/admin/storefronts/themes/twosidesboutique/diff", headers=headers)
+    res = client.get("/api/v1/admin/storefronts/themes/aqivo/diff", headers=headers)
     assert res.status_code == 200
     diff = res.json()
     assert diff["total_files_changed"] >= 1
@@ -113,11 +113,11 @@ def test_path_traversal_prevention(client: TestClient, admin_user):
     headers = _auth_header(client, "superadmin@aqivo.shop", "adminpass123")
 
     # Path traversal ../ must be rejected with 400
-    res = client.get("/api/v1/admin/storefronts/themes/twosidesboutique/file?path=../../etc/passwd", headers=headers)
+    res = client.get("/api/v1/admin/storefronts/themes/aqivo/file?path=../../etc/passwd", headers=headers)
     assert res.status_code == 400
 
     # Forbidden extension must be rejected with 400
-    res = client.get("/api/v1/admin/storefronts/themes/twosidesboutique/file?path=evil.exe", headers=headers)
+    res = client.get("/api/v1/admin/storefronts/themes/aqivo/file?path=evil.exe", headers=headers)
     assert res.status_code == 400
 
 
@@ -133,7 +133,7 @@ def test_delete_theme_endpoint(client: TestClient, admin_user):
             "name": "Deletable Theme",
             "industry": "retail",
             "description": "A temporary theme for deletion test",
-            "clone_from": "twosidesboutique"
+            "clone_from": "aqivo"
         }
     )
     assert create_res.status_code == 200
@@ -150,13 +150,13 @@ def test_delete_theme_endpoint(client: TestClient, admin_user):
 
 def test_preview_route_renders_demo_store(client: TestClient):
     # GET /ecomm-templates/{key}/index.html?preview=1 should return 200 and HTML
-    res = client.get("/ecomm-templates/zuribeauty/index.html?preview=1")
+    res = client.get("/ecomm-templates/aqivo/index.html?preview=1")
     assert res.status_code == 200
     assert "text/html" in res.headers.get("content-type", "")
     assert "<html" in res.text.lower()
 
     # Second call uses in-memory cached context and returns 200 immediately
-    res2 = client.get("/ecomm-templates/zuribeauty/index.html?preview=1")
+    res2 = client.get("/ecomm-templates/aqivo/index.html?preview=1")
     assert res2.status_code == 200
     assert "<html" in res2.text.lower()
 

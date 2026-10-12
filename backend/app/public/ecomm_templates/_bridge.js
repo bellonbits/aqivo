@@ -985,10 +985,256 @@
     });
   }
 
-  MAP.twosidesboutique = function () { mapMobileStore("twosidesboutique"); };
-  MAP.mavunofresh = function () { mapMobileStore("mavunofresh"); };
-  MAP.brewandbites = function () { mapMobileStore("brewandbites"); };
-  MAP.zuribeauty = function () { mapMobileStore("zuribeauty"); };
+  function formatWhatsAppOrderMessage(orderData) {
+    var bName = (B && B.name) || "Store";
+    var lines = ["🛍️ *NEW ORDER — " + bName.toUpperCase() + "*\n"];
+    if (orderData && orderData.items && orderData.items.length) {
+      orderData.items.forEach(function (it) {
+        lines.push("• " + (it.qty || 1) + "x " + (it.name || "Item") + " (" + fmt(it.price) + ")");
+      });
+    }
+    if (orderData && orderData.total) {
+      lines.push("\n*Total:* " + fmt(orderData.total));
+    }
+    if (orderData && orderData.customerName) {
+      lines.push("*Customer:* " + orderData.customerName);
+    }
+    if (orderData && orderData.notes) {
+      lines.push("*Notes:* " + orderData.notes);
+    }
+    return lines.join("\n");
+  }
+  window.formatWhatsAppOrderMessage = formatWhatsAppOrderMessage;
+
+  MAP.aqivo = function () {
+    var C = window.STORE_CONFIG || {};
+    C.storeName = B.name;
+    C.tagline = B.tagline || C.tagline;
+    C.currency = B.currency;
+    C.currencySymbol = (B.symbol || "") + " ";
+    C.formatPrice = fmt;
+
+    onReady(function () {
+      // 1. Announcements
+      var annBar = document.getElementById("announcement-bar");
+      var annText = document.getElementById("announcement-text");
+      if (annBar && annText) {
+        if (B.announcement) {
+          annText.textContent = B.announcement;
+          annBar.classList.remove("hidden");
+        } else if (B.tagline) {
+          annText.textContent = B.tagline;
+          annBar.classList.remove("hidden");
+        }
+      }
+
+      // 2. Identity
+      var nameEl = document.getElementById("store-name");
+      if (nameEl) nameEl.textContent = B.name;
+      var tagEl = document.getElementById("store-tagline");
+      if (tagEl) tagEl.textContent = B.tagline || B.address || "Order online · Fast delivery";
+      var logoEl = document.getElementById("store-logo");
+      if (logoEl) {
+        if (B.logo) {
+          logoEl.innerHTML = '<img src="' + esc(B.logo) + '" alt="' + esc(B.name) + '" class="w-full h-full object-cover" />';
+        } else {
+          logoEl.textContent = (B.name || "A").charAt(0).toUpperCase();
+        }
+      }
+
+      // 3. WhatsApp contact
+      var waBtn = document.getElementById("wa-btn");
+      if (waBtn) {
+        var ph = (B.wa || B.phone || "").replace(/[^0-9]/g, "");
+        if (ph) {
+          waBtn.href = "https://wa.me/" + ph + "?text=" + encodeURIComponent("Hi, I want to inquire with " + B.name);
+        } else {
+          waBtn.style.display = "none";
+        }
+      }
+
+      // 4. Cart State
+      var cartKey = "aqivo_cart_" + (B.slug || "default");
+      var cart = [];
+      try { cart = JSON.parse(localStorage.getItem(cartKey) || "[]"); } catch (e) { cart = []; }
+
+      function saveCart() {
+        try { localStorage.setItem(cartKey, JSON.stringify(cart)); } catch (e) {}
+        updateCartUI();
+      }
+
+      function updateCartUI() {
+        var cartBar = document.getElementById("cart-bar");
+        var countEl = document.getElementById("cart-count");
+        var totalEl = document.getElementById("cart-total");
+        var totalQty = 0;
+        var totalSum = 0;
+        cart.forEach(function (ci) {
+          totalQty += ci.qty;
+          totalSum += ci.qty * ci.price;
+        });
+
+        if (countEl) countEl.textContent = totalQty;
+        if (totalEl) totalEl.textContent = fmt(totalSum);
+
+        if (cartBar) {
+          if (totalQty > 0) {
+            cartBar.classList.remove("translate-y-24");
+          } else {
+            cartBar.classList.add("translate-y-24");
+          }
+        }
+      }
+
+      // 5. Category Pills & Filtering
+      var pillsContainer = document.getElementById("category-pills");
+      var gridContainer = document.getElementById("items-grid");
+      var emptyState = document.getElementById("empty-state");
+      var searchInput = document.getElementById("search-input");
+      var activeCat = "all";
+      var searchQuery = "";
+
+      if (pillsContainer) {
+        var cats = [{ id: "all", name: "All Items" }];
+        var seenCats = {};
+        CATS.forEach(function (c) {
+          if (!seenCats[c.id]) {
+            seenCats[c.id] = true;
+            cats.push({ id: c.id, name: c.name });
+          }
+        });
+        ITEMS.forEach(function (it) {
+          if (it.cid && !seenCats[it.cid]) {
+            seenCats[it.cid] = true;
+            cats.push({ id: it.cid, name: it.category || "General" });
+          }
+        });
+
+        pillsContainer.innerHTML = cats.map(function (c, idx) {
+          var cls = idx === 0 ? "active bg-[#0B1736] text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200";
+          return '<button type="button" class="cat-pill whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ' + cls + '" data-cat-id="' + esc(c.id) + '">' + esc(c.name) + '</button>';
+        }).join("");
+
+        pillsContainer.addEventListener("click", function (e) {
+          var btn = e.target.closest(".cat-pill");
+          if (!btn) return;
+          pillsContainer.querySelectorAll(".cat-pill").forEach(function (b) {
+            b.classList.remove("active", "bg-[#0B1736]", "text-white");
+            b.classList.add("bg-slate-100", "text-slate-700");
+          });
+          btn.classList.add("active", "bg-[#0B1736]", "text-white");
+          btn.classList.remove("bg-slate-100", "text-slate-700");
+          activeCat = btn.getAttribute("data-cat-id") || "all";
+          renderItems();
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener("input", function (e) {
+          searchQuery = (e.target.value || "").toLowerCase().trim();
+          renderItems();
+        });
+      }
+
+      function renderItems() {
+        if (!gridContainer) return;
+        var filtered = ITEMS.filter(function (it) {
+          var matchCat = activeCat === "all" || it.cid === activeCat || it.category === activeCat;
+          if (!matchCat) return false;
+          if (searchQuery) {
+            var nameMatch = (it.name || "").toLowerCase().indexOf(searchQuery) !== -1;
+            var descMatch = (it.desc || "").toLowerCase().indexOf(searchQuery) !== -1;
+            return nameMatch || descMatch;
+          }
+          return true;
+        });
+
+        if (!filtered.length) {
+          gridContainer.innerHTML = "";
+          if (emptyState) emptyState.classList.remove("hidden");
+          return;
+        }
+        if (emptyState) emptyState.classList.add("hidden");
+
+        gridContainer.innerHTML = filtered.map(function (it) {
+          var isSvc = it.kind === "service";
+          var actionLabel = isSvc ? "Book" : "Add";
+          var durationBadge = isSvc && it.duration ? '<span class="text-[10px] text-slate-400 font-medium">⏱ ' + esc(it.duration) + 'm</span>' : '';
+          var saleBadge = it.compare && it.compare > it.price ? '<span class="absolute top-2 left-2 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-sm">' + pct(it) + '</span>' : '';
+          var itemDetailPage = isSvc ? "service.html" : "product.html";
+          var bzParam = B.slug ? "?id=" + encodeURIComponent(it.id) : "?id=" + encodeURIComponent(it.id);
+          var detailUrl = itemDetailPage + bzParam;
+
+          return '<div class="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow relative overflow-hidden" data-item-id="' + esc(it.id) + '">' +
+            '<a href="' + detailUrl + '" class="block">' +
+              '<div class="relative w-full aspect-square rounded-xl bg-slate-50 mb-2.5 overflow-hidden flex items-center justify-center">' +
+                '<img src="' + esc(pic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />' +
+                saleBadge +
+              '</div>' +
+              '<h3 class="font-bold text-sm text-[#0B1736] line-clamp-2 leading-tight mb-1">' + esc(it.name) + '</h3>' +
+              (it.desc ? '<p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-2">' + esc(it.desc) + '</p>' : '') +
+            '</a>' +
+            '<div class="mt-2 pt-2 border-t border-slate-50 flex items-center justify-between gap-2">' +
+              '<div>' +
+                '<div class="font-extrabold text-sm text-[#5B21F5]">' + fmt(it.price) + '</div>' +
+                durationBadge +
+              '</div>' +
+              '<button type="button" class="btn-add-cart px-3 py-1.5 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm" data-id="' + esc(it.id) + '">' +
+                '<svg class="size-3.5 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>' +
+                '<span>' + actionLabel + '</span>' +
+              '</button>' +
+            '</div>' +
+          '</div>';
+        }).join("");
+      }
+
+      if (gridContainer) {
+        gridContainer.addEventListener("click", function (e) {
+          var btn = e.target.closest(".btn-add-cart");
+          if (!btn) return;
+          e.preventDefault();
+          e.stopPropagation();
+          var id = btn.getAttribute("data-id");
+          var it = byId[id];
+          if (!it) return;
+
+          var existing = cart.filter(function (ci) { return ci.id === id; })[0];
+          if (existing) {
+            existing.qty += 1;
+          } else {
+            cart.push({ id: it.id, name: it.name, price: it.price, qty: 1, image: pic(it), variant: "" });
+          }
+          saveCart();
+
+          var originalHtml = btn.innerHTML;
+          btn.innerHTML = '<span class="text-[11px]">✓ Added</span>';
+          btn.classList.add("bg-emerald-600");
+          setTimeout(function () {
+            btn.innerHTML = originalHtml;
+            btn.classList.remove("bg-emerald-600");
+          }, 800);
+        });
+      }
+
+      var viewCartBtn = document.getElementById("view-cart-btn");
+      if (viewCartBtn) {
+        viewCartBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          if (!cart.length) return;
+          var lines = cart.map(function (ci) { return { id: ci.id, variant: ci.variant || "", qty: ci.qty }; });
+          goCheckout(lines);
+        });
+      }
+
+      renderItems();
+      updateCartUI();
+    });
+  };
+
+  MAP.twosidesboutique = function () { MAP.aqivo ? MAP.aqivo() : mapMobileStore("twosidesboutique"); };
+  MAP.mavunofresh = function () { MAP.aqivo ? MAP.aqivo() : mapMobileStore("mavunofresh"); };
+  MAP.brewandbites = function () { MAP.aqivo ? MAP.aqivo() : mapMobileStore("brewandbites"); };
+  MAP.zuribeauty = function () { MAP.aqivo ? MAP.aqivo() : mapMobileStore("zuribeauty"); };
 
   if (MAP[KEY]) MAP[KEY]();
 })();

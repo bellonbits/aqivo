@@ -1262,7 +1262,7 @@ export function AdminStorefronts() {
         actions={
           <Button
             variant="primary"
-            onClick={() => setStudioThemeKey(q.data.templates[0]?.key || 'twosidesboutique')}
+            onClick={() => setStudioThemeKey(q.data.templates[0]?.key || 'aqivo')}
             className="bg-[#5B21F5] hover:bg-[#4a18d1] text-white flex items-center gap-2"
           >
             <Code2 className="size-4" /> Open Theme Code Studio
@@ -2100,7 +2100,7 @@ export function AdminNewBusiness() {
   const tpls = useQuery({ queryKey: ['templates'], queryFn: () => api.get<{ key: string; name: string }[]>('/templates') })
   const [f, setF] = useState({
     name: '', owner_name: '', owner_email: '', phone: '', whatsapp: '', city: '', country_code: 'KE',
-    category: 'Beauty Salon', template_key: 'twosidesboutique', plan_key: 'GROW', trial: false, description: ''
+    category: 'Beauty Salon', template_key: 'aqivo', plan_key: 'GROW', trial: false, description: ''
   })
   const [created, setCreated] = useState<any | null>(null)
   const m = useMutation({

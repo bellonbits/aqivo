@@ -17,10 +17,7 @@ def _tpl(key, name, industry, description, features, accent, bg="#FFFFFF", ink="
 
 
 TEMPLATES = [
-    _tpl("twosidesboutique", "Two Sides Boutique", "retail", "Contemporary fashion atelier storefront with ready-to-wear collections and size variants.", ["Collections", "Size Variants", "Atelier Sales", "Online Checkout"], "#059669", sections=SHOP_ORDER),
-    _tpl("mavunofresh", "Mavuno Fresh", "retail", "Farm-fresh groceries and produce storefront with fresh vegetable boxes and rapid dispatch.", ["Farm Produce", "Harvest Deals", "Quantity Steppers", "M-Pesa Checkout"], "#16A34A", sections=SHOP_ORDER),
-    _tpl("brewandbites", "Brew & Bites", "restaurant", "Modern food & dining storefront with real-time cart, countdown offers, and delivery tracking.", ["Menu & Pizzas", "Special Offers", "Quantity Steppers", "Online Checkout"], "#D97706", sections=SHOP_ORDER),
-    _tpl("zuribeauty", "Zuri Beauty Studio", "beauty", "Luxe beauty salon, barbershop and service storefront with appointment booking and grooming.", ["Beauty & Grooming", "Salon & Barbershop Bookings", "Service Durations", "WhatsApp Confirmation"], "#9333EA", sections=SECTION_ORDER),
+    _tpl("aqivo", "Aqivo Storefront", "retail", "Unified modern Take App-style digital commerce storefront optimized for mobile shopping, fast ordering, and WhatsApp checkout.", ["Mobile-First Design", "Instant Cart", "WhatsApp Checkout", "Catalog & Search"], "#5B21F5", sections=SECTION_ORDER),
 ]
 
 
@@ -41,20 +38,21 @@ def seed_templates(db: Session) -> None:
                 setattr(row, k, v)
             row.is_active = True
         else:
-            db.add(Template(**t))
+            row = Template(**t)
+            db.add(row)
+            existing[t["key"]] = row
+    db.flush()
+
+    # Migrate any websites on inactive/legacy templates to the active unified template
+    aqivo_tpl = existing.get("aqivo") or db.scalars(select(Template).where(Template.key == "aqivo")).first()
+    if aqivo_tpl:
+        from app.models import Website
+        for w in db.scalars(select(Website)):
+            if w.template_id != aqivo_tpl.id:
+                w.template_id = aqivo_tpl.id
+
     try:
         db.commit()
-    except IntegrityError:
+    except Exception:
         db.rollback()
-        existing = {t.key: t for t in db.scalars(select(Template))}
-        for t in TEMPLATES:
-            if t["key"] in existing:
-                row = existing[t["key"]]
-                for k, v in t.items():
-                    setattr(row, k, v)
-                row.is_active = True
-        try:
-            db.commit()
-        except Exception:
-            db.rollback()
 

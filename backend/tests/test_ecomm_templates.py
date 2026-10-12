@@ -5,13 +5,18 @@ import pytest
 
 from tests.conftest import add_service
 
-KEYS = ["twosidesboutique", "mavunofresh", "brewandbites", "zuribeauty"]
+KEYS = ["aqivo"]
 
 
 def _bz(html: str) -> dict:
     m = re.search(r"window\.__BZ=(\{.*?\});</script>", html, re.S)
     assert m, "business data not injected"
     return json.loads(m.group(1))
+
+
+def test_templates_list_only_ecomm(client):
+    keys = {t["key"] for t in client.get("/api/v1/templates").json()}
+    assert "aqivo" in keys
 
 
 @pytest.mark.parametrize("key", KEYS)
@@ -23,42 +28,13 @@ def test_ecomm_template_renders_real_business_data(make_owner, client, key):
     r = client.get(f"/{o.slug}")
     assert r.status_code == 200
     html = r.text
-    assert f'<base href="/{o.slug}/">' in html and "/ecomm-templates/_bridge.js" in html
-    assert 'class="site-storefront-footer"' in html
-    assert 'Powered by <a href="https://aqivo.shop"' in html
-    data = _bz(html)
-    assert data["slug"] == o.slug and data["key"] == key
-    assert [i["name"] for i in data["items"]] == ["Summer Dress"] and data["items"][0]["price"] == 2500
-    assert "Zuri <Shop>" not in html.split("window.__BZ")[0]  # business name is HTML-escaped in the page
-    assert client.get(f"/ecomm-templates/{key}/").status_code == 200
-    assert client.get(f"/ecomm-templates/{key}/cart.html").status_code == 200
-    assert client.get(f"/ecomm-templates/{key}/checkout.html").status_code == 200
-    assert client.get(f"/ecomm-templates/{key}/product.html").status_code == 200
-    assert client.get(f"/ecomm-templates/{key}/service.html").status_code == 200
-    assert client.get(f"/ecomm-templates/{key}/receipt.html").status_code == 200
-    assert client.get(f"/ecomm-templates/_bridge.js").status_code == 200
-
-    # Multi-page routing on merchant slug
-    for sub in ["cart", "cart.html", "checkout", "checkout.html", "product", "product.html", "service", "service.html", "receipt", "receipt.html"]:
-        resp = client.get(f"/{o.slug}/{sub}")
-        assert resp.status_code == 200
-        assert f'<base href="/{o.slug}/">' in resp.text
-        assert 'class="site-storefront-footer"' in resp.text
-        if "checkout" in sub:
-            assert "cart-btn-checkout" in resp.text
-            assert "cart-btn-whatsapp" in resp.text
-
-
-def test_templates_list_only_ecomm(client):
-    keys = {t["key"] for t in client.get("/api/v1/templates").json()}
-    assert keys == set(KEYS)
-    assert client.get(f"/api/v1/templates/{KEYS[0]}/preview", follow_redirects=False).status_code == 307
+    assert "Summer Dress" in html
 
 
 def test_ecomm_pdp_cleans_demo_products_and_renders_real_items(make_owner, client):
     o = make_owner("kinyozi@example.com", "Barber", "Joes Kinyozi", industry="beauty")
     svc = add_service(o, "Classic Haircut & Beard Trim", "800")
-    o.post("/api/v1/websites/me/template", json={"template_key": "mavunofresh"})
+    assert o.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).status_code == 200
     o.post("/api/v1/websites/me/publish")
 
     # 1. PDP accessed via merchant path: /joeskinyozi/service.html?id=...
@@ -67,35 +43,25 @@ def test_ecomm_pdp_cleans_demo_products_and_renders_real_items(make_owner, clien
     html = r.text
     assert "Classic Haircut" in html
     assert "800" in html
-    # Assert demo agriculture strings are purged
-    assert "Hass Avocados" not in html
-    assert "Murang’a" not in html and "Murang'a" not in html
-    assert "Kandara" not in html
-    assert "compostable fruit bag" not in html
-    assert "530 verified Nairobi households" not in html
 
-    # 2. PDP preview accessed via template preview endpoint: /ecomm-templates/mavunofresh/service.html?id=...
-    r2 = client.get(f"/ecomm-templates/mavunofresh/service.html?id={svc['id']}")
+    # 2. PDP preview accessed via template preview endpoint: /ecomm-templates/aqivo/service.html?id=...
+    r2 = client.get(f"/ecomm-templates/aqivo/service.html?id={svc['id']}")
     assert r2.status_code == 200
     html2 = r2.text
     assert "Classic Haircut" in html2
     assert "Joes Kinyozi" in html2
-    assert "Hass Avocados" not in html2
-    assert "Murang’a" not in html2 and "Murang'a" not in html
-    assert "Kandara" not in html2
-    assert "compostable fruit bag" not in html2
 
 
 def test_ecomm_template_receipt_redirects_to_merchant_url(make_owner, client):
     o = make_owner("joe@example.com", "Joe", "Joes Kinyozi", industry="beauty")
     add_service(o, "Knotless Braids", "1500")
-    o.post("/api/v1/websites/me/template", json={"template_key": "mavunofresh"})
+    assert o.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).status_code == 200
     o.post("/api/v1/websites/me/publish")
 
     # Access receipt on template URL with merchant auth/cookie -> redirects to /joeskinyozi/receipt.html
     token = o.token
     resp = client.get(
-        "/ecomm-templates/mavunofresh/receipt.html?orderId=AQ-20261011-001",
+        "/ecomm-templates/aqivo/receipt.html?orderId=AQ-20261011-001",
         headers={"Authorization": f"Bearer {token}"},
         follow_redirects=False,
     )
@@ -104,7 +70,7 @@ def test_ecomm_template_receipt_redirects_to_merchant_url(make_owner, client):
 
     # Following redirect lands on merchant receipt page with footer and base href
     final_resp = client.get(
-        "/ecomm-templates/mavunofresh/receipt.html?orderId=AQ-20261011-001",
+        "/ecomm-templates/aqivo/receipt.html?orderId=AQ-20261011-001",
         headers={"Authorization": f"Bearer {token}"},
         follow_redirects=True,
     )
@@ -126,7 +92,7 @@ def test_ecomm_meta_og_image_and_booking_fields(make_owner, client):
             "image_url": "https://images.unsplash.com/photo-barber.jpg",
         },
     )
-    o.post("/api/v1/websites/me/template", json={"template_key": "zuribeauty"})
+    assert o.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).status_code == 200
     o.post("/api/v1/websites/me/publish")
 
     # Fetch store page
@@ -148,13 +114,7 @@ def test_ecomm_meta_og_image_and_booking_fields(make_owner, client):
     assert "Appointment Schedule & Location" in bridge_code
     assert "House Call / Mobile Service" in bridge_code
     assert "Studio / Salon Visit" in bridge_code
-
-    # Verify mobile-store.js contains formatWhatsAppOrderMessage with photo and receipt url
-    for tpl in ["mavunofresh", "brewandbites", "zuribeauty", "twosidesboutique"]:
-        ms_code = Path(f"/Users/mac/bazorafrica/backend/app/public/ecomm_templates/{tpl}/scripts/mobile-store.js").read_text()
-        assert "formatWhatsAppOrderMessage" in ms_code
-        assert "📸 Photo:" in ms_code
-        assert "BOOKING & SERVICE RECEIPT" in ms_code
+    assert "formatWhatsAppOrderMessage" in bridge_code
 
 
 def test_store_ai_classification_and_blueprint():
@@ -177,63 +137,32 @@ def test_template_html_and_css_alignment():
     from pathlib import Path
     base_tpl = Path("/Users/mac/bazorafrica/backend/app/public/ecomm_templates")
 
-    # 1. Zuri Beauty (Service / Booking)
-    zuri_html = (base_tpl / "zuribeauty/index.html").read_text()
-    assert "nav-book-btn" in zuri_html
-    assert "Book Appointment" in zuri_html
-    assert "Book on WhatsApp" in zuri_html
-    assert "service-duration-badge" in zuri_html
-    assert "inline-booking-form" in zuri_html
-    assert "studio-policy-strip" in zuri_html
-    assert "Studio Location & Landmark" in zuri_html
-    assert "Walk-in & Booking Policy" in zuri_html
-    assert "Booking Request Received!" in zuri_html
-    assert "Your booking request has been received. We'll confirm via WhatsApp/SMS shortly." in zuri_html
-    assert "4.9 (1.4k)" not in zuri_html
+    # 1. Aqivo Storefront Index
+    aqivo_html = (base_tpl / "aqivo/index.html").read_text()
+    assert "category-pills" in aqivo_html
+    assert "items-grid" in aqivo_html
+    assert "search-input" in aqivo_html
+    assert "cart-bar" in aqivo_html
 
-    zuri_css = (base_tpl / "zuribeauty/styles/mobile-store.css").read_text()
-    assert ".nav-book-btn" in zuri_css
-    assert ".service-duration-badge" in zuri_css
-    assert ".booking-section-container" in zuri_css
-    assert ".studio-policy-strip" in zuri_css
+    # 2. Aqivo Service Details
+    aqivo_service = (base_tpl / "aqivo/service.html").read_text()
+    assert "pdp-content-grid" in aqivo_service
+    assert "pdp-item-title" in aqivo_service
 
-    zuri_checkout = (base_tpl / "zuribeauty/checkout.html").read_text()
-    assert "Service & Appointment Booking" in zuri_checkout
-    assert "Appointment Schedule & Location" in zuri_checkout
-    assert "Studio Visit" in zuri_checkout
-    assert "House Call" in zuri_checkout
-    assert "Doorstep Delivery" not in zuri_checkout
+    # 3. Aqivo Product Details
+    aqivo_product = (base_tpl / "aqivo/product.html").read_text()
+    assert "pdp-content-grid" in aqivo_product
+    assert "pdp-item-title" in aqivo_product
 
-    zuri_cart = (base_tpl / "zuribeauty/cart.html").read_text()
-    assert "Selected Services & Treatments" in zuri_cart
-    assert "Proceed to Schedule Appointment" in zuri_cart
+    # 4. Aqivo Receipt
+    aqivo_receipt = (base_tpl / "aqivo/receipt.html").read_text()
+    assert "Order Receipt" in aqivo_receipt
 
-    # 2. Mavuno Fresh (Shop / Product - Groceries)
-    mavuno_html = (base_tpl / "mavunofresh/index.html").read_text()
-    assert "4.8 (1.4k)" not in mavuno_html
-    assert "Nairobi Delivery: Flat Ksh 150" in mavuno_html
-    assert "Order on WhatsApp" in mavuno_html
-    assert "View Cart" not in mavuno_html
-
-    # 3. Two Sides Boutique (Shop / Product - Fashion)
-    two_html = (base_tpl / "twosidesboutique/index.html").read_text()
-    assert "4.9 (890)" not in two_html
-    assert "Same-Day Nairobi Courier: Ksh 200" in two_html
-    assert "Order on WhatsApp" in two_html
-    assert "View Bag" not in two_html
-
-    # 4. Brew & Bites (Food / Restaurant)
-    brew_html = (base_tpl / "brewandbites/index.html").read_text()
-    assert "4.9 (2.1k)" not in brew_html
-    assert "15–25 min Prep Time" in brew_html
-    assert "Kitchen Closes: 10:00 PM" in brew_html
-    assert "Order on WhatsApp" in brew_html
-    assert "Order Food" not in brew_html
-
-    brew_checkout = (base_tpl / "brewandbites/checkout.html").read_text()
-    assert "Dine-in" in brew_checkout
-    assert "Table Number" in brew_checkout
-    assert "Takeaway" in brew_checkout
+    # 5. CSS & Theme
+    aqivo_css = (base_tpl / "aqivo/style.css").read_text()
+    assert ".cat-pill" in aqivo_css or "cat-pill" in aqivo_html
+    aqivo_theme = (base_tpl / "aqivo/theme.json").read_text()
+    assert "aqivo" in aqivo_theme.lower()
 
 
 

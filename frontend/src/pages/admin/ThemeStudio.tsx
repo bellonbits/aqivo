@@ -79,7 +79,7 @@ export function ThemeStudio({ initialThemeKey, onBack }: { initialThemeKey?: str
   const testMerchants = themesQuery.data?.test_merchants || []
 
   // Active theme selection
-  const [activeThemeKey, setActiveThemeKey] = useState<string>(initialThemeKey || 'twosidesboutique')
+  const [activeThemeKey, setActiveThemeKey] = useState<string>(initialThemeKey || 'aqivo')
   useEffect(() => {
     if (initialThemeKey) setActiveThemeKey(initialThemeKey)
     else if (themes.length > 0 && !activeThemeKey) setActiveThemeKey(themes[0].key)

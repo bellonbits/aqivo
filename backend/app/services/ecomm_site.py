@@ -17,18 +17,12 @@ from app.services.plans import has_feature
 TEMPLATES_ROOT = Path(__file__).resolve().parent.parent / "public" / "ecomm_templates"
 URL_BASE = "/ecomm-templates"
 
-# demo brand names baked into each template's static HTML
-# Order matters: longer / more-specific patterns must come first so they are replaced before shorter substrings
-DEMO_BRANDS = {
-    "twosidesboutique": ["Two Sides Boutique", "Two Sides"],
-    "mavunofresh": ["Mavuno Fresh", "Mavuno"],
-    "brewandbites": ["Brew & Bites", "Brew \u0026 Bites", "Brew and Bites", "Brew &amp; Bites"],
-    "zuribeauty": ["Zuri Beauty Studio", "Zuri Beauty"],
-}
+DEMO_BRANDS = {}
 
 
 def is_ecomm(key: str | None) -> bool:
-    return bool(key) and ((TEMPLATES_ROOT / key / "index.html").is_file() or key in DEMO_BRANDS)
+    return bool(key) and (TEMPLATES_ROOT / key / "index.html").is_file()
+
 
 
 def _f(v) -> float | None:
@@ -259,7 +253,11 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     if not target_file:
         target_file = TEMPLATES_ROOT / key / page_name
         if not target_file.is_file():
-            target_file = TEMPLATES_ROOT / key / "index.html"
+            shared_file = TEMPLATES_ROOT / page_name
+            if shared_file.is_file():
+                target_file = shared_file
+            else:
+                target_file = TEMPLATES_ROOT / key / "index.html"
     page = target_file.read_text(encoding="utf-8")
     if precomputed_data is not None:
         data = dict(precomputed_data)
@@ -545,6 +543,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
         page = page.replace("</body>", inject + bridge + "</body>", 1)
 
     # Rewrite relative asset paths to absolute template paths so they load regardless of base href
+    page = re.sub(r'(href|src)=["\']style\.css["\']', rf'\1="{URL_BASE}/{key}/style.css"', page)
     page = re.sub(r'(href|src)=["\']styles/', rf'\1="{URL_BASE}/{key}/styles/', page)
     page = re.sub(r'(href|src)=["\']scripts/', rf'\1="{URL_BASE}/{key}/scripts/', page)
     page = re.sub(r'(href|src)=["\']\.\./_bridge\.js["\']', rf'\1="{URL_BASE}/_bridge.js"', page)

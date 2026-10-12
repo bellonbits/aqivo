@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Receipt — Zuri Beauty Studio</title>
-  <meta name="description" content="Official order receipt for Zuri Beauty Studio braids & salon services. Powered by Aqivo." />
+  <title>Order Receipt — Powered by Aqivo</title>
+  <meta name="description" content="Official order receipt powered by Aqivo. View online, download as PDF, or share via WhatsApp." />
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -39,30 +39,54 @@
       gap: 6px;
       font-size: 13px;
       font-weight: 700;
-      color: #6B21A8;
+      color: #4B5563;
       text-decoration: none;
       padding: 8px 14px;
       background: #FFFFFF;
-      border: 1px solid #E9D5FF;
+      border: 1px solid #E5E7EB;
       border-radius: 10px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
       transition: all 0.15s ease;
     }
     .receipt-back-btn:hover {
-      background: #FAF5FF;
-      color: #581C87;
+      background: #F9FAFB;
+      color: #111827;
       transform: translateY(-1px);
     }
 
-    .receipt-badge-top {
-      font-size: 11px;
+    .receipt-store-switcher {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 480px;
+      overflow-x: auto;
+    }
+
+    .switcher-btn {
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 11.5px;
       font-weight: 700;
-      color: #9333EA;
-      background: #F3E8FF;
-      padding: 5px 10px;
-      border-radius: 9999px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #6B7280;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .switcher-btn:hover {
+      color: #111827;
+    }
+    .switcher-btn.active {
+      background: #111827;
+      color: #FFFFFF;
     }
 
     .receipt-wrapper {
@@ -93,7 +117,6 @@
       cursor: pointer;
       transition: all 0.18s ease;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      text-decoration: none;
     }
     .receipt-ctrl-btn:hover {
       background: #F9FAFB;
@@ -101,12 +124,12 @@
       transform: translateY(-1px);
     }
     .receipt-ctrl-btn.primary {
-      background: #9333EA;
+      background: #059669;
       color: #FFFFFF;
-      border-color: #9333EA;
+      border-color: #059669;
     }
     .receipt-ctrl-btn.primary:hover {
-      background: #7E22CE;
+      background: #047857;
     }
     .receipt-ctrl-btn.whatsapp {
       background: #25D366;
@@ -143,6 +166,7 @@
         padding: 0 !important;
       }
       .receipt-page-header,
+      .receipt-store-switcher,
       .receipt-controls-bar,
       .receipt-status-manager,
       .receipt-toast {
@@ -163,14 +187,22 @@
 
   <!-- Top Navigation & Return -->
   <header class="receipt-page-header">
-    <a href="index.html" class="receipt-back-btn" id="receipt-back-btn">
+    <a href="javascript:history.back()" class="receipt-back-btn" id="receipt-back-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      <span id="receipt-back-btn-text">Back to Store</span>
+      Back to Store
     </a>
-    <div class="receipt-badge-top">
+    <div style="font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;">
       Verified Aqivo Receipt
     </div>
   </header>
+
+  <!-- Interactive Store Branding Demo Switcher -->
+  <nav class="receipt-store-switcher" aria-label="Template Receipt Switcher">
+    <button type="button" class="switcher-btn active" onclick="loadReceiptForStore('twosidesboutique', this)">Two Sides</button>
+    <button type="button" class="switcher-btn" onclick="loadReceiptForStore('mavunofresh', this)">Mavuno Fresh</button>
+    <button type="button" class="switcher-btn" onclick="loadReceiptForStore('brewandbites', this)">Brew & Bites</button>
+    <button type="button" class="switcher-btn" onclick="loadReceiptForStore('zuribeauty', this)">Zuri Beauty</button>
+  </nav>
 
   <!-- Branded Receipt Container -->
   <main class="receipt-wrapper">
@@ -211,44 +243,160 @@
   <div class="receipt-toast" id="receipt-toast">Details copied to clipboard!</div>
 
   <script src="scripts/mobile-store.js"></script>
-  <script src="../_bridge.js"></script>
   <script>
     var currentReceiptOrder = null;
 
-    var DEFAULT_RECEIPT = {
-      orderId: 'AQ-20261010-004',
-      receiptNo: 'AQ-20261010-004',
-      store: 'ZURI BEAUTY STUDIO',
-      storeTagline: 'Luxe Braids & Holistic Beauty Care',
-      storeContact: 'Rose Avenue, Kilimani · 0744 567 890',
-      storePhone: '254744567890',
-      storeBrandColor: '#9333EA',
-      storeIconBg: '#F3E8FF',
-      storeIconType: 'beauty',
-      createdAt: '2026-10-10T17:15:00.000Z',
-      dateFormatted: '10 Oct 2026',
-      customer: {
-        name: 'Amani Wanjiru',
-        phone: '0744 000 000'
+    var SAMPLE_RECEIPTS = {
+      twosidesboutique: {
+        orderId: 'AQ-20261010-001',
+        receiptNo: 'AQ-20261010-001',
+        store: 'TWO SIDES BOUTIQUE',
+        storeTagline: 'Fashion for every side of you',
+        storeContact: 'Nairobi, Kenya · 07XX XXX XXX',
+        storePhone: '254722987654',
+        storeBrandColor: '#059669',
+        storeIconBg: '#E6F9F0',
+        storeIconType: 'bag',
+        createdAt: '2026-10-10T14:30:00.000Z',
+        dateFormatted: '10 Oct 2026',
+        customer: {
+          name: 'Customer name',
+          phone: '07XX XXX XXX'
+        },
+        fulfilment: 'delivery',
+        address: 'Nairobi, Kenya',
+        items: [
+          {
+            name: 'Classic handbag',
+            price: 2500,
+            qty: 1
+          }
+        ],
+        subtotal: 2500,
+        discount: 0,
+        deliveryFee: 0,
+        deliveryFeeText: 'To be confirmed',
+        total: 2500,
+        currencySymbol: 'KSh',
+        paymentMethod: 'M-Pesa',
+        paymentStatus: 'Awaiting payment confirmation',
+        orderStatus: 'Order confirmed'
       },
-      fulfilment: 'pickup',
-      address: 'Rose Avenue Studio, Kilimani',
-      items: [
-        {
-          name: 'Knotless Goddess Braids (Waist Length)',
-          price: 3800,
-          qty: 1
-        }
-      ],
-      subtotal: 3800,
-      discount: 200,
-      deliveryFee: 0,
-      deliveryFeeText: 'Free Studio Visit',
-      total: 3700,
-      currencySymbol: 'Ksh',
-      paymentMethod: 'M-Pesa',
-      paymentStatus: 'Awaiting payment confirmation',
-      orderStatus: 'Order confirmed'
+      mavunofresh: {
+        orderId: 'AQ-20261010-002',
+        receiptNo: 'AQ-20261010-002',
+        store: 'MAVUNO FRESH',
+        storeTagline: 'Farm-fresh organic Kenyan produce',
+        storeContact: 'Nairobi, Kenya · 0711 456 789',
+        storePhone: '254711456789',
+        storeBrandColor: '#16A34A',
+        storeIconBg: '#E6F9F0',
+        storeIconType: 'leaf',
+        createdAt: '2026-10-10T15:10:00.000Z',
+        dateFormatted: '10 Oct 2026',
+        customer: {
+          name: 'Wanjiku Mwangi',
+          phone: '0711 000 000'
+        },
+        fulfilment: 'delivery',
+        address: 'Westlands, Nairobi',
+        items: [
+          {
+            name: 'Organic Hass Avocados (Pack of 4)',
+            price: 450,
+            qty: 2
+          },
+          {
+            name: 'Fresh Crisp Spinach Bunch',
+            price: 120,
+            qty: 3
+          }
+        ],
+        subtotal: 1260,
+        discount: 0,
+        deliveryFee: 150,
+        deliveryFeeText: 'KSh 150 (Seller confirms)',
+        total: 1410,
+        currencySymbol: 'Ksh',
+        paymentMethod: 'M-Pesa',
+        paymentStatus: 'Awaiting payment confirmation',
+        orderStatus: 'Order confirmed'
+      },
+      brewandbites: {
+        orderId: 'AQ-20261010-003',
+        receiptNo: 'AQ-20261010-003',
+        store: 'BREW & BITES',
+        storeTagline: 'Artisan Coffee & Flame Fried Kitchen',
+        storeContact: 'Kilimani, Nairobi · 0733 123 456',
+        storePhone: '254733123456',
+        storeBrandColor: '#D97706',
+        storeIconBg: '#FEF3C7',
+        storeIconType: 'food',
+        createdAt: '2026-10-10T16:45:00.000Z',
+        dateFormatted: '10 Oct 2026',
+        customer: {
+          name: 'Brian Kamau',
+          phone: '0733 000 000'
+        },
+        fulfilment: 'delivery',
+        address: '12 Riverside Drive, Kilimani',
+        items: [
+          {
+            name: 'Streetwise 3 Meal (Extra Crispy)',
+            price: 800,
+            qty: 1
+          },
+          {
+            name: 'Kenyan AA Cold Brew (750ml)',
+            price: 450,
+            qty: 1
+          }
+        ],
+        subtotal: 1250,
+        discount: 200,
+        deliveryFee: 150,
+        deliveryFeeText: 'KSh 150 (Seller confirms)',
+        total: 1200,
+        currencySymbol: 'Ksh',
+        paymentMethod: 'Cash on Delivery',
+        paymentStatus: 'Awaiting payment confirmation',
+        orderStatus: 'Order confirmed'
+      },
+      zuribeauty: {
+        orderId: 'AQ-20261010-004',
+        receiptNo: 'AQ-20261010-004',
+        store: 'ZURI BEAUTY STUDIO',
+        storeTagline: 'Luxe Braids & Holistic Beauty Care',
+        storeContact: 'Rose Avenue, Kilimani · 0744 567 890',
+        storePhone: '254744567890',
+        storeBrandColor: '#9333EA',
+        storeIconBg: '#F3E8FF',
+        storeIconType: 'beauty',
+        createdAt: '2026-10-10T17:15:00.000Z',
+        dateFormatted: '10 Oct 2026',
+        customer: {
+          name: 'Amani Wanjiru',
+          phone: '0744 000 000'
+        },
+        fulfilment: 'pickup',
+        address: 'Rose Avenue Studio, Kilimani',
+        items: [
+          {
+            name: 'Knotless Goddess Braids (Waist Length)',
+            price: 3800,
+            qty: 1
+          }
+        ],
+        subtotal: 3800,
+        discount: 200,
+        deliveryFee: 0,
+        deliveryFeeText: 'Free Studio Visit',
+        total: 3700,
+        currencySymbol: 'Ksh',
+        paymentMethod: 'M-Pesa',
+        paymentStatus: 'Awaiting payment confirmation',
+        orderStatus: 'Order confirmed'
+      }
     };
 
     function showToast(msg) {
@@ -291,6 +439,7 @@
       if (!currentReceiptOrder) return;
       currentReceiptOrder.paymentStatus = newStatus;
       
+      // Update in localStorage if found
       try {
         var raw = localStorage.getItem('aqivo_orders');
         if (raw) {
@@ -300,7 +449,6 @@
           });
           if (found) {
             found.paymentStatus = newStatus;
-            found.status = (newStatus.indexOf('Paid') !== -1 ? 'Paid' : (newStatus.indexOf('reported') !== -1 ? 'Payment reported' : 'Unpaid'));
             localStorage.setItem('aqivo_orders', JSON.stringify(list));
           }
         }
@@ -308,6 +456,19 @@
 
       renderOrder(currentReceiptOrder);
       showToast('Receipt updated: ' + newStatus);
+    }
+
+    function loadReceiptForStore(key, clickedBtn) {
+      document.querySelectorAll('.switcher-btn').forEach(function(b) { b.classList.remove('active'); });
+      if (clickedBtn) {
+        clickedBtn.classList.add('active');
+      } else {
+        var match = document.querySelector('.switcher-btn[onclick*="' + key + '"]');
+        if (match) match.classList.add('active');
+      }
+
+      var order = SAMPLE_RECEIPTS[key] || SAMPLE_RECEIPTS.twosidesboutique;
+      renderOrder(order);
     }
 
     function printReceiptDoc() {
@@ -323,8 +484,7 @@
       if (!currentReceiptOrder) return;
       var text = currentReceiptOrder.store + ' — Receipt No. ' + currentReceiptOrder.receiptNo + '\n' +
         'Total: ' + (currentReceiptOrder.currencySymbol || 'Ksh') + ' ' + currentReceiptOrder.total + '\n' +
-        'Payment Method: ' + currentReceiptOrder.paymentMethod + '\n' +
-        'Payment Status: ' + currentReceiptOrder.paymentStatus + '\n' +
+        'Status: ' + currentReceiptOrder.paymentStatus + '\n' +
         'Receipt URL: ' + window.location.href;
       
       if (navigator.clipboard) {
@@ -335,34 +495,19 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-      var bz = (typeof window !== 'undefined' && window.__BZ) ? window.__BZ : null;
-      if (!bz) {
-        try {
-          var saved = sessionStorage.getItem('aqivo_active_bz');
-          if (saved) bz = JSON.parse(saved);
-        } catch (e) {}
-      }
-
+      // Initialize StoreApp if not loaded
       if (window.createWebStorefront) {
-        window.createWebStorefront({
-          store: {
-            name: (bz && bz.name) || 'Zuri Beauty Studio',
-            whatsappPhone: (bz && (bz.phone || bz.wa)) || '254744567890'
-          }
-        });
+        window.createWebStorefront({ store: { name: 'Two Sides Boutique' } });
       }
 
-      var backBtnText = document.getElementById('receipt-back-btn-text');
-      if (backBtnText) {
-        backBtnText.textContent = (bz && bz.name) ? 'Back to ' + bz.name : 'Back to Store';
-      }
-
+      // Check query params
       var params = new URLSearchParams(window.location.search);
       var queryOrderId = params.get('orderId');
+      var queryStore = params.get('store');
 
       var orderToDisplay = null;
 
-      // 1. Look up orderId in localStorage
+      // 1. Check if matching order in localStorage
       if (queryOrderId) {
         try {
           var raw = localStorage.getItem('aqivo_orders');
@@ -375,43 +520,20 @@
         } catch (e) {}
       }
 
-      // 2. Fallback to latest order in localStorage
-      if (!orderToDisplay) {
+      // 2. Check latest order in localStorage
+      if (!orderToDisplay && !queryStore) {
         try {
           var raw2 = localStorage.getItem('aqivo_orders');
           if (raw2) {
             var list2 = JSON.parse(raw2);
-            if (bz && bz.name) {
-              orderToDisplay = list2.find(function(it) {
-                return it.store && it.store.toLowerCase().indexOf(bz.name.toLowerCase()) !== -1;
-              });
-            }
-            if (!orderToDisplay) {
-              var beautyOrder = list2.find(function(it) {
-                return it.store && (it.store.indexOf('ZURI') !== -1 || it.store.indexOf('BEAUTY') !== -1);
-              });
-              if (beautyOrder) orderToDisplay = beautyOrder;
-              else if (list2.length > 0) orderToDisplay = list2[0];
-            }
+            if (list2.length > 0) orderToDisplay = list2[0];
           }
         } catch (e) {}
       }
 
-      // 3. Fallback to default studio receipt, adapted for active store if available
+      // 3. Fallback to store query or Two Sides Boutique sample
       if (!orderToDisplay) {
-        orderToDisplay = JSON.parse(JSON.stringify(DEFAULT_RECEIPT));
-        if (bz && bz.name) {
-          orderToDisplay.store = bz.name.toUpperCase();
-          orderToDisplay.storeTagline = bz.tagline || (bz.industry ? 'Quality ' + bz.industry + ' services & products' : 'Official Receipt');
-          orderToDisplay.storeContact = (bz.address ? bz.address + (bz.phone ? ' · ' + bz.phone : '') : (bz.phone || 'Kenya'));
-          orderToDisplay.storePhone = (bz.phone || bz.wa || '').replace(/\+/g, '').replace(/\s+/g, '');
-          orderToDisplay.currencySymbol = bz.symbol || bz.currency || 'Ksh';
-          if (bz.items && bz.items.length) {
-            orderToDisplay.items = [{ name: bz.items[0].name, price: bz.items[0].price, qty: 1 }];
-            orderToDisplay.subtotal = bz.items[0].price;
-            orderToDisplay.total = bz.items[0].price + (orderToDisplay.deliveryFee || 0);
-          }
-        }
+        orderToDisplay = SAMPLE_RECEIPTS[queryStore] || SAMPLE_RECEIPTS.twosidesboutique;
       }
 
       renderOrder(orderToDisplay);

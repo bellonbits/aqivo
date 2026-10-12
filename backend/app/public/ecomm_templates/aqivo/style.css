@@ -1,0 +1,42 @@
+/* Modern Take App Storefront Styles */
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.cat-pill {
+  background-color: #F1F5F9;
+  color: #64748B;
+  transition: all 0.2s ease;
+}
+
+.cat-pill:hover {
+  background-color: #E2E8F0;
+  color: #0F172A;
+}
+
+.cat-pill.active {
+  background-color: #0B1736;
+  color: #FFFFFF;
+}
+
+.product-card {
+  background: #FFFFFF;
+  border: 1px solid #F1F5F9;
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
