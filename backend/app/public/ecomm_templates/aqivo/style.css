@@ -675,6 +675,45 @@ header.sticky {
 .pdp-accordion-group { border-color: var(--border-strong) !important; }
 .pdp-related-title { font-weight: 700; }
 
+/* PDP Variant Chips & Quantity Stepper */
+.pdp-options-section { margin-bottom: 20px; }
+.pdp-option-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.pdp-option-title { font-size: 13px; font-weight: 700; color: var(--ink); }
+.pdp-chips-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.pdp-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid var(--border-strong);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+}
+.pdp-chip-btn:hover { border-color: var(--black); background: var(--surface-soft); }
+.pdp-chip-btn.active {
+  background: var(--black) !important;
+  color: var(--accent) !important;
+  border-color: var(--black) !important;
+}
+
+.pdp-qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
 /* ==========================================================================
    Reusable components (use these class names in cart, list and checkout markup)
    ========================================================================== */
@@ -846,6 +885,163 @@ header.sticky {
 
 /* Horizontal price row with struck compare price */
 .price-row { display: flex; align-items: baseline; gap: 8px; }
+
+/* ==========================================================================
+   Aqivo Cart Review & Checkout Modal
+   ========================================================================== */
+.aqivo-modal-veil {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.aqivo-modal-veil.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.aqivo-modal-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  max-width: 520px;
+  margin: 0 auto;
+  max-height: 92vh;
+  background: var(--bg);
+  border-radius: 28px 28px 0 0;
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .aqivo-modal-sheet {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-40%) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    border-radius: 28px;
+    max-height: 85vh;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  }
+  .aqivo-modal-sheet.open {
+    transform: translateY(-50%) scale(1) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+}
+.aqivo-modal-sheet.open {
+  transform: translateY(0);
+}
+
+.aqivo-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.aqivo-sheet-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+}
+
+.aqivo-sheet-body {
+  padding: 18px 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.aqivo-sheet-footer {
+  padding: 16px 20px 24px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+/* Radio Cards (Fulfilment & Payment) */
+.toggle-pills {
+  display: flex;
+  gap: 6px;
+  background: var(--field);
+  padding: 4px;
+  border-radius: var(--radius-full);
+}
+.toggle-pill-btn {
+  flex: 1;
+  height: 40px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.toggle-pill-btn.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.pay-card-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pay-card-option.selected {
+  border-color: var(--black);
+  background: var(--surface-soft);
+}
+.pay-card-option input[type="radio"] {
+  accent-color: var(--black);
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.checkout-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  color: var(--ink);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.checkout-input:focus {
+  border-color: var(--black);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+select.checkout-input {
+  cursor: pointer;
+}
 
 /* ==========================================================================
    Custom builder sections

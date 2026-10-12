@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import Business, ProductVariant
+from app.services import store as store_cfg
 from app.services.plans import has_feature
 
 TEMPLATES_ROOT = Path(__file__).resolve().parent.parent / "public" / "ecomm_templates"
@@ -126,6 +127,7 @@ def build_data(db: Session, ctx: dict, business: Business) -> dict:
         "industry": business.industry,
         "is_commerce": business.industry in ("retail", "restaurant") or bool(ctx.get("products")),
         "is_service": business.industry in ("salon", "barbershop", "beauty", "services") or bool(services and not ctx.get("products")),
+        "checkout_config": store_cfg.public_config(business, db) if business else None,
     }
 
 
@@ -470,10 +472,12 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
             active_item = items[0]
 
         # Replace breadcrumbs and title
-        page = re.sub(r'<span class="current" id="pdp-crumb-title">.*?</span>', lambda _: f'<span class="current" id="pdp-crumb-title">{_html.escape(active_item["name"])}</span>', page)
-        page = re.sub(r'<span id="pdp-crumb-cat">.*?</span>', lambda _: f'<span id="pdp-crumb-cat">{_html.escape(active_item.get("category") or ("Services" if is_service else "Catalogue"))}</span>', page)
-        page = re.sub(r'<h1 class="pdp-item-title" id="pdp-item-title">.*?</h1>', lambda _: f'<h1 class="pdp-item-title" id="pdp-item-title">{_html.escape(active_item["name"])}</h1>', page)
-        page = re.sub(r'<div class="pdp-category-tag" id="pdp-category-tag"[^>]*>.*?</div>', lambda _: f'<div class="pdp-category-tag" id="pdp-category-tag">{_html.escape(active_item.get("category") or business.name)}</div>', page)
+        page = re.sub(r'<title>.*?</title>', f'<title>{_html.escape(active_item["name"])} — {_html.escape(business.name)}</title>', page)
+        page = re.sub(r'(<span[^>]*id="pdp-brand-logo"[^>]*>).*?(</span>)', lambda m: f'{m.group(1)}{_html.escape(business.name)}{m.group(2)}', page)
+        page = re.sub(r'(<span[^>]*id="pdp-crumb-title"[^>]*>).*?(</span>)', lambda m: f'{m.group(1)}{_html.escape(active_item["name"])}{m.group(2)}', page)
+        page = re.sub(r'(<span[^>]*id="pdp-crumb-cat"[^>]*>).*?(</span>)', lambda m: f'{m.group(1)}{_html.escape(active_item.get("category") or ("Services" if is_service else "Catalogue"))}{m.group(2)}', page)
+        page = re.sub(r'(<h1[^>]*id="pdp-item-title"[^>]*>).*?(</h1>)', lambda m: f'{m.group(1)}{_html.escape(active_item["name"])}{m.group(2)}', page)
+        page = re.sub(r'(<div[^>]*id="pdp-category-tag"[^>]*>).*?(</div>)', lambda m: f'{m.group(1)}{_html.escape(active_item.get("category") or business.name)}{m.group(2)}', page)
 
         # Replace hero image
         img_url = active_item.get("image") or ""
@@ -482,25 +486,37 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
         # Clean rating & verified reviews
         page = re.sub(r'<span class="pdp-verified-reviews">.*?</span>', '', page)
-        page = re.sub(r'<span class="pdp-prep-chip">.*?</span>', lambda _: f'<span class="pdp-prep-chip">{"Service" if is_service else "Item"}</span>', page)
+        page = re.sub(r'(<span[^>]*class="[^"]*pdp-prep-chip[^"]*"[^>]*>).*?(</span>)', lambda m: f'{m.group(1)}{"Service" if is_service else "Item"}{m.group(2)}', page)
 
         # Price
         cur_sym = data.get("symbol") or business.currency or "KSh"
         p_price = f"{cur_sym} {active_item['price']:,.0f}" if isinstance(active_item['price'], (int, float)) else f"{cur_sym} {active_item['price']}"
-        page = re.sub(r'<div class="pdp-price-bold" id="pdp-price-bold">.*?</div>', lambda _: f'<div class="pdp-price-bold" id="pdp-price-bold">{p_price}</div>', page)
+        page = re.sub(r'(<div[^>]*id="pdp-price-bold"[^>]*>).*?(</div>)', lambda m: f'{m.group(1)}{p_price}{m.group(2)}', page)
         page = re.sub(r'<div class="pdp-vat-label">.*?</div>', '<div class="pdp-vat-label">Inclusive of all applicable taxes</div>', page)
 
         # Description
         desc_text = active_item.get("desc") or ""
-        page = re.sub(r'<p class="pdp-description-text" id="pdp-description-text">.*?</p>', lambda _: f'<p class="pdp-description-text" id="pdp-description-text">{_html.escape(desc_text)}</p>', page, flags=re.S)
+        page = re.sub(r'(<p[^>]*id="pdp-description-text"[^>]*>).*?(</p>)', lambda m: f'{m.group(1)}{_html.escape(desc_text)}{m.group(2)}', page, flags=re.S)
 
         # Action button
         action_text = f"Book Service — {p_price}" if is_service else f"Add to Bag — {p_price}"
-        page = re.sub(r'<button class="pdp-cta-add-bag" id="pdp-add-bag-btn"[^>]*>.*?</button>', lambda _: f'<button class="pdp-cta-add-bag" id="pdp-add-bag-btn" onclick="window.StoreApp.addPdpToCart()">{action_text}</button>', page, flags=re.S)
+        page = re.sub(r'(<button[^>]*id="pdp-add-bag-btn"[^>]*>).*?(</button>)', lambda m: f'{m.group(1)}{action_text}{m.group(2)}', page, flags=re.S)
 
-        # Options (hide if no variants)
-        if not active_item.get("variants"):
-            page = re.sub(r'<div class="pdp-options-section">[\s\S]*?</div>\s*(?=<!-- Purchase Actions Row -->|<div class="pdp-purchase-row")', '<div class="pdp-options-section" style="display:none;"></div>', page)
+        # Options (render if variants exist, hide if none)
+        if active_item.get("variants"):
+            chips = []
+            for idx, v in enumerate(active_item["variants"]):
+                active_cls = " active" if idx == 0 else ""
+                v_title = _html.escape(v.get("title", ""))
+                v_price = f"{cur_sym} {v['price']:,.0f}" if isinstance(v.get("price"), (int, float)) else f"{cur_sym} {v.get('price', '')}"
+                chips.append(f'<button type="button" class="pdp-chip-btn{active_cls}" data-v-id="{_html.escape(str(v.get("id", "")))}" data-v-price="{v.get("price", active_item["price"])}">{v_title} ({v_price})</button>')
+            v_html = (
+                '<div class="pdp-option-header"><span class="pdp-option-title">Select Option</span></div>'
+                f'<div class="pdp-chips-grid">{"".join(chips)}</div>'
+            )
+            page = re.sub(r'<div[^>]*id="pdp-options-wrap"[^>]*>.*?</div>', f'<div class="pdp-options-section mb-5" id="pdp-options-wrap">{v_html}</div>', page, flags=re.S)
+        else:
+            page = re.sub(r'<div[^>]*id="pdp-options-wrap"[^>]*>.*?</div>', '<div class="pdp-options-section" id="pdp-options-wrap" style="display:none;"></div>', page, flags=re.S)
 
         # Thumbnails (hide if single image)
         if len(active_item.get("images") or []) <= 1:
@@ -537,20 +553,22 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
         prefix = f"/{business.slug}" if business.slug else ""
         rel_cards_html = "".join(
-            f'<a href="{prefix}/{"service.html" if it.get("kind") == "service" else "product.html"}?id={_html.escape(str(it["id"]))}" class="menu-card" data-prod-name="{_html.escape(it["name"])}">'
-            f'<div class="menu-card-img-box">'
-            f'{"<img src=" + chr(34) + _html.escape(it["image"]) + chr(34) + " alt=" + chr(34) + _html.escape(it["name"]) + chr(34) + " loading=" + chr(34) + "lazy" + chr(34) + " />" if it.get("image") else ""}'
-            f'<button class="card-add-btn" aria-label="Add" onclick="event.preventDefault(); event.stopPropagation(); window.StoreApp.addToCart(\'{it["id"]}\');">'
-            f'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
-            f'</button>'
+            f'<div class="store-card group bg-white rounded-2xl p-3 border border-slate-200/90 shadow-sm flex flex-col justify-between" data-item-id="{_html.escape(str(it["id"]))}">'
+            f'<a href="{prefix}/{"service.html" if it.get("kind") == "service" else "product.html"}?id={_html.escape(str(it["id"]))}" class="block">'
+            f'<div class="w-full aspect-square rounded-xl bg-slate-50 mb-2 overflow-hidden flex items-center justify-center border border-slate-100">'
+            f'{"<img src=" + chr(34) + _html.escape(it["image"]) + chr(34) + " alt=" + chr(34) + _html.escape(it["name"]) + chr(34) + " class=\"w-full h-full object-cover\" loading=\"lazy\" />" if it.get("image") else ""}'
             f'</div>'
-            f'<div class="menu-card-price">{cur_sym} {it["price"]:,.0f}</div>'
-            f'<h3 class="menu-card-title">{_html.escape(it["name"])}</h3>'
+            f'<h4 class="font-bold text-xs text-[#0B1736] line-clamp-2 mb-1">{_html.escape(it["name"])}</h4>'
             f'</a>'
+            f'<div class="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between">'
+            f'<div class="font-extrabold text-xs text-[#0B1736]">{cur_sym} {it["price"]:,.0f}</div>'
+            f'<button type="button" class="btn-add-cart h-7 px-2.5 rounded-lg bg-[#5B21F5] text-white text-[11px] font-bold" data-id="{_html.escape(str(it["id"]))}">+ Add</button>'
+            f'</div>'
+            f'</div>'
             for it in related_items
         )
         page = re.sub(
-            r'(<section class="pdp-related-container"[\s\S]*?<div class="product-cards-grid">)[\s\S]*?(</div>\s*</section>)',
+            r'(<section class="pdp-related-container"[\s\S]*?<div[^>]*class="[^"]*product-cards-grid[^"]*"[^>]*>)[\s\S]*?(</div>\s*</section>)',
             lambda m: m.group(1) + rel_cards_html + m.group(2),
             page
         )
@@ -564,7 +582,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     # Render custom sections (e.g. rich text, custom html, video, ig feed, google reviews, collections)
     draft_mode = bool(ctx.get("draft") or ctx.get("editing"))
     custom_sections_html = "".join(_render_section_html(s, draft_mode, business, key) for s in ctx.get("sections", []))
-    if custom_sections_html:
+    if custom_sections_html and page_name not in ("product.html", "service.html", "receipt.html"):
         if "</main>" in page:
             page = page.replace("</main>", f'<div id="bz-custom-sections">{custom_sections_html}</div></main>', 1)
         else:

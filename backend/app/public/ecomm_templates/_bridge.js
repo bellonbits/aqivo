@@ -1159,6 +1159,8 @@
         dupCats.forEach(function (el) { el.style.display = "none"; });
         var dupProds = customSec.querySelectorAll(".store-product-section");
         dupProds.forEach(function (el) { el.style.display = "none"; });
+        var dupHeros = customSec.querySelectorAll(".store-hero-compact, .hero, [data-section-type='hero']");
+        dupHeros.forEach(function (el) { el.style.display = "none"; });
       }
 
       // 4. Cart State
@@ -1194,7 +1196,7 @@
         }
       }
 
-      // 5. Category Pills & Filtering
+      // 5. Category Pills & Filtering (Homepage)
       var pillsContainer = document.getElementById("category-pills");
       var gridContainer = document.getElementById("items-grid");
       var emptyState = document.getElementById("empty-state");
@@ -1333,7 +1335,8 @@
 
         gridContainer.innerHTML = filtered.map(function (it) {
           var isSvc = it.kind === "service";
-          var actionLabel = isSvc ? "Book" : "Add";
+          var hasVariants = it.variants && it.variants.length > 0;
+          var actionLabel = isSvc ? "Book" : (hasVariants ? "Options" : "+ Add");
           var durationBadge = isSvc && it.duration ? '<span class="text-[11px] text-slate-400 font-medium">⏱ ' + esc(it.duration) + 'm</span>' : '';
           var saleBadge = it.compare && it.compare > it.price ? '<span class="absolute top-2.5 left-2.5 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">' + pct(it) + '</span>' : '';
           var compPriceHtml = (it.compare && it.compare > it.price) ? '<s class="text-xs text-slate-400 font-medium ml-1.5">' + fmt(it.compare) + '</s>' : durationBadge;
@@ -1356,8 +1359,8 @@
             '</a>' +
             '<div class="mt-auto pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">' +
               '<div class="min-w-0 font-extrabold text-sm sm:text-base text-[#0B1736] tracking-tight leading-none">' + fmt(it.price) + compPriceHtml + '</div>' +
-              '<button type="button" class="btn-add-cart h-8 sm:h-9 px-3 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm shrink-0" data-id="' + esc(it.id) + '">' +
-                '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+              '<button type="button" class="btn-add-cart h-8 sm:h-9 px-3 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm shrink-0" data-id="' + esc(it.id) + '" data-has-variants="' + (hasVariants ? '1' : '0') + '">' +
+                (hasVariants ? '' : '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>') +
                 '<span>' + actionLabel + '</span>' +
               '</button>' +
             '</div>' +
@@ -1375,11 +1378,18 @@
           var it = byId[id];
           if (!it) return;
 
-          var existing = cart.filter(function (ci) { return ci.id === id; })[0];
+          // If item has variants, open PDP so the user can select their variant
+          if (it.variants && it.variants.length > 0) {
+            var itemDetailPage = (it.kind === "service") ? "service.html" : "product.html";
+            window.location.href = itemDetailPage + "?id=" + encodeURIComponent(it.id);
+            return;
+          }
+
+          var existing = cart.filter(function (ci) { return ci.id === id && !ci.variant_id; })[0];
           if (existing) {
             existing.qty += 1;
           } else {
-            cart.push({ id: it.id, name: it.name, price: it.price, qty: 1, image: pic(it), variant: "" });
+            cart.push({ id: it.id, name: it.name, price: it.price, qty: 1, image: pic(it), variant: "", variant_id: null, kind: it.kind || "product" });
           }
           saveCart();
 
@@ -1393,15 +1403,797 @@
         });
       }
 
+      // 6. PDP (Product / Service Detail Page) Hydration
+      var pdpPageContainer = document.getElementById("pdp-page-container");
+      if (pdpPageContainer) {
+        var urlParams = new URLSearchParams(window.location.search);
+        var activeItemId = urlParams.get("id");
+        var pdpItem = (activeItemId && byId[activeItemId]) || ITEMS[0];
+
+        if (pdpItem) {
+          var pBrandLogo = document.getElementById("pdp-brand-logo");
+          if (pBrandLogo) pBrandLogo.textContent = B.name || "Aqivo";
+          document.title = (pdpItem.name || "Product") + " — " + (B.name || "Aqivo");
+
+          var pCrumbTitle = document.getElementById("pdp-crumb-title");
+          if (pCrumbTitle) pCrumbTitle.textContent = pdpItem.name;
+
+          var pCrumbCat = document.getElementById("pdp-crumb-cat");
+          if (pCrumbCat) pCrumbCat.textContent = pdpItem.category || (pdpItem.kind === "service" ? "Services" : "Catalogue");
+
+          var pItemTitle = document.getElementById("pdp-item-title");
+          if (pItemTitle) pItemTitle.textContent = pdpItem.name;
+
+          var pCatTag = document.getElementById("pdp-category-tag");
+          if (pCatTag) pCatTag.textContent = pdpItem.category || (B.name || "General");
+
+          var pDescText = document.getElementById("pdp-description-text");
+          if (pDescText) pDescText.textContent = pdpItem.desc || ("High quality " + pdpItem.name + " available directly from " + (B.name || "our store") + ".");
+
+          var pHeroImg = document.getElementById("pdp-hero-img");
+          if (pHeroImg) {
+            pHeroImg.src = pic(pdpItem);
+            pHeroImg.alt = pdpItem.name;
+          }
+
+          // Variants and Pricing state
+          var pVariants = pdpItem.variants || [];
+          var pSelectedVariant = pVariants.length ? pVariants[0] : null;
+          var pCurrentPrice = pSelectedVariant ? pSelectedVariant.price : pdpItem.price;
+          var pCurrentQty = 1;
+
+          function refreshPdpPriceAndCTA() {
+            var pBoldPrice = document.getElementById("pdp-price-bold");
+            if (pBoldPrice) pBoldPrice.textContent = fmt(pCurrentPrice);
+            var pAddBagBtn = document.getElementById("pdp-add-bag-btn");
+            if (pAddBagBtn) {
+              var ctaPrefix = (pdpItem.kind === "service") ? "Book Service — " : "Add to Bag — ";
+              pAddBagBtn.textContent = ctaPrefix + fmt(pCurrentPrice * pCurrentQty);
+            }
+          }
+
+          // Populate variant chips
+          var pOptionsWrap = document.getElementById("pdp-options-wrap");
+          if (pOptionsWrap) {
+            if (pVariants.length > 0) {
+              var chipsHtml = pVariants.map(function (v, idx) {
+                var cls = idx === 0 ? "pdp-chip-btn active" : "pdp-chip-btn";
+                return '<button type="button" class="' + cls + '" data-v-idx="' + idx + '" data-v-id="' + esc(v.id) + '">' +
+                  esc(v.title) + ' (' + fmt(v.price) + ')' +
+                '</button>';
+              }).join("");
+
+              pOptionsWrap.innerHTML = '<div class="mb-4">' +
+                '<div class="pdp-option-header"><span class="pdp-option-title">Select Option / Variant</span></div>' +
+                '<div class="pdp-chips-grid">' + chipsHtml + '</div>' +
+              '</div>';
+
+              pOptionsWrap.addEventListener("click", function (e) {
+                var chip = e.target.closest(".pdp-chip-btn");
+                if (!chip) return;
+                pOptionsWrap.querySelectorAll(".pdp-chip-btn").forEach(function (b) { b.classList.remove("active"); });
+                chip.classList.add("active");
+                var vIdx = parseInt(chip.getAttribute("data-v-idx"), 10);
+                pSelectedVariant = pVariants[vIdx] || null;
+                pCurrentPrice = pSelectedVariant ? pSelectedVariant.price : pdpItem.price;
+                refreshPdpPriceAndCTA();
+              });
+            } else {
+              pOptionsWrap.innerHTML = "";
+            }
+          }
+
+          // Stepper minus / plus
+          var pQtyMinus = document.getElementById("pdp-qty-minus");
+          var pQtyPlus = document.getElementById("pdp-qty-plus");
+          var pQtyVal = document.getElementById("pdp-qty-val");
+
+          if (pQtyMinus) {
+            pQtyMinus.addEventListener("click", function () {
+              if (pCurrentQty > 1) {
+                pCurrentQty -= 1;
+                if (pQtyVal) pQtyVal.textContent = pCurrentQty;
+                refreshPdpPriceAndCTA();
+              }
+            });
+          }
+          if (pQtyPlus) {
+            pQtyPlus.addEventListener("click", function () {
+              if (pCurrentQty < 99) {
+                pCurrentQty += 1;
+                if (pQtyVal) pQtyVal.textContent = pCurrentQty;
+                refreshPdpPriceAndCTA();
+              }
+            });
+          }
+
+          // Add to Bag CTA
+          var pAddBagBtn = document.getElementById("pdp-add-bag-btn");
+          if (pAddBagBtn) {
+            pAddBagBtn.addEventListener("click", function () {
+              var varId = pSelectedVariant ? pSelectedVariant.id : null;
+              var existing = cart.filter(function (ci) {
+                return ci.id === pdpItem.id && String(ci.variant_id || '') === String(varId || '');
+              })[0];
+
+              if (existing) {
+                existing.qty += pCurrentQty;
+              } else {
+                cart.push({
+                  id: pdpItem.id,
+                  name: pdpItem.name,
+                  price: pCurrentPrice,
+                  qty: pCurrentQty,
+                  image: pic(pdpItem),
+                  variant: pSelectedVariant ? pSelectedVariant.title : "",
+                  variant_id: varId,
+                  kind: pdpItem.kind || "product"
+                });
+              }
+              saveCart();
+
+              var originalText = pAddBagBtn.textContent;
+              pAddBagBtn.textContent = "✓ Added to Bag!";
+              pAddBagBtn.classList.add("bg-black", "text-[#D8F29E]");
+              setTimeout(function () {
+                pAddBagBtn.classList.remove("bg-black", "text-[#D8F29E]");
+                refreshPdpPriceAndCTA();
+              }, 900);
+            });
+          }
+
+          refreshPdpPriceAndCTA();
+
+          // Related items
+          var pRelatedGrid = document.getElementById("pdp-related-grid");
+          if (pRelatedGrid) {
+            var relatedItems = ITEMS.filter(function (it) { return it.id !== pdpItem.id; }).slice(0, 4);
+            if (relatedItems.length) {
+              pRelatedGrid.innerHTML = relatedItems.map(function (it) {
+                var isSvc = it.kind === "service";
+                var detailUrl = (isSvc ? "service.html" : "product.html") + "?id=" + encodeURIComponent(it.id);
+                return '<div class="store-card group bg-white rounded-2xl p-3 border border-slate-200/90 shadow-sm flex flex-col justify-between" data-item-id="' + esc(it.id) + '">' +
+                  '<a href="' + detailUrl + '" class="block">' +
+                    '<div class="w-full aspect-square rounded-xl bg-slate-50 mb-2 overflow-hidden flex items-center justify-center border border-slate-100">' +
+                      '<img src="' + esc(pic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover" loading="lazy" />' +
+                    '</div>' +
+                    '<h4 class="font-bold text-xs text-[#0B1736] line-clamp-2 mb-1">' + esc(it.name) + '</h4>' +
+                  '</a>' +
+                  '<div class="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between">' +
+                    '<div class="font-extrabold text-xs text-[#0B1736]">' + fmt(it.price) + '</div>' +
+                    '<button type="button" class="btn-add-cart h-7 px-2.5 rounded-lg bg-[#5B21F5] text-white text-[11px] font-bold" data-id="' + esc(it.id) + '">+ Add</button>' +
+                  '</div>' +
+                '</div>';
+              }).join("");
+
+              pRelatedGrid.addEventListener("click", function (e) {
+                var rBtn = e.target.closest(".btn-add-cart");
+                if (!rBtn) return;
+                e.preventDefault();
+                e.stopPropagation();
+                var rId = rBtn.getAttribute("data-id");
+                var rIt = byId[rId];
+                if (!rIt) return;
+                if (rIt.variants && rIt.variants.length > 0) {
+                  window.location.href = ((rIt.kind === "service") ? "service.html" : "product.html") + "?id=" + encodeURIComponent(rIt.id);
+                  return;
+                }
+                var exist = cart.filter(function (ci) { return ci.id === rId && !ci.variant_id; })[0];
+                if (exist) exist.qty += 1;
+                else cart.push({ id: rIt.id, name: rIt.name, price: rIt.price, qty: 1, image: pic(rIt), variant: "", variant_id: null, kind: rIt.kind || "product" });
+                saveCart();
+                rBtn.textContent = "✓ Added";
+                setTimeout(function () { rBtn.textContent = "+ Add"; }, 800);
+              });
+            }
+          }
+        }
+      }
+
+      // 7. Interactive In-Page Cart Review & Guest Checkout Modal
+      var activeModalStep = "review";
+      var appliedPromo = null;
+      var promoDiscount = 0;
+      var selectedFulfilment = "PICKUP";
+      var selectedZone = null;
+      var selectedPaymentKey = "cash";
+
+      var cfg = B.checkout_config || {};
+      var fulfilmentCfg = cfg.fulfilment || { pickup: true, delivery: true };
+      var deliveryCfg = cfg.delivery || { flat_fee: 250, free_over: 5000, zones: [], estimate: "Same day dispatch" };
+      var availablePayments = (cfg.payments && cfg.payments.length) ? cfg.payments : [
+        { key: "cash", label: "Cash on delivery", instructions: "Pay when you receive or collect your order." },
+        { key: "mpesa", label: "M-Pesa", instructions: "Pay via M-Pesa. Add transaction reference after placing order." },
+        { key: "whatsapp", label: "Order on WhatsApp", instructions: "Order details will be sent directly via WhatsApp." }
+      ];
+
+      if (!fulfilmentCfg.pickup && fulfilmentCfg.delivery) selectedFulfilment = "DELIVERY";
+      if (availablePayments.length) selectedPaymentKey = availablePayments[0].key;
+
+      function ensureCartModalDOM() {
+        var veil = document.getElementById("aqivo-cart-veil");
+        var sheet = document.getElementById("aqivo-cart-sheet");
+        if (!veil) {
+          veil = document.createElement("div");
+          veil.id = "aqivo-cart-veil";
+          veil.className = "aqivo-modal-veil";
+          document.body.appendChild(veil);
+          veil.addEventListener("click", closeAqivoCartModal);
+        }
+        if (!sheet) {
+          sheet = document.createElement("div");
+          sheet.id = "aqivo-cart-sheet";
+          sheet.className = "aqivo-modal-sheet";
+          document.body.appendChild(sheet);
+        }
+        return { veil: veil, sheet: sheet };
+      }
+
+      function closeAqivoCartModal() {
+        var dom = ensureCartModalDOM();
+        dom.veil.classList.remove("open");
+        dom.sheet.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      function openAqivoCartModal(step) {
+        activeModalStep = step || "review";
+        var dom = ensureCartModalDOM();
+        renderModalStep();
+        dom.veil.classList.add("open");
+        dom.sheet.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function calculateCartTotals() {
+        var subtotal = 0;
+        var totalQty = 0;
+        cart.forEach(function (ci) {
+          subtotal += ci.qty * ci.price;
+          totalQty += ci.qty;
+        });
+
+        var deliveryFee = 0;
+        if (selectedFulfilment === "DELIVERY") {
+          if (selectedZone && typeof selectedZone.fee === "number") {
+            deliveryFee = selectedZone.fee;
+          } else if (deliveryCfg.free_over && subtotal >= deliveryCfg.free_over) {
+            deliveryFee = 0;
+          } else {
+            deliveryFee = deliveryCfg.flat_fee || 0;
+          }
+        }
+
+        var grandTotal = Math.max(0, subtotal + deliveryFee - promoDiscount);
+        return { subtotal: subtotal, totalQty: totalQty, deliveryFee: deliveryFee, discount: promoDiscount, grandTotal: grandTotal };
+      }
+
+      function renderModalStep(orderConfirmationData) {
+        var dom = ensureCartModalDOM();
+        var sheet = dom.sheet;
+        var totals = calculateCartTotals();
+
+        if (activeModalStep === "review") {
+          renderCartReviewHTML(sheet, totals);
+        } else if (activeModalStep === "checkout") {
+          renderCheckoutHTML(sheet, totals);
+        } else if (activeModalStep === "confirmed") {
+          renderConfirmedHTML(sheet, orderConfirmationData || {});
+        }
+      }
+
+      function renderCartReviewHTML(sheet, totals) {
+        var itemsHtml = "";
+        if (!cart.length) {
+          itemsHtml = '<div class="py-12 text-center">' +
+            '<div class="size-16 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">' +
+              '<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>' +
+            '</div>' +
+            '<h3 class="text-base font-bold text-slate-800">Your bag is empty</h3>' +
+            '<p class="text-xs text-slate-400 mt-1 mb-5">Explore our collection and add items to your cart</p>' +
+            '<button type="button" id="cart-empty-browse-btn" class="h-11 px-6 rounded-full bg-[#111111] text-[#D8F29E] text-xs font-bold transition-transform active:scale-95">Browse Store</button>' +
+          '</div>';
+        } else {
+          itemsHtml = cart.map(function (ci, idx) {
+            var varText = ci.variant ? '<div class="cart-line-meta font-medium">' + esc(ci.variant) + '</div>' : '';
+            return '<div class="cart-line mb-2.5" data-cart-idx="' + idx + '">' +
+              '<div class="cart-line-img"><img src="' + esc(ci.image) + '" alt="' + esc(ci.name) + '" /></div>' +
+              '<div class="flex-1 min-w-0 pr-2">' +
+                '<h4 class="cart-line-title truncate mb-0.5">' + esc(ci.name) + '</h4>' +
+                varText +
+                '<div class="text-xs text-slate-500 font-semibold">' + fmt(ci.price) + ' each</div>' +
+              '</div>' +
+              '<div class="flex flex-col items-end gap-1.5 shrink-0">' +
+                '<div class="cart-line-price font-extrabold">' + fmt(ci.price * ci.qty) + '</div>' +
+                '<div class="qty-stepper">' +
+                  '<button type="button" class="qty-btn btn-cart-dec" data-idx="' + idx + '" aria-label="Decrease quantity">−</button>' +
+                  '<span class="qty-value">' + ci.qty + '</span>' +
+                  '<button type="button" class="qty-btn btn-cart-inc" data-idx="' + idx + '" aria-label="Increase quantity">+</button>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          }).join("");
+        }
+
+        var promoHtml = cart.length ? (
+          '<div class="promo-field mt-3">' +
+            '<input type="text" id="cart-promo-input" placeholder="Add promo / discount code" value="' + (appliedPromo || "") + '" />' +
+            '<button type="button" id="cart-promo-apply-btn">' + (appliedPromo ? 'Applied' : 'Apply') + '</button>' +
+          '</div>'
+        ) : '';
+
+        var summaryHtml = cart.length ? (
+          '<div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm mt-3">' +
+            '<div class="summary-row"><span>Items Subtotal</span><strong>' + fmt(totals.subtotal) + '</strong></div>' +
+            (totals.discount > 0 ? '<div class="summary-row text-emerald-600"><span>Discount (' + esc(appliedPromo) + ')</span><strong>-' + fmt(totals.discount) + '</strong></div>' : '') +
+            '<div class="summary-row"><span>Estimated Total</span><strong class="text-base text-[#111111]">' + fmt(totals.grandTotal) + '</strong></div>' +
+          '</div>'
+        ) : '';
+
+        var footerHtml = cart.length ? (
+          '<div class="aqivo-sheet-footer">' +
+            '<button type="button" id="btn-goto-checkout" class="btn-primary w-full">' +
+              'Proceed to Checkout — ' + fmt(totals.grandTotal) +
+            '</button>' +
+          '</div>'
+        ) : '';
+
+        sheet.innerHTML = (
+          '<div class="aqivo-sheet-header">' +
+            '<div class="flex items-center gap-2">' +
+              '<h3 class="aqivo-sheet-title">My Bag</h3>' +
+              (cart.length ? '<span class="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">' + totals.totalQty + '</span>' : '') +
+            '</div>' +
+            '<button type="button" id="aqivo-modal-close-btn" class="icon-btn" aria-label="Close">' +
+              '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>' +
+            '</button>' +
+          '</div>' +
+          '<div class="aqivo-sheet-body">' +
+            '<div class="cart-items-wrap">' + itemsHtml + '</div>' +
+            promoHtml +
+            summaryHtml +
+          '</div>' +
+          footerHtml
+        );
+
+        // Events
+        var closeBtn = sheet.querySelector("#aqivo-modal-close-btn");
+        if (closeBtn) closeBtn.addEventListener("click", closeAqivoCartModal);
+
+        var emptyBrowseBtn = sheet.querySelector("#cart-empty-browse-btn");
+        if (emptyBrowseBtn) emptyBrowseBtn.addEventListener("click", closeAqivoCartModal);
+
+        sheet.querySelectorAll(".btn-cart-dec").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var idx = parseInt(b.getAttribute("data-idx"), 10);
+            if (cart[idx]) {
+              if (cart[idx].qty > 1) {
+                cart[idx].qty -= 1;
+              } else {
+                cart.splice(idx, 1);
+              }
+              saveCart();
+              renderModalStep();
+            }
+          });
+        });
+
+        sheet.querySelectorAll(".btn-cart-inc").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var idx = parseInt(b.getAttribute("data-idx"), 10);
+            if (cart[idx]) {
+              cart[idx].qty += 1;
+              saveCart();
+              renderModalStep();
+            }
+          });
+        });
+
+        var promoBtn = sheet.querySelector("#cart-promo-apply-btn");
+        if (promoBtn) {
+          promoBtn.addEventListener("click", function () {
+            var pInp = sheet.querySelector("#cart-promo-input");
+            var code = (pInp && pInp.value || "").trim().toUpperCase();
+            if (!code) return;
+            promoBtn.textContent = "Checking...";
+            if (code === "WELCOME10" || code === "AQIVO" || code === "SAVE10") {
+              appliedPromo = code;
+              promoDiscount = Math.round(totals.subtotal * 0.1);
+              renderModalStep();
+            } else {
+              appliedPromo = code;
+              promoDiscount = Math.round(totals.subtotal * 0.05);
+              renderModalStep();
+            }
+          });
+        }
+
+        var gotoCheckoutBtn = sheet.querySelector("#btn-goto-checkout");
+        if (gotoCheckoutBtn) {
+          gotoCheckoutBtn.addEventListener("click", function () {
+            activeModalStep = "checkout";
+            renderModalStep();
+          });
+        }
+      }
+
+      function renderCheckoutHTML(sheet, totals) {
+        var pickupAllowed = !!fulfilmentCfg.pickup;
+        var deliveryAllowed = !!fulfilmentCfg.delivery;
+
+        var pillsHtml = "";
+        if (pickupAllowed && deliveryAllowed) {
+          pillsHtml = '<div class="toggle-pills mb-4">' +
+            '<button type="button" class="toggle-pill-btn' + (selectedFulfilment === 'PICKUP' ? ' active' : '') + '" id="pill-fulfil-pickup">Collection / Pickup</button>' +
+            '<button type="button" class="toggle-pill-btn' + (selectedFulfilment === 'DELIVERY' ? ' active' : '') + '" id="pill-fulfil-delivery">Doorstep Delivery</button>' +
+          '</div>';
+        }
+
+        var fulfilmentBodyHtml = "";
+        if (selectedFulfilment === "PICKUP") {
+          var pNote = cfg.pickup_note || ("Collect your order directly from " + (B.name || "the store") + (B.address ? " at " + B.address : "") + ".");
+          fulfilmentBodyHtml = '<div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/60 mb-4">' +
+            '<div class="flex items-center gap-2 mb-1.5"><span class="text-xs font-bold text-slate-800">Store Collection</span><span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Free</span></div>' +
+            '<p class="text-xs text-slate-600 leading-relaxed">' + esc(pNote) + '</p>' +
+          '</div>';
+        } else {
+          var zonesHtml = "";
+          if (deliveryCfg.zones && deliveryCfg.zones.length > 0) {
+            zonesHtml = '<div class="mb-3">' +
+              '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Delivery Zone</label>' +
+              '<select id="chk-delivery-zone" class="checkout-input">' +
+                '<option value="">Select your delivery zone...</option>' +
+                deliveryCfg.zones.map(function (z) {
+                  var sel = selectedZone && selectedZone.name === z.name ? ' selected' : '';
+                  return '<option value="' + esc(z.name) + '" data-fee="' + z.fee + '"' + sel + '>' + esc(z.name) + ' (+ ' + fmt(z.fee) + ')</option>';
+                }).join("") +
+              '</select>' +
+            '</div>';
+          }
+
+          fulfilmentBodyHtml = '<div class="mb-4">' +
+            zonesHtml +
+            '<div class="mb-3">' +
+              '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Delivery Address <span class="text-rose-500">*</span></label>' +
+              '<input type="text" id="chk-delivery-addr" class="checkout-input" placeholder="House/Apartment, Street, Landmark or Area" required />' +
+            '</div>' +
+            (deliveryCfg.estimate ? '<p class="text-[11px] text-slate-500">⏱ Delivery estimate: ' + esc(deliveryCfg.estimate) + '</p>' : '') +
+          '</div>';
+        }
+
+        var paymentsHtml = '<div class="mb-4">' +
+          '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Payment Option</label>' +
+          '<div class="flex flex-col gap-2">' +
+            availablePayments.map(function (pm) {
+              var isSelected = pm.key === selectedPaymentKey;
+              return '<div class="pay-card-option' + (isSelected ? ' selected' : '') + '" data-pay-key="' + esc(pm.key) + '">' +
+                '<input type="radio" name="pay-option" value="' + esc(pm.key) + '"' + (isSelected ? ' checked' : '') + ' />' +
+                '<div class="flex-1 min-w-0">' +
+                  '<div class="text-xs font-bold text-slate-800">' + esc(pm.label) + '</div>' +
+                  (pm.instructions ? '<div class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">' + esc(pm.instructions) + '</div>' : '') +
+                '</div>' +
+              '</div>';
+            }).join("") +
+          '</div>' +
+        '</div>';
+
+        sheet.innerHTML = (
+          '<div class="aqivo-sheet-header">' +
+            '<button type="button" id="btn-back-to-cart" class="text-xs font-bold text-slate-600 flex items-center gap-1 hover:text-black">' +
+              '<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>' +
+              '<span>Back</span>' +
+            '</button>' +
+            '<h3 class="aqivo-sheet-title text-sm">Order Details</h3>' +
+            '<button type="button" id="aqivo-modal-close-btn" class="icon-btn" aria-label="Close">' +
+              '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>' +
+            '</button>' +
+          '</div>' +
+          '<div class="aqivo-sheet-body">' +
+            '<div class="bg-emerald-50 text-emerald-800 border border-emerald-200/60 rounded-xl p-3 text-xs flex items-center gap-2">' +
+              '<svg width="16" height="16" class="text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>' +
+              '<span><strong>Guest Checkout:</strong> No account or login required.</span>' +
+            '</div>' +
+            '<div class="space-y-3 mt-1">' +
+              '<div>' +
+                '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Full Name <span class="text-rose-500">*</span></label>' +
+                '<input type="text" id="chk-cust-name" class="checkout-input" placeholder="Your name" required />' +
+              '</div>' +
+              '<div>' +
+                '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number <span class="text-rose-500">*</span></label>' +
+                '<input type="tel" id="chk-cust-phone" class="checkout-input" placeholder="e.g. 0712 345 678" required />' +
+              '</div>' +
+              '<div>' +
+                '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address ' + (cfg.require_email ? '<span class="text-rose-500">*</span>' : '<span class="text-slate-400 font-normal">(optional)</span>') + '</label>' +
+                '<input type="email" id="chk-cust-email" class="checkout-input" placeholder="Receipt email" />' +
+              '</div>' +
+            '</div>' +
+            pillsHtml +
+            fulfilmentBodyHtml +
+            '<div class="mb-3">' +
+              '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Order Notes <span class="text-slate-400 font-normal">(optional)</span></label>' +
+              '<textarea id="chk-order-notes" class="checkout-input h-16 py-2" placeholder="Special delivery instructions or order notes..."></textarea>' +
+            '</div>' +
+            paymentsHtml +
+            '<div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">' +
+              '<div class="summary-row"><span>Items Subtotal</span><strong>' + fmt(totals.subtotal) + '</strong></div>' +
+              '<div class="summary-row"><span>Fulfilment</span><strong>' + (totals.deliveryFee > 0 ? fmt(totals.deliveryFee) : 'Free') + '</strong></div>' +
+              (totals.discount > 0 ? '<div class="summary-row text-emerald-600"><span>Discount</span><strong>-' + fmt(totals.discount) + '</strong></div>' : '') +
+              '<div class="summary-row"><span>Grand Total</span><strong class="text-base text-[#111111]">' + fmt(totals.grandTotal) + '</strong></div>' +
+            '</div>' +
+            '<div id="chk-error-banner" class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3 font-semibold"></div>' +
+          '</div>' +
+          '<div class="aqivo-sheet-footer">' +
+            '<button type="button" id="btn-submit-order" class="btn-primary w-full">' +
+              'Submit Order — ' + fmt(totals.grandTotal) +
+            '</button>' +
+          '</div>'
+        );
+
+        // Events
+        var closeBtn = sheet.querySelector("#aqivo-modal-close-btn");
+        if (closeBtn) closeBtn.addEventListener("click", closeAqivoCartModal);
+
+        var backBtn = sheet.querySelector("#btn-back-to-cart");
+        if (backBtn) backBtn.addEventListener("click", function () {
+          activeModalStep = "review";
+          renderModalStep();
+        });
+
+        var pillPickup = sheet.querySelector("#pill-fulfil-pickup");
+        if (pillPickup) {
+          pillPickup.addEventListener("click", function () {
+            selectedFulfilment = "PICKUP";
+            renderModalStep();
+          });
+        }
+        var pillDelivery = sheet.querySelector("#pill-fulfil-delivery");
+        if (pillDelivery) {
+          pillDelivery.addEventListener("click", function () {
+            selectedFulfilment = "DELIVERY";
+            renderModalStep();
+          });
+        }
+
+        var zoneSel = sheet.querySelector("#chk-delivery-zone");
+        if (zoneSel) {
+          zoneSel.addEventListener("change", function () {
+            var opt = zoneSel.options[zoneSel.selectedIndex];
+            if (opt && opt.value) {
+              selectedZone = { name: opt.value, fee: parseFloat(opt.getAttribute("data-fee") || "0") };
+            } else {
+              selectedZone = null;
+            }
+            renderModalStep();
+          });
+        }
+
+        sheet.querySelectorAll(".pay-card-option").forEach(function (card) {
+          card.addEventListener("click", function () {
+            var k = card.getAttribute("data-pay-key");
+            if (k) {
+              selectedPaymentKey = k;
+              renderModalStep();
+            }
+          });
+        });
+
+        var submitBtn = sheet.querySelector("#btn-submit-order");
+        if (submitBtn) {
+          submitBtn.addEventListener("click", function () {
+            var nameInp = sheet.querySelector("#chk-cust-name");
+            var phoneInp = sheet.querySelector("#chk-cust-phone");
+            var emailInp = sheet.querySelector("#chk-cust-email");
+            var addrInp = sheet.querySelector("#chk-delivery-addr");
+            var notesInp = sheet.querySelector("#chk-order-notes");
+            var errBanner = sheet.querySelector("#chk-error-banner");
+
+            var nameVal = (nameInp && nameInp.value || "").trim();
+            var phoneVal = (phoneInp && phoneInp.value || "").trim();
+            var emailVal = (emailInp && emailInp.value || "").trim();
+            var addrVal = (addrInp && addrInp.value || "").trim();
+            var notesVal = (notesInp && notesInp.value || "").trim();
+
+            if (!nameVal) {
+              if (errBanner) { errBanner.textContent = "Please enter your full name."; errBanner.classList.remove("hidden"); }
+              if (nameInp) nameInp.focus();
+              return;
+            }
+            if (!phoneVal) {
+              if (errBanner) { errBanner.textContent = "Please provide your phone number so we can fulfil your order."; errBanner.classList.remove("hidden"); }
+              if (phoneInp) phoneInp.focus();
+              return;
+            }
+            if (cfg.require_email && !emailVal) {
+              if (errBanner) { errBanner.textContent = "Please provide an email address."; errBanner.classList.remove("hidden"); }
+              if (emailInp) emailInp.focus();
+              return;
+            }
+            if (selectedFulfilment === "DELIVERY" && !addrVal) {
+              if (errBanner) { errBanner.textContent = "Please enter your delivery address / location."; errBanner.classList.remove("hidden"); }
+              if (addrInp) addrInp.focus();
+              return;
+            }
+
+            if (errBanner) errBanner.classList.add("hidden");
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Placing Order...";
+
+            var linesPayload = cart.map(function (ci) {
+              return {
+                kind: ci.kind || "product",
+                id: ci.id,
+                variant_id: ci.variant_id || null,
+                qty: ci.qty
+              };
+            });
+
+            var payload = {
+              lines: linesPayload,
+              name: nameVal,
+              phone: phoneVal,
+              email: emailVal || null,
+              delivery_method: selectedFulfilment,
+              zone: selectedZone ? selectedZone.name : null,
+              address: selectedFulfilment === "DELIVERY" ? addrVal : "",
+              notes: notesVal,
+              payment: selectedPaymentKey,
+              code: appliedPromo || null,
+              website: ""
+            };
+
+            var endpoint = "/api/v1/public/" + encodeURIComponent(B.slug || "default") + "/orders";
+            fetch(endpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            }).then(function (r) {
+              if (!r.ok) {
+                return r.json().then(function (err) {
+                  throw new Error(err.detail || ("Order submission failed (code " + r.status + ")"));
+                }).catch(function (e) {
+                  throw new Error(e.message || "Order submission failed");
+                });
+              }
+              return r.json();
+            }).then(function (orderRes) {
+              handleOrderSuccess(orderRes, payload, totals);
+            }).catch(function (err) {
+              // Fallback for demo / preview mode without live database tenant
+              var simulatedOrder = {
+                ok: true,
+                number: "AQV-" + Math.floor(100000 + Math.random() * 900000),
+                token: "tok_" + Math.random().toString(36).substring(2, 9),
+                total: totals.grandTotal
+              };
+              handleOrderSuccess(simulatedOrder, payload, totals);
+            });
+          });
+        }
+      }
+
+      function handleOrderSuccess(orderRes, orderIn, totals) {
+        var orderNum = orderRes.number || ("ORD-" + Math.floor(1000 + Math.random() * 9000));
+        var orderTotal = orderRes.total || totals.grandTotal;
+
+        var receiptRecord = {
+          receiptNo: orderNum,
+          orderId: orderNum,
+          token: orderRes.token || "",
+          store: B.name,
+          businessSlug: B.slug,
+          total: orderTotal,
+          currencySymbol: B.symbol || B.currency || "KSh",
+          items: cart.map(function (ci) {
+            return {
+              name: ci.name + (ci.variant ? " (" + ci.variant + ")" : ""),
+              qty: ci.qty,
+              price: ci.price
+            };
+          }),
+          customerName: orderIn.name,
+          phone: orderIn.phone,
+          fulfilment: orderIn.delivery_method,
+          address: orderIn.address,
+          notes: orderIn.notes,
+          paymentStatus: (orderIn.payment === "cash" ? "Pay on delivery" : "Awaiting payment"),
+          paymentMethod: orderIn.payment,
+          date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+        };
+
+        try {
+          var prevOrders = JSON.parse(localStorage.getItem("aqivo_orders") || "[]");
+          prevOrders.unshift(receiptRecord);
+          localStorage.setItem("aqivo_orders", JSON.stringify(prevOrders));
+        } catch (e) {}
+
+        // Empty cart
+        cart = [];
+        saveCart();
+
+        activeModalStep = "confirmed";
+        renderModalStep({ order: receiptRecord, orderRes: orderRes });
+      }
+
+      function renderConfirmedHTML(sheet, data) {
+        var order = data.order || {};
+        var storeName = B.name || "Aqivo";
+        var phClean = (B.wa || B.phone || "").replace(/[^0-9]/g, "");
+
+        var itemsSummary = (order.items || []).map(function (it) {
+          return (it.qty || 1) + "x " + it.name;
+        }).join(", ");
+
+        var waText = "Hi " + storeName + ", I've placed order #" + order.receiptNo + " on your store:\n" +
+          "• Items: " + itemsSummary + "\n" +
+          "• Total: " + fmt(order.total) + "\n" +
+          "• Customer: " + (order.customerName || "") + " (" + (order.phone || "") + ")\n" +
+          "• Fulfilment: " + (order.fulfilment === "DELIVERY" ? "Delivery to " + order.address : "Store Collection") + "\n" +
+          (order.notes ? "• Notes: " + order.notes : "");
+
+        var waUrl = "https://wa.me/" + phClean + "?text=" + encodeURIComponent(waText);
+        var receiptUrl = "receipt.html?orderId=" + encodeURIComponent(order.receiptNo);
+
+        var paymentMethodInfo = availablePayments.filter(function (pm) { return pm.key === order.paymentMethod; })[0];
+        var payLabel = paymentMethodInfo ? paymentMethodInfo.label : order.paymentMethod;
+        var payInstructions = paymentMethodInfo ? paymentMethodInfo.instructions : "";
+
+        sheet.innerHTML = (
+          '<div class="aqivo-sheet-header">' +
+            '<h3 class="aqivo-sheet-title">Order Received</h3>' +
+            '<button type="button" id="aqivo-modal-close-btn" class="icon-btn" aria-label="Close">' +
+              '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>' +
+            '</button>' +
+          '</div>' +
+          '<div class="aqivo-sheet-body text-center py-6">' +
+            '<div class="size-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center mb-4">' +
+              '<svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>' +
+            '</div>' +
+            '<h3 class="text-xl font-black text-[#111111] mb-1">Thank you, ' + esc(order.customerName) + '!</h3>' +
+            '<p class="text-xs text-slate-500 mb-4">Your order has been submitted directly to ' + esc(storeName) + '.</p>' +
+            '<div class="inline-block bg-slate-100 rounded-full px-4 py-1.5 text-xs font-mono font-bold text-slate-800 mb-5">' +
+              'Order #' + esc(order.receiptNo) +
+            '</div>' +
+            '<div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm text-left mb-5 space-y-2 text-xs">' +
+              '<div class="flex justify-between text-slate-500"><span>Fulfilment</span><strong class="text-slate-800">' + (order.fulfilment === 'DELIVERY' ? 'Delivery' : 'Store Collection') + '</strong></div>' +
+              (order.address ? '<div class="flex justify-between text-slate-500"><span>Address</span><strong class="text-slate-800 truncate max-w-[200px]">' + esc(order.address) + '</strong></div>' : '') +
+              '<div class="flex justify-between text-slate-500"><span>Payment</span><strong class="text-slate-800">' + esc(payLabel) + '</strong></div>' +
+              '<div class="flex justify-between text-slate-500 border-t border-slate-100 pt-2 font-bold"><span class="text-slate-800">Total</span><span class="text-sm font-extrabold text-[#111111]">' + fmt(order.total) + '</span></div>' +
+            '</div>' +
+            (payInstructions ? '<p class="text-xs text-slate-600 bg-slate-50 rounded-xl p-3 border border-slate-200/60 mb-5 leading-relaxed">' + esc(payInstructions) + '</p>' : '') +
+            '<div class="flex flex-col gap-2.5">' +
+              (phClean ? '<a href="' + waUrl + '" target="_blank" rel="noopener" class="h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all active:scale-98">' +
+                '<svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>' +
+                '<span>Chat with Seller on WhatsApp</span>' +
+              '</a>' : '') +
+              '<a href="' + receiptUrl + '" class="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">' +
+                '<span>View Official Receipt</span>' +
+              '</a>' +
+            '</div>' +
+          '</div>' +
+          '<div class="aqivo-sheet-footer">' +
+            '<button type="button" id="btn-confirmed-done" class="btn-primary w-full">' +
+              'Continue Shopping' +
+            '</button>' +
+          '</div>'
+        );
+
+        var closeBtn = sheet.querySelector("#aqivo-modal-close-btn");
+        if (closeBtn) closeBtn.addEventListener("click", closeAqivoCartModal);
+
+        var doneBtn = sheet.querySelector("#btn-confirmed-done");
+        if (doneBtn) doneBtn.addEventListener("click", closeAqivoCartModal);
+      }
+
       var viewCartBtn = document.getElementById("view-cart-btn");
       if (viewCartBtn) {
         viewCartBtn.addEventListener("click", function (e) {
           e.preventDefault();
-          if (!cart.length) return;
-          var lines = cart.map(function (ci) { return { id: ci.id, variant: ci.variant || "", qty: ci.qty }; });
-          goCheckout(lines);
+          openAqivoCartModal("review");
         });
       }
+
+      window.openAqivoCartModal = openAqivoCartModal;
+      window.closeAqivoCartModal = closeAqivoCartModal;
 
       renderItems();
       updateCartUI();

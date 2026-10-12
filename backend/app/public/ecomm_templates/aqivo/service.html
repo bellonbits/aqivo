@@ -9,18 +9,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="bg-[#F8FAFC] text-[#0B1736] font-sans antialiased">
+<body class="bg-[#F4F4F4] text-[#111111] font-sans antialiased">
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-100 shadow-sm">
     <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="index.html" class="pdp-back-link text-xs font-bold text-slate-600 hover:text-[#5B21F5] flex items-center gap-1.5 transition-colors">
+      <a href="index.html" class="pdp-back-link text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors">
         <svg width="16" height="16" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
         <span>Back to Store</span>
       </a>
-      <span class="text-xs font-extrabold text-[#5B21F5] uppercase tracking-wider">Aqivo</span>
+      <span class="text-xs font-extrabold text-[#111111] uppercase tracking-wider" id="pdp-brand-logo">Aqivo</span>
     </div>
   </header>
 
-  <main class="max-w-2xl mx-auto px-4 py-6">
+  <main id="pdp-page-container" class="max-w-2xl mx-auto px-4 py-6">
     <div class="pdp-breadcrumbs text-xs text-slate-400 mb-4 flex items-center gap-1.5">
       <a href="index.html" class="hover:text-slate-600">Home</a>
       <span>/</span>
@@ -29,9 +29,9 @@
       <span class="current text-slate-700 font-bold" id="pdp-crumb-title">Service Details</span>
     </div>
 
-    <div class="pdp-content-grid bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
+    <div class="pdp-content-grid bg-white rounded-3xl p-5 shadow-sm">
       <div class="pdp-visual-col mb-5">
-        <div class="relative w-full aspect-square rounded-2xl bg-slate-50 overflow-hidden flex items-center justify-center">
+        <div class="relative w-full aspect-square rounded-2xl bg-[#F7F7F7] overflow-hidden flex items-center justify-center">
           <img id="pdp-hero-img" src="" alt="Service preview" class="w-full h-full object-cover" />
         </div>
         <div class="pdp-thumbnails-strip mt-3 flex gap-2 overflow-x-auto"></div>
@@ -39,28 +39,40 @@
 
       <div class="pdp-info-col">
         <div class="flex items-center gap-2 mb-2">
-          <div class="pdp-category-tag text-[11px] font-black uppercase tracking-wider text-[#5B21F5] bg-[#5B21F5]/10 px-2.5 py-1 rounded-lg" id="pdp-category-tag">Service</div>
-          <span class="pdp-prep-chip text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">Service</span>
-          <span class="pdp-verified-reviews text-[11px] text-amber-500 font-bold">★ 5.0</span>
+          <div class="pdp-category-tag text-[11px] font-bold px-2.5 py-1 rounded-full" id="pdp-category-tag">Service</div>
+          <span class="pdp-prep-chip text-[11px] font-semibold text-slate-500 bg-[#F7F7F7] px-2.5 py-1 rounded-full">Service</span>
         </div>
 
-        <h1 class="pdp-item-title text-xl sm:text-2xl font-black text-[#0B1736] mb-2 leading-tight" id="pdp-item-title">Service Title</h1>
+        <h1 class="pdp-item-title text-xl sm:text-2xl font-bold text-[#111111] mb-2 leading-tight" id="pdp-item-title">Service Title</h1>
         
         <div class="flex items-baseline gap-3 mb-4">
-          <div class="pdp-price-bold text-2xl font-extrabold text-[#5B21F5]" id="pdp-price-bold">KES 0</div>
+          <div class="pdp-price-bold text-2xl font-extrabold text-[#111111]" id="pdp-price-bold">KES 0</div>
           <div class="pdp-vat-label text-xs text-slate-400">Inclusive of all applicable taxes</div>
         </div>
 
-        <p class="pdp-description-text text-sm text-slate-600 leading-relaxed mb-6" id="pdp-description-text">Service description goes here.</p>
+        <p class="pdp-description-text text-sm text-slate-600 leading-relaxed mb-5" id="pdp-description-text">Service description goes here.</p>
 
-        <div class="pdp-options-section mb-6"></div>
+        <!-- Variants Section -->
+        <div class="pdp-options-section mb-5" id="pdp-options-wrap"></div>
 
-        <div class="pdp-purchase-row mb-6">
-          <button class="pdp-cta-add-bag w-full h-12 rounded-2xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white font-extrabold text-sm shadow-lg shadow-[#5B21F5]/25 transition-all flex items-center justify-center gap-2" id="pdp-add-bag-btn">
-            Book Service
+        <!-- Quantity Stepper Row -->
+        <div class="pdp-qty-row flex items-center justify-between py-3 border-y border-slate-100 mb-5">
+          <span class="text-xs font-bold text-slate-700">Quantity / Sessions</span>
+          <div class="qty-stepper">
+            <button type="button" class="qty-btn" id="pdp-qty-minus" aria-label="Decrease quantity">−</button>
+            <span class="qty-value" id="pdp-qty-val">1</span>
+            <button type="button" class="qty-btn" id="pdp-qty-plus" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <!-- Purchase Actions Row -->
+        <div class="pdp-purchase-row mb-6 flex flex-col gap-2.5">
+          <button type="button" class="pdp-cta-add-bag btn-primary" id="pdp-add-bag-btn">
+            Book Service — KES 0
           </button>
         </div>
 
+        <!-- Trust Badges Strip -->
         <div class="pdp-trust-grid border-t border-slate-100 pt-5 grid grid-cols-3 gap-2 text-center">
           <div class="pdp-trust-item"><span class="trust-title text-xs font-bold block">Verified Business</span><span class="trust-sub text-[10px] text-slate-400">Direct Merchant</span></div>
           <div class="pdp-trust-item"><span class="trust-title text-xs font-bold block">Instant Schedule</span><span class="trust-sub text-[10px] text-slate-400">Flexible Booking</span></div>
@@ -77,10 +89,21 @@
     </div>
 
     <section class="pdp-related-container mt-10">
-      <h2 class="pdp-related-title text-base font-extrabold text-[#0B1736] mb-4">More Services</h2>
-      <div class="product-cards-grid grid grid-cols-2 gap-3"></div>
+      <h2 class="pdp-related-title text-base font-extrabold text-[#111111] mb-4">More Services</h2>
+      <div class="product-cards-grid grid grid-cols-2 gap-3" id="pdp-related-grid"></div>
     </section>
   </main>
+
+  <!-- Floating Sticky Cart Button -->
+  <div id="cart-bar" class="fixed inset-x-0 bottom-4 z-50 max-w-md mx-auto px-4 pointer-events-none transition-transform duration-300 translate-y-24">
+    <button id="view-cart-btn" class="pointer-events-auto w-full h-14 rounded-2xl bg-[#050505] text-white shadow-xl flex items-center justify-between px-5 font-bold transition-all active:scale-[0.98]">
+      <div class="flex items-center gap-2.5">
+        <span id="cart-count" class="size-6 rounded-full bg-black text-[#D8F29E] text-xs font-bold flex items-center justify-center">0</span>
+        <span class="text-sm">View Cart</span>
+      </div>
+      <span id="cart-total" class="text-base font-extrabold">KES 0</span>
+    </button>
+  </div>
 
   <script src="../_bridge.js"></script>
 </body>
