@@ -1084,7 +1084,22 @@
 
     // 07XX / 7XX / +254 / 254 -> digits in international format for wa.me
     function normalisePhone(raw) {
-      var d = String(raw || '').replace(/\D/g, '');
+      if (!raw) return '';
+      var s = String(raw).trim();
+      // If a full wa.me or whatsapp.com URL was passed, strip query params & text first!
+      if (s.indexOf('?') !== -1) {
+        s = s.split('?')[0];
+      }
+      if (s.indexOf('#') !== -1) {
+        s = s.split('#')[0];
+      }
+      if (s.indexOf('wa.me') !== -1 || s.indexOf('whatsapp.com') !== -1) {
+        var m = s.match(/(?:wa\.me\/|phone=|\/)(\+?\d+)/);
+        if (m && m[1]) {
+          s = m[1];
+        }
+      }
+      var d = s.replace(/\D/g, '');
       if (!d) return '';
       if (d.indexOf('254') === 0) return d;
       if (d.charAt(0) === '0') return '254' + d.slice(1);
@@ -2230,8 +2245,8 @@
 
       function renderConfirmedHTML(sheet, data) {
         var order = data.order || {};
-        var storeName = B.name || "Aqivo";
-        var phClean = (B.wa || B.phone || "").replace(/[^0-9]/g, "");
+        var rawPhone = B.phone || B.wa_phone || B.wa || "";
+        var phClean = window.AqivoWhatsApp ? window.AqivoWhatsApp.normalisePhone(rawPhone) : rawPhone.replace(/\D/g, "");
 
         var receiptUrl = "receipt.html?orderId=" + encodeURIComponent(order.receiptNo);
         var waUrl = "";

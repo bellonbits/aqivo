@@ -109,9 +109,10 @@ def build_data(db: Session, ctx: dict, business: Business) -> dict:
     hero_cta_url = hero_content.get("cta_url") or ""
     sec_ids = {str(s.get("type")): str(s.get("id")) for s in ctx.get("sections", []) if s.get("id") and s.get("type")}
 
+    clean_wa = "".join(ch for ch in (business.whatsapp or business.phone or "") if ch.isdigit())
     return {
         "key": business.website.template.key if business.website else "", "root": root, "slug": business.slug,
-        "name": business.name, "tagline": business.tagline or "", "phone": business.phone or "", "email": business.email or "",
+        "name": business.name, "tagline": business.tagline or "", "phone": business.phone or clean_wa, "wa_phone": clean_wa, "email": business.email or "",
         "wa": ctx["wa"], "address": ", ".join(x for x in (business.address, business.city) if x), "directions": ctx["directions"],
         "currency": business.currency, "symbol": ctx["cur_symbol"], "freeOver": ctx["free_over"] or 0, "logo": business.logo_url, "about": business.description or "",
         "items": items, "categories": cats, "services": services,
