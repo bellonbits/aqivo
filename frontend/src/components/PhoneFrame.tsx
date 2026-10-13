@@ -62,12 +62,6 @@ export function PhoneFrame({
         }}
         {...a11y}
       >
-        {/* Dark phone backing so no white sub-pixel gap can ever show outside the cutout */}
-        <div
-          className="absolute inset-0 bg-[#0c0c0e]"
-          style={{ borderRadius }}
-        />
-
         {/* Screen container strictly matching cut-out geometry */}
         <div
           className="absolute inset-0 overflow-hidden bg-white z-0"
@@ -76,7 +70,7 @@ export function PhoneFrame({
           {children}
         </div>
 
-        {/* Phone Frame and hand overlay with authentic drop shadow on the device */}
+        {/* Authentic hand holding phone mockup overlay */}
         <img
           src="/phone-frame.png"
           alt=""
@@ -84,7 +78,7 @@ export function PhoneFrame({
           width={IMG.w}
           height={IMG.h}
           draggable={false}
-          className="pointer-events-none absolute max-w-none select-none z-30 drop-shadow-xl"
+          className="pointer-events-none absolute max-w-none select-none z-30"
           style={{
             left: -SCREEN.left * k,
             top: -SCREEN.top * k,
