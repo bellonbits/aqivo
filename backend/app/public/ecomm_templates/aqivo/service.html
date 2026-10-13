@@ -14,7 +14,7 @@
     <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
       <a href="index.html" class="pdp-back-link text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors">
         <svg width="16" height="16" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-        <span>Back to Store</span>
+        <span>Back to Services</span>
       </a>
       <span class="text-xs font-extrabold text-[#111111] uppercase tracking-wider" id="pdp-brand-logo">Aqivo</span>
     </div>
@@ -55,8 +55,8 @@
         <!-- Variants Section -->
         <div class="pdp-options-section mb-5" id="pdp-options-wrap"></div>
 
-        <!-- Quantity Stepper Row -->
-        <div class="pdp-qty-row flex items-center justify-between py-3 border-y border-slate-100 mb-5">
+        <!-- Quantity Stepper Row (Hidden for Services) -->
+        <div class="pdp-qty-row flex items-center justify-between py-3 border-y border-slate-100 mb-5" style="display:none !important;">
           <span class="text-xs font-bold text-slate-700">Quantity / Sessions</span>
           <div class="qty-stepper">
             <button type="button" class="qty-btn" id="pdp-qty-minus" aria-label="Decrease quantity">−</button>
@@ -94,8 +94,8 @@
     </section>
   </main>
 
-  <!-- Floating Sticky Cart Button -->
-  <div id="cart-bar" class="fixed inset-x-0 bottom-4 z-50 max-w-md mx-auto px-4 pointer-events-none transition-transform duration-300 translate-y-24">
+  <!-- Floating Sticky Cart Button (Hidden for Services) -->
+  <div id="cart-bar" class="fixed inset-x-0 bottom-4 z-50 max-w-md mx-auto px-4 pointer-events-none transition-transform duration-300 translate-y-24" style="display:none !important;">
     <button id="view-cart-btn" class="pointer-events-auto w-full h-14 rounded-2xl bg-[#050505] text-white shadow-xl flex items-center justify-between px-5 font-bold transition-all active:scale-[0.98]">
       <div class="flex items-center gap-2.5">
         <span id="cart-count" class="size-6 rounded-full bg-black text-[#D8F29E] text-xs font-bold flex items-center justify-center">0</span>
@@ -106,5 +106,7 @@
   </div>
 
   <script src="../_bridge.js"></script>
+  <script src="aqivo-booking.js"></script>
+  <script src="aqivo-booking-bridge.js"></script>
 </body>
 </html>

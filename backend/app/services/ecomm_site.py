@@ -137,7 +137,7 @@ def _safe_json(d: dict) -> str:
     return json.dumps(d, default=str).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
-def _render_section_html(s: dict, draft: bool = False, business: Business = None, key: str = "") -> str:
+def _render_section_html(s: dict, draft: bool = False, business: Business = None, key: str = "", is_service: bool = False) -> str:
     """Renders custom website builder sections into HTML markup for storefront HTML responses."""
     stype = s.get("type")
     content = s.get("content") or {}
@@ -157,13 +157,14 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
     data_attr = f'data-sid="{_html.escape(str(sid))}" data-type="{_html.escape(str(stype or ""))}"'
 
     if stype == "hero":
-        headline = content.get("headline") or content.get("title") or (business.name if business else "Welcome to our store")
-        subheadline = content.get("subheadline") or content.get("subtitle") or (business.tagline if business else "") or "Discover our collection and order directly on WhatsApp."
+        headline = content.get("headline") or content.get("title") or (business.name if business else ("Welcome to our studio" if is_service else "Welcome to our store"))
+        default_sub = "Choose a service and a time. We'll confirm shortly. Or message us on WhatsApp." if is_service else "Discover our collection and order directly on WhatsApp."
+        subheadline = content.get("subheadline") or content.get("subtitle") or (business.tagline if business else "") or default_sub
         cta_text = content.get("cta_text")
         cta_url = content.get("cta_url") or "#items-grid"
         wa_phone = (business.phone or business.whatsapp or "") if business else ""
         if wa_phone and not cta_text:
-            cta_text = "Order on WhatsApp"
+            cta_text = "Book on WhatsApp" if is_service else "Order on WhatsApp"
             cta_url = f"https://wa.me/{wa_phone.replace('+', '').replace(' ', '')}"
         cta_html = f'<a href="{_html.escape(cta_url)}" class="btn-brand">{_html.escape(cta_text)}</a>' if cta_text else ""
         return (
@@ -178,10 +179,12 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
 
     if stype == "category_grid":
         tiles = data.get("tiles") or []
-        pills_html = ['<button type="button" class="cat-pill active" data-cat-id="all">All items</button>']
+        all_lbl = "All services" if is_service else "All items"
+        pills_html = [f'<button type="button" class="cat-pill active" data-cat-id="all">{all_lbl}</button>']
         for t in tiles:
             count = t.get("count", 0)
-            cnt_str = f"{count} item" if count == 1 else f"{count} items"
+            item_noun = "service" if is_service else "item"
+            cnt_str = f"{count} {item_noun}" if count == 1 else f"{count} {item_noun}s"
             pills_html.append(
                 f'<button type="button" class="cat-pill" data-cat-id="{_html.escape(str(t.get("id", "")))}">'
                 f'<span>{_html.escape(t["name"])}</span> <span class="pill-count">({cnt_str})</span>'
@@ -199,16 +202,18 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
         cur_sym = data.get("symbol") or (business.currency if business else "KES")
         items_html = []
         for c in cards:
+            c_is_svc = is_service or c.get("kind") == "service"
+            c_action = "Book" if c_is_svc else ("Options" if c.get("has_variants") else "Add")
             c_name = _html.escape(c.get("name") or "")
             c_desc = _html.escape(c.get("desc") or "")
             c_price = f"{cur_sym} {c['price']:,.0f}" if c.get("price") is not None else ""
-            c_comp = f'<s class="item-compare">{cur_sym} {c["compare"]:,.0f}</s>' if c.get("compare") and c["compare"] > c.get("price", 0) else ""
+            c_comp = f'<s class="item-compare">{cur_sym} {c["compare"]:,.0f}</s>' if (not c_is_svc and c.get("compare") and c["compare"] > c.get("price", 0)) else ""
             save_badge = ""
-            if c.get("compare") and c.get("price") and c["compare"] > c["price"]:
+            if not c_is_svc and c.get("compare") and c.get("price") and c["compare"] > c["price"]:
                 pct = round((1 - (c["price"] / c["compare"])) * 100)
                 save_badge = f'<span class="badge-discount">Save {pct}%</span>'
             sold_badge = '<span class="badge-soldout">Sold out</span>' if c.get("sold_out") or (c.get("track_stock") and c.get("stock_qty", 1) <= 0) else ""
-            opt_badge = '<span>Choose options</span>' if c.get("has_variants") else ""
+            opt_badge = '<span>Choose options</span>' if c.get("has_variants") and not c_is_svc else ""
             img_url = c.get("image") or _match_photo(c.get("name", ""), c.get("desc", ""))
             img_html = f'<img src="{_html.escape(img_url)}" alt="{c_name}" class="w-full h-full object-cover" loading="lazy" />' if img_url else ''
             items_html.append(
@@ -219,7 +224,7 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
                 f'{"<p class=\"item-desc\">" + c_desc + "</p>" if c_desc else ""}'
                 f'<div class="card-footer flex items-center justify-between mt-2 pt-2 border-t border-slate-100">'
                 f'<div class="item-price font-extrabold">{c_price} {c_comp}</div>'
-                f'<button type="button" class="btn-add-cart" data-id="{_html.escape(str(c.get("id", "")))}">Add</button>'
+                f'<button type="button" class="btn-add-cart" data-id="{_html.escape(str(c.get("id")))}">{c_action}</button>'
                 f'</div>'
                 f'{opt_badge}'
                 f'</div>'
@@ -337,6 +342,13 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
         jsonld_tags += f'<script type="application/ld+json">{ctx["seo"]["jsonld_extra"]}</script>'
     
     items = data.get("items") or []
+    is_service = bool(
+        data.get("is_service")
+        or (business and business.industry in ("salon", "barbershop", "beauty", "services"))
+        or key == "zuribeauty"
+        or (items and all(i.get("kind") == "service" for i in items))
+    )
+
     og_img = ctx.get("seo", {}).get("og_image")
     if not og_img:
         if item_id and items:
@@ -427,19 +439,29 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     # Clean demo hero description with real business tagline/description
     hero_desc_text = business.tagline or business.description or (
         f"Welcome to {business.name}. Browse our services and book online."
-        if (business.industry in ("salon", "barbershop", "beauty") or key == "zuribeauty")
+        if is_service
         else f"Welcome to {business.name}. Browse our catalogue and place your order online."
     )
     page = re.sub(r'<p class="hero-store-desc">.*?</p>', f'<p class="hero-store-desc">{_html.escape(hero_desc_text)}</p>', page, count=1, flags=re.S)
 
     # Clean demo search placeholder
-    if business.industry in ("salon", "barbershop", "beauty") or key == "zuribeauty":
+    if is_service:
         search_ph = "Search services..."
     elif business.industry in ("restaurant", "food") or key == "brewandbites":
         search_ph = "Search menu..."
     else:
         search_ph = "Search catalogue..."
     page = re.sub(r'placeholder="Search[^"]*"', f'placeholder="{search_ph}"', page)
+
+    # Service vs Shop Text & Element Adjustments
+    if is_service:
+        page = page.replace("Our Collection", "Our Services")
+        page = page.replace("All items", "All services")
+        page = page.replace("Order on WhatsApp", "Book on WhatsApp")
+        page = page.replace("Order online · Direct delivery", "Appointments & walk-ins welcome")
+        page = page.replace("Back to Store", "Back to Services")
+        page = re.sub(r'id="cart-bar"', 'id="cart-bar" style="display:none !important;"', page)
+        page = re.sub(r'class="pdp-qty-row', 'class="pdp-qty-row" style="display:none !important;"', page)
 
     # Clean location label
     if business.address:
@@ -456,9 +478,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     page = re.sub(r'defaultDiscount:\s*\d+', 'defaultDiscount: 0', page)
 
     # Clean PDP (product.html / service.html) demo data
-    items = data.get("items") or []
     if ("pdp-content-grid" in page or page_name in ("product.html", "service.html")) and items:
-        is_service = business.industry in ("salon", "barbershop", "beauty") or key == "zuribeauty" or any(i.get("kind") == "service" for i in items)
         active_item = None
         if item_id:
             active_item = next((it for it in items if str(it.get("id")) == str(item_id)), None)
@@ -548,7 +568,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
         prefix = f"/{business.slug}" if business.slug else ""
         rel_cards_html = "".join(
             f'<div class="store-card group bg-white rounded-2xl p-3 border border-slate-200/90 shadow-sm flex flex-col justify-between" data-item-id="{_html.escape(str(it["id"]))}">'
-            f'<a href="{prefix}/{"service.html" if it.get("kind") == "service" else "product.html"}?id={_html.escape(str(it["id"]))}" class="block">'
+            f'<a href="{prefix}/{"service.html" if it.get("kind") == "service" or is_service else "product.html"}?id={_html.escape(str(it["id"]))}" class="block">'
             f'<div class="w-full aspect-square rounded-xl bg-slate-50 mb-2 overflow-hidden flex items-center justify-center border border-slate-100">'
             f'{"<img src=" + chr(34) + _html.escape(it["image"]) + chr(34) + " alt=" + chr(34) + _html.escape(it["name"]) + chr(34) + " class=\"w-full h-full object-cover\" loading=\"lazy\" />" if it.get("image") else ""}'
             f'</div>'
@@ -556,7 +576,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
             f'</a>'
             f'<div class="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between">'
             f'<div class="font-extrabold text-xs text-[#0B1736]">{cur_sym} {it["price"]:,.0f}</div>'
-            f'<button type="button" class="btn-add-cart h-7 px-2.5 rounded-lg bg-[#5B21F5] text-white text-[11px] font-bold" data-id="{_html.escape(str(it["id"]))}">+ Add</button>'
+            f'<button type="button" class="btn-add-cart h-7 px-2.5 rounded-lg bg-[#5B21F5] text-white text-[11px] font-bold" data-id="{_html.escape(str(it["id"]))}">{"Book" if it.get("kind") == "service" or is_service else "+ Add"}</button>'
             f'</div>'
             f'</div>'
             for it in related_items
@@ -575,7 +595,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
     # Render custom sections (e.g. rich text, custom html, video, ig feed, google reviews, collections)
     draft_mode = bool(ctx.get("draft") or ctx.get("editing"))
-    custom_sections_html = "".join(_render_section_html(s, draft_mode, business, key) for s in ctx.get("sections", []))
+    custom_sections_html = "".join(_render_section_html(s, draft_mode, business, key, is_service=is_service) for s in ctx.get("sections", []))
     if custom_sections_html and page_name not in ("product.html", "service.html", "receipt.html"):
         if "</main>" in page:
             page = page.replace("</main>", f'<div id="bz-custom-sections">{custom_sections_html}</div></main>', 1)
@@ -592,8 +612,8 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     elif ctx.get("show_branding") and 'aqivo-branding' not in page and 'aqivo-attribution' not in page:
         page = page.replace("</body>", '<footer class="aqivo-attribution" style="text-align:center;padding:32px 16px;font-size:12.5px;color:#94A3B8;"><a href="https://aqivo.shop" style="color:inherit;font-weight:600;text-decoration:none;">Powered by Aqivo</a></footer></body>', 1)
 
-    # Inject cart drawer if the storefront has any products (needed for WhatsApp bag checkout)
-    if data.get("items") and 'id="bag"' not in page:
+    # Inject cart drawer ONLY if NOT a service booking storefront (pure commerce shop checkout)
+    if not is_service and data.get("items") and 'id="bag"' not in page:
         bag_html = (
             '<div class="take-modal-veil" data-close-bag hidden></div>'
             '<aside class="take-cart-sheet" id="bag" role="dialog" aria-label="Shopping Cart" aria-modal="true" hidden>'
@@ -611,6 +631,13 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
     inject = f'<script>window.__BZ={_safe_json(data)};</script>'
     bridge = f'<script src="{URL_BASE}/_bridge.js"></script>'
+    booking_bridge = (
+        f'<script src="{URL_BASE}/aqivo-booking.js"></script>'
+        f'<script src="{URL_BASE}/aqivo-booking-bridge.js"></script>'
+    )
+    if 'aqivo-booking.js' not in page:
+        bridge += booking_bridge
+
     marker = '<script src="scripts/data.js"></script>'
     marker_store = '<script src="scripts/mobile-store.js"></script>'
     if marker in page:
@@ -625,6 +652,8 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     page = re.sub(r'(href|src)=["\']styles/', rf'\1="{URL_BASE}/{key}/styles/', page)
     page = re.sub(r'(href|src)=["\']scripts/', rf'\1="{URL_BASE}/{key}/scripts/', page)
     page = re.sub(r'(href|src)=["\']\.\./_bridge\.js["\']', rf'\1="{URL_BASE}/_bridge.js"', page)
+    page = re.sub(r'(href|src)=["\']aqivo-booking\.js["\']', rf'\1="{URL_BASE}/aqivo-booking.js"', page)
+    page = re.sub(r'(href|src)=["\']aqivo-booking-bridge\.js["\']', rf'\1="{URL_BASE}/aqivo-booking-bridge.js"', page)
     return page
 
 

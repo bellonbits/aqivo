@@ -431,12 +431,16 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
             asset_path = (Path(__file__).resolve().parent / "public" / "ecomm_templates" / ecomm_key).joinpath(*rest)
             if asset_path.is_file():
                 return FileResponse(asset_path)
-        if head == "_bridge.js":
+        if head in ("_bridge.js", "aqivo-booking.js", "aqivo-booking-bridge.js"):
             from pathlib import Path
             from fastapi.responses import FileResponse
-            asset_path = Path(__file__).resolve().parent / "public" / "ecomm_templates" / "_bridge.js"
+            asset_path = Path(__file__).resolve().parent / "public" / "ecomm_templates" / head
             if asset_path.is_file():
                 return FileResponse(asset_path)
+            if ecomm_key:
+                cand = Path(__file__).resolve().parent / "public" / "ecomm_templates" / ecomm_key / head
+                if cand.is_file():
+                    return FileResponse(cand)
 
     if head == "p" and n == 2:
         site = b.website

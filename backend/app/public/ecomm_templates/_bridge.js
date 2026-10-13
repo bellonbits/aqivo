@@ -1196,6 +1196,13 @@
     C.currencySymbol = (B.symbol || "") + " ";
     C.formatPrice = fmt;
 
+    var isService = Boolean(
+      B.is_service ||
+      (B.industry && (B.industry === "salon" || B.industry === "barbershop" || B.industry === "beauty" || B.industry === "spa" || B.industry === "services")) ||
+      (ITEMS.length > 0 && ITEMS.every(function (i) { return i.kind === "service"; })) ||
+      (!B.is_commerce && (B.services || []).length > 0)
+    );
+
     onReady(function () {
       // 1. Announcements (Disabled & removed)
       var annBar = document.getElementById("announcement-bar");
@@ -1209,7 +1216,9 @@
       var nameEl = document.getElementById("store-name");
       if (nameEl) nameEl.textContent = B.name;
       var tagEl = document.getElementById("store-tagline");
-      if (tagEl) tagEl.textContent = B.tagline || B.address || "Order online · Fast delivery";
+      if (tagEl) {
+        tagEl.textContent = B.tagline || B.address || (isService ? "Appointments & walk-ins welcome" : "Order online · Fast delivery");
+      }
       var logoEl = document.getElementById("store-logo");
       if (logoEl) {
         if (B.logo) {
@@ -1221,17 +1230,28 @@
 
       var heroTitleEl = document.getElementById("store-hero-title");
       if (heroTitleEl) {
-        heroTitleEl.textContent = B.hero_headline || ("Welcome to " + (B.name || "our store"));
+        heroTitleEl.textContent = B.hero_headline || ("Welcome to " + (B.name || (isService ? "our studio" : "our store")));
       }
       var heroSubEl = document.getElementById("store-hero-sub");
       if (heroSubEl) {
-        heroSubEl.textContent = B.hero_subheadline || B.tagline || "Discover our collection and order directly on WhatsApp.";
+        if (isService) {
+          heroSubEl.textContent = B.hero_subheadline || B.tagline || B.about || "Choose a service and a time. We'll confirm shortly. Or message us on WhatsApp.";
+        } else {
+          heroSubEl.textContent = B.hero_subheadline || B.tagline || "Discover our collection and order directly on WhatsApp.";
+        }
       }
       var heroWaBtn = document.getElementById("store-hero-wa-btn");
       var phClean = (B.wa || B.phone || "").replace(/[^0-9]/g, "");
       if (heroWaBtn) {
         if (phClean) {
-          heroWaBtn.href = "https://wa.me/" + phClean + "?text=" + encodeURIComponent("Hi " + (B.name || "") + ", I'd like to place an order from your store:");
+          var heroWaMsg = isService
+            ? ("Hi " + (B.name || "") + ", I'd like to book an appointment with " + (B.name || "you") + ":")
+            : ("Hi " + (B.name || "") + ", I'd like to place an order from your store:");
+          heroWaBtn.href = "https://wa.me/" + phClean + "?text=" + encodeURIComponent(heroWaMsg);
+          var waSpan = heroWaBtn.querySelector("span");
+          if (waSpan) {
+            waSpan.textContent = isService ? "Book on WhatsApp" : "Order on WhatsApp";
+          }
           heroWaBtn.style.display = "";
         } else {
           heroWaBtn.style.display = "none";
@@ -1247,6 +1267,18 @@
         } else {
           waBtn.style.display = "none";
         }
+      }
+
+      // Search placeholders
+      var dInp = document.getElementById("search-input");
+      var mInp = document.getElementById("search-input-mobile");
+      var searchPh = isService ? "Search services..." : "Search products...";
+      if (dInp) dInp.placeholder = searchPh;
+      if (mInp) mInp.placeholder = searchPh;
+
+      var catTitleEl = document.getElementById("catalogue-title");
+      if (catTitleEl) {
+        catTitleEl.textContent = isService ? "Our Services" : "Our Collection";
       }
 
       // Section IDs binding for builder two-way selection
@@ -1291,6 +1323,13 @@
 
       function updateCartUI() {
         var cartBar = document.getElementById("cart-bar");
+        if (isService) {
+          if (cartBar) {
+            cartBar.style.display = "none";
+            cartBar.classList.add("translate-y-24");
+          }
+          return;
+        }
         var countEl = document.getElementById("cart-count");
         var totalEl = document.getElementById("cart-total");
         var totalQty = 0;
@@ -1319,7 +1358,7 @@
       var countBadge = document.getElementById("items-count-badge");
       var locText = document.getElementById("store-location-text");
       if (locText) {
-        locText.textContent = B.address || B.tagline || "Order online · Direct delivery";
+        locText.textContent = B.address || B.tagline || (isService ? "Appointments & walk-ins welcome" : "Order online · Direct delivery");
       }
       var activeCat = "all";
       var searchQuery = "";
@@ -1328,7 +1367,8 @@
       var PILL_INACTIVE_CLS = "cat-pill";
 
       if (pillsContainer) {
-        var cats = [{ id: "all", name: "All items", count: ITEMS.length }];
+        var allLabel = isService ? "All services" : "All items";
+        var cats = [{ id: "all", name: allLabel, count: ITEMS.length }];
         var seenCats = {};
         CATS.forEach(function (c) {
           if (!seenCats[c.id]) {
@@ -1428,7 +1468,7 @@
         });
 
         if (countBadge) {
-          countBadge.textContent = filtered.length + " item" + (filtered.length !== 1 ? "s" : "");
+          countBadge.textContent = filtered.length + " " + (isService ? "service" : "item") + (filtered.length !== 1 ? "s" : "");
         }
 
         if (!filtered.length) {
@@ -1438,11 +1478,11 @@
             var titleEl = document.getElementById("empty-title");
             var subEl = document.getElementById("empty-subtitle");
             if (searchQuery) {
-              if (titleEl) titleEl.textContent = 'No products found for "' + searchQuery + '"';
+              if (titleEl) titleEl.textContent = isService ? ('No services found for "' + searchQuery + '"') : ('No products found for "' + searchQuery + '"');
               if (subEl) subEl.textContent = 'Check your spelling or try another search term';
             } else {
-              if (titleEl) titleEl.textContent = 'No products in this category';
-              if (subEl) subEl.textContent = 'Select "All items" to view all available products';
+              if (titleEl) titleEl.textContent = isService ? 'No services in this category' : 'No products in this category';
+              if (subEl) subEl.textContent = isService ? 'Select "All services" to view all available services' : 'Select "All items" to view all available products';
             }
           }
           return;
@@ -1450,12 +1490,12 @@
         if (emptyState) emptyState.classList.add("hidden");
 
         gridContainer.innerHTML = filtered.map(function (it) {
-          var isSvc = it.kind === "service";
+          var isSvc = isService || it.kind === "service";
           var hasVariants = it.variants && it.variants.length > 0;
           var actionLabel = isSvc ? "Book" : (hasVariants ? "Options" : "+ Add");
           var durationBadge = isSvc && it.duration ? '<span class="text-[11px] text-slate-400 font-medium">⏱ ' + esc(it.duration) + 'm</span>' : '';
-          var saleBadge = it.compare && it.compare > it.price ? '<span class="absolute top-2.5 left-2.5 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">' + pct(it) + '</span>' : '';
-          var compPriceHtml = (it.compare && it.compare > it.price) ? '<s class="text-xs text-slate-400 font-medium ml-1.5">' + fmt(it.compare) + '</s>' : durationBadge;
+          var saleBadge = (!isSvc && it.compare && it.compare > it.price) ? '<span class="absolute top-2.5 left-2.5 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">' + pct(it) + '</span>' : '';
+          var compPriceHtml = (!isSvc && it.compare && it.compare > it.price) ? '<s class="text-xs text-slate-400 font-medium ml-1.5">' + fmt(it.compare) + '</s>' : durationBadge;
           var categoryTagHtml = it.category ? '<span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1 truncate">' + esc(it.category) + '</span>' : '';
           var itemDetailPage = isSvc ? "service.html" : "product.html";
           var bzParam = "?id=" + encodeURIComponent(it.id);
@@ -1475,8 +1515,9 @@
             '</a>' +
             '<div class="mt-auto pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">' +
               '<div class="min-w-0 font-extrabold text-sm sm:text-base text-[#0B1736] tracking-tight leading-none">' + fmt(it.price) + compPriceHtml + '</div>' +
-              '<button type="button" class="btn-add-cart h-8 sm:h-9 px-3 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm shrink-0" data-id="' + esc(it.id) + '" data-has-variants="' + (hasVariants ? '1' : '0') + '">' +
-                (hasVariants ? '' : '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>') +
+              '<button type="button" class="btn-add-cart h-8 sm:h-9 px-3 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm shrink-0" data-id="' + esc(it.id) + '" data-has-variants="' + (hasVariants ? '1' : '0') + '" data-is-service="' + (isSvc ? '1' : '0') + '">' +
+                (hasVariants || isSvc ? '' : '<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>') +
+                (isSvc ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>' : '') +
                 '<span>' + actionLabel + '</span>' +
               '</button>' +
             '</div>' +
@@ -1494,10 +1535,25 @@
           var it = byId[id];
           if (!it) return;
 
+          var isItemSvc = isService || it.kind === "service";
+          if (isItemSvc) {
+            if (window.AqivoBookingBridge && window.AqivoBookingBridge.openFor) {
+              window.AqivoBookingBridge.openFor(it);
+            } else if (window.AqivoBooking && window.AqivoBooking.open) {
+              window.AqivoBooking.open({
+                service: { id: it.id, name: it.name, price: it.price, durationMin: it.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
+                store: { name: B.name, phone: B.wa || B.phone || '', address: B.address || '' },
+                config: B.timezone ? { timezone: B.timezone } : {}
+              });
+            } else {
+              window.location.href = "service.html?id=" + encodeURIComponent(it.id);
+            }
+            return;
+          }
+
           // If item has variants, open PDP so the user can select their variant
           if (it.variants && it.variants.length > 0) {
-            var itemDetailPage = (it.kind === "service") ? "service.html" : "product.html";
-            window.location.href = itemDetailPage + "?id=" + encodeURIComponent(it.id);
+            window.location.href = "product.html?id=" + encodeURIComponent(it.id);
             return;
           }
 
@@ -1527,24 +1583,33 @@
         var pdpItem = (activeItemId && byId[activeItemId]) || ITEMS[0];
 
         if (pdpItem) {
+          var isItemSvc = isService || pdpItem.kind === "service";
           var pBrandLogo = document.getElementById("pdp-brand-logo");
           if (pBrandLogo) pBrandLogo.textContent = B.name || "Aqivo";
-          document.title = (pdpItem.name || "Product") + " — " + (B.name || "Aqivo");
+          document.title = (pdpItem.name || (isItemSvc ? "Service" : "Product")) + " — " + (B.name || "Aqivo");
+
+          var pBackLink = document.querySelector(".pdp-back-link span");
+          if (pBackLink) {
+            pBackLink.textContent = isItemSvc ? "Back to Services" : "Back to Store";
+          }
 
           var pCrumbTitle = document.getElementById("pdp-crumb-title");
           if (pCrumbTitle) pCrumbTitle.textContent = pdpItem.name;
 
           var pCrumbCat = document.getElementById("pdp-crumb-cat");
-          if (pCrumbCat) pCrumbCat.textContent = pdpItem.category || (pdpItem.kind === "service" ? "Services" : "Catalogue");
+          if (pCrumbCat) pCrumbCat.textContent = pdpItem.category || (isItemSvc ? "Services" : "Catalogue");
 
           var pItemTitle = document.getElementById("pdp-item-title");
           if (pItemTitle) pItemTitle.textContent = pdpItem.name;
 
           var pCatTag = document.getElementById("pdp-category-tag");
-          if (pCatTag) pCatTag.textContent = pdpItem.category || (B.name || "General");
+          if (pCatTag) pCatTag.textContent = pdpItem.category || (B.name || (isItemSvc ? "Service" : "General"));
+
+          var pPrepChip = document.querySelector(".pdp-prep-chip");
+          if (pPrepChip) pPrepChip.textContent = isItemSvc ? "Service" : "Product";
 
           var pDescText = document.getElementById("pdp-description-text");
-          if (pDescText) pDescText.textContent = pdpItem.desc || ("High quality " + pdpItem.name + " available directly from " + (B.name || "our store") + ".");
+          if (pDescText) pDescText.textContent = pdpItem.desc || ((isItemSvc ? "Professional " : "High quality ") + pdpItem.name + " available directly from " + (B.name || "our store") + ".");
 
           var pHeroImg = document.getElementById("pdp-hero-img");
           if (pHeroImg) {
@@ -1563,9 +1628,21 @@
             if (pBoldPrice) pBoldPrice.textContent = fmt(pCurrentPrice);
             var pAddBagBtn = document.getElementById("pdp-add-bag-btn");
             if (pAddBagBtn) {
-              var ctaPrefix = (pdpItem.kind === "service") ? "Book Service — " : "Add to Bag — ";
-              pAddBagBtn.textContent = ctaPrefix + fmt(pCurrentPrice * pCurrentQty);
+              var ctaPrefix = isItemSvc ? "Book Service — " : "Add to Bag — ";
+              pAddBagBtn.textContent = ctaPrefix + fmt(pCurrentPrice * (isItemSvc ? 1 : pCurrentQty));
             }
+          }
+
+          // Quantity row: hide for services
+          var pQtyRow = document.querySelector(".pdp-qty-row");
+          if (pQtyRow) {
+            pQtyRow.style.display = isItemSvc ? "none" : "";
+          }
+
+          // Cart bar on PDP: hide for services
+          var pCartBar = document.getElementById("cart-bar");
+          if (pCartBar && isItemSvc) {
+            pCartBar.style.display = "none";
           }
 
           // Populate variant chips
@@ -1623,10 +1700,23 @@
             });
           }
 
-          // Add to Bag CTA
+          // Add to Bag CTA / Book Service CTA
           var pAddBagBtn = document.getElementById("pdp-add-bag-btn");
           if (pAddBagBtn) {
             pAddBagBtn.addEventListener("click", function () {
+              if (isItemSvc) {
+                if (window.AqivoBookingBridge && window.AqivoBookingBridge.openFor) {
+                  window.AqivoBookingBridge.openFor(pdpItem);
+                } else if (window.AqivoBooking && window.AqivoBooking.open) {
+                  window.AqivoBooking.open({
+                    service: { id: pdpItem.id, name: pdpItem.name, price: pCurrentPrice, durationMin: pdpItem.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
+                    store: { name: B.name, phone: B.wa || B.phone || '', address: B.address || '' },
+                    config: B.timezone ? { timezone: B.timezone } : {}
+                  });
+                }
+                return;
+              }
+
               var varId = pSelectedVariant ? pSelectedVariant.id : null;
               var existing = cart.filter(function (ci) {
                 return ci.id === pdpItem.id && String(ci.variant_id || '') === String(varId || '');
@@ -1666,8 +1756,9 @@
             var relatedItems = ITEMS.filter(function (it) { return it.id !== pdpItem.id; }).slice(0, 4);
             if (relatedItems.length) {
               pRelatedGrid.innerHTML = relatedItems.map(function (it) {
-                var isSvc = it.kind === "service";
-                var detailUrl = (isSvc ? "service.html" : "product.html") + "?id=" + encodeURIComponent(it.id);
+                var rIsSvc = isService || it.kind === "service";
+                var detailUrl = (rIsSvc ? "service.html" : "product.html") + "?id=" + encodeURIComponent(it.id);
+                var rActionLabel = rIsSvc ? "Book" : "+ Add";
                 return '<div class="store-card group bg-white rounded-2xl p-3 border border-slate-200/90 shadow-sm flex flex-col justify-between" data-item-id="' + esc(it.id) + '">' +
                   '<a href="' + detailUrl + '" class="block">' +
                     '<div class="w-full aspect-square rounded-xl bg-slate-50 mb-2 overflow-hidden flex items-center justify-center border border-slate-100">' +
@@ -1677,7 +1768,7 @@
                   '</a>' +
                   '<div class="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between">' +
                     '<div class="font-extrabold text-xs text-[#0B1736]">' + fmt(it.price) + '</div>' +
-                    '<button type="button" class="btn-add-cart h-7 px-2.5 rounded-lg bg-[#5B21F5] text-white text-[11px] font-bold" data-id="' + esc(it.id) + '">+ Add</button>' +
+                    '<button type="button" class="btn-add-cart h-7 px-2.5 rounded-lg bg-[#5B21F5] text-white text-[11px] font-bold" data-id="' + esc(it.id) + '">' + rActionLabel + '</button>' +
                   '</div>' +
                 '</div>';
               }).join("");
@@ -1690,8 +1781,23 @@
                 var rId = rBtn.getAttribute("data-id");
                 var rIt = byId[rId];
                 if (!rIt) return;
+                var rIsSvc = isService || rIt.kind === "service";
+                if (rIsSvc) {
+                  if (window.AqivoBookingBridge && window.AqivoBookingBridge.openFor) {
+                    window.AqivoBookingBridge.openFor(rIt);
+                  } else if (window.AqivoBooking && window.AqivoBooking.open) {
+                    window.AqivoBooking.open({
+                      service: { id: rIt.id, name: rIt.name, price: rIt.price, durationMin: rIt.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
+                      store: { name: B.name, phone: B.wa || B.phone || '', address: B.address || '' },
+                      config: B.timezone ? { timezone: B.timezone } : {}
+                    });
+                  } else {
+                    window.location.href = "service.html?id=" + encodeURIComponent(rIt.id);
+                  }
+                  return;
+                }
                 if (rIt.variants && rIt.variants.length > 0) {
-                  window.location.href = ((rIt.kind === "service") ? "service.html" : "product.html") + "?id=" + encodeURIComponent(rIt.id);
+                  window.location.href = "product.html?id=" + encodeURIComponent(rIt.id);
                   return;
                 }
                 var exist = cart.filter(function (ci) { return ci.id === rId && !ci.variant_id; })[0];
