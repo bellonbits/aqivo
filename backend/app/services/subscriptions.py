@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.errors import bad_request
-from app.models import Business, Plan, Subscription, SupportTicket, Transaction, User, WebhookEvent
+from app.models import Business, Invoice, Payment, Plan, Subscription, SupportTicket, Transaction, User, WebhookEvent
 from app.models.enums import PaymentStatus, SubscriptionStatus
 from app.services.audit import audit
 from app.services.notifications import notify
@@ -138,17 +138,33 @@ class WebhookService:
                 rec.outcome = "amount_mismatch"
             else:
                 txn.status = PaymentStatus.PAID
-                plan = get_plan(db, (txn.raw or {}).get("plan", "GROW"))
-                sub = SubscriptionService.activate(db, business, plan, source=provider.name)
-                txn.subscription_id = sub.id
-                notify(db, "payment_success", business.email, business_id=business.id, business=business.name, amount=f"{txn.amount:,.0f}", currency=txn.currency)
-                rec.outcome = "paid"
+                if txn.purpose == "CUSTOMER_PAYMENT" and txn.payment_id:
+                    p = db.get(Payment, txn.payment_id)
+                    if p:
+                        p.status = PaymentStatus.PAID
+                        p.paid_at = datetime.now(timezone.utc)
+                        if p.invoice_id:
+                            inv = db.get(Invoice, p.invoice_id)
+                            if inv:
+                                inv.payment_status = PaymentStatus.PAID
+                    rec.outcome = "paid"
+                else:
+                    plan = get_plan(db, (txn.raw or {}).get("plan", "GROW"))
+                    sub = SubscriptionService.activate(db, business, plan, source=provider.name)
+                    txn.subscription_id = sub.id
+                    notify(db, "payment_success", business.email, business_id=business.id, business=business.name, amount=f"{txn.amount:,.0f}", currency=txn.currency)
+                    rec.outcome = "paid"
         else:
             cb = payload.get("Body", {}).get("stkCallback") or {}
             res_desc = cb.get("ResultDesc") or event.raw.get("errorMessage") or "Payment failed"
             res_code = cb.get("ResultCode")
             txn.status, txn.raw = PaymentStatus.FAILED, {**(txn.raw or {}), "error": res_desc, "result_code": res_code}
-            notify(db, "payment_failed", business.email, business_id=business.id, business=business.name)
+            if txn.purpose == "CUSTOMER_PAYMENT" and txn.payment_id:
+                p = db.get(Payment, txn.payment_id)
+                if p:
+                    p.status = PaymentStatus.FAILED
+            else:
+                notify(db, "payment_failed", business.email, business_id=business.id, business=business.name)
             rec.outcome = "failed"
         rec.processed_at = datetime.now(timezone.utc)
         audit(db, f"payment.{rec.outcome}", business_id=business.id, resource_type="transaction", resource_id=txn.id, meta={"provider": provider.name})

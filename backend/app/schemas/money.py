@@ -24,6 +24,14 @@ class PaymentUpdate(BaseModel):
     status: PaymentStatus
 
 
+class CollectMpesaIn(BaseModel):
+    amount: Money
+    phone: str = Field(min_length=9, max_length=32)
+    customer_id: uuid.UUID | None = None
+    invoice_id: uuid.UUID | None = None
+    note: str = Field(default="", max_length=300)
+
+
 class PaymentOut(ORM):
     id: uuid.UUID
     customer_id: uuid.UUID | None

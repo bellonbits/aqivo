@@ -129,10 +129,13 @@ export const NotEnoughData = ({ hint }: { hint?: string }) => (
 export const ErrorState = ({ message, onRetry }: { message: string; onRetry?: () => void }) => (
   <EmptyState title="Couldn't load this" body={message} action={onRetry && <Button variant="secondary" onClick={onRetry}>Try again</Button>} />
 )
-export const ComingSoon = ({ title, body }: { title: string; body?: string }) => (
-  <div className="flex items-start gap-3 rounded-xl border border-dashed border-line-strong bg-paper px-4 py-3.5">
-    <Badge tone="neutral">Coming soon</Badge>
-    <div><p className="text-sm font-semibold">{title}</p>{body && <p className="text-sm text-muted">{body}</p>}</div>
+export const ComingSoon = ({ title, body, action }: { title: string; body?: ReactNode; action?: ReactNode }) => (
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-dashed border-line-strong bg-paper px-4 py-3.5">
+    <div className="flex items-start gap-3">
+      <Badge tone="neutral" className="shrink-0 mt-0.5">Coming soon</Badge>
+      <div><p className="text-sm font-semibold">{title}</p>{body && <div className="text-sm text-muted">{body}</div>}</div>
+    </div>
+    {action && <div className="shrink-0">{action}</div>}
   </div>
 )
 export const NotConfigured = ({ title, body }: { title: string; body?: string }) => (

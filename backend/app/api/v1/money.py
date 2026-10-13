@@ -14,7 +14,7 @@ from app.core.errors import bad_request, or404
 from app.models import Invoice, Payment, Plan, Subscription, SupportTicket, Transaction
 from app.models.enums import PaymentStatus
 from app.repositories import CustomerRepository, InvoiceRepository, PaymentRepository
-from app.schemas.money import CheckoutIn, InvoiceIn, InvoiceOut, PaymentIn, PaymentOut, PaymentUpdate, PlanOut
+from app.schemas.money import CheckoutIn, CollectMpesaIn, InvoiceIn, InvoiceOut, PaymentIn, PaymentOut, PaymentUpdate, PlanOut
 from app.core.db import get_db as _get_db
 from app.services import invoices as inv_svc
 from app.services.payments import available_providers, get_provider
@@ -27,7 +27,7 @@ invoices_router = APIRouter(prefix="/invoices", tags=["invoices"])
 subs_router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
 
 
-# ---------------- customer payments (records; provider-based collection is Coming soon) --------------
+# ---------------- customer payments ------------------------------------------
 @payments_router.get("", response_model=list[PaymentOut])
 def list_payments(status: str | None = None, limit: int = Query(100, le=300), ctx: TenantContext = Depends(require_feature("customers", "payments:read")), db: Session = Depends(get_db)):
     where = [Payment.status == status] if status else []
@@ -41,11 +41,13 @@ def payment_summary(ctx: TenantContext = Depends(require_feature("customers", "p
     month_start = datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     outstanding = db.scalar(select(func.coalesce(func.sum(Invoice.total), 0)).where(Invoice.business_id == bid, Invoice.deleted_at.is_(None), Invoice.payment_status == PaymentStatus.PENDING)) or Decimal("0")
     count = db.scalar(select(func.count()).select_from(Payment).where(Payment.business_id == bid)) or 0
+    mp = get_provider("MPESA")
+    mp_conf = mp.is_configured() if mp else False
     return {"currency": ctx.business.currency, "revenue_total": str(total(Payment.status == PaymentStatus.PAID)), "revenue_this_month": str(total(Payment.status == PaymentStatus.PAID, Payment.paid_at >= month_start)),
             "pending": str(total(Payment.status == PaymentStatus.PENDING)), "refunded": str(total(Payment.status == PaymentStatus.REFUNDED)),
             "outstanding_invoices": str(outstanding), "transactions": count,
             "providers": [{"name": "MANUAL", "label": "Record payments manually", "configured": True},
-                          {"name": "MPESA", "label": "M-Pesa collection from your customers", "configured": False, "note": "Coming soon"}]}
+                          {"name": "MPESA", "label": "M-Pesa STK push & manual collection", "configured": mp_conf, "note": "Active" if mp_conf else "Coming soon"}]}
 
 
 @payments_router.post("", response_model=PaymentOut, status_code=201)
@@ -79,6 +81,81 @@ def update_payment(pid: uuid.UUID, body: PaymentUpdate, request: Request, ctx: T
     log(ctx, "payment.status_changed", request, "payment", p.id, status=body.status)
     db.commit()
     return p
+
+
+@payments_router.post("/collect-mpesa")
+def collect_mpesa_payment(body: CollectMpesaIn, request: Request, ctx: TenantContext = Depends(require_feature("customers", "payments:write")), db: Session = Depends(get_db)):
+    provider = get_provider("MPESA")
+    if provider is None or not provider.is_configured():
+        raise bad_request("M-Pesa payment collection is not configured on this server")
+    try:
+        phone = normalize_phone(body.phone, ctx.business.country_code)
+    except ValueError as e:
+        raise bad_request(str(e))
+    if body.customer_id:
+        or404(CustomerRepository(db, ctx.business_id).get(body.customer_id), "Customer")
+    if body.invoice_id:
+        or404(InvoiceRepository(db, ctx.business_id).get(body.invoice_id), "Invoice")
+
+    p = PaymentRepository(db, ctx.business_id).add(
+        amount=body.amount,
+        currency=ctx.business.currency,
+        method="MPESA",
+        provider="MPESA",
+        payer_phone=phone,
+        customer_id=body.customer_id,
+        invoice_id=body.invoice_id,
+        status=PaymentStatus.PENDING,
+        note=body.note,
+    )
+    bname = (ctx.business.name or "Aqivo")[:13]
+    res = provider.initiate(
+        amount=body.amount,
+        currency=ctx.business.currency,
+        phone=phone,
+        reference=f"PAY{str(p.id)[:8]}",
+        description=bname,
+    )
+    p.provider_reference = res.reference
+    txn = Transaction(
+        business_id=ctx.business_id,
+        purpose="CUSTOMER_PAYMENT",
+        payment_id=p.id,
+        provider="MPESA",
+        amount=p.amount,
+        currency=p.currency,
+        status=PaymentStatus.PENDING,
+        provider_reference=res.reference,
+        raw={"payment_id": str(p.id), "phone": phone},
+    )
+    db.add(txn)
+    log(ctx, "payment.mpesa_prompt_sent", request, "payment", p.id, amount=str(p.amount), phone=phone)
+    db.commit()
+    return {"status": res.status, "message": res.message, "payment_id": str(p.id), "transaction_id": str(txn.id)}
+
+
+@payments_router.get("/{pid}/status")
+def payment_status(pid: uuid.UUID, ctx: TenantContext = Depends(require_feature("customers", "payments:read")), db: Session = Depends(get_db)):
+    p = or404(PaymentRepository(db, ctx.business_id).get(pid), "Payment")
+    if p.status == PaymentStatus.PENDING and p.provider == "MPESA" and p.provider_reference:
+        provider = get_provider("MPESA")
+        if provider and hasattr(provider, "query"):
+            res = provider.query(p.provider_reference)
+            if res.get("status") == "PAID":
+                p.status = PaymentStatus.PAID
+                p.paid_at = datetime.now(timezone.utc)
+                txn = db.scalars(select(Transaction).where(Transaction.payment_id == p.id)).first()
+                if txn:
+                    txn.status = PaymentStatus.PAID
+                if p.invoice_id:
+                    inv = db.get(Invoice, p.invoice_id)
+                    if inv:
+                        inv.payment_status = PaymentStatus.PAID
+                db.commit()
+            elif res.get("status") == "FAILED":
+                p.status = PaymentStatus.FAILED
+                db.commit()
+    return {"id": str(p.id), "status": p.status, "amount": str(p.amount), "currency": p.currency, "method": p.method, "paid_at": p.paid_at}
 
 
 # ---------------- invoices ---------------------------------------------------

@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Download, FileText, Plus, Wallet } from 'lucide-react'
+import { Download, FileText, Loader2, Plus, Wallet } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
 import { Button, Card, ComingSoon, EmptyState, ErrorState, Field, Modal, PageHeader, PageLoading, Select, Stat, StatusBadge, Tabs, TextAreaField, TextField, UpgradePrompt, Input } from '@/components/ui'
 import { cap, fmtDate, money } from '@/lib/format'
+import { cn } from '@/lib/cn'
 import type { Customer, Invoice, Page, Payment } from '@/types'
 
 interface Summary { currency: string; revenue_total: string; revenue_this_month: string; pending: string; refunded: string; outstanding_invoices: string; transactions: number }
@@ -36,7 +37,26 @@ export default function Payments() {
     <div className="space-y-6">
       <PageHeader title="Payments" sub="Track revenue, payments and what customers still owe you." actions={<><Button variant="secondary" onClick={() => setAddPay(true)}><Plus className="size-4" /> Record payment</Button>{has('invoices') && <Button onClick={() => setAddInv(true)}><FileText className="size-4" /> New invoice</Button>}</>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4"><Stat tone="lime" label="Revenue this month" value={money(s.revenue_this_month, cur)} /><Stat label="Total revenue" value={money(s.revenue_total, cur)} /><Stat label="Outstanding invoices" value={money(s.outstanding_invoices, cur)} /><Stat label="Transactions" value={s.transactions} /></div>
-      <ComingSoon title="M-Pesa collection from your customers" body="For now, record payments as customers pay you (cash, M-Pesa, bank). Aqivo doesn't show payments that didn't happen." />
+      <ComingSoon
+        title="M-Pesa collection from your customers"
+        body={
+          <p>
+            For now, record payments as customers pay you (cash, M-Pesa, bank). Aqivo doesn't show payments that didn't happen.{' '}
+            <button
+              type="button"
+              onClick={() => setAddPay(true)}
+              className="inline-flex items-center gap-1 font-semibold text-ink underline underline-offset-2 hover:opacity-80"
+            >
+              Record now &rarr;
+            </button>
+          </p>
+        }
+        action={
+          <Button size="sm" variant="secondary" onClick={() => setAddPay(true)}>
+            <Plus className="size-4" /> Record now
+          </Button>
+        }
+      />
       <Tabs<Tab> value={tab} onChange={setTab} items={[{ value: 'payments', label: 'Payments' }, { value: 'invoices', label: 'Invoices' }]} />
       {tab === 'payments' && <Card>{!pays.data?.length ? <EmptyState icon={<Wallet className="size-5" />} title="No payments recorded" body="Record a payment when a customer pays you." /> : <ul className="divide-y divide-line">{pays.data.map((p) => <li key={p.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5"><div className="min-w-0 flex-1"><p className="font-bold">{money(p.amount, p.currency)}</p><p className="text-sm text-muted">{cap(p.method)} · {fmtDate(p.paid_at ?? p.created_at)}{p.provider_reference ? ` · ${p.provider_reference}` : ''}{p.note ? ` · ${p.note}` : ''}</p></div><StatusBadge status={p.status} />{p.status === 'PAID' && <Button size="sm" variant="ghost" onClick={() => status.mutate({ id: p.id, status: 'REFUNDED' })}>Mark refunded</Button>}{p.status === 'PENDING' && <Button size="sm" variant="secondary" onClick={() => status.mutate({ id: p.id, status: 'PAID' })}>Mark paid</Button>}</li>)}</ul>}</Card>}
       {tab === 'invoices' && (has('invoices') ? <Card>{!invs.data?.length ? <EmptyState icon={<FileText className="size-5" />} title="No invoices yet" body="Create a professional PDF invoice for any customer." /> : <ul className="divide-y divide-line">{invs.data.map((i) => <li key={i.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5"><div className="min-w-0 flex-1"><p className="font-bold">{i.number} · {i.customer_name}</p><p className="text-sm text-muted">{fmtDate(i.issued_on)} · {money(i.total, i.currency)}</p></div><StatusBadge status={i.payment_status} />{i.payment_status !== 'PAID' && <Button size="sm" variant="secondary" onClick={() => markPaid.mutate(i.id)}>Mark paid</Button>}<Button size="sm" variant="ghost" aria-label={`Download ${i.number}`} onClick={() => void pdf(i)}><Download className="size-4" /> PDF</Button></li>)}</ul>}</Card> : <UpgradePrompt feature="invoices" title="Invoices are on Pro" body="Generate PDF invoices with discounts and tax on Pro and Business." />)}
@@ -49,12 +69,209 @@ export default function Payments() {
 function PaymentModal({ open, onClose, onDone }: { open: boolean; onClose: () => void; onDone: () => void }) {
   const toast = useToast()
   const { business } = useBusiness()
-  const [f, setF] = useState({ amount: '', method: 'CASH', ref: '', note: '' })
-  const m = useMutation({ mutationFn: () => api.post('/payments', { amount: String(Number(f.amount)), method: f.method, provider_reference: f.ref || null, note: f.note }), onSuccess: () => { onDone(); onClose(); setF({ amount: '', method: 'CASH', ref: '', note: '' }); toast.ok('Payment recorded') }, onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed') })
-  return <Modal open={open} onClose={onClose} title="Record a payment" footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button loading={m.isPending} disabled={!f.amount} onClick={() => m.mutate()}>Save</Button></>}>
-    <div className="space-y-4"><TextField label={`Amount (${business?.currency})`} type="number" inputMode="decimal" min={0} value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
-      <Field label="Method"><Select value={f.method} onChange={(e) => setF({ ...f, method: e.target.value })}>{['CASH', 'MPESA', 'CARD', 'BANK', 'OTHER'].map((x) => <option key={x} value={x}>{cap(x)}</option>)}</Select></Field>
-      <TextField label="Reference (e.g. M-Pesa code)" value={f.ref} onChange={(e) => setF({ ...f, ref: e.target.value })} /><TextAreaField label="Note" rows={2} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></div></Modal>
+  const customers = useQuery({ queryKey: ['customers', ''], queryFn: () => api.get<Page<Customer>>('/customers', { limit: 200 }), enabled: open })
+  const [mode, setMode] = useState<'record' | 'prompt'>('record')
+  const [cid, setCid] = useState('')
+  const [f, setF] = useState({ amount: '', method: 'CASH', ref: '', phone: '', note: '' })
+  const [stkStatus, setStkStatus] = useState<string | null>(null)
+  const [pendingPid, setPendingPid] = useState<string | null>(null)
+
+  const mRecord = useMutation({
+    mutationFn: () =>
+      api.post('/payments', {
+        amount: String(Number(f.amount)),
+        method: f.method,
+        customer_id: cid || null,
+        provider_reference: f.ref || null,
+        payer_phone: f.phone || null,
+        note: f.note,
+      }),
+    onSuccess: () => {
+      onDone()
+      onClose()
+      setF({ amount: '', method: 'CASH', ref: '', phone: '', note: '' })
+      setCid('')
+      toast.ok('Payment recorded')
+    },
+    onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed to record payment'),
+  })
+
+  const mPrompt = useMutation({
+    mutationFn: () =>
+      api.post<{ status: string; message: string; payment_id: string }>('/payments/collect-mpesa', {
+        amount: String(Number(f.amount)),
+        phone: f.phone,
+        customer_id: cid || null,
+        note: f.note,
+      }),
+    onSuccess: (res) => {
+      setStkStatus('Prompt sent! Waiting for customer to enter PIN on their phone...')
+      setPendingPid(res.payment_id)
+    },
+    onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed to initiate M-Pesa push'),
+  })
+
+  useEffect(() => {
+    if (!pendingPid) return
+    const interval = setInterval(async () => {
+      try {
+        const res = await api.get<{ status: string }>(`/payments/${pendingPid}/status`)
+        if (res.status === 'PAID') {
+          clearInterval(interval)
+          setStkStatus('Payment received successfully!')
+          toast.ok('M-Pesa payment received!')
+          onDone()
+          setTimeout(() => {
+            setPendingPid(null)
+            setStkStatus(null)
+            onClose()
+          }, 1500)
+        } else if (res.status === 'FAILED') {
+          clearInterval(interval)
+          setStkStatus('Payment cancelled or failed.')
+          toast.err('Payment was not completed.')
+          setPendingPid(null)
+        }
+      } catch {
+        // keep polling
+      }
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [pendingPid, onDone, onClose, toast])
+
+  const handleCustomerChange = (customerId: string) => {
+    setCid(customerId)
+    if (customerId) {
+      const selected = customers.data?.items.find((c) => c.id === customerId)
+      if (selected?.phone && !f.phone) {
+        setF((prev) => ({ ...prev, phone: selected.phone || '' }))
+      }
+    }
+  }
+
+  const resetAndClose = () => {
+    setPendingPid(null)
+    setStkStatus(null)
+    setF({ amount: '', method: 'CASH', ref: '', phone: '', note: '' })
+    setCid('')
+    onClose()
+  }
+
+  return (
+    <Modal
+      open={open}
+      onClose={resetAndClose}
+      title="Record a payment"
+      footer={
+        <>
+          <Button variant="secondary" onClick={resetAndClose}>Cancel</Button>
+          {mode === 'record' ? (
+            <Button loading={mRecord.isPending} disabled={!f.amount} onClick={() => mRecord.mutate()}>
+              Save payment
+            </Button>
+          ) : (
+            <Button
+              loading={mPrompt.isPending || !!pendingPid}
+              disabled={!f.amount || !f.phone}
+              onClick={() => mPrompt.mutate()}
+            >
+              {pendingPid ? 'Awaiting PIN...' : 'Send M-Pesa push'}
+            </Button>
+          )}
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <div className="flex rounded-lg border border-line bg-paper p-1">
+          <button
+            type="button"
+            className={cn('flex-1 rounded-md py-1.5 text-xs font-semibold transition', mode === 'record' ? 'bg-white shadow text-ink' : 'text-muted hover:text-ink')}
+            onClick={() => { setMode('record'); setPendingPid(null); setStkStatus(null) }}
+          >
+            Record received payment
+          </button>
+          <button
+            type="button"
+            className={cn('flex-1 rounded-md py-1.5 text-xs font-semibold transition', mode === 'prompt' ? 'bg-white shadow text-ink' : 'text-muted hover:text-ink')}
+            onClick={() => { setMode('prompt'); setF((prev) => ({ ...prev, method: 'MPESA' })) }}
+          >
+            Send M-Pesa prompt (STK Push)
+          </button>
+        </div>
+
+        {stkStatus && (
+          <div className="rounded-lg bg-lime/15 border border-lime/30 p-3 text-xs font-medium text-lime-ink flex items-center gap-2">
+            {pendingPid && <Loader2 className="size-4 animate-spin shrink-0" />}
+            <span>{stkStatus}</span>
+          </div>
+        )}
+
+        <TextField
+          label={`Amount (${business?.currency})`}
+          type="number"
+          inputMode="decimal"
+          min={0}
+          value={f.amount}
+          onChange={(e) => setF({ ...f, amount: e.target.value })}
+        />
+
+        {customers.data?.items && customers.data.items.length > 0 && (
+          <Field label="Customer (optional)">
+            <Select value={cid} onChange={(e) => handleCustomerChange(e.target.value)}>
+              <option value="">Walk-in / unassigned customer</option>
+              {customers.data.items.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} {c.phone ? `(${c.phone})` : ''}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+
+        {mode === 'record' ? (
+          <>
+            <Field label="Method">
+              <Select value={f.method} onChange={(e) => setF({ ...f, method: e.target.value })}>
+                {['CASH', 'MPESA', 'CARD', 'BANK', 'OTHER'].map((x) => (
+                  <option key={x} value={x}>
+                    {cap(x)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            <TextField
+              label={
+                f.method === 'MPESA'
+                  ? 'M-Pesa code (e.g. QKH7123XYZ)'
+                  : f.method === 'BANK'
+                  ? 'Bank deposit / transfer reference'
+                  : f.method === 'CARD'
+                  ? 'Card reference / auth code'
+                  : 'Reference (e.g. receipt #)'
+              }
+              value={f.ref}
+              onChange={(e) => setF({ ...f, ref: e.target.value })}
+            />
+          </>
+        ) : (
+          <TextField
+            label="Customer phone number"
+            placeholder="0712345678 or 254712345678"
+            value={f.phone}
+            onChange={(e) => setF({ ...f, phone: e.target.value })}
+          />
+        )}
+
+        <TextAreaField
+          label="Note (optional)"
+          rows={2}
+          value={f.note}
+          onChange={(e) => setF({ ...f, note: e.target.value })}
+        />
+      </div>
+    </Modal>
+  )
 }
 
 function InvoiceModal({ open, onClose, onDone }: { open: boolean; onClose: () => void; onDone: () => void }) {
