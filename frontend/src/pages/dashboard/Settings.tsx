@@ -283,7 +283,7 @@ function PlanCard() {
     const timer = setInterval(async () => {
       attempts++
       try {
-        const res = await api.get<{ status: string }>(`/subscriptions/transactions/${pendingTxId}/status`)
+        const res = await api.get<{ status: string; message?: string }>(`/subscriptions/transactions/${pendingTxId}/status`)
         if (res.status === 'PAID') {
           clearInterval(timer)
           setPendingTxId(null)
@@ -293,7 +293,9 @@ function PlanCard() {
           clearInterval(timer)
           setPendingTxId(null)
           inv()
-          if (res.status === 'FAILED') toast.err('M-Pesa payment was not completed.')
+          if (res.status === 'FAILED') {
+            toast.err(res.message ? `M-Pesa: ${res.message}` : 'M-Pesa payment was not completed.')
+          }
         }
       } catch {
         if (attempts >= 20) {

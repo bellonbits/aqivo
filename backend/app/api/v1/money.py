@@ -203,8 +203,10 @@ def transaction_status(tid: uuid.UUID, ctx: TenantContext = Depends(require("sub
                 db.commit()
             elif res.get("status") == "FAILED":
                 t.status = PaymentStatus.FAILED
+                t.raw = {**(t.raw or {}), "error": res.get("message"), "result_code": (res.get("raw") or {}).get("ResultCode")}
                 db.commit()
-    return {"id": str(t.id), "status": t.status, "amount": str(t.amount), "currency": t.currency, "provider": t.provider}
+    err_msg = (t.raw or {}).get("error") if t.status == PaymentStatus.FAILED else None
+    return {"id": str(t.id), "status": t.status, "amount": str(t.amount), "currency": t.currency, "provider": t.provider, "message": err_msg}
 
 
 @subs_router.post("/checkout")

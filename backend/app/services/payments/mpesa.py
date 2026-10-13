@@ -58,7 +58,8 @@ class MpesaProvider(PaymentProvider):
             cb_base = cb_base.replace("https://aqivo.shop", "https://www.aqivo.shop")
         callback_url = f"{cb_base}/api/v1/subscriptions/webhooks/mpesa?secret={s.mpesa_callback_secret}"
 
-        body = {"BusinessShortCode": s.mpesa_shortcode, "Password": password, "Timestamp": ts, "TransactionType": "CustomerPayBillOnline",
+        tx_type = getattr(s, "mpesa_transaction_type", "CustomerPayBillOnline") or "CustomerPayBillOnline"
+        body = {"BusinessShortCode": s.mpesa_shortcode, "Password": password, "Timestamp": ts, "TransactionType": tx_type,
                 "Amount": int(amount), "PartyA": msisdn, "PartyB": s.mpesa_shortcode, "PhoneNumber": msisdn,
                 "CallBackURL": callback_url,
                 "AccountReference": reference[:12], "TransactionDesc": description[:13]}
@@ -91,11 +92,13 @@ class MpesaProvider(PaymentProvider):
             if "being processed" in msg:
                 return {"status": "PENDING", "raw": data}
             code = data.get("ResultCode")
+            desc = data.get("ResultDesc") or data.get("ResponseDescription") or ""
+            log.info("mpesa query response: code=%s desc=%s checkout_id=%s", code, desc, reference)
             if code is None:
                 return {"status": "PENDING", "raw": data}
             return {
                 "status": "PAID" if str(code) == "0" else "FAILED",
-                "message": data.get("ResultDesc", ""),
+                "message": desc,
                 "raw": data,
             }
         except Exception as exc:  # noqa: BLE001
@@ -110,11 +113,15 @@ class MpesaProvider(PaymentProvider):
         cb = payload.get("Body", {}).get("stkCallback")
         if not cb or "CheckoutRequestID" not in cb:
             return None
-        ok = cb.get("ResultCode") == 0
+        res_code = cb.get("ResultCode")
+        res_desc = cb.get("ResultDesc")
+        checkout_id = cb.get("CheckoutRequestID")
+        log.info("mpesa webhook callback: code=%s desc=%s checkout_id=%s", res_code, res_desc, checkout_id)
+        ok = str(res_code) == "0"
         amount = None
         for it in (cb.get("CallbackMetadata") or {}).get("Item", []):
             if it.get("Name") == "Amount":
                 amount = Decimal(str(it.get("Value")))
         receipt = next((it.get("Value") for it in (cb.get("CallbackMetadata") or {}).get("Item", []) if it.get("Name") == "MpesaReceiptNumber"), None)
-        return WebhookEventData(event_id=str(receipt or cb["CheckoutRequestID"]) + (":ok" if ok else ":fail"), reference=cb["CheckoutRequestID"],
+        return WebhookEventData(event_id=str(receipt or checkout_id) + (":ok" if ok else ":fail"), reference=checkout_id,
                                 status="PAID" if ok else "FAILED", amount=amount, raw=payload)

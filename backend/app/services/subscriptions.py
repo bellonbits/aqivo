@@ -144,7 +144,10 @@ class WebhookService:
                 notify(db, "payment_success", business.email, business_id=business.id, business=business.name, amount=f"{txn.amount:,.0f}", currency=txn.currency)
                 rec.outcome = "paid"
         else:
-            txn.status = PaymentStatus.FAILED
+            cb = payload.get("Body", {}).get("stkCallback") or {}
+            res_desc = cb.get("ResultDesc") or event.raw.get("errorMessage") or "Payment failed"
+            res_code = cb.get("ResultCode")
+            txn.status, txn.raw = PaymentStatus.FAILED, {**(txn.raw or {}), "error": res_desc, "result_code": res_code}
             notify(db, "payment_failed", business.email, business_id=business.id, business=business.name)
             rec.outcome = "failed"
         rec.processed_at = datetime.now(timezone.utc)
