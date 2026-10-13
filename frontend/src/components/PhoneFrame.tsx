@@ -50,12 +50,12 @@ export function PhoneFrame({
     const borderRadius = Math.round(width * 0.11)
     return (
       <div
-        className={cn('relative mx-auto isolate', className)}
+        className={cn('relative mx-auto isolate max-w-full', className)}
         style={{ width, height: h, marginBottom: (IMG.h - SCREEN.top - SCREEN.h) * k }}
         {...a11y}
       >
         <div
-          className="absolute inset-0 overflow-hidden bg-white z-0"
+          className="absolute inset-0 overflow-hidden bg-white z-0 shadow-lg"
           style={{ borderRadius }}
         >
           {children}

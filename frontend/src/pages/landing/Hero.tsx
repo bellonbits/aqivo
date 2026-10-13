@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Calendar, CheckCircle2, Flame, Menu, MessageCircle, ShoppingBag, Sparkles, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { CountUp, DriftingBlobs, Floaty, ease } from '@/lib/motion'
 import { Logo } from '@/components/Logo'
@@ -104,22 +104,31 @@ function Glass({ className = '', children }: { className?: string; children: Rea
 
 export function Hero() {
   const [previewMode, setPreviewMode] = useState<'ecommerce' | 'booking'>('ecommerce')
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const isEcom = previewMode === 'ecommerce'
+  const phoneWidth = isMobile ? 240 : 295
 
   return (
-    <section className="px-3 pb-6 pt-6 sm:px-6 sm:pt-10">
-      <div className="sky relative mx-auto max-w-[1400px] overflow-hidden rounded-[40px] border border-white/80 shadow-[0_30px_80px_rgba(80,100,190,0.18)]">
+    <section className="px-3 pb-6 pt-4 sm:px-6 sm:pt-10">
+      <div className="sky relative mx-auto max-w-[1400px] overflow-hidden rounded-[28px] sm:rounded-[40px] border border-white/80 shadow-[0_30px_80px_rgba(80,100,190,0.18)]">
         <DriftingBlobs />
-        <div className="relative mx-auto max-w-6xl px-5 pb-0 pt-14 text-center md:pt-20">
+        <div className="relative mx-auto max-w-6xl px-4 pb-0 pt-8 sm:px-5 sm:pt-14 md:pt-20 text-center">
           {/* Badge */}
           <motion.div
             key={`badge-${previewMode}`}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 rounded-full bg-white/85 px-4 py-1.5 text-xs font-bold text-brand shadow-sm ring-1 ring-purple-200/60 mb-6"
+            className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/85 px-3.5 py-1 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-bold text-brand shadow-sm ring-1 ring-purple-200/60 mb-4 sm:mb-6"
           >
-            <Sparkles className="size-3.5 text-brand" />
+            <Sparkles className="size-3 sm:size-3.5 text-brand" />
             <span>
               {isEcom
                 ? 'Mobile Storefront & WhatsApp E-Commerce Platform'
@@ -128,7 +137,7 @@ export function Hero() {
           </motion.div>
 
           <h1
-            className="mx-auto max-w-4xl text-[38px] font-semibold leading-[1.08] tracking-[-0.03em] sm:text-6xl lg:text-[68px]"
+            className="mx-auto max-w-4xl text-[30px] font-semibold leading-[1.08] tracking-[-0.03em] sm:text-6xl lg:text-[68px]"
             aria-label={
               isEcom
                 ? 'Launch Your Store. Sell On WhatsApp. Grow your retail business.'
@@ -174,7 +183,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease }}
-            className="mx-auto mt-6 max-w-2xl text-base text-muted md:text-lg"
+            className="mx-auto mt-4 max-w-2xl text-sm text-muted sm:mt-6 sm:text-base md:text-lg"
           >
             {isEcom
               ? 'Create a modern mobile storefront in minutes, accept instant M-Pesa payments, and receive structured, itemized orders directly on WhatsApp.'
@@ -185,17 +194,17 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.8, ease }}
-            className="mt-8 flex flex-wrap justify-center gap-3"
+            className="mt-6 flex flex-wrap justify-center gap-2.5 sm:mt-8 sm:gap-3"
           >
             <Link
               to="/register"
-              className="btn-brand rounded-full px-8 py-4 text-base font-bold transition hover:-translate-y-0.5 active:scale-95 shadow-lg"
+              className="btn-brand rounded-full px-6 py-3 text-sm sm:px-8 sm:py-4 sm:text-base font-bold transition hover:-translate-y-0.5 active:scale-95 shadow-lg"
             >
               {isEcom ? 'Start free storefront' : 'Start free booking'}
             </Link>
             <a
               href={isEcom ? '#features' : '#booking-engine'}
-              className="glass rounded-full px-8 py-4 text-base font-bold transition hover:-translate-y-0.5"
+              className="glass rounded-full px-6 py-3 text-sm sm:px-8 sm:py-4 sm:text-base font-bold transition hover:-translate-y-0.5"
             >
               Test live demo
             </a>
@@ -203,7 +212,7 @@ export function Hero() {
         </div>
 
         {/* 3-column interactive showcase */}
-        <div className="relative mx-auto mt-10 grid max-w-6xl items-end gap-6 px-5 lg:grid-cols-[1fr_auto_1fr] lg:gap-10">
+        <div className="relative mx-auto mt-6 grid max-w-6xl items-end gap-6 px-4 sm:px-5 sm:mt-10 lg:grid-cols-[1fr_auto_1fr] lg:gap-10">
           {/* Left Column */}
           <motion.div
             initial={{ opacity: 0, x: -60 }}
@@ -269,38 +278,38 @@ export function Hero() {
             transition={{ duration: 1.1, delay: 0.3, ease }}
             className="order-1 lg:order-2"
           >
-            <div className="relative z-0 pb-4">
-              <div className="mb-3.5 sm:mb-4.5 flex items-center justify-center gap-1.5">
+            <div className="relative z-0 pb-3 pt-1 sm:pt-0">
+              <div className="mb-2 sm:mb-3.5 flex items-center justify-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setPreviewMode('ecommerce')}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[11px] font-bold transition shadow-xs ${
+                  className={`inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2.5 py-1 sm:px-3.5 sm:py-1 text-[10px] sm:text-[11px] font-bold transition shadow-xs ${
                     previewMode === 'ecommerce'
                       ? 'bg-stone-900 text-white ring-1 ring-stone-900'
                       : 'bg-white/85 text-stone-600 hover:text-stone-900 border border-stone-200/60'
                   }`}
                 >
-                  <ShoppingBag className="size-3.5" />
+                  <ShoppingBag className="size-3 sm:size-3.5" />
                   <span>Storefront (Two Sides)</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreviewMode('booking')}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[11px] font-bold transition shadow-xs ${
+                  className={`inline-flex items-center gap-1 sm:gap-1.5 rounded-full px-2.5 py-1 sm:px-3.5 sm:py-1 text-[10px] sm:text-[11px] font-bold transition shadow-xs ${
                     previewMode === 'booking'
                       ? 'bg-stone-900 text-white ring-1 ring-stone-900'
                       : 'bg-white/85 text-stone-600 hover:text-stone-900 border border-stone-200/60'
                   }`}
                 >
-                  <Calendar className="size-3.5" />
+                  <Calendar className="size-3 sm:size-3.5" />
                   <span>Booking & Appointments</span>
                 </button>
               </div>
 
               {previewMode === 'ecommerce' ? (
-                <EcommercePhoneApp width={295} autoPlay={true} />
+                <EcommercePhoneApp width={phoneWidth} autoPlay={true} />
               ) : (
-                <BookingPhoneApp width={295} autoPlay={true} />
+                <BookingPhoneApp width={phoneWidth} autoPlay={true} />
               )}
             </div>
           </motion.div>
