@@ -95,6 +95,74 @@
   window.normalisePhone = normalisePhone;
   window.AqivoNormalisePhone = normalisePhone;
 
+  function openServiceBooking(it, price) {
+    if (!it) return;
+    if (window.AqivoBookingBridge && window.AqivoBookingBridge.openFor) {
+      window.AqivoBookingBridge.openFor(it, price);
+      return;
+    }
+    if (window.AqivoBooking && window.AqivoBooking.open) {
+      var api = '/api/v1/public/' + encodeURIComponent(B.slug || 'default');
+      window.AqivoBooking.open({
+        service: {
+          id: it.id,
+          name: it.name,
+          price: price !== undefined ? price : it.price,
+          durationMin: it.duration || 60,
+          currencySymbol: B.symbol || B.currency || 'KSh'
+        },
+        store: {
+          name: B.name || 'Store',
+          phone: normalisePhone(B.wa || B.phone || ''),
+          address: B.address || ''
+        },
+        config: {
+          timezone: B.timezone || 'Africa/Nairobi',
+          hours: B.opening_hours || B.hours || {}
+        },
+        fetchSlots: function (date, svc) {
+          return fetch(api + '/slots?date=' + encodeURIComponent(date) + '&service_ids=' + encodeURIComponent(svc.id))
+            .then(function (r) { return r.json(); })
+            .then(function (res) {
+              return {
+                slots: (res.slots || []).map(function (s) { return { value: s.starts_at, label: s.label }; }),
+                reason: res.reason || ''
+              };
+            });
+        },
+        submit: function (p) {
+          return fetch(api + '/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              service_ids: [p.service.id],
+              starts_at: p.slot.value,
+              name: p.name,
+              phone: p.phone,
+              notes: p.notes || '',
+              source: 'WEBSITE',
+              referrer: document.referrer || null,
+              website: ''
+            })
+          }).then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; });
+          }).then(function (res) {
+            if (!res.ok) {
+              var msg = (res.j && res.j.detail && (typeof res.j.detail === 'string' ? res.j.detail : res.j.detail.message)) || (res.j && res.j.message) || 'Could not complete your booking.';
+              var err = new Error(msg);
+              if (res.status === 409 || /taken|no longer|unavailable|conflict/i.test(msg)) err.code = 'SLOT_TAKEN';
+              throw err;
+            }
+            return res.j;
+          });
+        },
+        receiptBase: B.booking_receipt_base || ''
+      });
+      return;
+    }
+    window.location.href = "service.html?id=" + encodeURIComponent(it.id);
+  }
+
   function makeDesignedPlaceholder(name, category) {
     var label = String(name || category || "STORE ITEM").slice(0, 18).toUpperCase();
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">' +
@@ -1556,17 +1624,7 @@
 
           var isItemSvc = isService || it.kind === "service";
           if (isItemSvc) {
-            if (window.AqivoBookingBridge && window.AqivoBookingBridge.openFor) {
-              window.AqivoBookingBridge.openFor(it);
-            } else if (window.AqivoBooking && window.AqivoBooking.open) {
-              window.AqivoBooking.open({
-                service: { id: it.id, name: it.name, price: it.price, durationMin: it.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
-                store: { name: B.name, phone: normalisePhone(B.wa || B.phone || ''), address: B.address || '' },
-                config: B.timezone ? { timezone: B.timezone } : {}
-              });
-            } else {
-              window.location.href = "service.html?id=" + encodeURIComponent(it.id);
-            }
+            openServiceBooking(it);
             return;
           }
 
@@ -1724,15 +1782,7 @@
           if (pAddBagBtn) {
             pAddBagBtn.addEventListener("click", function () {
               if (isItemSvc) {
-                if (window.AqivoBookingBridge && window.AqivoBookingBridge.openFor) {
-                  window.AqivoBookingBridge.openFor(pdpItem);
-                } else if (window.AqivoBooking && window.AqivoBooking.open) {
-                  window.AqivoBooking.open({
-                    service: { id: pdpItem.id, name: pdpItem.name, price: pCurrentPrice, durationMin: pdpItem.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
-                    store: { name: B.name, phone: normalisePhone(B.wa || B.phone || ''), address: B.address || '' },
-                    config: B.timezone ? { timezone: B.timezone } : {}
-                  });
-                }
+                openServiceBooking(pdpItem, pCurrentPrice);
                 return;
               }
 
@@ -1802,17 +1852,7 @@
                 if (!rIt) return;
                 var rIsSvc = isService || rIt.kind === "service";
                 if (rIsSvc) {
-                  if (window.AqivoBookingBridge && window.AqivoBookingBridge.openFor) {
-                    window.AqivoBookingBridge.openFor(rIt);
-                  } else if (window.AqivoBooking && window.AqivoBooking.open) {
-                    window.AqivoBooking.open({
-                      service: { id: rIt.id, name: rIt.name, price: rIt.price, durationMin: rIt.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
-                      store: { name: B.name, phone: normalisePhone(B.wa || B.phone || ''), address: B.address || '' },
-                      config: B.timezone ? { timezone: B.timezone } : {}
-                    });
-                  } else {
-                    window.location.href = "service.html?id=" + encodeURIComponent(rIt.id);
-                  }
+                  openServiceBooking(rIt);
                   return;
                 }
                 if (rIt.variants && rIt.variants.length > 0) {

@@ -259,13 +259,51 @@ function PlanCard() {
   const plans = useQuery({ queryKey: ['plans', cur], queryFn: () => api.get<Plan[]>('/subscriptions/plans', { currency: cur }) })
   const me = useQuery({ queryKey: ['sub-me'], queryFn: () => api.get<SubMe>('/subscriptions/me') })
   const [pick, setPick] = useState<Plan | null>(null)
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState(business?.phone || '')
+  const [pendingTxId, setPendingTxId] = useState<string | null>(null)
   const [cancel, setCancel] = useState(false)
   const owner = !!summary?.permissions_all
   const inv = () => { void qc.invalidateQueries({ queryKey: ['sub-me'] }); void refresh() }
-  const checkout = useMutation({ mutationFn: () => api.post<{ status: string; message: string }>('/subscriptions/checkout', { plan_key: pick!.key, phone: phone || null }), onSuccess: (r) => { setPick(null); inv(); toast.ok(r.message) }, onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed') })
+  const checkout = useMutation({
+    mutationFn: () => api.post<{ status: string; message: string; transaction_id?: string }>('/subscriptions/checkout', { plan_key: pick!.key, phone: phone || null }),
+    onSuccess: (r) => {
+      setPick(null)
+      inv()
+      toast.ok(r.message)
+      if (r.transaction_id) setPendingTxId(r.transaction_id)
+    },
+    onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed')
+  })
   const stop = useMutation({ mutationFn: () => api.post<{ message: string }>('/subscriptions/cancel'), onSuccess: (r) => { setCancel(false); inv(); toast.ok(r.message) } })
   const resume = useMutation({ mutationFn: () => api.post('/subscriptions/resume'), onSuccess: inv })
+
+  useEffect(() => {
+    if (!pendingTxId) return
+    let attempts = 0
+    const timer = setInterval(async () => {
+      attempts++
+      try {
+        const res = await api.get<{ status: string }>(`/subscriptions/transactions/${pendingTxId}/status`)
+        if (res.status === 'PAID') {
+          clearInterval(timer)
+          setPendingTxId(null)
+          inv()
+          toast.ok('Payment received! Your subscription is now active.')
+        } else if (res.status === 'FAILED' || attempts >= 20) {
+          clearInterval(timer)
+          setPendingTxId(null)
+          inv()
+          if (res.status === 'FAILED') toast.err('M-Pesa payment was not completed.')
+        }
+      } catch {
+        if (attempts >= 20) {
+          clearInterval(timer)
+          setPendingTxId(null)
+        }
+      }
+    }, 3000)
+    return () => clearInterval(timer)
+  }, [pendingTxId])
   if (!plans.data || !me.data) return <PageLoading />
   const sub = me.data.subscription
   const mpesa = me.data.providers.find((p) => p.name === 'MPESA')
@@ -281,6 +319,15 @@ function PlanCard() {
           {owner && p.key !== 'FREE' && !current && <Button className="mt-4" size="sm" onClick={() => setPick(p)}>{sub?.plan_key === p.key ? 'Renew' : 'Choose'} {p.name}</Button>}</div>
       })}</div>
       <div className="space-y-3 border-t border-line p-5">
+        {pendingTxId && (
+          <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-4 text-sm font-bold text-ink shadow-sm">
+            <span className="relative flex size-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ok opacity-75" />
+              <span className="relative inline-flex size-3 rounded-full bg-ok" />
+            </span>
+            <span>M-Pesa prompt sent to your phone. Enter your PIN to activate your subscription...</span>
+          </div>
+        )}
         {!mpesa?.configured && <ComingSoon title="Online payment isn't switched on yet" body="Choosing a plan sends an upgrade request to the Aqivo team, who'll help you pay (e.g. M-Pesa) and activate it." />}
         {sub?.status === 'ACTIVE' && owner && (sub.cancel_at_period_end ? <Button variant="secondary" onClick={() => resume.mutate()}>Keep my plan</Button> : <Button variant="danger" size="sm" onClick={() => setCancel(true)}>Cancel plan</Button>)}
         {sub && ['EXPIRED', 'CANCELLED'].includes(sub.status) && <p className="text-sm text-muted">Your data is kept until {fmtDate(sub.data_retained_until)}. Your free profile stays live.</p>}

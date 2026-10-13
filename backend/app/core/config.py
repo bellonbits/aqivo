@@ -1,10 +1,16 @@
 from functools import lru_cache
-
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parents[2]
+_ROOT_DIR = _BACKEND_DIR.parent
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=(_BACKEND_DIR / ".env", _ROOT_DIR / ".env", ".env"),
+        extra="ignore",
+    )
 
     environment: str = "development"
     database_url: str = "postgresql+psycopg://mac@127.0.0.1:5432/bizora"

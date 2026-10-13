@@ -34,7 +34,7 @@ from app.services.audit import audit
 from app.services.industries import INDUSTRIES
 from app.services.notifications import notify
 from app.services.plans import FEATURES, LIMIT_LABELS, get_plan, get_subscription, refresh_subscription_state
-from app.services.subscriptions import SubscriptionService, price_for
+from app.services.subscriptions import BillingService, SubscriptionService, price_for
 from app.services import theme_studio
 from app.services.website import publish as publish_site
 
@@ -577,6 +577,26 @@ def record_manual_payment(body: ManualPaymentIn, request: Request, admin: User =
     notify(db, "payment_success", b.email, business_id=b.id, business=b.name, amount=str(body.amount), currency=body.currency)
     db.commit()
     return {"ok": True, "subscription_status": sub.status, "current_period_end": sub.current_period_end}
+
+
+class AdminStkPushIn(BaseModel):
+    business_id: uuid.UUID
+    plan_key: str = "PRO"
+    phone: str
+
+
+@router.post("/subscriptions/send-stk-push")
+def send_admin_stk_push(body: AdminStkPushIn, request: Request, admin: User = Depends(require_platform_admin), db: Session = Depends(get_db)):
+    b = or404(db.get(Business, body.business_id), "Business")
+    plan = get_plan(db, body.plan_key)
+    res = BillingService.checkout(db, b, plan, phone=body.phone, provider_name="MPESA", user=admin)
+    audit(
+        db, "admin.subscription_stk_pushed",
+        user_id=admin.id, business_id=b.id, resource_type="subscription",
+        request=request, meta={"plan": body.plan_key, "phone": body.phone, "result": res.get("status")}
+    )
+    db.commit()
+    return res
 
 
 # ------------------------------- 4. ORDER MONITORING --------------------------------

@@ -123,13 +123,17 @@ def build_data(db: Session, ctx: dict, business: Business) -> dict:
         "team": [{"id": str(s.id), "name": s.name, "photo": s.photo_url} for s in ctx["staff"]],
         "gallery": [{"src": g.url, "caption": g.caption or ""} for g in ctx["gallery"]][:12],
         "hours": ctx["hours"], "bookingsOn": has_feature(db, business, "bookings"),
+        "opening_hours": business.opening_hours or {},
+        "timezone": getattr(business, "timezone", "Africa/Nairobi") or "Africa/Nairobi",
+        "booking_lead_hours": getattr(business, "booking_lead_hours", 1),
+        "slot_interval_minutes": getattr(business, "slot_interval_minutes", 30),
         "reviews": [{"author": r.author_name, "stars": int(r.rating), "text": r.comment or "", "date": r.created_at.strftime("%b %d, %Y")} for r in ctx["reviews"]],
         "rating": ctx["summary"],
         "nav": ctx.get("nav", []),
         "sections": ctx.get("sections", []),
         "industry": business.industry,
         "is_commerce": business.industry in ("retail", "restaurant") or bool(ctx.get("products")),
-        "is_service": business.industry in ("salon", "barbershop", "beauty", "services") or bool(services and not ctx.get("products")),
+        "is_service": bool(services and not ctx.get("products")) or (business.industry in ("salon", "barbershop", "beauty", "services") and not ctx.get("products")),
         "announcement": (ctx.get("settings") or {}).get("announcement") or "",
         "checkout_config": store_cfg.public_config(business, db) if business else None,
     }
@@ -142,7 +146,8 @@ def _safe_json(d: dict) -> str:
 def _render_section_html(s: dict, draft: bool = False, business: Business = None, key: str = "", is_service: bool = False) -> str:
     """Renders custom website builder sections into HTML markup for storefront HTML responses."""
     stype = s.get("type")
-    content = s.get("content") or {}
+    content = s.get("content") or s.get("settings") or {}
+    settings = s.get("settings") or {}
     data = s.get("data") or {}
     cls = s.get("cls") or ""
     empty = s.get("empty")
@@ -154,7 +159,7 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
             return f'<div class="sx-empty" data-sid="{_html.escape(str(sid))}">{_html.escape(hint)}</div>'
         return ""
 
-    title = content.get("title") or ""
+    title = content.get("title") or settings.get("title") or ""
     title_html = f'<h2>{_html.escape(title)}</h2>' if title else ""
     data_attr = f'data-sid="{_html.escape(str(sid))}" data-type="{_html.escape(str(stype or ""))}"'
 
@@ -237,6 +242,12 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
     if stype == "collection_grid":
         cards = data.get("cards") or []
         col_url = data.get("collection_url") or ""
+        prefix = f"/{business.slug}" if business and business.slug else ""
+        if col_url and not col_url.startswith("http") and not col_url.startswith(prefix + "/"):
+            if col_url.startswith("/"):
+                col_url = prefix + col_url
+            else:
+                col_url = prefix + "/" + col_url
         items_html = "".join(f'<div class="pcard"><h3>{_html.escape(c["name"])}</h3></div>' for c in cards)
         url_html = f'<a href="{_html.escape(col_url)}">View collection</a>' if col_url else ""
         return f'<section class="sx-sec {cls}">{title_html}<div class="pgrid">{items_html}</div>{url_html}</section>'
@@ -344,10 +355,11 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
         jsonld_tags += f'<script type="application/ld+json">{ctx["seo"]["jsonld_extra"]}</script>'
     
     items = data.get("items") or []
-    is_service = bool(
+    has_products = bool(items and any(i.get("kind") == "product" for i in items))
+    is_service = not has_products and bool(
         data.get("is_service")
-        or (business and business.industry in ("salon", "barbershop", "beauty", "services"))
-        or key == "zuribeauty"
+        or (business and business.industry in ("salon", "barbershop", "beauty", "services") and not ctx.get("products"))
+        or (key == "zuribeauty" and not ctx.get("products"))
         or (items and all(i.get("kind") == "service" for i in items))
     )
 
@@ -480,7 +492,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     page = re.sub(r'defaultDiscount:\s*\d+', 'defaultDiscount: 0', page)
 
     # Clean PDP (product.html / service.html) demo data
-    if ("pdp-content-grid" in page or page_name in ("product.html", "service.html")) and items:
+    if page_name in ("product.html", "service.html") and items:
         active_item = None
         if item_id:
             active_item = next((it for it in items if str(it.get("id")) == str(item_id)), None)
@@ -608,7 +620,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     page = re.sub(r'<a href="index\.html">Market</a>', '<a href="index.html">Home</a>', page)
 
     # Storefront footer (Powered by Aqivo attribution)
-    if business and 'class="aqivo-attribution"' not in page and 'class="site-storefront-footer"' not in page:
+    if business and ctx.get("show_branding", True) and 'class="aqivo-attribution"' not in page and 'class="site-storefront-footer"' not in page:
         footer_html = _render_store_footer(business, ctx, data)
         page = page.replace("</body>", footer_html + "</body>", 1)
     elif ctx.get("show_branding") and 'aqivo-branding' not in page and 'aqivo-attribution' not in page:
@@ -642,11 +654,17 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
     marker = '<script src="scripts/data.js"></script>'
     marker_store = '<script src="scripts/mobile-store.js"></script>'
-    if marker in page:
+    marker_bridge = re.search(r'<script\s+[^>]*src=["\'][^"\']*_bridge\.js["\'][^>]*>\s*</script>', page)
+    if marker_bridge:
+        replacement = inject + f'\n  <script src="{URL_BASE}/_bridge.js"></script>'
+        if 'aqivo-booking.js' not in page:
+            replacement += f'\n  {booking_bridge}'
+        page = page[:marker_bridge.start()] + replacement + page[marker_bridge.end():]
+    elif marker in page:
         page = page.replace(marker, marker + inject + bridge, 1)
     elif marker_store in page:
         page = page.replace(marker_store, inject + bridge + marker_store, 1)
-    else:  # no data.js: still inject before the app script
+    else:  # no data.js or _bridge.js: still inject before the closing body
         page = page.replace("</body>", inject + bridge + "</body>", 1)
 
     # Rewrite relative asset paths to absolute template paths so they load regardless of base href

@@ -39,9 +39,26 @@ class MpesaProvider(PaymentProvider):
         ts = datetime.now().strftime("%Y%m%d%H%M%S")
         password = base64.b64encode(f"{s.mpesa_shortcode}{s.mpesa_passkey}{ts}".encode()).decode()
         msisdn = "".join(ch for ch in phone if ch.isdigit())
+        if msisdn.startswith("0") and len(msisdn) == 10:
+            msisdn = "254" + msisdn[1:]
+        elif len(msisdn) == 9 and msisdn.startswith(("7", "1")):
+            msisdn = "254" + msisdn
+        elif msisdn.startswith("254") and len(msisdn) == 12:
+            pass
+        elif msisdn.startswith("+254"):
+            msisdn = msisdn[1:]
+
+        if len(msisdn) != 12 or not msisdn.startswith("254"):
+            return ProviderResult(False, "FAILED", message="Enter a valid Kenyan M-Pesa phone number (e.g. 0712345678)")
+
+        cb_base = s.public_base_url.rstrip("/")
+        if "localhost" in cb_base or cb_base.startswith("http://"):
+            cb_base = f"https://{s.base_domain or 'aqivo.shop'}"
+        callback_url = f"{cb_base}/api/v1/subscriptions/webhooks/mpesa?secret={s.mpesa_callback_secret}"
+
         body = {"BusinessShortCode": s.mpesa_shortcode, "Password": password, "Timestamp": ts, "TransactionType": "CustomerPayBillOnline",
                 "Amount": int(amount), "PartyA": msisdn, "PartyB": s.mpesa_shortcode, "PhoneNumber": msisdn,
-                "CallBackURL": f"{s.public_base_url.rstrip('/')}/api/v1/subscriptions/webhooks/mpesa?secret={s.mpesa_callback_secret}",
+                "CallBackURL": callback_url,
                 "AccountReference": reference[:12], "TransactionDesc": description[:13]}
         try:
             r = httpx.post(f"{self._base}/mpesa/stkpush/v1/processrequest", json=body, headers={"Authorization": f"Bearer {self._token()}"}, timeout=20)
@@ -52,6 +69,33 @@ class MpesaProvider(PaymentProvider):
         if r.status_code == 200 and data.get("ResponseCode") == "0":
             return ProviderResult(True, "PENDING", reference=data.get("CheckoutRequestID"), message="Check your phone and enter your M-Pesa PIN.", raw=data)
         return ProviderResult(False, "FAILED", message=data.get("errorMessage") or data.get("ResponseDescription") or "M-Pesa request failed", raw=data)
+
+    def query(self, reference: str) -> dict:
+        if not self.is_configured():
+            return {"status": "FAILED", "message": "M-Pesa is not configured"}
+        s = get_settings()
+        ts = datetime.now().strftime("%Y%m%d%H%M%S")
+        password = base64.b64encode(f"{s.mpesa_shortcode}{s.mpesa_passkey}{ts}".encode()).decode()
+        body = {
+            "BusinessShortCode": s.mpesa_shortcode,
+            "Password": password,
+            "Timestamp": ts,
+            "CheckoutRequestID": reference,
+        }
+        try:
+            r = httpx.post(f"{self._base}/mpesa/stkpushquery/v1/query", json=body, headers={"Authorization": f"Bearer {self._token()}"}, timeout=20)
+            data = r.json()
+            code = data.get("ResultCode")
+            if code is None:
+                return {"status": "PENDING", "raw": data}
+            return {
+                "status": "PAID" if str(code) == "0" else "FAILED",
+                "message": data.get("ResultDesc", ""),
+                "raw": data,
+            }
+        except Exception as exc:  # noqa: BLE001
+            log.warning("mpesa stk query failed", extra={"error": str(exc)})
+            return {"status": "PENDING", "message": str(exc)}
 
     def verify_webhook(self, headers: dict, body: bytes, query: dict) -> bool:
         secret = get_settings().mpesa_callback_secret

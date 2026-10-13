@@ -18,11 +18,71 @@
 (function (root) {
   'use strict';
 
+  var DEFAULT_HOURS = {
+    0: { open: '10:00', close: '18:00', breaks: [] },
+    1: { open: '08:00', close: '20:00', breaks: [] },
+    2: { open: '08:00', close: '20:00', breaks: [] },
+    3: { open: '08:00', close: '20:00', breaks: [] },
+    4: { open: '08:00', close: '20:00', breaks: [] },
+    5: { open: '08:00', close: '20:00', breaks: [] },
+    6: { open: '08:00', close: '20:00', breaks: [] }
+  };
+
   var DEFAULTS = {
     timezone: 'Africa/Nairobi', utcOffset: '+03:00',
     slotInterval: 30, buffer: 0, leadMinutes: 60, maxDaysAhead: 30,
     holidays: [], hours: {}, staff: []
   };
+
+  var DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  var DAY_NAMES = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
+  function parseTimeSpan(str) {
+    if (!str || typeof str !== 'string') return null;
+    if (/closed/i.test(str)) return null;
+    var m = str.match(/(\d{1,2}:\d{2})\s*[-–—]\s*(\d{1,2}:\d{2})/);
+    if (m) return { open: m[1], close: m[2], breaks: [] };
+    return null;
+  }
+
+  function getDayHours(hoursConfig, wday) {
+    if (!hoursConfig || (typeof hoursConfig === 'object' && Object.keys(hoursConfig).length === 0)) {
+      return DEFAULT_HOURS[wday] || null;
+    }
+    var dayVal = undefined;
+    if (Array.isArray(hoursConfig)) {
+      var targetName = DAY_NAMES[wday];
+      for (var i = 0; i < hoursConfig.length; i++) {
+        var it = hoursConfig[i];
+        if (it && it.day && String(it.day).toLowerCase() === targetName) {
+          if (it.open && it.close) {
+            dayVal = { open: it.open, close: it.close, breaks: it.breaks || [] };
+          } else if (it.text) {
+            dayVal = parseTimeSpan(it.text);
+          }
+          break;
+        }
+      }
+    } else if (typeof hoursConfig === 'object') {
+      if (hoursConfig[wday] !== undefined) {
+        dayVal = hoursConfig[wday];
+      } else if (hoursConfig[String(wday)] !== undefined) {
+        dayVal = hoursConfig[String(wday)];
+      } else if (hoursConfig[DAY_KEYS[wday]] !== undefined) {
+        dayVal = hoursConfig[DAY_KEYS[wday]];
+      }
+    }
+
+    if (dayVal === null || dayVal === false) return null; // explicitly closed
+    if (typeof dayVal === 'string') return parseTimeSpan(dayVal);
+    if (dayVal && typeof dayVal === 'object') {
+      if (dayVal.closed === true) return null;
+      if (dayVal.open && dayVal.close) return { open: dayVal.open, close: dayVal.close, breaks: dayVal.breaks || [] };
+      if (dayVal.text) return parseTimeSpan(dayVal.text);
+    }
+    if (typeof hoursConfig === 'object' && Object.keys(hoursConfig).length > 0) return null;
+    return DEFAULT_HOURS[wday] || null;
+  }
 
   /* ---------- helpers ---------- */
   function cfgOf(c) {
@@ -92,8 +152,9 @@
     if (cfg.holidays.indexOf(date) !== -1) return [];
     var staff = staffId && cfg.staff.filter(function (s) { return s.id === staffId; })[0];
     if (staff && staff.daysOff && staff.daysOff.indexOf(date) !== -1) return [];
-    var day = ((staff && staff.hours) || cfg.hours)[weekday(date)];
-    if (!day) return [];
+    var w = weekday(date);
+    var day = getDayHours((staff && staff.hours) || cfg.hours, w);
+    if (!day || !day.open || !day.close) return [];
 
     var open = toMin(day.open), close = toMin(day.close);
     var dur = +service.durationMin || 30, buf = +cfg.buffer || 0, step = +cfg.slotInterval || 30;
@@ -236,13 +297,14 @@
     var serverSlotsCache = {};
     var loadingSlots = false;
 
-    var st = {
-      step: 1, date: null, time: null, staffId: null,
-      name: '', phone: '', notes: '', booking: null, error: '', busy: false
-    };
     var today = nowIn(cfg.timezone).date;
     var dates = [], i;
     for (i = 0; i <= Math.min(cfg.maxDaysAhead, 21); i++) dates.push(addDays(today, i));
+
+    var st = {
+      step: 1, date: dates[0] || null, time: null, staffId: null,
+      name: '', phone: '', notes: '', booking: null, error: '', busy: false
+    };
 
     var veil = document.createElement('div'); veil.className = 'aqivo-modal-veil';
     var sheet = document.createElement('div'); sheet.className = 'aqivo-modal-sheet';
@@ -261,14 +323,19 @@
 
     async function loadServerSlots(date) {
       if (!date || !o.fetchSlots) return;
-      if (serverSlotsCache[date] !== undefined) return;
+      if (serverSlotsCache[date] !== undefined && !serverSlotsCache[date]._error) return;
       loadingSlots = true;
       render();
       try {
         var res = await o.fetchSlots(date, svc);
         serverSlotsCache[date] = res || { slots: [] };
       } catch (err) {
-        serverSlotsCache[date] = { slots: [], reason: 'Could not load slots' };
+        var fallback = getAvailableSlots(svc, date, cfg, bookings, st.staffId);
+        serverSlotsCache[date] = {
+          slots: fallback.map(function (t) { return { value: t, label: t }; }),
+          reason: fallback.length ? '' : 'No times left on this day.',
+          _error: true
+        };
       } finally {
         loadingSlots = false;
         render();
@@ -278,8 +345,10 @@
     function slots(date) {
       if (o.fetchSlots) {
         var cached = serverSlotsCache[date];
-        if (!cached || !cached.slots) return [];
-        return cached.slots.map(function (s) { return typeof s === 'string' ? s : s.label || s.value; });
+        if (cached && cached.slots) {
+          return cached.slots.map(function (s) { return typeof s === 'string' ? s : s.label || s.value; });
+        }
+        return getAvailableSlots(svc, date, cfg, bookings, st.staffId);
       }
       return getAvailableSlots(svc, date, cfg, bookings, st.staffId);
     }
@@ -321,8 +390,10 @@
             '</div></div>';
         }
         h += '<div><div class="bk-label">Choose a date</div><div class="bk-dates no-scrollbar">' + dates.map(function (d) {
-          var hasSlots = o.fetchSlots ? true : (slots(d).length > 0);
-          return '<button type="button" class="bk-date' + (st.date === d ? ' active' : '') + '" data-act="date" data-d="' + d + '"' + (hasSlots ? '' : ' disabled') + '>' +
+          var w = weekday(d);
+          var dayHours = getDayHours(cfg.hours, w);
+          var isClosed = (cfg.holidays && cfg.holidays.indexOf(d) !== -1) || dayHours === null;
+          return '<button type="button" class="bk-date' + (st.date === d ? ' active' : '') + (isClosed ? ' opacity-40' : '') + '" data-act="date" data-d="' + d + '"' + (isClosed ? ' disabled title="Closed"' : '') + '>' +
             '<span>' + fmtDate(d, { weekday: 'short' }) + '</span><b>' + fmtDate(d, { day: 'numeric' }) + '</b><small>' + fmtDate(d, { month: 'short' }) + '</small></button>';
         }).join('') + '</div></div>';
         h += '<div><div class="bk-label">Choose a time</div>';
@@ -423,6 +494,12 @@
               })[0];
               if (found) slotObj = found;
             }
+            var isoVal = slotObj.value;
+            if (isoVal && isoVal.indexOf('T') === -1) {
+              var cleanTime = isoVal.length === 5 ? isoVal + ':00' : isoVal;
+              isoVal = st.date + 'T' + cleanTime + cfg.utcOffset;
+            }
+            slotObj = { value: isoVal, label: slotObj.label || st.time };
             var res = await o.submit({
               service: svc,
               slot: slotObj,
@@ -479,6 +556,9 @@
     });
 
     render();
+    if (o.fetchSlots && st.date) {
+      loadServerSlots(st.date);
+    }
     return { close: close };
   }
 

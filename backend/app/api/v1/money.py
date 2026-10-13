@@ -17,7 +17,7 @@ from app.repositories import CustomerRepository, InvoiceRepository, PaymentRepos
 from app.schemas.money import CheckoutIn, InvoiceIn, InvoiceOut, PaymentIn, PaymentOut, PaymentUpdate, PlanOut
 from app.core.db import get_db as _get_db
 from app.services import invoices as inv_svc
-from app.services.payments import available_providers
+from app.services.payments import available_providers, get_provider
 from app.services.plans import effective_plan, get_plan, get_subscription, refresh_subscription_state
 from app.services.plans import usage as plan_usage
 from app.services.subscriptions import BillingService, SubscriptionService, WebhookService, price_for
@@ -186,6 +186,25 @@ def receipt(tid: uuid.UUID, ctx: TenantContext = Depends(require("subscription:m
     c.setFillGray(0.5); c.setFont("Helvetica", 9); c.drawString(60, 60, "Aqivo.shop — thank you for your business.")
     c.showPage(); c.save()
     return Response(buf.getvalue(), media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="receipt-{str(t.id)[:8]}.pdf"'})
+
+
+@subs_router.get("/transactions/{tid}/status")
+def transaction_status(tid: uuid.UUID, ctx: TenantContext = Depends(require("subscription:manage")), db: Session = Depends(get_db)):
+    t = or404(db.scalars(select(Transaction).where(Transaction.id == tid, Transaction.business_id == ctx.business_id, Transaction.purpose == "SUBSCRIPTION")).first(), "Transaction")
+    if t.status == PaymentStatus.PENDING and t.provider == "MPESA" and t.provider_reference:
+        provider = get_provider("MPESA")
+        if provider and hasattr(provider, "query"):
+            res = provider.query(t.provider_reference)
+            if res.get("status") == "PAID":
+                t.status = PaymentStatus.PAID
+                plan = get_plan(db, (t.raw or {}).get("plan", "GROW"))
+                sub = SubscriptionService.activate(db, ctx.business, plan, source="MPESA")
+                t.subscription_id = sub.id
+                db.commit()
+            elif res.get("status") == "FAILED":
+                t.status = PaymentStatus.FAILED
+                db.commit()
+    return {"id": str(t.id), "status": t.status, "amount": str(t.amount), "currency": t.currency, "provider": t.provider}
 
 
 @subs_router.post("/checkout")

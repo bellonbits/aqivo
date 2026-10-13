@@ -22,6 +22,23 @@ class FakeProvider(pbase.PaymentProvider):
                                       amount=Decimal(payload["amount"]) if payload.get("amount") else None, raw=payload)
 
 
+class UnconfiguredProvider(pbase.PaymentProvider):
+    name = "MPESA"
+    def is_configured(self): return False
+    def initiate(self, **kwargs): return pbase.ProviderResult(False, "FAILED")
+    def verify_webhook(self, *args, **kwargs): return False
+    def parse_webhook(self, payload): return None
+
+
+@pytest.fixture
+def unconfigured_mpesa():
+    pbase._load()
+    original = pbase._REGISTRY.get("MPESA")
+    pbase._REGISTRY["MPESA"] = UnconfiguredProvider()
+    yield
+    pbase._REGISTRY["MPESA"] = original
+
+
 @pytest.fixture
 def fake_mpesa():
     pbase._load()
@@ -31,7 +48,7 @@ def fake_mpesa():
     pbase._REGISTRY["MPESA"] = original
 
 
-def test_checkout_not_configured_creates_upgrade_request_not_fake_success(owner, admin, client):
+def test_checkout_not_configured_creates_upgrade_request_not_fake_success(owner, admin, client, unconfigured_mpesa):
     r = owner.post("/api/v1/subscriptions/checkout", json={"plan_key": "PRO"}).json()
     assert r["status"] == "NOT_CONFIGURED"
     tickets = client.get("/api/v1/admin/support-tickets", headers=admin).json()
@@ -178,3 +195,13 @@ def test_subdomain_host_routing(owner, client):
     r = client.get("/", headers={"host": f"{owner.slug}.aqivo.shop"})
     assert r.status_code == 200 and owner.business["name"] in r.text
     assert client.get("/", headers={"host": "www.aqivo.shop"}).status_code in (200, 404)
+
+
+def test_transaction_status_and_admin_stk_push(owner, client, admin, fake_mpesa):
+    res = owner.post("/api/v1/subscriptions/checkout", json={"plan_key": "PRO", "phone": "0711222333"}).json()
+    tid = res["transaction_id"]
+    stat = owner.get(f"/api/v1/subscriptions/transactions/{tid}/status")
+    assert stat.status_code == 200 and stat.json()["id"] == tid
+    admin_push = client.post("/api/v1/admin/subscriptions/send-stk-push", headers=admin, json={"business_id": owner.id, "plan_key": "PRO", "phone": "0711222333"})
+    assert admin_push.status_code == 200 and admin_push.json()["status"] == "PENDING"
+

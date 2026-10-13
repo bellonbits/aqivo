@@ -12,16 +12,18 @@
    so the server stays the source of truth for open times and double-booking. */
 (function () {
   'use strict';
-  var B = window.__BZ;
-  if (!B) { try { B = JSON.parse(sessionStorage.getItem('aqivo_active_bz') || 'null'); } catch (e) {} }
-  if (!B || !window.AqivoBooking) return;
 
-  var ITEMS = B.items || [], byId = {};
-  ITEMS.forEach(function (p) { byId[p.id] = p; });
-  var API = '/api/v1/public/' + encodeURIComponent(B.slug || 'default');
+  function getBZ() {
+    var b = window.__BZ;
+    if (!b) {
+      try { b = JSON.parse(sessionStorage.getItem('aqivo_active_bz') || 'null'); } catch (e) {}
+    }
+    return b || {};
+  }
 
   function isService(it) {
-    return !!it && (it.kind === 'service' || (!it.kind && (B.is_service || !B.is_commerce)));
+    var b = getBZ();
+    return !!it && (it.kind === 'service' || (!it.kind && (b.is_service || !b.is_commerce)));
   }
 
   function fail(msg, code) { var e = new Error(msg); if (code) e.code = code; return e; }
@@ -32,7 +34,9 @@
   }
 
   function fetchSlots(date, svc) {
-    return fetch(API + '/slots?date=' + encodeURIComponent(date) + '&service_ids=' + encodeURIComponent(svc.id))
+    var b = getBZ();
+    var api = '/api/v1/public/' + encodeURIComponent(b.slug || 'default');
+    return fetch(api + '/slots?date=' + encodeURIComponent(date) + '&service_ids=' + encodeURIComponent(svc.id))
       .then(function (r) { return r.json(); })
       .then(function (res) {
         return {
@@ -43,11 +47,20 @@
   }
 
   function submit(p) {
-    return fetch(API + '/bookings', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+    var b = getBZ();
+    var api = '/api/v1/public/' + encodeURIComponent(b.slug || 'default');
+    return fetch(api + '/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        service_ids: [p.service.id], starts_at: p.slot.value, name: p.name, phone: p.phone,
-        notes: p.notes || '', source: 'WEBSITE', referrer: document.referrer || null, website: ''
+        service_ids: [p.service.id],
+        starts_at: p.slot.value,
+        name: p.name,
+        phone: p.phone,
+        notes: p.notes || '',
+        source: 'WEBSITE',
+        referrer: document.referrer || null,
+        website: ''
       })
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; });
@@ -60,29 +73,51 @@
     });
   }
 
-  function openFor(it) {
-    var cfg = B.timezone ? { timezone: B.timezone } : {};
+  function openFor(it, price) {
+    var b = getBZ();
+    if (!window.AqivoBooking || !window.AqivoBooking.open) return;
+    var cfg = {
+      timezone: b.timezone || 'Africa/Nairobi',
+      hours: b.opening_hours || b.hours || {}
+    };
+    var phone = (window.AqivoBooking && window.AqivoBooking.normalisePhone)
+      ? window.AqivoBooking.normalisePhone(b.phone || b.wa_phone || b.wa || '')
+      : (b.wa_phone || b.phone || b.wa || '');
+
     window.AqivoBooking.open({
-      service: { id: it.id, name: it.name, price: it.price, durationMin: it.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
-      store: { name: B.name, phone: (window.AqivoBooking && window.AqivoBooking.normalisePhone ? window.AqivoBooking.normalisePhone(B.phone || B.wa_phone || B.wa || '') : (B.wa_phone || B.phone || B.wa || '')), address: B.address || '' },
+      service: {
+        id: it.id,
+        name: it.name,
+        price: price !== undefined ? price : it.price,
+        durationMin: it.duration || 60,
+        currencySymbol: b.symbol || b.currency || 'KSh'
+      },
+      store: {
+        name: b.name || 'Store',
+        phone: phone,
+        address: b.address || ''
+      },
       config: cfg,
       fetchSlots: fetchSlots,
       submit: submit,
-      receiptBase: B.booking_receipt_base || ''   // set to show a "View booking receipt" link
+      receiptBase: b.booking_receipt_base || ''
     });
   }
 
   function itemForClick(btn) {
+    var b = getBZ(), items = b.items || [], byId = {};
+    items.forEach(function (p) { byId[p.id] = p; });
     if (btn.id === 'pdp-add-bag-btn') {
       var id = new URLSearchParams(location.search).get('id');
-      return (id && byId[id]) || ITEMS[0];
+      return (id && byId[id]) || items[0];
     }
     return byId[btn.getAttribute('data-id')];
   }
 
   // Capture phase: runs before the store's own add-to-cart handlers.
   document.addEventListener('click', function (e) {
-    if (B.bookingsOn === false) return;
+    var b = getBZ();
+    if (b.bookingsOn === false) return;
     var btn = e.target.closest && e.target.closest('#pdp-add-bag-btn, .btn-add-cart');
     if (!btn) return;
     var it = itemForClick(btn);
