@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block body %}
-{% if settings.announcement %}<div class="announce">{{ settings.announcement }}</div>{% endif %}
 {% include ["partials/" ~ layout ~ "/_header.html", "partials/_header.html"] %}
 <main id="top">
 {% block content %}{% endblock %}

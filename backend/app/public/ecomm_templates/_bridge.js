@@ -1197,18 +1197,13 @@
     C.formatPrice = fmt;
 
     onReady(function () {
-      // 1. Announcements
+      // 1. Announcements (Disabled & removed)
       var annBar = document.getElementById("announcement-bar");
-      var annText = document.getElementById("announcement-text");
-      if (annBar && annText) {
-        if (B.announcement) {
-          annText.textContent = B.announcement;
-          annBar.classList.remove("hidden");
-        } else if (B.tagline) {
-          annText.textContent = B.tagline;
-          annBar.classList.remove("hidden");
-        }
+      if (annBar) {
+        annBar.remove();
       }
+      var legacyAnn = document.querySelectorAll(".announce");
+      legacyAnn.forEach(function (el) { el.remove(); });
 
       // 2. Identity & Hero
       var nameEl = document.getElementById("store-name");

@@ -128,6 +128,7 @@ def build_data(db: Session, ctx: dict, business: Business) -> dict:
         "industry": business.industry,
         "is_commerce": business.industry in ("retail", "restaurant") or bool(ctx.get("products")),
         "is_service": business.industry in ("salon", "barbershop", "beauty", "services") or bool(services and not ctx.get("products")),
+        "announcement": (ctx.get("settings") or {}).get("announcement") or "",
         "checkout_config": store_cfg.public_config(business, db) if business else None,
     }
 
@@ -403,14 +404,6 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
             f'{jsonld_tags}'
             f'{tracking_tags}')
     page = page.replace("<head>", "<head>" + head, 1)
-
-    # Optional announcement bar
-    announcement = (ctx.get("settings") or {}).get("announcement")
-    if announcement:
-        ann_bar = f'<div class="announce" style="background:var(--accent, #111);color:#fff;text-align:center;padding:9px 16px;font-weight:700;font-size:14px;">{_html.escape(announcement)}</div>'
-        page = page.replace("<body", "<body " + ("data-announcement=\"true\" "), 1)
-        # insert right after <body>
-        page = re.sub(r'(<body[^>]*>)', rf'\g<1>{ann_bar}', page, count=1)
 
     # Render custom navigation items if present
     nav_items = ctx.get("nav") or []

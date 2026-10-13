@@ -125,16 +125,21 @@ input, select, textarea {
 .size-16 { width: 64px; height: 64px; }
 
 /* ==========================================================================
-   Announcement bar
+   Announcement bar (Disabled / Hidden)
    ========================================================================== */
-#announcement-bar {
-  background-color: var(--black);
-  color: var(--accent);
-  padding: 9px 16px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+#announcement-bar,
+.announce,
+[data-announcement] .announce {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* ==========================================================================
