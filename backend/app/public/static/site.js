@@ -200,7 +200,26 @@
   var bag = document.getElementById("bag");
   var KEY = "bz-bag2-" + slug, items = {};
   try { items = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { items = {}; }
-  var cur = document.body.dataset.cur || "", wa = document.body.dataset.wa || "";
+  function normalisePhone(raw) {
+    if (!raw) return "";
+    var s = String(raw).trim();
+    if (s.indexOf("?") !== -1) s = s.split("?")[0];
+    if (s.indexOf("#") !== -1) s = s.split("#")[0];
+    var m = s.match(/(?:wa\.me\/|phone=|send\?phone=|tel:)(\+?\d+)/);
+    if (m && m[1]) s = m[1];
+    var parts = s.split(/\s*(?:\/|,|;|\||\bor\b)\s*/);
+    if (parts.length > 0 && parts[0]) s = parts[0];
+    var d = s.replace(/\D/g, "");
+    if (!d) return "";
+    if (d.indexOf("00") === 0) d = d.slice(2);
+    while (d.indexOf("254254") === 0) d = d.slice(3);
+    if (d.indexOf("2540") === 0 && d.length >= 13) d = "254" + d.slice(4);
+    if (d.charAt(0) === "0" && d.length === 10) d = "254" + d.slice(1);
+    if (d.length === 9 && /^[17]/.test(d)) d = "254" + d;
+    if (d.indexOf("254") === 0 && d.length > 12) d = d.slice(0, 12);
+    return d;
+  }
+  var cur = document.body.dataset.cur || "", wa = normalisePhone(document.body.dataset.wa || "");
   function money(n) { return (cur.length > 1 ? cur + " " : cur) + Number(n).toLocaleString("en", { maximumFractionDigits: 2 }); }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch (e) {} }
   function totals() { var c = 0, t = 0; for (var k in items) { c += items[k].qty; t += items[k].qty * items[k].price; } return { c: c, t: t }; }
@@ -574,7 +593,7 @@
       var text = (document.body.dataset.intro || "Hi, I'd like to order:") + "\n" + lines.join("\n") + "\nTotal: " + money(t.t) + (name ? "\nName: " + name : "");
       track("WHATSAPP_CLICK");
       if (!draft && phone && document.body.dataset.leads === "1") post(api + "/leads", Object.assign({ name: name || "WhatsApp order", phone: phone, message: text, website: "" }, attrib(), { source: "whatsapp" })).catch(function () {});
-      if (wa) window.open("https://wa.me/" + wa + "?text=" + encodeURIComponent(text), "_blank", "noopener");
+      if (wa) window.open("https://wa.me/" + normalisePhone(wa) + "?text=" + encodeURIComponent(text), "_blank", "noopener");
       items = {}; save(); render(); openBag(false);
     });
   }

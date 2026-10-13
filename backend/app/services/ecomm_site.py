@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Business, ProductVariant
 from app.services import store as store_cfg
+from app.services.business import normalize_wa_phone
 from app.services.plans import has_feature
 
 TEMPLATES_ROOT = Path(__file__).resolve().parent.parent / "public" / "ecomm_templates"
@@ -109,11 +110,12 @@ def build_data(db: Session, ctx: dict, business: Business) -> dict:
     hero_cta_url = hero_content.get("cta_url") or ""
     sec_ids = {str(s.get("type")): str(s.get("id")) for s in ctx.get("sections", []) if s.get("id") and s.get("type")}
 
-    clean_wa = "".join(ch for ch in (business.whatsapp or business.phone or "") if ch.isdigit())
+    clean_wa = normalize_wa_phone(business.whatsapp or business.phone or "")
+    wa_url = ctx.get("wa") or (f"https://wa.me/{clean_wa}" if clean_wa else "")
     return {
         "key": business.website.template.key if business.website else "", "root": root, "slug": business.slug,
         "name": business.name, "tagline": business.tagline or "", "phone": business.phone or clean_wa, "wa_phone": clean_wa, "email": business.email or "",
-        "wa": ctx["wa"], "address": ", ".join(x for x in (business.address, business.city) if x), "directions": ctx["directions"],
+        "wa": clean_wa, "wa_url": wa_url, "address": ", ".join(x for x in (business.address, business.city) if x), "directions": ctx.get("directions", ""),
         "currency": business.currency, "symbol": ctx["cur_symbol"], "freeOver": ctx["free_over"] or 0, "logo": business.logo_url, "about": business.description or "",
         "items": items, "categories": cats, "services": services,
         "hero_headline": hero_headline, "hero_subheadline": hero_subheadline, "hero_cta_text": hero_cta_text, "hero_cta_url": hero_cta_url,
@@ -162,10 +164,10 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
         subheadline = content.get("subheadline") or content.get("subtitle") or (business.tagline if business else "") or default_sub
         cta_text = content.get("cta_text")
         cta_url = content.get("cta_url") or "#items-grid"
-        wa_phone = (business.phone or business.whatsapp or "") if business else ""
+        wa_phone = normalize_wa_phone((business.phone or business.whatsapp or "") if business else "")
         if wa_phone and not cta_text:
             cta_text = "Book on WhatsApp" if is_service else "Order on WhatsApp"
-            cta_url = f"https://wa.me/{wa_phone.replace('+', '').replace(' ', '')}"
+            cta_url = f"https://wa.me/{wa_phone}"
         cta_html = f'<a href="{_html.escape(cta_url)}" class="btn-brand">{_html.escape(cta_text)}</a>' if cta_text else ""
         return (
             f'<section class="store-hero-compact {cls}" {data_attr}>'
@@ -279,8 +281,8 @@ def _render_section_html(s: dict, draft: bool = False, business: Business = None
         lbl = content.get("label") or "Click here"
         act = (data.get("wa_href") if isinstance(data, dict) else None) or content.get("action") or "#"
         if act == "whatsapp":
-            phone = (business.phone or '') if business else ''
-            act = f"https://wa.me/{phone.replace('+', '')}"
+            phone = normalize_wa_phone((business.phone or business.whatsapp or '') if business else '')
+            act = f"https://wa.me/{phone}" if phone else "#"
         return f'<section class="sx-sec {cls}"><a href="{_html.escape(str(act))}" class="btn">{_html.escape(lbl)}</a></section>'
 
     if stype == "faq":
@@ -590,7 +592,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     # Inject real products into inline createWebStorefront config
     if items:
         safe_items_js = _safe_json(items)
-        clean_phone = (business.phone or business.whatsapp or "").replace("+", "").replace(" ", "")
+        clean_phone = normalize_wa_phone(business.phone or business.whatsapp or "")
         page = re.sub(r'store:\s*\{[\s\S]*?products:\s*\[[\s\S]*?\][\s\S]*?\}', lambda _: f'store: {{ name: {_safe_json(business.name)}, whatsappPhone: {_safe_json(clean_phone)}, products: {safe_items_js} }}', page)
 
     # Render custom sections (e.g. rich text, custom html, video, ig feed, google reviews, collections)

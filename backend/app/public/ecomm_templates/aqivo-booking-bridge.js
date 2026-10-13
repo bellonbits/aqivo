@@ -64,7 +64,7 @@
     var cfg = B.timezone ? { timezone: B.timezone } : {};
     window.AqivoBooking.open({
       service: { id: it.id, name: it.name, price: it.price, durationMin: it.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
-      store: { name: B.name, phone: B.wa || B.phone || '', address: B.address || '' },
+      store: { name: B.name, phone: (window.AqivoBooking && window.AqivoBooking.normalisePhone ? window.AqivoBooking.normalisePhone(B.phone || B.wa_phone || B.wa || '') : (B.wa_phone || B.phone || B.wa || '')), address: B.address || '' },
       config: cfg,
       fetchSlots: fetchSlots,
       submit: submit,

@@ -164,6 +164,57 @@ def test_template_html_and_css_alignment():
     aqivo_theme = (base_tpl / "aqivo/theme.json").read_text()
     assert "aqivo" in aqivo_theme.lower()
 
+def test_normalize_wa_phone_edge_cases():
+    from app.services.business import normalize_wa_phone
+
+    # Standard international
+    assert normalize_wa_phone("+254 712 345 678") == "254712345678"
+    assert normalize_wa_phone("254712345678") == "254712345678"
+
+    # Local 10-digit
+    assert normalize_wa_phone("0712345678") == "254712345678"
+    assert normalize_wa_phone("0712 345 678") == "254712345678"
+    assert normalize_wa_phone("0112345678") == "254112345678"
+
+    # 9-digit
+    assert normalize_wa_phone("712345678") == "254712345678"
+
+    # Accidental zero after 254 (13 digits)
+    assert normalize_wa_phone("+254 0712 345 678") == "254712345678"
+    assert normalize_wa_phone("2540712345678") == "254712345678"
+
+    # Duplicate country code
+    assert normalize_wa_phone("254254712345678") == "254712345678"
+
+    # Full wa.me URL with query string
+    assert normalize_wa_phone("https://wa.me/254712345678?text=Hi%20there%20friend") == "254712345678"
+
+    # Multiple numbers separated by slash or comma
+    assert normalize_wa_phone("0712345678 / 0722000111") == "254712345678"
+    assert normalize_wa_phone("0712345678, 0722000111") == "254712345678"
+    assert normalize_wa_phone("0712345678 or 0722000111") == "254712345678"
+
+    # Corrupted / trailing extra numbers (e.g. from %20 or concatenated digits)
+    assert normalize_wa_phone("254712345678202020") == "254712345678"
+
+    # Empty / None
+    assert normalize_wa_phone("") == ""
+    assert normalize_wa_phone(None) == ""
 
 
+def test_ecomm_wa_injected_clean_without_extra_digits(make_owner, client):
+    o = make_owner("wa_test@example.com", "WA Owner", "WA Studio", industry="beauty")
+    add_service(o, "Hair Styling", "1200")
+    # Simulate merchant with phone that had space or local format
+    assert o.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).status_code == 200
+    o.post("/api/v1/websites/me/publish")
 
+    r = client.get(f"/{o.slug}")
+    assert r.status_code == 200
+    bz = _bz(r.text)
+
+    # wa must be clean digits without extra characters or wa.me URLs
+    assert bz["wa"].isdigit()
+    assert not bz["wa"].startswith("https://")
+    assert len(bz["wa"]) == 12
+    assert bz["wa_phone"] == bz["wa"]

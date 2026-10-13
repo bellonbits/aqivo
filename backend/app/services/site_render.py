@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.countries import get_country
 from app.models import Business, GalleryImage, Product, Review, Service, ServiceCategory, Staff, Testimonial, Website
-from app.services.business import business_urls, whatsapp_link
+from app.services.business import business_urls, whatsapp_link, normalize_wa_phone
 from app.services.industries import get_industry
 from app.services.hours import hours_display, is_open_now, schema_org_hours
 from app.services.plans import has_feature
@@ -346,7 +346,7 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
         act=act, products=products, editing=editing, _resolve=resolve, root=root, nav=nav, tracking=tracking, show_branding=show_branding, google_review_url=(business.integrations or {}).get("google_review_url"), page=page_info, home_href=root or "/", search_on=True,
         business=business, website=site, use_site=use_site, sections=sections, theme=theme, services=services,
         gallery=gallery, staff=staff, categories=categories, product_images=product_images, reviews=reviews, testimonials=testimonials, summary=summary, urls=urls,
-        wa=whatsapp_link(business), wa_services=wa_services, bookings_on=bookings_on and not sells_products, leads_on=has_feature(db, business, "leads"), directions=directions,
+        wa=whatsapp_link(business), wa_digits=normalize_wa_phone(business.whatsapp or business.phone), wa_services=wa_services, bookings_on=bookings_on and not sells_products, leads_on=has_feature(db, business, "leads"), directions=directions,
         hours=hours, open_now=is_open_now(business.opening_hours or {}, business.timezone) if business.opening_hours else None,
         seo=_faq_seo(_page_seo(_seo(business, site if use_site else None, urls, summary, services, hero_image, (published or not use_site) and not draft), page_info, business, urls), faq),
         hero_image=hero_image, draft=draft, country=get_country(business.country_code),

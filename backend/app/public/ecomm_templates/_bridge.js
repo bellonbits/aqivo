@@ -72,6 +72,29 @@
     grocery: "https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=800&q=80",
   };
 
+  // 07XX / 7XX / +254 / 254 -> digits in international format for wa.me
+  function normalisePhone(raw) {
+    if (!raw) return "";
+    var s = String(raw).trim();
+    if (s.indexOf("?") !== -1) s = s.split("?")[0];
+    if (s.indexOf("#") !== -1) s = s.split("#")[0];
+    var m = s.match(/(?:wa\.me\/|phone=|send\?phone=|tel:)(\+?\d+)/);
+    if (m && m[1]) s = m[1];
+    var parts = s.split(/\s*(?:\/|,|;|\||\bor\b)\s*/);
+    if (parts.length > 0 && parts[0]) s = parts[0];
+    var d = s.replace(/\D/g, "");
+    if (!d) return "";
+    if (d.indexOf("00") === 0) d = d.slice(2);
+    while (d.indexOf("254254") === 0) d = d.slice(3);
+    if (d.indexOf("2540") === 0 && d.length >= 13) d = "254" + d.slice(4);
+    if (d.charAt(0) === "0" && d.length === 10) d = "254" + d.slice(1);
+    if (d.length === 9 && /^[17]/.test(d)) d = "254" + d;
+    if (d.indexOf("254") === 0 && d.length > 12) d = d.slice(0, 12);
+    return d;
+  }
+  window.normalisePhone = normalisePhone;
+  window.AqivoNormalisePhone = normalisePhone;
+
   function makeDesignedPlaceholder(name, category) {
     var label = String(name || category || "STORE ITEM").slice(0, 18).toUpperCase();
     var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">' +
@@ -525,7 +548,7 @@
 
       var heroWaBtn = document.querySelector(".hero-action-wa-btn, .hero-whatsapp-booking-btn, .hero-store-content a[href*='wa.me']");
       if (heroWaBtn) {
-        var cleanPhone = (B.phone || B.wa || "254700000000").replace(/\+/g, "").replace(/\s+/g, "");
+        var cleanPhone = normalisePhone(B.phone || B.wa || "254700000000");
         var waMsg = isService 
           ? ("Hi, I'd like to book an appointment with " + B.name)
           : ("Hi, I'd like to order from " + B.name);
@@ -557,7 +580,7 @@
       if (window.StoreApp) {
         if (!window.StoreApp.store) window.StoreApp.store = {};
         window.StoreApp.store.name = B.name;
-        window.StoreApp.store.whatsappPhone = B.phone || B.wa || "";
+        window.StoreApp.store.whatsappPhone = normalisePhone(B.phone || B.wa || "");
         window.StoreApp.store.products = ITEMS;
         if (window.StoreApp.state) {
           window.StoreApp.state.store = window.StoreApp.store;
@@ -924,7 +947,7 @@
               (activeP.kind === "service" || isService ? "Book on WhatsApp" : "Order on WhatsApp");
             waBtn.onclick = function (e) {
               e.preventDefault();
-              var phone = (B.phone || B.wa || "").replace(/\+/g, "").replace(/\s+/g, "");
+              var phone = normalisePhone(B.phone || B.wa || "");
               var actionWord = (activeP.kind === "service" || isService) ? "book: " : "order: ";
               var msg = encodeURIComponent("Hello " + B.name + ", I would like to " + actionWord + activeP.name + " (" + fmt(activeP.price) + ")");
               window.open("https://wa.me/" + phone + "?text=" + msg, "_blank");
@@ -1086,24 +1109,20 @@
     function normalisePhone(raw) {
       if (!raw) return '';
       var s = String(raw).trim();
-      // If a full wa.me or whatsapp.com URL was passed, strip query params & text first!
-      if (s.indexOf('?') !== -1) {
-        s = s.split('?')[0];
-      }
-      if (s.indexOf('#') !== -1) {
-        s = s.split('#')[0];
-      }
-      if (s.indexOf('wa.me') !== -1 || s.indexOf('whatsapp.com') !== -1) {
-        var m = s.match(/(?:wa\.me\/|phone=|\/)(\+?\d+)/);
-        if (m && m[1]) {
-          s = m[1];
-        }
-      }
+      if (s.indexOf('?') !== -1) s = s.split('?')[0];
+      if (s.indexOf('#') !== -1) s = s.split('#')[0];
+      var m = s.match(/(?:wa\.me\/|phone=|send\?phone=|tel:)(\+?\d+)/);
+      if (m && m[1]) s = m[1];
+      var parts = s.split(/\s*(?:\/|,|;|\||\bor\b)\s*/);
+      if (parts.length > 0 && parts[0]) s = parts[0];
       var d = s.replace(/\D/g, '');
       if (!d) return '';
-      if (d.indexOf('254') === 0) return d;
-      if (d.charAt(0) === '0') return '254' + d.slice(1);
-      if (d.length === 9 && /^[17]/.test(d)) return '254' + d;
+      if (d.indexOf('00') === 0) d = d.slice(2);
+      while (d.indexOf('254254') === 0) d = d.slice(3);
+      if (d.indexOf('2540') === 0 && d.length >= 13) d = '254' + d.slice(4);
+      if (d.charAt(0) === '0' && d.length === 10) d = '254' + d.slice(1);
+      if (d.length === 9 && /^[17]/.test(d)) d = '254' + d;
+      if (d.indexOf('254') === 0 && d.length > 12) d = d.slice(0, 12);
       return d;
     }
 
@@ -1241,7 +1260,7 @@
         }
       }
       var heroWaBtn = document.getElementById("store-hero-wa-btn");
-      var phClean = (B.wa || B.phone || "").replace(/[^0-9]/g, "");
+      var phClean = normalisePhone(B.wa || B.phone || "");
       if (heroWaBtn) {
         if (phClean) {
           var heroWaMsg = isService
@@ -1542,7 +1561,7 @@
             } else if (window.AqivoBooking && window.AqivoBooking.open) {
               window.AqivoBooking.open({
                 service: { id: it.id, name: it.name, price: it.price, durationMin: it.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
-                store: { name: B.name, phone: B.wa || B.phone || '', address: B.address || '' },
+                store: { name: B.name, phone: normalisePhone(B.wa || B.phone || ''), address: B.address || '' },
                 config: B.timezone ? { timezone: B.timezone } : {}
               });
             } else {
@@ -1710,7 +1729,7 @@
                 } else if (window.AqivoBooking && window.AqivoBooking.open) {
                   window.AqivoBooking.open({
                     service: { id: pdpItem.id, name: pdpItem.name, price: pCurrentPrice, durationMin: pdpItem.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
-                    store: { name: B.name, phone: B.wa || B.phone || '', address: B.address || '' },
+                    store: { name: B.name, phone: normalisePhone(B.wa || B.phone || ''), address: B.address || '' },
                     config: B.timezone ? { timezone: B.timezone } : {}
                   });
                 }
@@ -1788,7 +1807,7 @@
                   } else if (window.AqivoBooking && window.AqivoBooking.open) {
                     window.AqivoBooking.open({
                       service: { id: rIt.id, name: rIt.name, price: rIt.price, durationMin: rIt.duration || 60, currencySymbol: B.symbol || B.currency || 'KSh' },
-                      store: { name: B.name, phone: B.wa || B.phone || '', address: B.address || '' },
+                      store: { name: B.name, phone: normalisePhone(B.wa || B.phone || ''), address: B.address || '' },
                       config: B.timezone ? { timezone: B.timezone } : {}
                     });
                   } else {
@@ -2347,7 +2366,7 @@
       function renderConfirmedHTML(sheet, data) {
         var order = data.order || {};
         var rawPhone = B.phone || B.wa_phone || B.wa || "";
-        var phClean = window.AqivoWhatsApp ? window.AqivoWhatsApp.normalisePhone(rawPhone) : rawPhone.replace(/\D/g, "");
+        var phClean = normalisePhone(rawPhone);
 
         var receiptUrl = "receipt.html?orderId=" + encodeURIComponent(order.receiptNo);
         var waUrl = "";

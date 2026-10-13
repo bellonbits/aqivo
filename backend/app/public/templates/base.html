@@ -100,7 +100,7 @@ form.book{display:grid;gap:14px;max-width:560px}label{font-weight:700;font-size:
 <script type="application/ld+json">{{ seo.jsonld|safe }}</script>
 {% if seo.jsonld_extra %}<script type="application/ld+json">{{ seo.jsonld_extra|safe }}</script>{% endif %}
 </head>
-<body data-edit="{{ 'true' if editing else 'false' }}" data-slug="{{ business.slug }}" data-draft="{{ 1 if (draft or no_track) else 0 }}" data-wa="{{ (business.whatsapp or '')|replace('+', '') }}" data-business="{{ business.name }}" data-cur="{{ cur_symbol }}" data-free-over="{{ free_over if free_over else '' }}" data-intro="{{ settings.order_intro or ('Hi ' ~ business.name ~ ', I\'d like to place an order:') }}" data-leads="{{ 1 if leads_on else 0 }}" class="layout-{{ layout }}">
+<body data-edit="{{ 'true' if editing else 'false' }}" data-slug="{{ business.slug }}" data-draft="{{ 1 if (draft or no_track) else 0 }}" data-wa="{{ wa_digits if wa_digits is defined else ((business.whatsapp or '')|replace('+', '')) }}" data-business="{{ business.name }}" data-cur="{{ cur_symbol }}" data-free-over="{{ free_over if free_over else '' }}" data-intro="{{ settings.order_intro or ('Hi ' ~ business.name ~ ', I\'d like to place an order:') }}" data-leads="{{ 1 if leads_on else 0 }}" class="layout-{{ layout }}">
 {% if draft %}<div class="draft">Preview — this is how your website looks. Not published yet.</div>{% endif %}
 {% if business.is_demo %}<div class="draft" style="background:#e0e7ff;color:#1e1b4b">Demo business with sample content — not a real customer.</div>{% endif %}
 {% block body %}{% endblock %}

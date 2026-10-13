@@ -66,11 +66,22 @@
     });
   }
   function normalisePhone(raw) {
-    var d = String(raw || '').replace(/\D/g, '');
+    if (!raw) return '';
+    var s = String(raw).trim();
+    if (s.indexOf('?') !== -1) s = s.split('?')[0];
+    if (s.indexOf('#') !== -1) s = s.split('#')[0];
+    var m = s.match(/(?:wa\.me\/|phone=|send\?phone=|tel:)(\+?\d+)/);
+    if (m && m[1]) s = m[1];
+    var parts = s.split(/\s*(?:\/|,|;|\||\bor\b)\s*/);
+    if (parts.length > 0 && parts[0]) s = parts[0];
+    var d = s.replace(/\D/g, '');
     if (!d) return '';
-    if (d.indexOf('254') === 0) return d;
-    if (d.charAt(0) === '0') return '254' + d.slice(1);
-    if (d.length === 9 && /^[17]/.test(d)) return '254' + d;
+    if (d.indexOf('00') === 0) d = d.slice(2);
+    while (d.indexOf('254254') === 0) d = d.slice(3);
+    if (d.indexOf('2540') === 0 && d.length >= 13) d = '254' + d.slice(4);
+    if (d.charAt(0) === '0' && d.length === 10) d = '254' + d.slice(1);
+    if (d.length === 9 && /^[17]/.test(d)) d = '254' + d;
+    if (d.indexOf('254') === 0 && d.length > 12) d = d.slice(0, 12);
     return d;
   }
 
@@ -474,6 +485,6 @@
   root.AqivoBooking = {
     open: open, getAvailableSlots: getAvailableSlots, createBooking: createBooking,
     buildBookingMessage: buildBookingMessage, buildICS: buildICS, downloadICS: downloadICS,
-    whatsappUrl: whatsappUrl, receiptUrl: receiptUrl
+    whatsappUrl: whatsappUrl, receiptUrl: receiptUrl, normalisePhone: normalisePhone
   };
 })(typeof window !== 'undefined' ? window : globalThis);

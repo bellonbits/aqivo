@@ -77,11 +77,46 @@ def business_urls(business: Business) -> dict:
     }
 
 
+def normalize_wa_phone(raw: str | None) -> str:
+    if not raw:
+        return ""
+    s = str(raw).strip()
+    if "?" in s:
+        s = s.split("?")[0]
+    if "#" in s:
+        s = s.split("#")[0]
+    m = re.search(r'(?:wa\.me/|phone=|send\?phone=|tel:)(\+?\d+)', s)
+    if m:
+        s = m.group(1)
+    parts = re.split(r'\s*(?:/|,|;|\||\bor\b)\s*', s)
+    if parts:
+        s = parts[0]
+    digits = re.sub(r'\D', '', s)
+    if not digits:
+        return ""
+    if digits.startswith("00"):
+        digits = digits[2:]
+    while digits.startswith("254254"):
+        digits = digits[3:]
+    if digits.startswith("2540") and len(digits) >= 13:
+        digits = "254" + digits[4:]
+    if digits.startswith("0") and len(digits) == 10:
+        digits = "254" + digits[1:]
+    if len(digits) == 9 and digits[0] in ("7", "1"):
+        digits = "254" + digits
+    if digits.startswith("254") and len(digits) > 12:
+        digits = digits[:12]
+    return digits
+
+
 def whatsapp_link(business: Business, service_name: str | None = None) -> str | None:
-    if not business.whatsapp:
+    wa_raw = business.whatsapp or business.phone
+    if not wa_raw:
         return None
     from urllib.parse import quote
-    digits = "".join(ch for ch in business.whatsapp if ch.isdigit())
+    digits = normalize_wa_phone(wa_raw)
+    if not digits:
+        return None
     msg = (business.whatsapp_default_message if service_name else business.whatsapp_greeting) or ""
     msg = msg.replace("{business}", business.name).replace("{service}", service_name or "an appointment")
     return f"https://wa.me/{digits}?text={quote(msg)}"
