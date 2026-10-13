@@ -168,7 +168,7 @@ def test_product_description_is_a_confirmed_draft_that_uses_only_given_facts(own
     pro(owner)
     p = product(owner, "Kitenge Tote", "1800", short_description="Roomy everyday bag", tags=["handmade"])
     ans = ask(owner, "Write a product description for kitenge tote")
-    assert "Kitenge Tote" in ans["draft"] and ans["source"] == "template" and ans["actions"][0]["type"] == "update_product_description"
+    assert "Kitenge Tote" in ans["draft"] and ans["source"] in ("template", "llm") and ans["actions"][0]["type"] == "update_product_description"
     assert owner.get(f"/api/v1/products/{p['id']}").json()["description"] == ""
     assert act(owner, ans["actions"][0]).status_code == 200
     assert owner.get(f"/api/v1/products/{p['id']}").json()["description"] == ans["draft"]

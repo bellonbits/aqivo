@@ -73,21 +73,11 @@ def parse_list(text: str) -> dict:
     return {"categories": cats, "items": items[:MAX_ITEMS]}
 
 
+from app.services.llm import call_llm_json
+
+
 def _llm_json(system: str, prompt: str) -> dict | None:
-    key = get_settings().anthropic_api_key
-    if not key:
-        return None
-    try:
-        r = httpx.post("https://api.anthropic.com/v1/messages", timeout=40,
-                       headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                       json={"model": "claude-haiku-4-5-20251001", "max_tokens": 2200, "system": system, "messages": [{"role": "user", "content": prompt}]})
-        r.raise_for_status()
-        txt = r.json()["content"][0]["text"]
-        m = re.search(r"\{.*\}", txt, re.S)
-        return json.loads(m.group(0)) if m else None
-    except Exception as exc:  # noqa: BLE001
-        log.warning("catalogue llm failed", extra={"error": str(exc)})
-        return None
+    return call_llm_json(system=system, prompt=prompt, max_tokens=2200)
 
 
 def _sanitise(raw: dict | None, *, allow_price: bool) -> dict | None:
@@ -126,7 +116,7 @@ def suggest(db: Session, b: Business, mode: str, text: str = "", kind: str | Non
         b_class = classify_business(b.name, b.description or "", b.industry or "", b.category or "")
         kind = "service" if b_class in ("SERVICE", "HYBRID") else kind_for(b)
     ind = get_industry(b.industry)
-    use_ai = has_feature(db, b, "ai") and bool(get_settings().anthropic_api_key)
+    use_ai = has_feature(db, b, "ai") and get_settings().ai_configured
     source, note, out = "parser", None, None
     if mode == "paste":
         if not text.strip():

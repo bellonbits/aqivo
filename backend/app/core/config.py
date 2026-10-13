@@ -53,6 +53,8 @@ class Settings(BaseSettings):
     mpesa_transaction_type: str = "CustomerPayBillOnline"
     mpesa_till_number: str = ""
 
+    groq_api_key: str = ""
+    groq_model: str = "openai/gpt-oss-120b"
     anthropic_api_key: str = ""
 
     trial_days: int = 14
@@ -68,6 +70,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.environment == "production"
+
+    @property
+    def ai_configured(self) -> bool:
+        return bool(self.groq_api_key or self.anthropic_api_key)
 
 
 @lru_cache

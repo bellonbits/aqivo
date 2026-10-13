@@ -18,6 +18,8 @@ from app.services.health import health_score, next_actions
 from app.services.marketing import DEFAULT_TEMPLATES
 from app.models.enums import CampaignKind
 
+from app.services.llm import call_llm
+
 log = logging.getLogger("bizora.ai")
 
 SUGGESTIONS = [
@@ -37,21 +39,11 @@ SUGGESTIONS = [
 
 
 def _llm(prompt: str, business: Business, max_tokens: int = 400) -> str | None:
-    key = get_settings().anthropic_api_key
-    if not key:
-        return None
-    try:
-        r = httpx.post("https://api.anthropic.com/v1/messages", timeout=25,
-                       headers={"x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                       json={"model": "claude-haiku-4-5-20251001", "max_tokens": max_tokens,
-                             "system": f"You write concise, warm marketing copy for {business.name}, a {business.category} in {business.city or 'Africa'}. "
-                                       "Plain text only. Never invent prices, discounts or facts not provided.",
-                             "messages": [{"role": "user", "content": prompt}]})
-        r.raise_for_status()
-        return r.json()["content"][0]["text"].strip()
-    except Exception as exc:  # noqa: BLE001
-        log.warning("llm draft failed", extra={"error": str(exc)})
-        return None
+    system = (
+        f"You write concise, warm marketing copy for {business.name}, a {business.category} in {business.city or 'Africa'}. "
+        "Plain text only. Never invent prices, discounts or facts not provided."
+    )
+    return call_llm(system=system, prompt=prompt, max_tokens=max_tokens)
 
 
 def _days_in(q: str, default: int) -> int:
@@ -246,7 +238,7 @@ def answer(db: Session, b: Business, question: str) -> dict:
         svc = name or "our services"
         text = _llm(f"Write one Instagram caption (max 3 sentences + 3 hashtags) promoting {svc} at our business. Location: {b.city}.", b)
         text = text or f"Ready for a fresh look? Book {svc} at {b.name}{' in ' + b.city if b.city else ''}. Message us on WhatsApp to grab your slot. #{re.sub(r'[^a-z0-9]', '', b.city.lower() or 'beauty')} #{re.sub(r'[^a-z0-9]', '', b.name.lower())}"
-        return {"answer": "Here's a caption draft:", "draft": text, "data": [], "actions": [], "source": "llm" if get_settings().anthropic_api_key and text else "template"}
+        return {"answer": "Here's a caption draft:", "draft": text, "data": [], "actions": [], "source": "llm" if get_settings().ai_configured and text else "template"}
     if re.search(r"whatsapp.*(campaign|promotion|message|promo)|write.*(promotion|campaign|message)|draft.*(campaign|message)", q):
         svc = name or "our services"
         llm = _llm(f"Write a friendly WhatsApp promotion message (max 45 words) for {svc}. Use the placeholders {{name}} for the customer's first name and {{business}} for the business name. No invented discounts.", b)
