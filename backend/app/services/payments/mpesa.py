@@ -89,14 +89,12 @@ class MpesaProvider(PaymentProvider):
         try:
             r = httpx.post(f"{self._base}/mpesa/stkpushquery/v1/query", json=body, headers={"Authorization": f"Bearer {self._token()}"}, timeout=20)
             data = r.json()
-            msg = (data.get("errorMessage") or data.get("ResponseDescription") or "").lower()
-            if "being processed" in msg:
-                return {"status": "PENDING", "raw": data}
             code = data.get("ResultCode")
             desc = data.get("ResultDesc") or data.get("ResponseDescription") or ""
+            desc_lower = (desc + " " + (data.get("errorMessage") or "")).lower()
             log.info("mpesa query response: code=%s desc=%s checkout_id=%s", code, desc, reference)
-            if code is None:
-                return {"status": "PENDING", "raw": data}
+            if code is None or str(code) == "4999" or "processing" in desc_lower:
+                return {"status": "PENDING", "message": desc, "raw": data}
             return {
                 "status": "PAID" if str(code) == "0" else "FAILED",
                 "message": desc,
