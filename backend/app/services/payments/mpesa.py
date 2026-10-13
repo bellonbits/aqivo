@@ -51,9 +51,11 @@ class MpesaProvider(PaymentProvider):
         if len(msisdn) != 12 or not msisdn.startswith("254"):
             return ProviderResult(False, "FAILED", message="Enter a valid Kenyan M-Pesa phone number (e.g. 0712345678)")
 
-        cb_base = s.public_base_url.rstrip("/")
+        cb_base = (s.app_base_url or s.public_base_url or "https://www.aqivo.shop").rstrip("/")
         if "localhost" in cb_base or cb_base.startswith("http://"):
-            cb_base = f"https://{s.base_domain or 'aqivo.shop'}"
+            cb_base = f"https://www.{s.base_domain or 'aqivo.shop'}"
+        elif cb_base.startswith("https://") and not cb_base.startswith("https://www.") and "aqivo.shop" in cb_base:
+            cb_base = cb_base.replace("https://aqivo.shop", "https://www.aqivo.shop")
         callback_url = f"{cb_base}/api/v1/subscriptions/webhooks/mpesa?secret={s.mpesa_callback_secret}"
 
         body = {"BusinessShortCode": s.mpesa_shortcode, "Password": password, "Timestamp": ts, "TransactionType": "CustomerPayBillOnline",
@@ -85,6 +87,9 @@ class MpesaProvider(PaymentProvider):
         try:
             r = httpx.post(f"{self._base}/mpesa/stkpushquery/v1/query", json=body, headers={"Authorization": f"Bearer {self._token()}"}, timeout=20)
             data = r.json()
+            msg = (data.get("errorMessage") or data.get("ResponseDescription") or "").lower()
+            if "being processed" in msg:
+                return {"status": "PENDING", "raw": data}
             code = data.get("ResultCode")
             if code is None:
                 return {"status": "PENDING", "raw": data}
