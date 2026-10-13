@@ -59,8 +59,9 @@ class MpesaProvider(PaymentProvider):
         callback_url = f"{cb_base}/api/v1/subscriptions/webhooks/mpesa?secret={s.mpesa_callback_secret}"
 
         tx_type = getattr(s, "mpesa_transaction_type", "CustomerPayBillOnline") or "CustomerPayBillOnline"
+        party_b = (getattr(s, "mpesa_till_number", None) or "").strip() or s.mpesa_shortcode
         body = {"BusinessShortCode": s.mpesa_shortcode, "Password": password, "Timestamp": ts, "TransactionType": tx_type,
-                "Amount": int(amount), "PartyA": msisdn, "PartyB": s.mpesa_shortcode, "PhoneNumber": msisdn,
+                "Amount": int(amount), "PartyA": msisdn, "PartyB": party_b, "PhoneNumber": msisdn,
                 "CallBackURL": callback_url,
                 "AccountReference": reference[:12], "TransactionDesc": description[:13]}
         try:

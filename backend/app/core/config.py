@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     mpesa_callback_secret: str = ""
     mpesa_env: str = "sandbox"
     mpesa_transaction_type: str = "CustomerPayBillOnline"
+    mpesa_till_number: str = ""
 
     anthropic_api_key: str = ""
 
