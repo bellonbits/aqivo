@@ -147,7 +147,7 @@ export function EcommercePhoneApp({
   return (
     <div className={`relative flex flex-col items-center ${className}`}>
       {/* Screen selector chips */}
-      <div className="mb-2.5 sm:mb-5 flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 px-1">
+      <div className="mb-6 sm:mb-8 flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 px-1">
         {[
           { id: 'storefront', label: '1. Storefront' },
           { id: 'product', label: '2. Product Details' },
@@ -183,8 +183,8 @@ export function EcommercePhoneApp({
           className="relative h-full w-full bg-[#FCFCFD] text-stone-900 overflow-hidden font-sans select-none flex flex-col"
           onMouseEnter={() => setIsPaused(true)}
         >
-          {/* Top Ecommerce Sticky Nav */}
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-100 bg-white/95 px-2.5 py-1.5 backdrop-blur-md">
+          {/* Top Ecommerce Sticky Nav with safe area padding */}
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-100 bg-white/95 px-2.5 pt-2 pb-1.5 sm:pt-2.5 sm:pb-2 backdrop-blur-md">
             <div className="flex items-center gap-1.5">
               <div className="flex size-6 items-center justify-center rounded-md bg-stone-900 text-[10px] font-black text-white">
                 2S
@@ -655,8 +655,8 @@ export function EcommercePhoneApp({
             </AnimatePresence>
           </div>
 
-          {/* Bottom App Navigation Bar */}
-          <div className="sticky bottom-0 z-30 flex items-center justify-around border-t border-stone-100 bg-white/95 py-2 backdrop-blur-md">
+          {/* Bottom App Navigation Bar with safe area padding */}
+          <div className="sticky bottom-0 z-30 flex items-center justify-around border-t border-stone-100 bg-white/95 px-2 pt-1.5 pb-2.5 sm:pb-3 backdrop-blur-md">
             <button
               type="button"
               onClick={() => setScreen('storefront')}

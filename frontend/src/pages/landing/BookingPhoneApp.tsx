@@ -95,7 +95,7 @@ export function BookingPhoneApp({
   return (
     <div className={`relative flex flex-col items-center ${className}`}>
       {/* Screen selector chips above or below */}
-      <div className="mb-2.5 sm:mb-5 flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 px-1">
+      <div className="mb-6 sm:mb-8 flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 px-1">
         {[
           { id: 'home', label: '1. Explore' },
           { id: 'salon', label: '2. Salon' },
@@ -141,7 +141,7 @@ export function BookingPhoneApp({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -15 }}
                   transition={{ duration: 0.2 }}
-                  className="p-2.5 pt-3 text-stone-900"
+                  className="p-2.5 pt-3.5 sm:pt-4 text-stone-900"
                 >
                   {/* Top Bar with user greeting */}
                   <div className="flex items-center justify-between">
@@ -854,7 +854,7 @@ export function BookingPhoneApp({
           </div>
 
           {/* Bottom App Navigation Bar (Home, Booking, Saved, Message, Profile) */}
-          <div className="absolute inset-x-0 bottom-0 z-20 flex h-9 items-center justify-around border-t border-stone-100 bg-white/95 px-2 backdrop-blur-md">
+          <div className="absolute inset-x-0 bottom-0 z-20 flex h-10 items-center justify-around border-t border-stone-100 bg-white/95 px-2 pb-1.5 backdrop-blur-md">
             {[
               { id: 'home', label: 'Home', icon: Scissors, screen: 'home' as ScreenId },
               { id: 'booking', label: 'Booking', icon: Calendar, screen: 'step1' as ScreenId },

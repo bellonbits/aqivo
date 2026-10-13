@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn'
 
 // Hand variant (home page only): public/phone-frame.png, a hand holding a phone, 1000×960, screen cut out.
 const IMG = { w: 1000, h: 960 }
-const SCREEN = { left: 464, top: 22, w: 415, h: 880 }
+const SCREEN = { left: 461, top: 19, w: 420, h: 889 }
 
 // Standard iPhone 14 / 15 / 16 Viewport
 export const IPHONE_W = 390
@@ -47,19 +47,36 @@ export function PhoneFrame({
   if (variant === 'hand') {
     const k = width / SCREEN.w
     const h = width * (SCREEN.h / SCREEN.w)
-    const borderRadius = Math.round(width * 0.11)
+    const borderRadius = Math.round(width * 0.108)
+    const topBezelHeight = Math.ceil(SCREEN.top * k)
+    const bottomExtra = Math.max(0, (IMG.h - SCREEN.top - SCREEN.h) * k)
+
     return (
       <div
         className={cn('relative mx-auto isolate max-w-full', className)}
-        style={{ width, height: h, marginBottom: (IMG.h - SCREEN.top - SCREEN.h) * k }}
+        style={{
+          width,
+          height: h,
+          marginTop: topBezelHeight + 6,
+          marginBottom: bottomExtra,
+        }}
         {...a11y}
       >
+        {/* Dark phone backing so no white sub-pixel gap can ever show outside the cutout */}
         <div
-          className="absolute inset-0 overflow-hidden bg-white z-0 shadow-lg"
+          className="absolute inset-0 bg-[#0c0c0e]"
+          style={{ borderRadius }}
+        />
+
+        {/* Screen container strictly matching cut-out geometry */}
+        <div
+          className="absolute inset-0 overflow-hidden bg-white z-0"
           style={{ borderRadius }}
         >
           {children}
         </div>
+
+        {/* Phone Frame and hand overlay with authentic drop shadow on the device */}
         <img
           src="/phone-frame.png"
           alt=""
@@ -67,8 +84,13 @@ export function PhoneFrame({
           width={IMG.w}
           height={IMG.h}
           draggable={false}
-          className="pointer-events-none absolute max-w-none select-none z-30"
-          style={{ left: -SCREEN.left * k, top: -SCREEN.top * k, width: IMG.w * k, height: IMG.h * k }}
+          className="pointer-events-none absolute max-w-none select-none z-30 drop-shadow-xl"
+          style={{
+            left: -SCREEN.left * k,
+            top: -SCREEN.top * k,
+            width: IMG.w * k,
+            height: IMG.h * k,
+          }}
         />
       </div>
     )

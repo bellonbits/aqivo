@@ -279,7 +279,7 @@ export function Hero() {
             className="order-1 lg:order-2"
           >
             <div className="relative z-0 pb-3 pt-1 sm:pt-0">
-              <div className="mb-2 sm:mb-3.5 flex items-center justify-center gap-1.5">
+              <div className="mb-3 sm:mb-4.5 flex items-center justify-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setPreviewMode('ecommerce')}
