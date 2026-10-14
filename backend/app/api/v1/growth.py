@@ -13,7 +13,10 @@ from app.core.errors import bad_request, or404
 from app.models import Booking, Collection, Discount, Lead, MarketingCampaign, MarketingMessage, Notification, Product, QRCode, Service, ServiceCategory, WebsitePage
 from app.models.enums import BookingStatus, LeadStatus
 from app.repositories import CampaignRepository
-from app.schemas.money import ActionIn, AskIn, CampaignIn, CampaignOut, GrowthCampaignIn, GrowthCampaignUpdate, LinkIn, QRIn
+from app.schemas.money import (
+    ActionIn, AskIn, CampaignIn, CampaignOut, GrowthCampaignIn, GrowthCampaignUpdate, LinkIn, QRIn,
+    DraftProductIn, DraftReviewReplyIn, DraftLeadReplyIn, DraftProfileIn, DraftCampaignMessageIn,
+)
 from app.services import ai as ai_svc
 from app.services import analytics as an
 from app.services import growth_analytics as ga
@@ -380,6 +383,103 @@ def run_automations(ctx: TenantContext = Depends(require_feature("ai", "marketin
     made = automation.run_daily(db, ctx.business, force=True)
     db.commit()
     return {"prepared": [{"kind": m["kind"], "title": m["title"], "campaign_id": str(m["campaign"].id)} for m in made]}
+
+
+@ai_router.post("/draft-product")
+def draft_product_copy(body: DraftProductIn, ctx: TenantContext = Depends(require("products:write")), db: Session = Depends(get_db)):
+    from app.services.llm import call_llm_json
+    b = ctx.business
+    system = (
+        f"You are an expert e-commerce copywriter for {b.name}, a {b.category or 'business'} in {b.city or 'Kenya'}. "
+        "Output ONLY JSON with keys: "
+        "\"short_description\" (1 catchy sentence, max 160 chars, for card preview), "
+        "\"description\" (2-3 concise paragraphs highlighting quality, benefits, and call to action, max 300 words), "
+        "\"seo_title\" (under 60 chars), "
+        "\"seo_description\" (under 150 chars). "
+        "Tone: warm, authentic, appealing, local. Never invent discounts."
+    )
+    prompt = f"{body.kind.title()}: {body.name}. Category: {body.category or 'N/A'}. Price: {body.price or 'N/A'}. Tags: {body.tags or 'N/A'}."
+    res = call_llm_json(system=system, prompt=prompt, max_tokens=1000)
+    if res and res.get("description"):
+        return res
+    return {
+        "short_description": f"Quality {body.name.lower()} from {b.name}.",
+        "description": f"{body.name} from {b.name}. Crafted with care and excellence. Order today or message us on WhatsApp for fast assistance.",
+        "seo_title": f"{body.name} | {b.name}",
+        "seo_description": f"Buy {body.name} from {b.name} in {b.city or 'Kenya'}. Quality guaranteed.",
+    }
+
+
+@ai_router.post("/draft-review-reply")
+def draft_review_reply(body: DraftReviewReplyIn, ctx: TenantContext = Depends(require("reviews:write")), db: Session = Depends(get_db)):
+    from app.services.llm import call_llm
+    b = ctx.business
+    system = (
+        f"You write genuine, professional review replies for {b.name}, a {b.category or 'business'} in {b.city or 'Kenya'}. "
+        "Keep it under 60 words. If 4-5 stars: thank them warmly and mention their visit. "
+        "If 1-3 stars: apologize sincerely, be respectful, and invite them to reach out on WhatsApp to make it right. "
+        "Plain text only. Do not invent facts."
+    )
+    prompt = f"Customer: {body.author_name}. Rating: {body.rating} stars. Review: \"{body.comment or 'No text'}\"."
+    reply = call_llm(system=system, prompt=prompt, max_tokens=150)
+    if not reply:
+        if body.rating >= 4:
+            reply = f"Thank you so much {body.author_name}! We're delighted to have served you at {b.name} and look forward to welcoming you again."
+        else:
+            reply = f"Hi {body.author_name}, thank you for your feedback. We are truly sorry your experience wasn't 100% perfect. Please reach out to us on WhatsApp so we can make this right for you."
+    return {"reply": reply}
+
+
+@ai_router.post("/draft-lead-reply")
+def draft_lead_reply(body: DraftLeadReplyIn, ctx: TenantContext = Depends(require("leads:write")), db: Session = Depends(get_db)):
+    from app.services.llm import call_llm
+    b = ctx.business
+    first_name = body.customer_name.split()[0]
+    system = (
+        f"You write friendly, prompt WhatsApp responses to customer enquiries for {b.name}, a {b.category or 'business'} in {b.city or 'Kenya'}. "
+        "Keep it under 45 words, warm, conversational, welcoming, and directly address what they asked. "
+        "Always start with 'Hi [Name],' and sign off with '{b.name}'. Plain text only."
+    )
+    prompt = f"Customer name: {first_name}. Service requested: {body.service_name or 'General'}. Customer enquiry: \"{body.message or 'Interested in your services'}\"."
+    reply = call_llm(system=system, prompt=prompt, max_tokens=150)
+    if not reply:
+        reply = f"Hi {first_name}, thank you for reaching out to {b.name}! We'd be glad to help you with {body.service_name or 'your enquiry'}. When would be the best time to connect?"
+    return {"reply": reply}
+
+
+@ai_router.post("/draft-profile")
+def draft_profile_copy(body: DraftProfileIn, ctx: TenantContext = Depends(require("profile:write")), db: Session = Depends(get_db)):
+    from app.services.llm import call_llm_json
+    system = (
+        "You craft memorable branding copy for local businesses in Africa. "
+        "Output ONLY JSON with two keys: "
+        "\"tagline\" (a catchy, punchy slogan under 80 chars), "
+        "\"description\" (2-3 warm, professional sentences describing what they offer, who they serve, and why customers love them, under 300 chars)."
+    )
+    prompt = f"Business: {body.name}. Category: {body.category or 'Local Business'}. City: {body.city or 'Kenya'}."
+    res = call_llm_json(system=system, prompt=prompt, max_tokens=300)
+    if res and res.get("tagline") and res.get("description"):
+        return res
+    return {
+        "tagline": f"Premium {body.category or 'service'} in {body.city or 'Kenya'}",
+        "description": f"{body.name} offers top-quality {body.category.lower() if body.category else 'services'} in {body.city or 'Kenya'}. Dedicated to customer satisfaction and excellence.",
+    }
+
+
+@ai_router.post("/draft-campaign-message")
+def draft_campaign_message(body: DraftCampaignMessageIn, ctx: TenantContext = Depends(require("marketing:write")), db: Session = Depends(get_db)):
+    from app.services.llm import call_llm
+    b = ctx.business
+    system = (
+        f"You write high-converting WhatsApp marketing messages for {b.name}, a {b.category or 'business'} in {b.city or 'Kenya'}. "
+        "Keep it under 45 words. Engaging, warm, with clear call to action. "
+        "You can use the placeholders {name} for the customer's name, {business} for the business name, and {service} or {offer} if relevant."
+    )
+    prompt = f"Campaign kind: {body.kind}. Audience: {body.audience}. Special offer details: {body.offer or 'None'}."
+    msg = call_llm(system=system, prompt=prompt, max_tokens=150)
+    if not msg:
+        msg = f"Hi {{name}}, it's {{business}}! We have exciting updates and specials for you this week. Reply here to book or order!"
+    return {"message": msg}
 
 
 @ai_router.post("/actions")

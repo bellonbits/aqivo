@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Package, Pencil, Plus, Search, Star, Trash2, X } from 'lucide-react'
+import { Package, Pencil, Plus, Search, Sparkles, Star, Trash2, X } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
@@ -121,15 +121,57 @@ export default function Products() {
 }
 
 function ProductModal({ form, setForm, onSave, saving, flat, cur }: { form: PForm | null; setForm: (f: PForm | null) => void; onSave: (f: PForm) => void; saving: boolean; flat: (Category & { depth: number })[]; cur?: string }) {
+  const toast = useToast()
   const [pick, setPick] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
   const set = (patch: Partial<PForm>) => form && setForm({ ...form, ...patch })
   const compareBad = form && form.compare_at_price !== '' && Number(form.compare_at_price) <= Number(form.price)
+
+  const handleAiCopy = async () => {
+    if (!form?.name.trim()) return
+    setAiLoading(true)
+    try {
+      const cat = flat.find((c) => c.id === form.category_id)?.name
+      const res = await api.post<{ short_description: string; description: string; seo_title: string; seo_description: string }>('/ai/draft-product', {
+        name: form.name.trim(),
+        category: cat || null,
+        price: form.price || null,
+        tags: form.tags || null,
+        kind: 'product',
+      })
+      set({
+        short_description: res.short_description || form.short_description,
+        description: res.description || form.description,
+        seo_title: form.seo_title || res.seo_title,
+        seo_description: form.seo_description || res.seo_description,
+      })
+      toast.ok('Product copy written with AI!')
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate copy')
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   return (
     <Modal open={!!form} onClose={() => setForm(null)} wide title={form?.id ? 'Edit product' : 'Add product'}
       footer={<><Button variant="secondary" onClick={() => setForm(null)}>Cancel</Button><Button loading={saving} onClick={() => form && onSave(form)} disabled={!form?.name.trim() || form?.price === ''}>Save product</Button></>}>
       {form && <div className="space-y-5">
         <div className="space-y-3">
           <TextField label="Name" value={form.name} onChange={(e) => set({ name: e.target.value })} placeholder="Kitenge wrap dress" maxLength={160} />
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-sm font-semibold">Short description & Description</span>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={!form.name.trim()}
+              loading={aiLoading}
+              onClick={handleAiCopy}
+              className="h-7 gap-1.5 px-3 text-xs"
+            >
+              <Sparkles className="size-3.5 text-lime-ink" /> Write with AI
+            </Button>
+          </div>
           <TextField label="Short description" value={form.short_description} onChange={(e) => set({ short_description: e.target.value })} maxLength={300} hint="Shown on the product card." />
           <TextAreaField label="Description" rows={4} value={form.description} onChange={(e) => set({ description: e.target.value })} maxLength={5000} />
         </div>

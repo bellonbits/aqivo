@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { MessageCircle, Send } from 'lucide-react'
+import { MessageCircle, Send, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { api } from '@/lib/api'
 import { useToast } from '@/hooks/useToast'
@@ -15,6 +15,7 @@ export default function WhatsAppInbox() {
   const toast = useToast()
   const [sel, setSel] = useState<string | null>(null)
   const [text, setText] = useState('')
+  const [aiDrafting, setAiDrafting] = useState(false)
   const list = useQuery({ queryKey: ['wa-convs'], queryFn: () => api.get<{ connected: boolean; items: Conv[] }>('/whatsapp/conversations'), refetchInterval: 20000 })
   const thread = useQuery({ queryKey: ['wa-thread', sel], enabled: !!sel, queryFn: () => api.get<{ window_open: boolean; messages: Msg[] }>(`/whatsapp/conversations/${sel}`), refetchInterval: 15000 })
   const send = useMutation({
@@ -22,6 +23,25 @@ export default function WhatsAppInbox() {
     onSuccess: () => { setText(''); void qc.invalidateQueries({ queryKey: ['wa-thread', sel] }); void qc.invalidateQueries({ queryKey: ['wa-convs'] }) },
     onError: (e) => { toast.err(e instanceof Error ? e.message : 'Could not send'); void qc.invalidateQueries({ queryKey: ['wa-thread', sel] }) },
   })
+
+  const activeConv = list.data?.items.find((c) => c.phone === sel)
+  const lastInMsg = (thread.data?.messages ?? []).slice().reverse().find((m) => m.direction === 'IN')
+
+  const handleAiSuggest = async () => {
+    setAiDrafting(true)
+    try {
+      const res = await api.post<{ reply: string }>('/ai/draft-lead-reply', {
+        customer_name: activeConv?.name || null,
+        message: lastInMsg?.body || activeConv?.last || null,
+      })
+      setText(res.reply)
+      toast.ok('AI drafted a response — edit or send!')
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate reply')
+    } finally {
+      setAiDrafting(false)
+    }
+  }
   if (list.isLoading) return <PageLoading />
   if (list.error || !list.data) return <ErrorState message="Couldn't load your inbox." onRetry={() => void list.refetch()} />
   if (!list.data.connected) return (
@@ -48,6 +68,18 @@ export default function WhatsAppInbox() {
                     {m.error && <p className="mt-1 text-[11px] text-red-300">{m.error}</p>}</div></div>))}</div>
               <form className="border-t border-line p-3" onSubmit={(e) => { e.preventDefault(); if (text.trim()) send.mutate() }}>
                 {thread.data && !thread.data.window_open && <p className="mb-2 text-xs text-amber-700">This customer hasn’t messaged in the last 24 hours, so WhatsApp will reject free text. Wait for them to reply, or use a template from a campaign.</p>}
+                <div className="mb-2 flex items-center justify-between">
+                  <button
+                    type="button"
+                    disabled={aiDrafting}
+                    onClick={handleAiSuggest}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-lime-ink hover:underline disabled:opacity-50"
+                  >
+                    <Sparkles className="size-3.5" />
+                    {aiDrafting ? 'Drafting reply with AI...' : 'Suggest AI reply'}
+                  </button>
+                  <span className="text-[11px] text-muted">Powered by AI</span>
+                </div>
                 <div className="flex gap-2"><textarea value={text} maxLength={2000} rows={2} onChange={(e) => setText(e.target.value)} placeholder="Type a reply…" className="min-h-11 flex-1 resize-none rounded-xl border border-line-strong bg-white/80 px-3 py-2 text-sm" />
                   <Button type="submit" loading={send.isPending} disabled={!text.trim()} aria-label="Send reply"><Send className="size-4" /></Button></div>
               </form>

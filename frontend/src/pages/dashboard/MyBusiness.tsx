@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { Sparkles } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
@@ -36,8 +37,31 @@ export default function MyBusiness() {
   const toast = useToast()
   const [f, setF] = useState<Business | null>(null)
   const [blocked, setBlocked] = useState('')
+  const [aiDraftingProfile, setAiDraftingProfile] = useState(false)
   const countries = useQuery({ queryKey: ['config'], queryFn: () => api.get<{ locales: string[] }>('/businesses/config'), staleTime: Infinity })
   useEffect(() => { if (business) setF(business) }, [business])
+
+  const handleAiProfileDraft = async () => {
+    if (!f?.name?.trim()) {
+      toast.err('Please enter a business name first')
+      return
+    }
+    setAiDraftingProfile(true)
+    try {
+      const res = await api.post<{ tagline: string; description: string }>('/ai/draft-profile', {
+        name: f.name,
+        category: f.category || null,
+        city: f.city || null,
+        existing_description: f.description || null,
+      })
+      setF((prev) => (prev ? { ...prev, tagline: res.tagline, description: res.description } : prev))
+      toast.ok('AI drafted your tagline and description!')
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate profile copy')
+    } finally {
+      setAiDraftingProfile(false)
+    }
+  }
   const save = useMutation({
     mutationFn: (b: Business) => api.patch('/businesses/me', {
       name: b.name, category: b.category, description: b.description, tagline: b.tagline, phone: b.phone, whatsapp: b.whatsapp, email: b.email || undefined, city: b.city, address: b.address,
@@ -89,6 +113,23 @@ export default function MyBusiness() {
         <div className="grid gap-4 p-5 md:grid-cols-2">
           <TextField label="Business name" required value={f.name} onChange={(e) => set('name', e.target.value)} />
           <TextField label="Category" value={f.category} onChange={(e) => set('category', e.target.value)} hint="e.g. Barbershop, Restaurant, Dental Clinic" />
+          <div className="flex flex-col gap-2 rounded-xl bg-lime-soft/40 p-3.5 ring-1 ring-lime-ink/15 sm:flex-row sm:items-center sm:justify-between md:col-span-2">
+            <div>
+              <p className="text-xs font-bold text-ink">Need a compelling tagline & bio?</p>
+              <p className="text-xs text-muted">Let AI draft a catchy tagline and professional description based on your business name and category.</p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              loading={aiDraftingProfile}
+              onClick={handleAiProfileDraft}
+              className="gap-1.5 whitespace-nowrap self-start sm:self-auto"
+            >
+              <Sparkles className="size-3.5 text-lime-ink" />
+              Write with AI
+            </Button>
+          </div>
           <div className="md:col-span-2"><TextField label="Tagline" value={f.tagline} maxLength={200} onChange={(e) => set('tagline', e.target.value)} hint="One line under your name." /></div>
           <div className="md:col-span-2"><TextAreaField label="Description" rows={4} maxLength={2000} value={f.description} onChange={(e) => set('description', e.target.value)} hint="Tell customers what you do and who you serve (40+ characters helps your online presence score)." /></div>
           <TextField label="Phone" type="tel" value={f.phone ?? ''} onChange={(e) => set('phone', e.target.value)} />

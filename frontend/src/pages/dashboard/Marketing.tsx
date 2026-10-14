@@ -5,7 +5,7 @@ import { Megaphone, Plus, Sparkles } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
-import { Badge, Button, Card, CardHeader, ConfirmDialog, EmptyState, ErrorState, Field, Modal, NotConfigured, PageHeader, PageLoading, Select, StatusBadge, Tabs, TextAreaField, TextField, UpgradePrompt } from '@/components/ui'
+import { Badge, Button, Card, CardHeader, ConfirmDialog, EmptyState, ErrorState, Field, Modal, NotConfigured, PageHeader, PageLoading, Select, StatusBadge, Tabs, TextField, UpgradePrompt } from '@/components/ui'
 import { cap, relativeTime } from '@/lib/format'
 import { GrowthCampaignDetail, GrowthCampaignModal } from '@/features/marketing/GrowthCampaigns'
 import { LinksQR } from '@/features/marketing/LinksQR'
@@ -35,12 +35,30 @@ export default function Marketing() {
   const tab = params.get('tab') === 'links' ? 'links' : 'campaigns'
   const perf = useQuery({ queryKey: ['a-campaigns', '90d'], queryFn: () => api.get<{ rows: CampaignRow[] }>('/analytics/campaigns', { period: '90d' }), enabled: has('marketing') })
   const [f, setF] = useState({ name: '', kind: 'REACTIVATION', message: TEMPLATES.REACTIVATION, aud: 'inactive45' })
+  const [aiCampaignDrafting, setAiCampaignDrafting] = useState(false)
   const list = useQuery({ queryKey: ['campaigns'], queryFn: () => api.get<Campaign[]>('/marketing/campaigns'), enabled: has('marketing') })
   const opp = useQuery({ queryKey: ['opportunities'], queryFn: () => api.get<{ buckets: { days: number; count: number }[] }>('/marketing/opportunities'), enabled: has('marketing') })
   const openId = params.get('open')
   const detail = useQuery({ queryKey: ['campaign', openId], queryFn: () => api.get<Detail>(`/marketing/campaigns/${openId}`), enabled: !!openId })
   const inv = () => { for (const k of ['campaigns', 'campaign', 'opportunities']) void qc.invalidateQueries({ queryKey: [k] }) }
   const make = useMutation({ mutationFn: () => api.post<Campaign>('/marketing/campaigns', { name: f.name, kind: f.kind, message_template: f.message, audience: audience(f.aud) }), onSuccess: (c) => { inv(); setCreate(false); setParams({ open: c.id }); toast.ok('Draft created — review it before anything is sent') }, onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed') })
+
+  const handleAiCampaignDraft = async () => {
+    setAiCampaignDrafting(true)
+    try {
+      const res = await api.post<{ message: string; tips?: string }>('/ai/draft-campaign-message', {
+        kind: f.kind,
+        audience_description: AUD[f.aud] || f.aud,
+        offer_details: f.name || null,
+      })
+      setF((prev) => ({ ...prev, message: res.message }))
+      toast.ok('AI drafted your campaign copy!')
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate campaign copy')
+    } finally {
+      setAiCampaignDrafting(false)
+    }
+  }
   const [confirm, setConfirm] = useState(false)
   const conf = useMutation({ mutationFn: () => api.post(`/marketing/campaigns/${openId}/confirm`), onSuccess: () => { inv(); setConfirm(false); toast.ok('Ready to send. Tap each customer to open WhatsApp.') }, onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed') })
   const sent = useMutation({ mutationFn: (mid: string) => api.post(`/marketing/campaigns/${openId}/messages/${mid}/sent`), onSuccess: inv })
@@ -73,7 +91,28 @@ export default function Marketing() {
         <div className="space-y-4"><TextField label="Campaign name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
           <div className="grid gap-3 sm:grid-cols-2"><Field label="Type"><Select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value, message: TEMPLATES[e.target.value] })}>{KINDS.map((k) => <option key={k} value={k}>{cap(k)}</option>)}</Select></Field>
             <Field label="Who receives it"><Select value={f.aud} onChange={(e) => setF({ ...f, aud: e.target.value })}>{Object.entries(AUD).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</Select></Field></div>
-          <TextAreaField label="Message" rows={5} maxLength={1000} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} hint="{name}, {business}, {service}, {offer} and {review_link} are filled in for each customer." /></div></Modal>
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="block text-sm font-semibold">Message</label>
+              <button
+                type="button"
+                disabled={aiCampaignDrafting}
+                onClick={handleAiCampaignDraft}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-lime-ink hover:underline disabled:opacity-50"
+              >
+                <Sparkles className="size-3.5" />
+                {aiCampaignDrafting ? 'Writing with AI...' : 'Write with AI'}
+              </button>
+            </div>
+            <textarea
+              rows={5}
+              maxLength={1000}
+              value={f.message}
+              onChange={(e) => setF({ ...f, message: e.target.value })}
+              className="w-full rounded-xl border border-line-strong bg-white/80 p-3 text-sm focus:border-ink focus:outline-none"
+            />
+            <p className="mt-1 text-xs text-muted">&#123;name&#125;, &#123;business&#125;, &#123;service&#125;, &#123;offer&#125; and &#123;review_link&#125; are filled in for each customer.</p>
+          </div></div></Modal>
 
       <Modal open={!!openId && !growthOpen} onClose={() => setParams({})} title={d?.campaign.name ?? 'Campaign'} wide footer={d && <>{d.campaign.status === 'DRAFT' && <Button onClick={() => setConfirm(true)}>Review & confirm</Button>}{d.campaign.status === 'SCHEDULED' && wa.data?.connected && <Button loading={apiSend.isPending} onClick={() => { if (confirm_(`Send ${d.messages.filter((m) => m.status !== 'SENT').length} message(s) from your WhatsApp number now?`)) apiSend.mutate() }}>Send via my WhatsApp number</Button>}{['DRAFT', 'SCHEDULED'].includes(d.campaign.status) && <Button variant="danger" onClick={() => cancel.mutate()}>Cancel campaign</Button>}</>}>
         {!d ? <PageLoading /> : <div className="space-y-4"><div className="flex items-center gap-2"><StatusBadge status={d.campaign.status} /><span className="text-sm text-muted">{d.messages.length} recipients</span></div>

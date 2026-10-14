@@ -185,3 +185,35 @@ class QRIn(BaseModel):
     target_type: str = "storefront"
     target_ref: str | None = None
     headline: str = Field(default="", max_length=80)
+
+
+class DraftProductIn(BaseModel):
+    name: str = Field(min_length=1, max_length=160)
+    category: str | None = Field(default=None, max_length=100)
+    price: str | None = Field(default=None, max_length=30)
+    tags: str | None = Field(default=None, max_length=200)
+    kind: str = Field(default="product", pattern="^(product|service)$")
+
+
+class DraftReviewReplyIn(BaseModel):
+    author_name: str = Field(min_length=1, max_length=120)
+    rating: int = Field(ge=1, le=5)
+    comment: str | None = Field(default=None, max_length=2000)
+
+
+class DraftLeadReplyIn(BaseModel):
+    customer_name: str = Field(min_length=1, max_length=120)
+    message: str | None = Field(default=None, max_length=2000)
+    service_name: str | None = Field(default=None, max_length=160)
+
+
+class DraftProfileIn(BaseModel):
+    name: str = Field(min_length=1, max_length=160)
+    category: str | None = Field(default=None, max_length=100)
+    city: str | None = Field(default=None, max_length=100)
+
+
+class DraftCampaignMessageIn(BaseModel):
+    kind: str = Field(max_length=50)
+    audience: str = Field(default="all", max_length=50)
+    offer: str | None = Field(default=None, max_length=200)

@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowDown, ArrowUp, Pencil, Plus, Scissors, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, Pencil, Plus, Scissors, Sparkles, Trash2 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
 import { AiCatalogButton } from '@/features/commerce/AiCatalog'
-import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, Modal, PageHeader, PageLoading, TextAreaField, TextField } from '@/components/ui'
+import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, Modal, PageHeader, PageLoading, TextField } from '@/components/ui'
 import { money } from '@/lib/format'
 import type { Service } from '@/types'
 
@@ -19,6 +19,7 @@ export default function Services() {
   const q = useQuery({ queryKey: ['services'], queryFn: () => api.get<Service[]>('/services') })
   const [form, setForm] = useState<Form | null>(null)
   const [del, setDel] = useState<Service | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
   const canWrite = summary?.role !== 'STAFF'
   const inv = () => { void qc.invalidateQueries({ queryKey: ['services'] }); void refresh() }
   const save = useMutation({
@@ -27,6 +28,24 @@ export default function Services() {
   })
   const remove = useMutation({ mutationFn: (id: string) => api.del(`/services/${id}`), onSuccess: () => { inv(); setDel(null); toast.ok('Service deleted') }, onError: (e) => toast.err(e instanceof Error ? e.message : 'Could not delete') })
   const move = useMutation({ mutationFn: (ids: string[]) => api.put('/services/order', { ids }), onSuccess: inv })
+
+  const handleAiServiceCopy = async () => {
+    if (!form?.name.trim()) return
+    setAiLoading(true)
+    try {
+      const res = await api.post<{ short_description: string; description: string }>('/ai/draft-product', {
+        name: form.name.trim(),
+        price: form.price || null,
+        kind: 'service',
+      })
+      setForm((prev) => (prev ? { ...prev, description: res.description || res.short_description || prev.description } : prev))
+      toast.ok('Service description written with AI!')
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate copy')
+    } finally {
+      setAiLoading(false)
+    }
+  }
 
   if (q.isLoading) return <PageLoading />
   if (q.error || !q.data) return <ErrorState message="Couldn't load your services." onRetry={() => void q.refetch()} />
@@ -54,7 +73,28 @@ export default function Services() {
         {form && <div className="space-y-4">
           <TextField label="Service name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Knotless Braids" />
           <div className="grid grid-cols-2 gap-3"><TextField label={`Price (${business?.currency ?? ''})`} type="number" inputMode="decimal" min={0} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /><TextField label="Duration (minutes)" type="number" min={5} step={5} value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })} /></div>
-          <TextAreaField label="Description (optional)" rows={3} maxLength={1000} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-sm font-semibold">Description (optional)</span>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={!form.name.trim()}
+              loading={aiLoading}
+              onClick={handleAiServiceCopy}
+              className="h-7 gap-1.5 px-3 text-xs"
+            >
+              <Sparkles className="size-3.5 text-lime-ink" /> Write with AI
+            </Button>
+          </div>
+          <textarea
+            aria-label="Description"
+            rows={3}
+            maxLength={1000}
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            className="w-full rounded-xl border border-line-strong bg-white/80 p-3 text-sm focus:border-ink focus:outline-none"
+            placeholder="Tell customers what is included..."
+          />
           <label className="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" className="size-4 accent-ink" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} /> Show this service to customers</label>
         </div>}
       </Modal>

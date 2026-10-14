@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { BadgeCheck, EyeOff, MessageCircle, Star } from 'lucide-react'
+import { BadgeCheck, EyeOff, MessageCircle, Sparkles, Star } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
@@ -15,6 +15,7 @@ export default function Reviews() {
   const qc = useQueryClient()
   const toast = useToast()
   const [reply, setReply] = useState<{ id: string; text: string } | null>(null)
+  const [aiReplying, setAiReplying] = useState(false)
   const list = useQuery({ queryKey: ['reviews'], queryFn: () => api.get<Review[]>('/reviews'), enabled: has('reviews') })
   const sum = useQuery({ queryKey: ['review-summary'], queryFn: () => api.get<{ count: number; average: number | null; distribution: Record<string, number>; review_link: string }>('/reviews/summary'), enabled: has('reviews') })
   const pending = useQuery({ queryKey: ['pending-reviews'], queryFn: () => api.get<{ booking_id: string; customer_name: string; services: string[] }[]>('/reviews/pending-requests'), enabled: has('reviews') })
@@ -22,6 +23,23 @@ export default function Reviews() {
   const respond = useMutation({ mutationFn: () => api.post(`/reviews/${reply!.id}/respond`, { response: reply!.text }), onSuccess: () => { setReply(null); inv(); toast.ok('Reply posted') }, onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed') })
   const vis = useMutation({ mutationFn: (v: { id: string; published: boolean }) => api.post(`/reviews/${v.id}/visibility?published=${v.published}`), onSuccess: inv })
   const ask = useMutation({ mutationFn: (id: string) => api.post<{ whatsapp_url: string | null }>('/reviews/requests', { booking_id: id }), onSuccess: (r) => { inv(); if (r.whatsapp_url) window.open(r.whatsapp_url, '_blank') }, onError: (e) => toast.err(e instanceof Error ? e.message : 'Failed') })
+
+  const draftAiReply = async (r: Review) => {
+    setAiReplying(true)
+    try {
+      const res = await api.post<{ reply: string }>('/ai/draft-review-reply', {
+        author_name: r.author_name,
+        rating: r.rating,
+        comment: r.comment || null,
+      })
+      setReply({ id: r.id, text: res.reply })
+      toast.ok('AI drafted a personalized reply!')
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate reply')
+    } finally {
+      setAiReplying(false)
+    }
+  }
 
   if (!has('reviews')) return <div><PageHeader title="Reviews" /><UpgradePrompt feature="reviews" body="Collect verified reviews and show them on your website. Available on Grow and above." /></div>
   if (list.isLoading || sum.isLoading) return <PageLoading />
@@ -40,7 +58,7 @@ export default function Reviews() {
           <ul className="divide-y divide-line">{list.data.map((r) => (
             <li key={r.id} className="px-5 py-4"><div className="flex flex-wrap items-center gap-2"><Stars n={r.rating} /><span className="font-bold">{r.author_name}</span>{r.verified && <Badge tone="ok"><BadgeCheck className="mr-1 size-3" />Verified</Badge>}{!r.is_published && <Badge>Hidden</Badge>}<span className="text-xs text-muted">{relativeTime(r.created_at)}</span></div>
               {r.comment && <p className="mt-1.5 text-sm">{r.comment}</p>}
-              {r.response ? <p className="mt-2 rounded-xl bg-paper p-3 text-sm"><b>Your reply:</b> {r.response}</p> : reply?.id === r.id ? <div className="mt-2 space-y-2"><Textarea aria-label="Your reply" rows={3} value={reply.text} onChange={(e) => setReply({ id: r.id, text: e.target.value })} /><div className="flex gap-2"><Button size="sm" loading={respond.isPending} disabled={!reply.text.trim()} onClick={() => respond.mutate()}>Post reply</Button><Button size="sm" variant="ghost" onClick={() => setReply(null)}>Cancel</Button></div></div> : <div className="mt-2 flex gap-2"><Button size="sm" variant="secondary" onClick={() => setReply({ id: r.id, text: '' })}>Reply</Button><Button size="sm" variant="ghost" onClick={() => vis.mutate({ id: r.id, published: !r.is_published })}><EyeOff className="size-4" />{r.is_published ? 'Hide' : 'Show'}</Button></div>}</li>))}</ul>)}</Card>
+              {r.response ? <p className="mt-2 rounded-xl bg-paper p-3 text-sm"><b>Your reply:</b> {r.response}</p> : reply?.id === r.id ? <div className="mt-2 space-y-2"><Textarea aria-label="Your reply" rows={3} value={reply.text} onChange={(e) => setReply({ id: r.id, text: e.target.value })} /><div className="flex flex-wrap items-center gap-2"><Button size="sm" loading={respond.isPending} disabled={!reply.text.trim()} onClick={() => respond.mutate()}>Post reply</Button><Button size="sm" variant="secondary" loading={aiReplying} onClick={() => draftAiReply(r)} className="gap-1.5"><Sparkles className="size-3.5 text-lime-ink" /> Draft with AI</Button><Button size="sm" variant="ghost" onClick={() => setReply(null)}>Cancel</Button></div></div> : <div className="mt-2 flex gap-2"><Button size="sm" variant="secondary" onClick={() => setReply({ id: r.id, text: '' })}>Reply</Button><Button size="sm" variant="ghost" onClick={() => vis.mutate({ id: r.id, published: !r.is_published })}><EyeOff className="size-4" />{r.is_published ? 'Hide' : 'Show'}</Button></div>}</li>))}</ul>)}</Card>
     </div>
   )
 }
