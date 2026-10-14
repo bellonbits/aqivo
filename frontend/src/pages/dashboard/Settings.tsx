@@ -26,16 +26,22 @@ export default function Settings() {
 }
 
 function ProfileCard() {
-  const { me, updateProfile, resendEmailVerification } = useAuth()
+  const { me, updateProfile, resendEmailVerification, reload } = useAuth()
   const toast = useToast()
   const [verifyOpen, setVerifyOpen] = useState(false)
   const [resendingEmail, setResendingEmail] = useState(false)
+  const [checkingEmail, setCheckingEmail] = useState(false)
   const [saving, setSaving] = useState(false)
 
   const u = me?.user
   const [fullName, setFullName] = useState(u?.full_name || '')
   const [phone, setPhone] = useState(u?.phone || '')
   const [locale, setLocale] = useState(u?.locale || 'en')
+
+  // Auto-reload auth status on mount
+  useEffect(() => {
+    void reload()
+  }, [reload])
 
   useEffect(() => {
     if (u) {
@@ -56,6 +62,18 @@ function ProfileCard() {
       toast.err(err instanceof Error ? err.message : 'Failed to send verification email.')
     } finally {
       setResendingEmail(false)
+    }
+  }
+
+  const handleCheckEmail = async () => {
+    setCheckingEmail(true)
+    try {
+      await reload()
+      toast.ok('Checked email verification status.')
+    } catch {
+      // ignore
+    } finally {
+      setCheckingEmail(false)
     }
   }
 
@@ -189,7 +207,7 @@ function ProfileCard() {
             </p>
           </div>
           {!u.email_verified && (
-            <div className="mt-4 pt-3 border-t border-line/60">
+            <div className="mt-4 pt-3 border-t border-line/60 flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="secondary"
@@ -197,6 +215,14 @@ function ProfileCard() {
                 onClick={handleResendEmail}
               >
                 Resend verification email
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                loading={checkingEmail}
+                onClick={handleCheckEmail}
+              >
+                Check status
               </Button>
             </div>
           )}

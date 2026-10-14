@@ -49,6 +49,8 @@ export function LoginPage() {
   const { login, guest } = useAuth()
   const nav = useNavigate()
   const loc = useLocation()
+  const [params] = useSearchParams()
+  const justVerified = params.get('verified') === 'true'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -63,6 +65,12 @@ export function LoginPage() {
       sub="Build your store. Sell online. Grow your business."
       footer={<>New to Aqivo? <Link className="font-bold text-[#5B21F5] hover:underline" to="/register">Create your store</Link></>}
     >
+      {justVerified && (
+        <div className="mb-4 rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm font-medium text-emerald-800 flex items-center gap-2 border border-emerald-200">
+          <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+          <span>Your email has been verified successfully! Please sign in.</span>
+        </div>
+      )}
       <form onSubmit={submit} className="space-y-4">
         <TextField label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         <div className="space-y-1.5">
@@ -322,7 +330,7 @@ export function VerifyPhonePage() {
 export function VerifyEmailPage() {
   const [params] = useSearchParams()
   const nav = useNavigate()
-  const { me, resendEmailVerification } = useAuth()
+  const { me, resendEmailVerification, reload } = useAuth()
   const [status, setStatus] = useState<'checking' | 'success' | 'error' | 'sent'>('checking')
   const [errorMsg, setErrorMsg] = useState('')
   const [busy, setBusy] = useState(false)
@@ -332,7 +340,14 @@ export function VerifyEmailPage() {
   useEffect(() => {
     if (token) {
       api.post('/auth/verify-email', { token })
-        .then(() => setStatus('success'))
+        .then(async () => {
+          setStatus('success')
+          try {
+            await reload()
+          } catch {
+            // ignore
+          }
+        })
         .catch((err) => {
           setStatus('error')
           setErrorMsg(err instanceof Error ? err.message : 'Invalid or expired verification token.')
@@ -340,7 +355,7 @@ export function VerifyEmailPage() {
     } else {
       setStatus('checking')
     }
-  }, [token])
+  }, [token, reload])
 
   const handleResend = async () => {
     setBusy(true)

@@ -39,23 +39,25 @@ def _build_html_email(subject: str, body: str, kind: str, ctx: dict) -> str:
     import html as _html
     escaped_subject = _html.escape(subject)
 
+    s = get_settings()
+    app_base = str(ctx.get('app_url') or s.app_base_url or 'https://www.aqivo.shop').rstrip('/')
     action_url = None
     action_label = "Open Aqivo"
     if kind == "verify_email":
         action_label = "Verify My Email"
-        action_url = f"{ctx.get('app_url', 'https://www.aqivo.shop').rstrip('/')}/verify-email?token={ctx.get('token', '')}"
+        action_url = f"{app_base}/verify-email?token={ctx.get('token', '')}"
     elif kind == "password_reset":
         action_label = "Reset Password"
-        action_url = f"{ctx.get('app_url', 'https://www.aqivo.shop').rstrip('/')}/reset-password?token={ctx.get('token', '')}"
+        action_url = f"{app_base}/reset-password?token={ctx.get('token', '')}"
     elif kind == "welcome":
         action_label = "Sign In to Your Dashboard"
-        action_url = f"{ctx.get('app_url', 'https://www.aqivo.shop').rstrip('/')}/login"
+        action_url = f"{app_base}/login"
     elif kind in ("website_published", "order_update") and ctx.get("url"):
         action_label = "View Website" if kind == "website_published" else "Track Order"
         action_url = ctx.get("url")
     elif kind == "new_order":
         action_label = "View Order Details"
-        action_url = f"{ctx.get('app_url', 'https://www.aqivo.shop').rstrip('/')}/dashboard/orders"
+        action_url = f"{app_base}/dashboard/orders"
 
     paragraphs = []
     for line in body.split("\n\n"):

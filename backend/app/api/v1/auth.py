@@ -189,7 +189,14 @@ def reset_password(body: ResetIn, db: Session = Depends(get_db)):
 def verify_email(body: VerifyEmailIn, db: Session = Depends(get_db)):
     try:
         claims = decode_token(body.token, "verify_email")
-        user = db.get(User, claims["sub"])
+        sub = claims.get("sub")
+        try:
+            uid = uuid.UUID(str(sub)) if sub else None
+        except (ValueError, TypeError):
+            uid = None
+        user = db.get(User, uid) if uid else None
+        if not user and claims.get("email"):
+            user = db.scalars(select(User).where(User.email == str(claims["email"]).lower(), User.deleted_at.is_(None))).first()
     except (jwt.PyJWTError, ValueError, KeyError):
         raise bad_request("This verification link is invalid or has expired")
     if not user or user.deleted_at or not user.is_active:
@@ -208,7 +215,14 @@ def verify_email_link(token: str, db: Session = Depends(get_db)):
     s = get_settings()
     try:
         claims = decode_token(token, "verify_email")
-        user = db.get(User, claims["sub"])
+        sub = claims.get("sub")
+        try:
+            uid = uuid.UUID(str(sub)) if sub else None
+        except (ValueError, TypeError):
+            uid = None
+        user = db.get(User, uid) if uid else None
+        if not user and claims.get("email"):
+            user = db.scalars(select(User).where(User.email == str(claims["email"]).lower(), User.deleted_at.is_(None))).first()
     except (jwt.PyJWTError, ValueError, KeyError):
         return HTMLResponse(
             "<html><body style='font-family:-apple-system,sans-serif;text-align:center;padding:48px;background:#f8fafc;'>"
@@ -225,7 +239,7 @@ def verify_email_link(token: str, db: Session = Depends(get_db)):
         user.email_verified = True
         audit(db, "auth.email_verified", user_id=user.id)
         db.commit()
-    return RedirectResponse(f"{s.app_base_url}/login?verified=true", status_code=302)
+    return RedirectResponse(f"{s.app_base_url}/dashboard?verified=true", status_code=302)
 
 
 @router.post("/resend-verification", dependencies=[Depends(rate_limit("resend_verify", 5, 900))])

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { BarChart3, Search, ShoppingBag, Truck, Building2, CalendarDays, CreditCard, ExternalLink, Globe, Home, Inbox, LogOut, Lock, Mail, Megaphone, MessageCircle, Plug, MoreHorizontal, Package, Phone, Scissors, Settings, Sparkles, Star, Users, X, type LucideIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/features/auth/AuthContext'
+import { useToast } from '@/hooks/useToast'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useT } from '@/lib/i18n'
 import { Logo } from '@/components/Logo'
@@ -154,10 +155,49 @@ export default function DashboardLayout() {
 }
 
 function EmailVerificationPromptBanner() {
-  const { me, resendEmailVerification } = useAuth()
+  const { me, resendEmailVerification, reload } = useAuth()
+  const toast = useToast()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [dismissed, setDismissed] = useState(false)
   const [sending, setSending] = useState(false)
+  const [checking, setChecking] = useState(false)
   const [sent, setSent] = useState(false)
+
+  // 1. Auto-reload when redirected with ?verified=true
+  useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      void (async () => {
+        try {
+          await reload()
+          toast.ok('Email verified successfully! Welcome to your dashboard.')
+        } catch {
+          // ignore
+        } finally {
+          const nextParams = new URLSearchParams(searchParams)
+          nextParams.delete('verified')
+          setSearchParams(nextParams, { replace: true })
+        }
+      })()
+    }
+  }, [searchParams, reload, toast, setSearchParams])
+
+  // 2. Auto-refresh auth status on window focus/visibility if email is not yet verified
+  useEffect(() => {
+    if (!me?.user || me.user.email_verified) return
+
+    const handleFocus = () => {
+      void reload()
+    }
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') handleFocus()
+    })
+
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+    }
+  }, [me?.user, reload])
+
   if (!me?.user || me.user.email_verified || dismissed) return null
 
   const handleResend = async () => {
@@ -165,10 +205,23 @@ function EmailVerificationPromptBanner() {
     try {
       await resendEmailVerification()
       setSent(true)
+      toast.ok(`Verification link sent to ${me.user.email}`)
+    } catch (err: unknown) {
+      toast.err(err instanceof Error ? err.message : 'Failed to send verification email')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const handleCheckStatus = async () => {
+    setChecking(true)
+    try {
+      await reload()
+      toast.ok('Checked email verification status.')
     } catch {
       // ignore
     } finally {
-      setSending(false)
+      setChecking(false)
     }
   }
 
@@ -180,11 +233,19 @@ function EmailVerificationPromptBanner() {
         </span>
         <span>
           {sent
-            ? `Verification email sent to ${me.user.email}! Please check your inbox.`
+            ? `Verification email sent to ${me.user.email}! Please check your inbox or spam folder.`
             : `Please verify your email address (${me.user.email}) to secure your account.`}
         </span>
       </div>
       <div className="flex items-center gap-2">
+        <button
+          onClick={handleCheckStatus}
+          disabled={checking}
+          className="rounded-full border border-amber-600/30 bg-amber-100/70 px-3 py-1 text-xs font-bold text-amber-950 hover:bg-amber-200 transition-colors disabled:opacity-50"
+          title="Click if you already clicked the link in your email"
+        >
+          {checking ? 'Checking…' : 'I Verified (Check Status)'}
+        </button>
         {!sent && (
           <button
             onClick={handleResend}
