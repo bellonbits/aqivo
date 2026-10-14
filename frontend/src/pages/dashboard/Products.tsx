@@ -4,7 +4,7 @@ import { Package, Pencil, Plus, Search, Sparkles, Star, Trash2, X } from 'lucide
 import { api } from '@/lib/api'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
-import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, Field, Input, Modal, PageHeader, PageLoading, Select, Tabs, TextAreaField, TextField } from '@/components/ui'
+import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, Field, Input, Modal, PageHeader, PageLoading, Select, Tabs, Textarea, TextAreaField, TextField } from '@/components/ui'
 import { Toggle } from '@/features/website/SectionForm'
 import { VariantsEditor } from '@/features/commerce/VariantsEditor'
 import { AiCatalogButton } from '@/features/commerce/AiCatalog'
@@ -124,27 +124,51 @@ function ProductModal({ form, setForm, onSave, saving, flat, cur }: { form: PFor
   const toast = useToast()
   const [pick, setPick] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
+  const [titleIdeas, setTitleIdeas] = useState<string[]>([])
+  const [loadingTitles, setLoadingTitles] = useState(false)
+  const [loadingShort, setLoadingShort] = useState(false)
+  const [loadingDesc, setLoadingDesc] = useState(false)
   const set = (patch: Partial<PForm>) => form && setForm({ ...form, ...patch })
   const compareBad = form && form.compare_at_price !== '' && Number(form.compare_at_price) <= Number(form.price)
 
+  const handleSuggestTitles = async () => {
+    const cat = flat.find((c) => c.id === form?.category_id)?.name
+    setLoadingTitles(true)
+    try {
+      const res = await api.post<{ titles: string[] }>('/ai/suggest-titles', {
+        kind: 'product',
+        category: cat || null,
+        current: form?.name || null,
+      })
+      setTitleIdeas(res.titles || [])
+      toast.ok('Generated product title suggestions!')
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate titles')
+    } finally {
+      setLoadingTitles(false)
+    }
+  }
+
   const handleAiCopy = async () => {
-    if (!form?.name.trim()) return
+    const cat = flat.find((c) => c.id === form?.category_id)?.name
     setAiLoading(true)
     try {
-      const cat = flat.find((c) => c.id === form.category_id)?.name
-      const res = await api.post<{ short_description: string; description: string; seo_title: string; seo_description: string }>('/ai/draft-product', {
-        name: form.name.trim(),
+      const res = await api.post<{ titles?: string[]; short_description: string; description: string; seo_title: string; seo_description: string }>('/ai/draft-product', {
+        name: form?.name.trim() || cat || 'Product',
         category: cat || null,
-        price: form.price || null,
-        tags: form.tags || null,
+        price: form?.price || null,
+        tags: form?.tags || null,
         kind: 'product',
       })
       set({
-        short_description: res.short_description || form.short_description,
-        description: res.description || form.description,
-        seo_title: form.seo_title || res.seo_title,
-        seo_description: form.seo_description || res.seo_description,
+        short_description: res.short_description || form?.short_description,
+        description: res.description || form?.description,
+        seo_title: form?.seo_title || res.seo_title,
+        seo_description: form?.seo_description || res.seo_description,
       })
+      if (res.titles?.length && !form?.name.trim()) {
+        setTitleIdeas(res.titles)
+      }
       toast.ok('Product copy written with AI!')
     } catch (e) {
       toast.err(e instanceof Error ? e.message : 'Could not generate copy')
@@ -153,27 +177,160 @@ function ProductModal({ form, setForm, onSave, saving, flat, cur }: { form: PFor
     }
   }
 
+  const handleAiShortDesc = async () => {
+    const cat = flat.find((c) => c.id === form?.category_id)?.name
+    setLoadingShort(true)
+    try {
+      const res = await api.post<{ short_description: string }>('/ai/draft-product', {
+        name: form?.name.trim() || cat || 'Product',
+        category: cat || null,
+        price: form?.price || null,
+        tags: form?.tags || null,
+        kind: 'product',
+      })
+      if (res.short_description) {
+        set({ short_description: res.short_description })
+        toast.ok('Drafted short description!')
+      }
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate short description')
+    } finally {
+      setLoadingShort(false)
+    }
+  }
+
+  const handleAiFullDesc = async () => {
+    const cat = flat.find((c) => c.id === form?.category_id)?.name
+    setLoadingDesc(true)
+    try {
+      const res = await api.post<{ description: string }>('/ai/draft-product', {
+        name: form?.name.trim() || cat || 'Product',
+        category: cat || null,
+        price: form?.price || null,
+        tags: form?.tags || null,
+        kind: 'product',
+      })
+      if (res.description) {
+        set({ description: res.description })
+        toast.ok('Drafted full description!')
+      }
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate description')
+    } finally {
+      setLoadingDesc(false)
+    }
+  }
+
   return (
     <Modal open={!!form} onClose={() => setForm(null)} wide title={form?.id ? 'Edit product' : 'Add product'}
       footer={<><Button variant="secondary" onClick={() => setForm(null)}>Cancel</Button><Button loading={saving} onClick={() => form && onSave(form)} disabled={!form?.name.trim() || form?.price === ''}>Save product</Button></>}>
       {form && <div className="space-y-5">
         <div className="space-y-3">
-          <TextField label="Name" value={form.name} onChange={(e) => set({ name: e.target.value })} placeholder="Kitenge wrap dress" maxLength={160} />
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-sm font-semibold">Short description & Description</span>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold">Name <span className="text-bad">*</span></label>
+              <button
+                type="button"
+                disabled={loadingTitles}
+                onClick={handleSuggestTitles}
+                className="inline-flex items-center gap-1 text-xs font-bold text-lime-ink hover:underline disabled:opacity-50"
+              >
+                <Sparkles className="size-3" />
+                {loadingTitles ? 'Thinking…' : 'AI Title Ideas'}
+              </button>
+            </div>
+            <Input
+              value={form.name}
+              onChange={(e) => set({ name: e.target.value })}
+              placeholder="e.g. Kitenge wrap dress"
+              maxLength={160}
+              required
+            />
+            {titleIdeas.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Ideas:</span>
+                {titleIdeas.map((idea) => (
+                  <button
+                    type="button"
+                    key={idea}
+                    onClick={() => {
+                      set({ name: idea })
+                      setTitleIdeas([])
+                    }}
+                    className="rounded-full border border-lime-ink/20 bg-lime-soft/40 px-2.5 py-0.5 text-xs font-semibold text-lime-ink hover:bg-lime-soft transition-colors"
+                  >
+                    + {idea}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setTitleIdeas([])}
+                  className="text-xs text-muted hover:text-ink px-1"
+                  title="Close ideas"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl bg-lime-soft/30 p-2.5 ring-1 ring-lime-ink/15">
+            <span className="text-xs font-semibold text-ink">Auto-draft all descriptions & SEO</span>
             <Button
+              type="button"
               size="sm"
               variant="secondary"
-              disabled={!form.name.trim()}
               loading={aiLoading}
               onClick={handleAiCopy}
               className="h-7 gap-1.5 px-3 text-xs"
             >
-              <Sparkles className="size-3.5 text-lime-ink" /> Write with AI
+              <Sparkles className="size-3.5 text-lime-ink" /> Write both with AI
             </Button>
           </div>
-          <TextField label="Short description" value={form.short_description} onChange={(e) => set({ short_description: e.target.value })} maxLength={300} hint="Shown on the product card." />
-          <TextAreaField label="Description" rows={4} value={form.description} onChange={(e) => set({ description: e.target.value })} maxLength={5000} />
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold">Short description</label>
+              <button
+                type="button"
+                disabled={loadingShort}
+                onClick={handleAiShortDesc}
+                className="inline-flex items-center gap-1 text-xs font-bold text-lime-ink hover:underline disabled:opacity-50"
+              >
+                <Sparkles className="size-3" />
+                {loadingShort ? 'Drafting…' : 'AI Short Copy'}
+              </button>
+            </div>
+            <Input
+              value={form.short_description}
+              onChange={(e) => set({ short_description: e.target.value })}
+              maxLength={300}
+              placeholder="Shown on the product card"
+            />
+            <p className="text-xs text-muted">Shown on the product card.</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold">Description</label>
+              <button
+                type="button"
+                disabled={loadingDesc}
+                onClick={handleAiFullDesc}
+                className="inline-flex items-center gap-1 text-xs font-bold text-lime-ink hover:underline disabled:opacity-50"
+              >
+                <Sparkles className="size-3" />
+                {loadingDesc ? 'Writing…' : 'Write with AI'}
+              </button>
+            </div>
+            <Textarea
+              rows={4}
+              value={form.description}
+              onChange={(e) => set({ description: e.target.value })}
+              maxLength={5000}
+              placeholder="Highlight quality, materials, sizing, and details..."
+            />
+          </div>
         </div>
         <div>
           <p className="mb-2 text-sm font-bold">Photos <span className="font-medium text-muted">— the first is the cover</span></p>

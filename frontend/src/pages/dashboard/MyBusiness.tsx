@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react'
 import { api } from '@/lib/api'
 import { useBusiness } from '@/hooks/useBusiness'
 import { useToast } from '@/hooks/useToast'
-import { Button, Card, CardHeader, Field, Input, PageHeader, PageLoading, SelectField, TextAreaField, TextField, ComingSoon } from '@/components/ui'
+import { Button, Card, CardHeader, Field, Input, PageHeader, PageLoading, SelectField, Textarea, TextField, ComingSoon } from '@/components/ui'
 import type { Business } from '@/types'
 
 const DAYS = [['mon', 'Monday'], ['tue', 'Tuesday'], ['wed', 'Wednesday'], ['thu', 'Thursday'], ['fri', 'Friday'], ['sat', 'Saturday'], ['sun', 'Sunday']] as const
@@ -38,23 +38,96 @@ export default function MyBusiness() {
   const [f, setF] = useState<Business | null>(null)
   const [blocked, setBlocked] = useState('')
   const [aiDraftingProfile, setAiDraftingProfile] = useState(false)
+  const [nameIdeas, setNameIdeas] = useState<string[]>([])
+  const [loadingNames, setLoadingNames] = useState(false)
+  const [loadingDesc, setLoadingDesc] = useState(false)
+  const [loadingTagline, setLoadingTagline] = useState(false)
   const countries = useQuery({ queryKey: ['config'], queryFn: () => api.get<{ locales: string[] }>('/businesses/config'), staleTime: Infinity })
-  useEffect(() => { if (business) setF(business) }, [business])
+
+  useEffect(() => {
+    if (business) setF((curr) => curr ?? business)
+  }, [business])
+
+  const handleSuggestNames = async () => {
+    setLoadingNames(true)
+    try {
+      const res = await api.post<{ titles: string[] }>('/ai/suggest-titles', {
+        kind: 'business',
+        category: f?.category || null,
+        city: f?.city || null,
+        current: f?.name || null,
+      })
+      setNameIdeas(res.titles || [])
+      toast.ok('Generated business name suggestions!')
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate names')
+    } finally {
+      setLoadingNames(false)
+    }
+  }
+
+  const handleDraftTagline = async () => {
+    if (!f?.name?.trim() && !f?.category?.trim()) {
+      toast.err('Please enter a business name or category first')
+      return
+    }
+    setLoadingTagline(true)
+    try {
+      const res = await api.post<{ tagline: string }>('/ai/draft-profile', {
+        name: f?.name || f?.category || 'Business',
+        category: f?.category || null,
+        city: f?.city || null,
+      })
+      if (res.tagline) {
+        set('tagline', res.tagline)
+        toast.ok('AI suggested a tagline!')
+      }
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate tagline')
+    } finally {
+      setLoadingTagline(false)
+    }
+  }
+
+  const handleDraftDescription = async () => {
+    if (!f?.name?.trim() && !f?.category?.trim()) {
+      toast.err('Please enter a business name or category first')
+      return
+    }
+    setLoadingDesc(true)
+    try {
+      const res = await api.post<{ description: string }>('/ai/draft-profile', {
+        name: f?.name || f?.category || 'Business',
+        category: f?.category || null,
+        city: f?.city || null,
+        existing_description: f?.description || null,
+      })
+      if (res.description) {
+        set('description', res.description)
+        toast.ok('AI wrote your business description!')
+      }
+    } catch (e) {
+      toast.err(e instanceof Error ? e.message : 'Could not generate description')
+    } finally {
+      setLoadingDesc(false)
+    }
+  }
 
   const handleAiProfileDraft = async () => {
-    if (!f?.name?.trim()) {
-      toast.err('Please enter a business name first')
+    if (!f?.name?.trim() && !f?.category?.trim()) {
+      toast.err('Please enter a business name or category first')
       return
     }
     setAiDraftingProfile(true)
     try {
-      const res = await api.post<{ tagline: string; description: string }>('/ai/draft-profile', {
-        name: f.name,
-        category: f.category || null,
-        city: f.city || null,
-        existing_description: f.description || null,
+      const res = await api.post<{ tagline: string; description: string; names?: string[] }>('/ai/draft-profile', {
+        name: f?.name || f?.category || 'Business',
+        category: f?.category || null,
+        city: f?.city || null,
+        existing_description: f?.description || null,
       })
-      setF((prev) => (prev ? { ...prev, tagline: res.tagline, description: res.description } : prev))
+      setF((prev) => (prev ? { ...prev, tagline: res.tagline || prev.tagline, description: res.description || prev.description } : prev))
+      if (res.names?.length) setNameIdeas(res.names)
       toast.ok('AI drafted your tagline and description!')
     } catch (e) {
       toast.err(e instanceof Error ? e.message : 'Could not generate profile copy')
@@ -111,7 +184,52 @@ export default function MyBusiness() {
           </div>
         </div>
         <div className="grid gap-4 p-5 md:grid-cols-2">
-          <TextField label="Business name" required value={f.name} onChange={(e) => set('name', e.target.value)} />
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold">Business name <span className="text-bad">*</span></label>
+              <button
+                type="button"
+                disabled={loadingNames}
+                onClick={handleSuggestNames}
+                className="inline-flex items-center gap-1 text-xs font-bold text-lime-ink hover:underline disabled:opacity-50"
+              >
+                <Sparkles className="size-3" />
+                {loadingNames ? 'Thinking…' : 'AI Name Ideas'}
+              </button>
+            </div>
+            <Input
+              value={f.name}
+              onChange={(e) => set('name', e.target.value)}
+              placeholder="e.g. Lydia Boutique"
+              required
+            />
+            {nameIdeas.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted">Ideas:</span>
+                {nameIdeas.map((name) => (
+                  <button
+                    type="button"
+                    key={name}
+                    onClick={() => {
+                      set('name', name)
+                      setNameIdeas([])
+                    }}
+                    className="rounded-full border border-lime-ink/20 bg-lime-soft/40 px-2.5 py-0.5 text-xs font-semibold text-lime-ink hover:bg-lime-soft transition-colors"
+                  >
+                    + {name}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setNameIdeas([])}
+                  className="text-xs text-muted hover:text-ink px-1"
+                  title="Close ideas"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
           <TextField label="Category" value={f.category} onChange={(e) => set('category', e.target.value)} hint="e.g. Barbershop, Restaurant, Dental Clinic" />
           <div className="flex flex-col gap-2 rounded-xl bg-lime-soft/40 p-3.5 ring-1 ring-lime-ink/15 sm:flex-row sm:items-center sm:justify-between md:col-span-2">
             <div>
@@ -130,8 +248,49 @@ export default function MyBusiness() {
               Write with AI
             </Button>
           </div>
-          <div className="md:col-span-2"><TextField label="Tagline" value={f.tagline} maxLength={200} onChange={(e) => set('tagline', e.target.value)} hint="One line under your name." /></div>
-          <div className="md:col-span-2"><TextAreaField label="Description" rows={4} maxLength={2000} value={f.description} onChange={(e) => set('description', e.target.value)} hint="Tell customers what you do and who you serve (40+ characters helps your online presence score)." /></div>
+          <div className="md:col-span-2 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold">Tagline</label>
+              <button
+                type="button"
+                disabled={loadingTagline}
+                onClick={handleDraftTagline}
+                className="inline-flex items-center gap-1 text-xs font-bold text-lime-ink hover:underline disabled:opacity-50"
+              >
+                <Sparkles className="size-3" />
+                {loadingTagline ? 'Drafting…' : 'AI Tagline'}
+              </button>
+            </div>
+            <Input
+              value={f.tagline}
+              maxLength={200}
+              onChange={(e) => set('tagline', e.target.value)}
+              placeholder="One line under your name"
+            />
+            <p className="text-xs text-muted">One line under your name.</p>
+          </div>
+          <div className="md:col-span-2 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold">Description</label>
+              <button
+                type="button"
+                disabled={loadingDesc}
+                onClick={handleDraftDescription}
+                className="inline-flex items-center gap-1 text-xs font-bold text-lime-ink hover:underline disabled:opacity-50"
+              >
+                <Sparkles className="size-3" />
+                {loadingDesc ? 'Writing…' : 'Write with AI'}
+              </button>
+            </div>
+            <Textarea
+              rows={4}
+              maxLength={2000}
+              value={f.description}
+              onChange={(e) => set('description', e.target.value)}
+              placeholder="Tell customers what you do and who you serve..."
+            />
+            <p className="text-xs text-muted">Tell customers what you do and who you serve (40+ characters helps your online presence score).</p>
+          </div>
           <TextField label="Phone" type="tel" value={f.phone ?? ''} onChange={(e) => set('phone', e.target.value)} />
           <TextField label="WhatsApp" type="tel" value={f.whatsapp ?? ''} onChange={(e) => set('whatsapp', e.target.value)} />
           <TextField label="Email" type="email" value={f.email ?? ''} onChange={(e) => set('email', e.target.value)} hint="Where we send bookings, leads and review alerts." />

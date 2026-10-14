@@ -15,7 +15,7 @@ from app.models.enums import BookingStatus, LeadStatus
 from app.repositories import CampaignRepository
 from app.schemas.money import (
     ActionIn, AskIn, CampaignIn, CampaignOut, GrowthCampaignIn, GrowthCampaignUpdate, LinkIn, QRIn,
-    DraftProductIn, DraftReviewReplyIn, DraftLeadReplyIn, DraftProfileIn, DraftCampaignMessageIn,
+    DraftProductIn, DraftReviewReplyIn, DraftLeadReplyIn, DraftProfileIn, DraftCampaignMessageIn, SuggestTitlesIn,
 )
 from app.services import ai as ai_svc
 from app.services import analytics as an
@@ -385,28 +385,93 @@ def run_automations(ctx: TenantContext = Depends(require_feature("ai", "marketin
     return {"prepared": [{"kind": m["kind"], "title": m["title"], "campaign_id": str(m["campaign"].id)} for m in made]}
 
 
+def _fallback_titles(kind: str, category: str | None, current: str | None) -> list[str]:
+    cat = (category or "").strip().title()
+    cur = (current or "").strip()
+    if kind == "business":
+        base = cur or "AfriStyle"
+        return [
+            f"{base} & Co.",
+            f"{base} Studio",
+            f"{base} {cat or 'Enterprises'}",
+            f"The {cat or 'Boutique'} by {base}",
+            f"{base} Luxe",
+        ]
+    elif kind == "service":
+        base = cur or (f"{cat} Special" if cat else "Signature Care")
+        return [
+            f"{base} — Signature Treatment",
+            f"Deluxe {base} Experience",
+            f"Express {base}",
+            f"Complete {base} with Consultation",
+        ]
+    else:  # product
+        base = cur or (f"Handcrafted {cat}" if cat else "Essential Collection")
+        return [
+            f"Premium {base}",
+            f"Classic {base} — Limited Edition",
+            f"Artisan {base}",
+            f"{base} (Handmade)",
+        ]
+
+
+@ai_router.post("/suggest-titles")
+def suggest_titles(body: SuggestTitlesIn, ctx: TenantContext = Depends(require("business:read")), db: Session = Depends(get_db)):
+    from app.services.llm import call_llm_json
+    b = ctx.business
+    cat = body.category or b.category or "Local Business"
+    city = body.city or b.city or "Kenya"
+    cur = (body.current or "").strip()
+
+    system = (
+        f"You are a master branding and e-commerce naming expert for African businesses ({city}). "
+        "Output ONLY JSON with one key 'titles' which is a list of 4 to 5 catchy, high-converting, professional, modern names/titles. "
+        "Make them memorable, appealing to customers, and easy to read. Plain text strings only."
+    )
+    if body.kind == "business":
+        prompt = f"Suggest 5 catchy business/brand names for a {cat} in {city}. Rough idea / seed: '{cur or b.name}'."
+    elif body.kind == "service":
+        prompt = f"Suggest 5 attractive service titles/packages for a {cat} business. Service idea: '{cur or 'Popular service'}'."
+    else:  # product
+        prompt = f"Suggest 5 attractive, bestselling e-commerce product titles for a {cat} store. Product concept: '{cur or 'New product'}'."
+
+    res = call_llm_json(system=system, prompt=prompt, max_tokens=350)
+    titles = []
+    if res and isinstance(res.get("titles"), list):
+        titles = [str(t).strip().strip('"') for t in res["titles"] if str(t).strip()][:6]
+
+    if not titles:
+        titles = _fallback_titles(body.kind, cat, cur or (b.name if body.kind == "business" else None))
+
+    return {"titles": titles}
+
+
 @ai_router.post("/draft-product")
 def draft_product_copy(body: DraftProductIn, ctx: TenantContext = Depends(require("products:write")), db: Session = Depends(get_db)):
     from app.services.llm import call_llm_json
     b = ctx.business
+    item_name = body.name.strip() or f"{body.category or 'Quality'} Item"
     system = (
         f"You are an expert e-commerce copywriter for {b.name}, a {b.category or 'business'} in {b.city or 'Kenya'}. "
         "Output ONLY JSON with keys: "
+        "\"titles\" (list of 3 catchy, polished alternative titles), "
         "\"short_description\" (1 catchy sentence, max 160 chars, for card preview), "
         "\"description\" (2-3 concise paragraphs highlighting quality, benefits, and call to action, max 300 words), "
         "\"seo_title\" (under 60 chars), "
         "\"seo_description\" (under 150 chars). "
         "Tone: warm, authentic, appealing, local. Never invent discounts."
     )
-    prompt = f"{body.kind.title()}: {body.name}. Category: {body.category or 'N/A'}. Price: {body.price or 'N/A'}. Tags: {body.tags or 'N/A'}."
+    prompt = f"{body.kind.title()}: {item_name}. Category: {body.category or 'N/A'}. Price: {body.price or 'N/A'}. Tags: {body.tags or 'N/A'}."
     res = call_llm_json(system=system, prompt=prompt, max_tokens=1000)
     if res and res.get("description"):
         return res
+    fallback_titles = _fallback_titles(body.kind, body.category or b.category, item_name)
     return {
-        "short_description": f"Quality {body.name.lower()} from {b.name}.",
-        "description": f"{body.name} from {b.name}. Crafted with care and excellence. Order today or message us on WhatsApp for fast assistance.",
-        "seo_title": f"{body.name} | {b.name}",
-        "seo_description": f"Buy {body.name} from {b.name} in {b.city or 'Kenya'}. Quality guaranteed.",
+        "titles": fallback_titles[:4],
+        "short_description": f"Quality {item_name.lower()} from {b.name}.",
+        "description": f"{item_name} from {b.name}. Crafted with care and excellence. Order today or message us on WhatsApp for fast assistance.",
+        "seo_title": f"{item_name} | {b.name}",
+        "seo_description": f"Buy {item_name} from {b.name} in {b.city or 'Kenya'}. Quality guaranteed.",
     }
 
 
@@ -450,19 +515,24 @@ def draft_lead_reply(body: DraftLeadReplyIn, ctx: TenantContext = Depends(requir
 @ai_router.post("/draft-profile")
 def draft_profile_copy(body: DraftProfileIn, ctx: TenantContext = Depends(require("profile:write")), db: Session = Depends(get_db)):
     from app.services.llm import call_llm_json
+    biz_name = body.name.strip() or "Local Business"
     system = (
-        "You craft memorable branding copy for local businesses in Africa. "
-        "Output ONLY JSON with two keys: "
+        "You craft memorable branding copy and catchy brand names for local businesses in Africa. "
+        "Output ONLY JSON with keys: "
+        "\"names\" (list of 4-5 catchy, memorable business names), "
         "\"tagline\" (a catchy, punchy slogan under 80 chars), "
         "\"description\" (2-3 warm, professional sentences describing what they offer, who they serve, and why customers love them, under 300 chars)."
     )
-    prompt = f"Business: {body.name}. Category: {body.category or 'Local Business'}. City: {body.city or 'Kenya'}."
-    res = call_llm_json(system=system, prompt=prompt, max_tokens=300)
-    if res and res.get("tagline") and res.get("description"):
+    prompt = f"Business: {biz_name}. Category: {body.category or 'Local Business'}. City: {body.city or 'Kenya'}. Context: {body.existing_description or 'N/A'}."
+    res = call_llm_json(system=system, prompt=prompt, max_tokens=400)
+    if res and res.get("description"):
+        if "names" not in res or not res["names"]:
+            res["names"] = _fallback_titles("business", body.category, biz_name)
         return res
     return {
+        "names": _fallback_titles("business", body.category, biz_name),
         "tagline": f"Premium {body.category or 'service'} in {body.city or 'Kenya'}",
-        "description": f"{body.name} offers top-quality {body.category.lower() if body.category else 'services'} in {body.city or 'Kenya'}. Dedicated to customer satisfaction and excellence.",
+        "description": f"{biz_name} offers top-quality {body.category.lower() if body.category else 'services'} in {body.city or 'Kenya'}. Dedicated to customer satisfaction and excellence.",
     }
 
 

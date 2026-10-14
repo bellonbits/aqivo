@@ -187,8 +187,15 @@ class QRIn(BaseModel):
     headline: str = Field(default="", max_length=80)
 
 
+class SuggestTitlesIn(BaseModel):
+    kind: str = Field(default="product", pattern="^(business|product|service)$")
+    category: str | None = Field(default=None, max_length=100)
+    city: str | None = Field(default=None, max_length=100)
+    current: str | None = Field(default=None, max_length=160)
+
+
 class DraftProductIn(BaseModel):
-    name: str = Field(min_length=1, max_length=160)
+    name: str = Field(default="", max_length=160)
     category: str | None = Field(default=None, max_length=100)
     price: str | None = Field(default=None, max_length=30)
     tags: str | None = Field(default=None, max_length=200)
@@ -208,9 +215,10 @@ class DraftLeadReplyIn(BaseModel):
 
 
 class DraftProfileIn(BaseModel):
-    name: str = Field(min_length=1, max_length=160)
+    name: str = Field(default="", max_length=160)
     category: str | None = Field(default=None, max_length=100)
     city: str | None = Field(default=None, max_length=100)
+    existing_description: str | None = Field(default=None, max_length=2000)
 
 
 class DraftCampaignMessageIn(BaseModel):

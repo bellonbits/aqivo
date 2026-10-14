@@ -170,15 +170,35 @@ export function Stat({ label, value, sub, tone = 'default' }: { label: string; v
 /* ---------- Modal / bottom sheet ---------- */
 export function Modal({ open, onClose, title, children, footer, wide }: { open: boolean; onClose: () => void; title: string; children: ReactNode; footer?: ReactNode; wide?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   useEffect(() => {
     if (!open) return
     const prev = document.activeElement as HTMLElement | null
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCloseRef.current() }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
-    ref.current?.querySelector<HTMLElement>('input,select,textarea,button')?.focus()
-    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = ''; prev?.focus() }
-  }, [open, onClose])
+
+    // Focus initial input inside modal content when first opened
+    const timer = setTimeout(() => {
+      if (ref.current && !ref.current.contains(document.activeElement)) {
+        const initialEl = ref.current.querySelector<HTMLElement>(
+          '.overflow-y-auto input:not([disabled]), .overflow-y-auto textarea:not([disabled]), .overflow-y-auto select:not([disabled])'
+        )
+        initialEl?.focus()
+      }
+    }, 40)
+
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+      if (prev && typeof prev.focus === 'function') {
+        prev.focus()
+      }
+    }
+  }, [open])
   return (
     <AnimatePresence>
       {open && (
