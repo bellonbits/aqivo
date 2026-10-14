@@ -2295,9 +2295,10 @@
               return;
             }
 
+            var originalBtnHtml = submitBtn.innerHTML;
             if (errBanner) errBanner.classList.add("hidden");
             submitBtn.disabled = true;
-            submitBtn.textContent = "Placing Order...";
+            submitBtn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite;margin-right:8px;">↻</span> Placing Order...';
 
             var linesPayload = cart.map(function (ci) {
               return {
@@ -2323,11 +2324,16 @@
             };
 
             var endpoint = "/api/v1/public/" + encodeURIComponent(B.slug || "default") + "/orders";
+            var controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+            var timeoutId = controller ? setTimeout(function () { controller.abort(); }, 12000) : null;
+
             fetch(endpoint, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
+              body: JSON.stringify(payload),
+              signal: controller ? controller.signal : undefined
             }).then(function (r) {
+              if (timeoutId) clearTimeout(timeoutId);
               if (!r.ok) {
                 return r.json().then(function (err) {
                   throw new Error(err.detail || ("Order submission failed (code " + r.status + ")"));
@@ -2339,14 +2345,24 @@
             }).then(function (orderRes) {
               handleOrderSuccess(orderRes, payload, totals);
             }).catch(function (err) {
-              // Fallback for demo / preview mode without live database tenant
-              var simulatedOrder = {
-                ok: true,
-                number: "AQV-" + Math.floor(100000 + Math.random() * 900000),
-                token: "tok_" + Math.random().toString(36).substring(2, 9),
-                total: totals.grandTotal
-              };
-              handleOrderSuccess(simulatedOrder, payload, totals);
+              if (timeoutId) clearTimeout(timeoutId);
+              var isDemo = !B.slug || B.slug === "default" || window.location.pathname.indexOf("/theme-preview") !== -1 || window.location.pathname.indexOf("/editor") !== -1;
+              if (isDemo) {
+                var simulatedOrder = {
+                  ok: true,
+                  number: "AQV-" + Math.floor(100000 + Math.random() * 900000),
+                  token: "tok_" + Math.random().toString(36).substring(2, 9),
+                  total: totals.grandTotal
+                };
+                handleOrderSuccess(simulatedOrder, payload, totals);
+                return;
+              }
+              if (errBanner) {
+                errBanner.textContent = (err && err.name === "AbortError") ? "Order taking longer than expected. Please check your connection and try again." : (err.message || "Failed to place order. Please try again.");
+                errBanner.classList.remove("hidden");
+              }
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalBtnHtml;
             });
           });
         }

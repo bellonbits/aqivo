@@ -67,7 +67,7 @@ def request_code(db: Session, b: Business, raw: str) -> dict:
         except whatsapp.WhatsAppError:
             channel = None
     if channel is None and kind == "PHONE":
-        if get_settings().opensms_api_token:
+        if get_settings().environment != "test" and get_settings().opensms_api_token:
             from app.services import sms
             res = sms.send_sms(ident, text)
             if res.get("status") == "success":

@@ -121,24 +121,33 @@ def _build_html_email(subject: str, body: str, kind: str, ctx: dict) -> str:
 </html>'''
 
 
-def notify(db: Session, kind: str, to: str | None, *, business_id=None, user_id=None, **ctx) -> Notification:
-    """Queue + attempt delivery. Never raises: notification failure must not break the request."""
-    s = get_settings()
-    subject_t, body_t = TEMPLATES[kind]
-    ctx.setdefault("app_url", s.app_base_url)
-    subject = subject_t.format_map(_SafeDict(ctx))
-    body = body_t.format_map(_SafeDict(ctx))
-    n = Notification(kind=kind, channel="EMAIL", recipient=to, subject=subject, body=body, business_id=business_id,
-                     user_id=user_id, status="QUEUED")
-    db.add(n)
-    if not to:
-        n.status = "LOGGED"
-        return n
+import concurrent.futures
+import time
 
-    # In automated tests, avoid real external network calls
-    if s.environment == "test":
-        n.status = "SENT" if (s.resend_api_key or s.smtp_host) else "LOGGED"
-        return n
+_executor = concurrent.futures.ThreadPoolExecutor(max_workers=6, thread_name_prefix="aqivo-notify")
+
+
+def _update_notification_status(notification_id, status: str, err: str | None = None) -> None:
+    if not notification_id:
+        return
+    from app.core.db import SessionLocal
+    for _ in range(5):
+        try:
+            with SessionLocal() as s_db:
+                n = s_db.get(Notification, notification_id)
+                if n is not None:
+                    n.status = status
+                    if err:
+                        n.error = str(err)[:300]
+                    s_db.commit()
+                    return
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Failed to update notification status", extra={"id": str(notification_id), "error": str(exc)})
+        time.sleep(0.15)
+
+
+def _send_email_network(to: str, subject: str, body: str, kind: str, ctx: dict) -> tuple[str, str | None]:
+    s = get_settings()
 
     # Attempt Resend API first if configured
     if s.resend_api_key:
@@ -159,62 +168,113 @@ def notify(db: Session, kind: str, to: str | None, *, business_id=None, user_id=
                     "text": body,
                     "html": html_body,
                 },
-                timeout=12.0,
+                timeout=8.0,
             )
             if res.is_success:
-                n.status = "SENT"
                 res_data = res.json()
                 log.info("email sent via Resend", extra={"to": to, "id": res_data.get("id"), "subject": subject})
-                return n
+                return "SENT", None
             else:
-                n.status = "FAILED"
-                n.error = f"Resend {res.status_code}: {res.text[:250]}"
+                err_msg = f"Resend {res.status_code}: {res.text[:250]}"
                 log.warning("Resend email delivery failed", extra={"to": to, "status": res.status_code, "response": res.text[:250]})
                 if not s.smtp_host:
-                    return n
+                    return "FAILED", err_msg
         except Exception as exc:  # noqa: BLE001
             log.warning("Resend API error, trying SMTP fallback if configured", extra={"to": to, "error": str(exc)})
             if not s.smtp_host:
-                n.status = "FAILED"
-                n.error = str(exc)[:300]
-                return n
+                return "FAILED", str(exc)[:300]
 
     # Fall back to SMTP when Resend is not configured or fails
     if not s.smtp_host:
-        n.status = "LOGGED"
         log.info("email not sent (neither Resend nor SMTP configured)", extra={"to": to, "subject": subject})
-        return n
+        return "LOGGED", None
 
     try:
         msg = EmailMessage()
         msg["From"], msg["To"], msg["Subject"] = s.email_from, to, subject
         msg.set_content(body)
-        with smtplib.SMTP(s.smtp_host, s.smtp_port, timeout=10) as smtp:
+        with smtplib.SMTP(s.smtp_host, s.smtp_port, timeout=8) as smtp:
             smtp.starttls()
             if s.smtp_user:
                 smtp.login(s.smtp_user, s.smtp_password)
             smtp.send_message(msg)
-        n.status = "SENT"
+        return "SENT", None
     except Exception as exc:  # noqa: BLE001
-        n.status = "FAILED"
-        n.error = str(exc)[:300]
         log.warning("email failed", extra={"to": to, "error": str(exc)})
+        return "FAILED", str(exc)[:300]
+
+
+def _deliver_email_worker(notification_id, to: str, subject: str, body: str, kind: str, ctx: dict) -> None:
+    status, err = _send_email_network(to, subject, body, kind, ctx)
+    _update_notification_status(notification_id, status, err)
+
+
+def _deliver_sms_worker(notification_id, to: str, text: str) -> None:
+    from app.services import sms
+    res = sms.send_sms(to, text)
+    if res.get("status") == "success":
+        status, err = "SENT", None
+    else:
+        status, err = "FAILED", str(res.get("message", "SMS send failed"))[:300]
+    _update_notification_status(notification_id, status, err)
+
+
+def notify(db: Session, kind: str, to: str | None, *, business_id=None, user_id=None, sync: bool = False, **ctx) -> Notification:
+    """Queue + attempt delivery. Never raises: notification failure must not break the request."""
+    s = get_settings()
+    subject_t, body_t = TEMPLATES[kind]
+    ctx.setdefault("app_url", s.app_base_url)
+    subject = subject_t.format_map(_SafeDict(ctx))
+    body = body_t.format_map(_SafeDict(ctx))
+    n = Notification(kind=kind, channel="EMAIL", recipient=to, subject=subject, body=body, business_id=business_id,
+                     user_id=user_id, status="QUEUED")
+    db.add(n)
+    if not to:
+        n.status = "LOGGED"
+        return n
+
+    # In automated tests, avoid real external network calls
+    if s.environment == "test":
+        n.status = "SENT" if (s.resend_api_key or s.smtp_host) else "LOGGED"
+        return n
+
+    if sync:
+        status, err = _send_email_network(to, subject, body, kind, ctx)
+        n.status = status
+        if err:
+            n.error = err
+        return n
+
+    # Offload external network delivery to background thread pool so caller is never blocked
+    db.flush()
+    _executor.submit(_deliver_email_worker, n.id, to, subject, body, kind, ctx)
     return n
 
 
-def notify_sms(db: Session, to: str | None, text: str, *, business_id=None, user_id=None, kind: str = "sms") -> Notification:
+def notify_sms(db: Session, to: str | None, text: str, *, business_id=None, user_id=None, kind: str = "sms", sync: bool = False) -> Notification:
     """Queue and attempt SMS delivery via OpenSMS. Never raises."""
+    s = get_settings()
     n = Notification(kind=kind, channel="SMS", recipient=to, subject="SMS", body=text,
                      business_id=business_id, user_id=user_id, status="QUEUED")
     db.add(n)
     if not to:
         n.status = "LOGGED"
         return n
-    from app.services import sms
-    res = sms.send_sms(to, text)
-    if res.get("status") == "success":
-        n.status = "SENT"
-    else:
-        n.status = "FAILED"
-        n.error = str(res.get("message", "SMS send failed"))[:300]
+
+    if s.environment == "test":
+        n.status = "SENT" if s.opensms_api_token else "LOGGED"
+        return n
+
+    if sync:
+        from app.services import sms
+        res = sms.send_sms(to, text)
+        if res.get("status") == "success":
+            n.status = "SENT"
+        else:
+            n.status = "FAILED"
+            n.error = str(res.get("message", "SMS send failed"))[:300]
+        return n
+
+    db.flush()
+    _executor.submit(_deliver_sms_worker, n.id, to, text)
     return n
