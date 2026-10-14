@@ -2295,17 +2295,27 @@
               return;
             }
 
+            if (!cart || !cart.length) {
+              if (errBanner) {
+                errBanner.textContent = "Your shopping bag is empty. Please add items before placing an order.";
+                errBanner.classList.remove("hidden");
+              }
+              return;
+            }
+
             var originalBtnHtml = submitBtn.innerHTML;
             if (errBanner) errBanner.classList.add("hidden");
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite;margin-right:8px;">↻</span> Placing Order...';
 
-            var linesPayload = cart.map(function (ci) {
+            var linesPayload = cart.filter(function (ci) { return ci && ci.id && ci.qty > 0; }).map(function (ci) {
+              var varId = ci.variant_id;
+              if (!varId || varId === "null" || varId === "undefined" || varId === "none") varId = null;
               return {
-                kind: ci.kind || "product",
+                kind: (ci.kind === "service" ? "service" : "product"),
                 id: ci.id,
-                variant_id: ci.variant_id || null,
-                qty: ci.qty
+                variant_id: varId,
+                qty: parseInt(ci.qty, 10) || 1
               };
             });
 

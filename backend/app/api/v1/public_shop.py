@@ -3,7 +3,7 @@ import uuid
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -26,36 +26,78 @@ router = APIRouter(prefix="/public/{slug}", tags=["public-shop"])
 
 
 class CartLine(BaseModel):
-    kind: Literal["product", "service"] = "product"
+    kind: str = "product"
     id: uuid.UUID
     variant_id: uuid.UUID | None = None
-    qty: int = Field(ge=1, le=99)
+    qty: int = Field(default=1, ge=1, le=99)
+
+    @field_validator("kind", mode="before")
+    @classmethod
+    def clean_kind(cls, v):
+        if isinstance(v, str) and v.strip().lower() in ("product", "service"):
+            return v.strip().lower()
+        return "product"
+
+    @field_validator("variant_id", mode="before")
+    @classmethod
+    def clean_variant(cls, v):
+        if not v or v in ("null", "undefined", "none", "", "None"):
+            return None
+        return v
 
 
 class QuoteIn(BaseModel):
-    lines: list[CartLine] = Field(min_length=1, max_length=50)
-    delivery_method: Literal["PICKUP", "DELIVERY"] = "PICKUP"
+    lines: list[CartLine] = Field(default_factory=list, max_length=50)
+    delivery_method: str = "PICKUP"
     zone: str | None = Field(default=None, max_length=80)
     code: str | None = Field(default=None, max_length=32)
     phone: str | None = Field(default=None, max_length=32)
 
+    @field_validator("delivery_method", mode="before")
+    @classmethod
+    def clean_delivery(cls, v):
+        if isinstance(v, str) and v.strip().upper() in ("PICKUP", "DELIVERY"):
+            return v.strip().upper()
+        return "PICKUP"
+
+    @field_validator("zone", "code", "phone", mode="before")
+    @classmethod
+    def clean_empty_strings(cls, v):
+        if not v or (isinstance(v, str) and not v.strip()):
+            return None
+        return v.strip() if isinstance(v, str) else v
+
 
 class OrderIn(BaseModel):
-    lines: list[CartLine] = Field(min_length=1, max_length=50)
+    lines: list[CartLine] = Field(default_factory=list, max_length=50)
     name: str = Field(min_length=1, max_length=120)
     phone: str | None = Field(default=None, max_length=32)
-    email: EmailStr | None = None
-    delivery_method: Literal["PICKUP", "DELIVERY"] = "PICKUP"
+    email: str | None = Field(default=None, max_length=120)
+    delivery_method: str = "PICKUP"
     zone: str | None = Field(default=None, max_length=80)
     address: str = Field(default="", max_length=400)
     notes: str = Field(default="", max_length=600)
-    scheduled_for: str | None = Field(default=None, max_length=16)
-    payment: str = Field(max_length=16)
+    scheduled_for: str | None = Field(default=None, max_length=32)
+    payment: str = Field(default="cash", max_length=32)
     code: str | None = Field(default=None, max_length=32)
     source: str | None = Field(default=None, max_length=48)
     campaign: str | None = Field(default=None, max_length=64)
     referrer: str | None = Field(default=None, max_length=300)
     website: str = ""
+
+    @field_validator("delivery_method", mode="before")
+    @classmethod
+    def clean_delivery(cls, v):
+        if isinstance(v, str) and v.strip().upper() in ("PICKUP", "DELIVERY"):
+            return v.strip().upper()
+        return "PICKUP"
+
+    @field_validator("email", "phone", "zone", "code", "source", "campaign", "referrer", "scheduled_for", mode="before")
+    @classmethod
+    def clean_empty_strings(cls, v):
+        if not v or (isinstance(v, str) and not v.strip()):
+            return None
+        return v.strip() if isinstance(v, str) else v
 
 
 class RefIn(BaseModel):
@@ -82,6 +124,8 @@ def checkout_config(b: Business = Depends(get_public_business), db: Session = De
 
 @router.post("/cart/quote", dependencies=[Depends(rate_limit("quote", 90, 60))])
 def quote(body: QuoteIn, b: Business = Depends(get_public_business), db: Session = Depends(get_db)):
+    if not body.lines:
+        raise bad_request("Your shopping bag is empty")
     phone = None
     try:
         phone = _phone(b, body.phone)
@@ -94,6 +138,8 @@ def quote(body: QuoteIn, b: Business = Depends(get_public_business), db: Session
 @router.post("/orders", status_code=201, dependencies=[Depends(rate_limit("order", 6, 600))])
 def place_order(body: OrderIn, request: Request, b: Business = Depends(get_public_business), db: Session = Depends(get_db)):
     _honeypot(body.website)
+    if not body.lines:
+        raise bad_request("Your shopping bag is empty")
     phone = _phone(b, body.phone)
     o = order_svc.place(db, b, raw_lines=_lines(body), name=body.name.strip(), phone=phone, email=str(body.email) if body.email else None, delivery_method=body.delivery_method,
                         zone=body.zone, address=body.address, notes=body.notes, scheduled_for=body.scheduled_for, payment_key=body.payment, code=body.code, source=attr.normalise_source(body.source, body.referrer), campaign=attr.clean_campaign(body.campaign))
