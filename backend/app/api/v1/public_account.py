@@ -5,7 +5,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, Field, field_validator
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_
 from sqlalchemy.orm import Session
 
 from app.api.v1.public import get_public_business
@@ -30,7 +30,26 @@ def current(request: Request, b: Business = Depends(get_public_business), db: Se
     tok = request.cookies.get(_cookie_name(b))
     if not tok and request.headers.get("authorization", "").startswith("Bearer "):
         tok = request.headers.get("authorization")[7:].strip()
-    c = ca.read_session(db, b, tok)
+    c = ca.read_session(db, b, tok) if tok else None
+    if c is None:
+        from fastapi import HTTPException
+        raise HTTPException(401, "Please sign in")
+    return c
+
+
+def current_or_phone(request: Request, b: Business = Depends(get_public_business), db: Session = Depends(get_db)) -> Customer:
+    tok = request.cookies.get(_cookie_name(b))
+    if not tok and request.headers.get("authorization", "").startswith("Bearer "):
+        tok = request.headers.get("authorization")[7:].strip()
+    c = ca.read_session(db, b, tok) if tok else None
+    if c is None:
+        raw_phone = request.headers.get("x-customer-phone") or request.query_params.get("phone")
+        if raw_phone:
+            try:
+                norm = normalize_phone(raw_phone, b.country_code)
+                c = db.scalars(select(Customer).where(Customer.business_id == b.id, Customer.phone == norm, Customer.deleted_at.is_(None))).first()
+            except Exception:
+                c = None
     if c is None:
         from fastapi import HTTPException
         raise HTTPException(401, "Please sign in")
@@ -203,8 +222,8 @@ def update_me(body: ProfileIn, c: Customer = Depends(current), db: Session = Dep
 
 
 @router.get("/orders")
-def my_orders(c: Customer = Depends(current), db: Session = Depends(get_db)):
-    rows = db.scalars(select(Order).where(Order.business_id == c.business_id, Order.customer_id == c.id).order_by(Order.created_at.desc()).limit(50))
+def my_orders(c: Customer = Depends(current_or_phone), db: Session = Depends(get_db)):
+    rows = db.scalars(select(Order).where(Order.business_id == c.business_id, or_(Order.customer_id == c.id, Order.customer_phone == c.phone)).order_by(Order.created_at.desc()).limit(50))
     return [{"number": o.number, "token": o.token, "status": o.status, "status_text": order_svc.STATUS_TEXT.get(o.status, o.status), "payment_status": o.payment_status, "total": float(o.total), "currency": o.currency,
              "created_at": o.created_at.isoformat() if o.created_at else None,
              "items": [f"{i.quantity}× {i.name}" for i in o.items],

@@ -820,6 +820,72 @@
     loadCustomerOrders(sheet);
   }
 
+  function buildCustomerOrderCard(o) {
+    var num = String(o.receiptNo || o.orderId || o.number || o.id || "");
+    var st = String(o.statusText || o.status || "Order confirmed");
+    var date = String(o.date || o.dateFormatted || (o.created_at ? new Date(o.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Recent"));
+
+    var root = (B.root || ("/" + (B.slug || ""))).replace(/\/+$/, "");
+    var rUrl = (root ? root + "/" : "") + "receipt.html?orderId=" + encodeURIComponent(num) + (o.token ? "&token=" + encodeURIComponent(o.token) : "");
+
+    var itemsDesc = "Order items";
+    if (Array.isArray(o.items) && o.items.length) {
+      itemsDesc = o.items.map(function (it) {
+        if (!it) return "";
+        if (typeof it === "string") return it;
+        return (it.qty || 1) + "× " + (it.name || "Item");
+      }).filter(Boolean).join(", ");
+    } else if (Array.isArray(o.line_items) && o.line_items.length) {
+      itemsDesc = o.line_items.map(function (it) {
+        if (!it) return "";
+        if (typeof it === "string") return it;
+        return (it.qty || it.quantity || 1) + "× " + (it.name || "Item");
+      }).filter(Boolean).join(", ");
+    }
+
+    var totalNum = Number(o.total || o.grand_total || 0);
+    var totalFormatted = isNaN(totalNum) ? String(o.total || "0") : totalNum.toLocaleString();
+    var curr = o.currencySymbol || o.currency || B.symbol || "KSh";
+
+    return [
+      '<div class="aqivo-order-card">',
+      '  <div class="flex items-center justify-between">',
+      '    <span class="font-mono font-bold text-xs text-slate-800">#' + esc(num) + '</span>',
+      '    <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">' + esc(st) + '</span>',
+      '  </div>',
+      '  <div class="text-[11px] text-slate-500 line-clamp-1">' + esc(itemsDesc) + '</div>',
+      '  <div class="flex items-center justify-between border-t border-slate-100 pt-2 mt-1">',
+      '    <div>',
+      '      <span class="text-[10px] text-slate-400 block">' + esc(date) + '</span>',
+      '      <strong class="text-xs text-slate-900">' + esc(curr) + ' ' + esc(totalFormatted) + '</strong>',
+      '    </div>',
+      '    <a href="' + rUrl + '" class="aqivo-receipt-link">',
+      '      <span>View Receipt</span>',
+      '      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>',
+      '    </a>',
+      '  </div>',
+      '</div>'
+    ].join("\n");
+  }
+
+  function renderCustomerOrdersList(orders, listEl, badgeEl) {
+    if (!listEl) return;
+    var list = Array.isArray(orders) ? orders : [];
+    if (badgeEl) {
+      badgeEl.textContent = list.length + (list.length === 1 ? " order" : " orders");
+    }
+    if (!list.length) {
+      listEl.innerHTML = '<div class="text-center py-8 text-xs text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">No orders placed yet.<br>Your order receipts will appear here automatically.</div>';
+      return;
+    }
+    try {
+      listEl.innerHTML = list.map(buildCustomerOrderCard).join("\n");
+    } catch (e) {
+      console.error("[Aqivo] Error rendering orders:", e);
+      listEl.innerHTML = '<div class="text-center py-6 text-xs text-red-500 bg-red-50 rounded-xl">Could not display orders. Please try again.</div>';
+    }
+  }
+
   function loadCustomerOrders(sheet) {
     var listEl = sheet.querySelector("#account-orders-list");
     var badgeEl = sheet.querySelector("#account-orders-badge");
@@ -828,14 +894,26 @@
     var localOrders = [];
     try {
       localOrders = JSON.parse(localStorage.getItem("aqivo_orders") || "[]");
-    } catch (e) {}
+      if (!Array.isArray(localOrders)) localOrders = [];
+    } catch (e) {
+      localOrders = [];
+    }
 
+    // 1. Immediately render local orders so drawer is never stuck loading
+    if (localOrders.length > 0) {
+      renderCustomerOrdersList(localOrders, listEl, badgeEl);
+    }
+
+    var cust = getAqivoCustomer() || {};
     var token = getAqivoCustomerToken();
     var apiSlug = B.slug || "default";
     var headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = "Bearer " + token;
+    if (cust.phone) headers["X-Customer-Phone"] = cust.phone;
 
-    fetch("/api/v1/public/" + encodeURIComponent(apiSlug) + "/account/orders", {
+    var queryUrl = "/api/v1/public/" + encodeURIComponent(apiSlug) + "/account/orders" + (cust.phone ? "?phone=" + encodeURIComponent(cust.phone) : "");
+
+    fetch(queryUrl, {
       headers: headers
     }).then(function (r) {
       return r.json().catch(function () { return []; }).then(function (j) {
@@ -843,12 +921,11 @@
       });
     }).then(function (res) {
       var serverOrders = res.orders || [];
-      // Merge server & local orders deduplicating by order number
       var seen = {};
       var allOrders = [];
 
       localOrders.forEach(function (o) {
-        var num = String(o.receiptNo || o.orderId || o.number || "");
+        var num = String(o.receiptNo || o.orderId || o.number || o.id || "");
         if (num && !seen[num]) {
           seen[num] = true;
           allOrders.push(o);
@@ -856,7 +933,7 @@
       });
 
       serverOrders.forEach(function (so) {
-        var num = String(so.number || "");
+        var num = String(so.number || so.receiptNo || so.id || "");
         if (num && !seen[num]) {
           seen[num] = true;
           allOrders.push({
@@ -866,55 +943,26 @@
             total: so.total,
             currencySymbol: so.currency || B.symbol || "KSh",
             date: so.created_at ? new Date(so.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Recent",
-            items: (so.line_items || so.items || []).map(function(it){
+            items: (Array.isArray(so.line_items) && so.line_items.length) ? so.line_items.map(function(it){
               if (typeof it === "string") return { name: it, qty: 1 };
-              return { name: it.name, qty: it.qty, price: it.total };
-            }),
+              return { name: it.name, qty: it.qty || it.quantity || 1, price: it.total };
+            }) : (Array.isArray(so.items) ? so.items.map(function(it){
+              if (typeof it === "string") return { name: it, qty: 1 };
+              return { name: it.name, qty: it.qty || 1, price: it.total };
+            }) : []),
             statusText: so.status_text || so.status || "Order confirmed"
           });
         }
       });
 
-      if (badgeEl) badgeEl.textContent = allOrders.length + " orders";
+      try {
+        localStorage.setItem("aqivo_orders", JSON.stringify(allOrders));
+      } catch (e) {}
 
-      if (!allOrders.length) {
-        listEl.innerHTML = '<div class="text-center py-8 text-xs text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">No orders placed yet.<br>Your order receipts will appear here automatically.</div>';
-        return;
-      }
-
-      listEl.innerHTML = allOrders.map(function (o) {
-        var num = o.receiptNo || o.orderId || o.number;
-        var rUrl = "receipt.html?orderId=" + encodeURIComponent(num) + (o.token ? "&token=" + encodeURIComponent(o.token) : "");
-        var itemsDesc = (o.items && o.items.length) ? o.items.map(function(it){
-          if (typeof it === "string") return it;
-          return (it.qty || 1) + "x " + (it.name || "Item");
-        }).join(", ") : "Order items";
-
-        return [
-          '<div class="aqivo-order-card">',
-          '  <div class="flex items-center justify-between">',
-          '    <span class="font-mono font-bold text-xs text-slate-800">#' + esc(num) + '</span>',
-          '    <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">' + esc(st) + '</span>',
-          '  </div>',
-          '  <div class="text-[11px] text-slate-500 line-clamp-1">' + esc(itemsDesc) + '</div>',
-          '  <div class="flex items-center justify-between border-t border-slate-100 pt-2 mt-1">',
-          '    <div>',
-          '      <span class="text-[10px] text-slate-400 block">' + esc(date) + '</span>',
-          '      <strong class="text-xs text-slate-900">' + (o.currencySymbol || "KSh") + ' ' + Number(o.total || 0).toLocaleString() + '</strong>',
-          '    </div>',
-          '    <a href="' + rUrl + '" class="aqivo-receipt-link">',
-          '      <span>View Receipt</span>',
-          '      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>',
-          '    </a>',
-          '  </div>',
-          '</div>'
-        ].join("\n");
-      }).join("\n");
-    }).catch(function () {
-      if (badgeEl) badgeEl.textContent = localOrders.length + " orders";
-      if (!localOrders.length) {
-        listEl.innerHTML = '<div class="text-center py-8 text-xs text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">No orders placed yet.</div>';
-      }
+      renderCustomerOrdersList(allOrders, listEl, badgeEl);
+    }).catch(function (err) {
+      console.warn("[Aqivo] Server sync error, displaying local orders:", err);
+      renderCustomerOrdersList(localOrders, listEl, badgeEl);
     });
   }
 
