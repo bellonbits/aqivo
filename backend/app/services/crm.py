@@ -28,6 +28,11 @@ def customer_stats(db: Session, business_id, customer_ids: list) -> dict:
     for cid, n in db.execute(select(Order.customer_id, func.count()).where(Order.business_id == business_id, Order.customer_id.in_(customer_ids), Order.status.notin_(("CANCELLED", "REFUNDED")))
                              .group_by(Order.customer_id)):
         stats[cid]["total_orders"] = n
+    order_spent = db.execute(select(Order.customer_id, func.coalesce(func.sum(Order.total), 0))
+                             .where(Order.business_id == business_id, Order.customer_id.in_(customer_ids), Order.status.notin_(("CANCELLED", "REFUNDED")))
+                             .group_by(Order.customer_id)).all()
+    for cid, spent in order_spent:
+        stats[cid]["total_spent"] += Decimal(spent)
     walkin = db.execute(select(Payment.customer_id, func.coalesce(func.sum(Payment.amount), 0))
                         .where(Payment.business_id == business_id, Payment.status == PaymentStatus.PAID, Payment.booking_id.is_(None),
                                Payment.customer_id.in_(customer_ids)).group_by(Payment.customer_id)).all()

@@ -4,12 +4,13 @@ import uuid
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Request, Response
-from pydantic import BaseModel, Field
-from sqlalchemy import select
+from pydantic import BaseModel, Field, field_validator
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.v1.public import get_public_business
 from app.core.config import get_settings
+from app.core.countries import normalize_phone
 from app.core.db import get_db
 from app.core.errors import bad_request, not_found
 from app.core.rate_limit import rate_limit
@@ -26,7 +27,10 @@ def _cookie_name(b: Business) -> str:
 
 
 def current(request: Request, b: Business = Depends(get_public_business), db: Session = Depends(get_db)) -> Customer:
-    c = ca.read_session(db, b, request.cookies.get(_cookie_name(b)))
+    tok = request.cookies.get(_cookie_name(b))
+    if not tok and request.headers.get("authorization", "").startswith("Bearer "):
+        tok = request.headers.get("authorization")[7:].strip()
+    c = ca.read_session(db, b, tok)
     if c is None:
         from fastapi import HTTPException
         raise HTTPException(401, "Please sign in")
@@ -36,6 +40,95 @@ def current(request: Request, b: Business = Depends(get_public_business), db: Se
 def csrf(request: Request) -> None:
     if request.method in ("POST", "PATCH", "PUT", "DELETE") and request.headers.get("x-bizora") != "1":
         raise bad_request("Invalid request")
+
+
+class CustomerIdentifyIn(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    phone: str = Field(min_length=6, max_length=32)
+    location: str = Field(min_length=2, max_length=300)
+    email: str | None = Field(default=None, max_length=120)
+
+    @field_validator("name", "location", mode="before")
+    @classmethod
+    def clean_text(cls, v):
+        return v.strip() if isinstance(v, str) else v
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def clean_email(cls, v):
+        if not v or not isinstance(v, str) or not v.strip():
+            return None
+        return v.strip().lower()
+
+
+@router.post("/identify", dependencies=[Depends(rate_limit("cust-identify", 30, 600))])
+def customer_identify(body: CustomerIdentifyIn, response: Response, b: Business = Depends(get_public_business), db: Session = Depends(get_db)):
+    """Entry registration / retrieval. Takes name, phone, location. Normalizes phone, finds or creates customer & default address."""
+    clean_name = body.name.strip()
+    clean_loc = body.location.strip()
+    try:
+        norm_phone = normalize_phone(body.phone, b.country_code)
+    except ValueError as e:
+        raise bad_request(str(e))
+
+    clean_email = body.email
+
+    cust = db.scalars(select(Customer).where(Customer.business_id == b.id, Customer.phone == norm_phone, Customer.deleted_at.is_(None))).first()
+    is_returning = cust is not None
+
+    if cust:
+        # Returning customer: update name or email if provided
+        if clean_name and cust.name != clean_name:
+            cust.name = clean_name
+        if clean_email and not cust.email:
+            cust.email = clean_email
+    else:
+        # New customer
+        cust = Customer(
+            business_id=b.id,
+            name=clean_name,
+            phone=norm_phone,
+            email=clean_email,
+            source="WEBSITE"
+        )
+        db.add(cust)
+        db.flush()
+
+    # Ensure location is stored as an address
+    addr = db.scalars(select(CustomerAddress).where(CustomerAddress.customer_id == cust.id, CustomerAddress.business_id == b.id)).first()
+    if addr:
+        addr.line = clean_loc
+        addr.is_default = True
+    else:
+        addr = CustomerAddress(
+            business_id=b.id,
+            customer_id=cust.id,
+            label="Delivery Location",
+            line=clean_loc,
+            is_default=True
+        )
+        db.add(addr)
+
+    db.commit()
+
+    token = ca.issue_session(cust)
+    response.set_cookie(_cookie_name(b), token, max_age=ca.SESSION_DAYS * 86400, httponly=True, samesite="lax", secure=get_settings().is_production, path="/")
+
+    orders_count = db.scalar(select(func.count(Order.id)).where(Order.business_id == b.id, Order.customer_id == cust.id)) or 0
+
+    return {
+        "ok": True,
+        "customer": {
+            "id": str(cust.id),
+            "name": cust.name,
+            "phone": cust.phone,
+            "email": cust.email,
+            "location": clean_loc,
+            "is_returning": is_returning,
+            "orders_count": orders_count,
+        },
+        "token": token
+    }
 
 
 class CodeReq(BaseModel):
@@ -112,8 +205,10 @@ def update_me(body: ProfileIn, c: Customer = Depends(current), db: Session = Dep
 @router.get("/orders")
 def my_orders(c: Customer = Depends(current), db: Session = Depends(get_db)):
     rows = db.scalars(select(Order).where(Order.business_id == c.business_id, Order.customer_id == c.id).order_by(Order.created_at.desc()).limit(50))
-    return [{"number": o.number, "token": o.token, "status": o.status, "status_text": order_svc.STATUS_TEXT[o.status], "payment_status": o.payment_status, "total": float(o.total), "currency": o.currency,
-             "created_at": o.created_at, "items": [f"{i.quantity}× {i.name}" for i in o.items]} for o in rows]
+    return [{"number": o.number, "token": o.token, "status": o.status, "status_text": order_svc.STATUS_TEXT.get(o.status, o.status), "payment_status": o.payment_status, "total": float(o.total), "currency": o.currency,
+             "created_at": o.created_at.isoformat() if o.created_at else None,
+             "items": [f"{i.quantity}× {i.name}" for i in o.items],
+             "line_items": [{"name": i.name, "variant": i.variant_title, "qty": i.quantity, "total": float(i.line_total)} for i in o.items]} for o in rows]
 
 
 @router.get("/bookings")

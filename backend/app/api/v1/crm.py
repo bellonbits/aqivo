@@ -11,9 +11,7 @@ from app.api.helpers import log
 from app.core.countries import normalize_phone
 from app.core.db import get_db
 from app.core.errors import bad_request, forbidden, or404
-from app.core.security import random_token
-from app.models import Booking, Customer, CustomerNote, Lead, Review, ReviewRequest
-from app.models.enums import BookingStatus, LeadStatus
+from app.models import Booking, Customer, CustomerAddress, CustomerNote, Lead, Order, Review, ReviewRequest
 from app.repositories import (BookingRepository, CustomerNoteRepository, CustomerRepository, LeadRepository, ReviewRepository, ReviewRequestRepository, ServiceRepository)
 from app.schemas.common import Page
 from app.schemas.crm import (BookingIn, BookingOut, BookingUpdate, CustomerIn, CustomerOut, CustomerUpdate, LeadIn, LeadOut, LeadUpdate, NoteIn, NoteOut,
@@ -154,7 +152,34 @@ def get_customer(cid: uuid.UUID, ctx: TenantContext = Depends(require_feature("c
     c = _get_customer(db, ctx, cid)
     notes = CustomerNoteRepository(db, ctx.business_id).list(CustomerNote.customer_id == cid, order_by=CustomerNote.created_at.desc())
     bookings = BookingRepository(db, ctx.business_id).list(Booking.customer_id == cid, order_by=Booking.starts_at.desc(), limit=50)
-    return {"customer": _customer_out(db, ctx, [c])[0], "notes": [NoteOut.model_validate(n) for n in notes], "bookings": [BookingOut.model_validate(b) for b in bookings]}
+    orders = db.scalars(select(Order).where(Order.business_id == ctx.business_id, Order.customer_id == cid).order_by(Order.created_at.desc()).limit(50)).all()
+    addresses = db.scalars(select(CustomerAddress).where(CustomerAddress.business_id == ctx.business_id, CustomerAddress.customer_id == cid)).all()
+    orders_data = [{
+        "id": str(o.id),
+        "number": o.number,
+        "token": o.token,
+        "status": o.status,
+        "payment_status": o.payment_status,
+        "delivery_method": o.delivery_method,
+        "address": o.address,
+        "total": float(o.total),
+        "currency": o.currency,
+        "created_at": o.created_at.isoformat() if o.created_at else None,
+        "items_count": len(o.items) if o.items else 0,
+    } for o in orders]
+    addr_data = [{
+        "id": str(a.id),
+        "label": a.label,
+        "line": a.line,
+        "is_default": a.is_default
+    } for a in addresses]
+    return {
+        "customer": _customer_out(db, ctx, [c])[0],
+        "notes": [NoteOut.model_validate(n) for n in notes],
+        "bookings": [BookingOut.model_validate(b) for b in bookings],
+        "orders": orders_data,
+        "addresses": addr_data
+    }
 
 
 @customers_router.get("/{cid}/timeline")

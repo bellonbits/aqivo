@@ -95,6 +95,841 @@
   window.normalisePhone = normalisePhone;
   window.AqivoNormalisePhone = normalisePhone;
 
+  // ---------- API Error Extraction (Eliminates [object Object] and formats cleanly)
+  function extractApiError(err, fallback) {
+    if (!err) return fallback || "An error occurred";
+    if (typeof err === "string") return err;
+    if (typeof err.detail === "string") return err.detail;
+    if (Array.isArray(err.detail) && err.detail.length > 0) {
+      var item = err.detail[0];
+      if (typeof item === "string") return item;
+      if (item && item.msg) {
+        var field = (item.loc && item.loc.length) ? item.loc[item.loc.length - 1] : "";
+        if (field && field !== "body") {
+          return field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, " ") + ": " + item.msg;
+        }
+        return item.msg;
+      }
+    }
+    if (err.detail && typeof err.detail === "object" && err.detail.message) {
+      return err.detail.message;
+    }
+    if (err.message && typeof err.message === "string" && err.message !== "[object Object]") {
+      return err.message;
+    }
+    return fallback || "An error occurred";
+  }
+  window.extractApiError = extractApiError;
+
+  // ---------- Aqivo Mandatory Customer Pop-up & Account Management System
+  function getAqivoCustomer() {
+    try {
+      var raw = localStorage.getItem("aqivo_customer_profile");
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return null;
+  }
+  window.getAqivoCustomer = getAqivoCustomer;
+
+  function setAqivoCustomer(profile, token) {
+    try {
+      if (profile) {
+        localStorage.setItem("aqivo_customer_profile", JSON.stringify(profile));
+      } else {
+        localStorage.removeItem("aqivo_customer_profile");
+      }
+      if (token) {
+        localStorage.setItem("aqivo_customer_token", token);
+      } else if (token === null) {
+        localStorage.removeItem("aqivo_customer_token");
+      }
+    } catch (e) {}
+  }
+  window.setAqivoCustomer = setAqivoCustomer;
+
+  function getAqivoCustomerToken() {
+    try {
+      return localStorage.getItem("aqivo_customer_token") || "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function isEditorOrPreview() {
+    try {
+      if (window.parent && window.parent !== window) return true;
+    } catch (e) {
+      return true;
+    }
+    var p = window.location.pathname || "";
+    var q = window.location.search || "";
+    return p.indexOf("/theme-preview") !== -1 || p.indexOf("/editor") !== -1 || q.indexOf("preview=") !== -1;
+  }
+
+  function isReceiptView() {
+    var p = window.location.pathname || "";
+    return p.indexOf("receipt.html") !== -1 || p.indexOf("/receipt") !== -1;
+  }
+
+  function ensureCustomerStyles() {
+    if (document.getElementById("aqivo-customer-system-styles")) return;
+    var style = document.createElement("style");
+    style.id = "aqivo-customer-system-styles";
+    style.textContent = [
+      "/* Aqivo Mandatory Customer Entry Pop-up & Account Drawer */",
+      ".aqivo-entry-veil {",
+      "  position: fixed;",
+      "  inset: 0;",
+      "  background: rgba(15, 23, 42, 0.75);",
+      "  backdrop-filter: blur(14px);",
+      "  -webkit-backdrop-filter: blur(14px);",
+      "  z-index: 99999999;",
+      "  display: flex;",
+      "  align-items: center;",
+      "  justify-content: center;",
+      "  padding: 16px;",
+      "  opacity: 0;",
+      "  pointer-events: none;",
+      "  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);",
+      "  box-sizing: border-box;",
+      "  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;",
+      "}",
+      ".aqivo-entry-veil.open {",
+      "  opacity: 1;",
+      "  pointer-events: auto;",
+      "}",
+      ".aqivo-entry-card {",
+      "  width: 100%;",
+      "  max-width: 440px;",
+      "  background: #FFFFFF;",
+      "  border-radius: 28px;",
+      "  padding: 30px 24px 24px;",
+      "  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.05);",
+      "  transform: translateY(20px) scale(0.96);",
+      "  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);",
+      "  box-sizing: border-box;",
+      "  color: #0F172A;",
+      "}",
+      ".aqivo-entry-veil.open .aqivo-entry-card {",
+      "  transform: translateY(0) scale(1);",
+      "}",
+      ".aqivo-entry-badge {",
+      "  display: inline-flex;",
+      "  align-items: center;",
+      "  gap: 7px;",
+      "  background: #F1F5F9;",
+      "  color: #334155;",
+      "  padding: 6px 14px;",
+      "  border-radius: 9999px;",
+      "  font-size: 11.5px;",
+      "  font-weight: 700;",
+      "  letter-spacing: 0.3px;",
+      "  margin-bottom: 14px;",
+      "}",
+      ".aqivo-entry-badge svg { color: #0F172A; }",
+      ".aqivo-entry-title {",
+      "  font-size: 22px;",
+      "  font-weight: 800;",
+      "  color: #0F172A;",
+      "  line-height: 1.25;",
+      "  margin: 0 0 8px 0;",
+      "  letter-spacing: -0.02em;",
+      "}",
+      ".aqivo-entry-desc {",
+      "  font-size: 13px;",
+      "  color: #64748B;",
+      "  line-height: 1.5;",
+      "  margin: 0 0 20px 0;",
+      "}",
+      ".aqivo-entry-field {",
+      "  margin-bottom: 14px;",
+      "  text-align: left;",
+      "}",
+      ".aqivo-entry-field label {",
+      "  display: block;",
+      "  font-size: 11px;",
+      "  font-weight: 800;",
+      "  color: #334155;",
+      "  text-transform: uppercase;",
+      "  letter-spacing: 0.06em;",
+      "  margin-bottom: 6px;",
+      "}",
+      ".aqivo-entry-field label .req { color: #E11D48; }",
+      ".aqivo-input-box {",
+      "  position: relative;",
+      "  display: flex;",
+      "  align-items: center;",
+      "}",
+      ".aqivo-input-box .aqivo-input-icon {",
+      "  position: absolute;",
+      "  left: 14px;",
+      "  color: #94A3B8;",
+      "  pointer-events: none;",
+      "}",
+      ".aqivo-input-box input {",
+      "  width: 100%;",
+      "  height: 48px;",
+      "  padding: 0 14px 0 42px;",
+      "  font-size: 14px;",
+      "  font-weight: 500;",
+      "  color: #0F172A;",
+      "  background: #F8FAFC;",
+      "  border: 1.5px solid #E2E8F0;",
+      "  border-radius: 14px;",
+      "  outline: none;",
+      "  box-sizing: border-box;",
+      "  transition: all 0.2s ease;",
+      "  font-family: inherit;",
+      "}",
+      ".aqivo-input-box input:focus {",
+      "  background: #FFFFFF;",
+      "  border-color: #111111;",
+      "  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);",
+      "}",
+      ".aqivo-input-box input::placeholder { color: #94A3B8; font-weight: 400; }",
+      ".aqivo-field-tip {",
+      "  display: block;",
+      "  font-size: 11px;",
+      "  color: #64748B;",
+      "  margin-top: 4px;",
+      "  line-height: 1.35;",
+      "}",
+      ".aqivo-entry-error {",
+      "  background: #FFF1F2;",
+      "  border: 1px solid #FECDD3;",
+      "  color: #BE123C;",
+      "  padding: 10px 14px;",
+      "  border-radius: 12px;",
+      "  font-size: 12px;",
+      "  font-weight: 600;",
+      "  margin-bottom: 14px;",
+      "  line-height: 1.4;",
+      "  text-align: left;",
+      "}",
+      ".aqivo-entry-btn {",
+      "  width: 100%;",
+      "  height: 52px;",
+      "  background: #D8F29E;",
+      "  color: #111111;",
+      "  border: none;",
+      "  border-radius: 16px;",
+      "  font-size: 15px;",
+      "  font-weight: 800;",
+      "  display: flex;",
+      "  align-items: center;",
+      "  justify-content: center;",
+      "  gap: 8px;",
+      "  cursor: pointer;",
+      "  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);",
+      "  box-shadow: 0 4px 14px rgba(216, 242, 158, 0.5);",
+      "  font-family: inherit;",
+      "}",
+      ".aqivo-entry-btn:hover {",
+      "  background: #C8E885;",
+      "  transform: translateY(-1px);",
+      "  box-shadow: 0 6px 18px rgba(216, 242, 158, 0.6);",
+      "}",
+      ".aqivo-entry-btn:active { transform: scale(0.98); }",
+      ".aqivo-entry-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }",
+      ".aqivo-entry-security {",
+      "  display: flex;",
+      "  align-items: center;",
+      "  justify-content: center;",
+      "  gap: 6px;",
+      "  font-size: 11px;",
+      "  color: #64748B;",
+      "  margin-top: 14px;",
+      "  text-align: center;",
+      "}",
+      "/* Floating Account Pill */",
+      ".aqivo-account-pill {",
+      "  position: fixed;",
+      "  bottom: 24px;",
+      "  left: 20px;",
+      "  z-index: 999998;",
+      "  display: flex;",
+      "  align-items: center;",
+      "  gap: 8px;",
+      "  background: #111111;",
+      "  color: #FFFFFF;",
+      "  padding: 10px 16px 10px 12px;",
+      "  border-radius: 9999px;",
+      "  font-size: 13px;",
+      "  font-weight: 700;",
+      "  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);",
+      "  cursor: pointer;",
+      "  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);",
+      "  border: 1px solid rgba(255, 255, 255, 0.12);",
+      "  text-decoration: none;",
+      "  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;",
+      "}",
+      ".aqivo-account-pill:hover {",
+      "  transform: translateY(-2px);",
+      "  background: #222222;",
+      "  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);",
+      "}",
+      ".aqivo-account-avatar {",
+      "  width: 24px;",
+      "  height: 24px;",
+      "  border-radius: 9999px;",
+      "  background: #D8F29E;",
+      "  color: #111111;",
+      "  display: flex;",
+      "  align-items: center;",
+      "  justify-content: center;",
+      "  font-size: 11px;",
+      "  font-weight: 800;",
+      "}",
+      "/* Account Drawer */",
+      ".aqivo-account-veil {",
+      "  position: fixed;",
+      "  inset: 0;",
+      "  background: rgba(15, 23, 42, 0.6);",
+      "  backdrop-filter: blur(8px);",
+      "  -webkit-backdrop-filter: blur(8px);",
+      "  z-index: 99999998;",
+      "  opacity: 0;",
+      "  pointer-events: none;",
+      "  transition: opacity 0.3s ease;",
+      "}",
+      ".aqivo-account-veil.open { opacity: 1; pointer-events: auto; }",
+      ".aqivo-account-sheet {",
+      "  position: fixed;",
+      "  top: 0;",
+      "  right: 0;",
+      "  bottom: 0;",
+      "  width: 100%;",
+      "  max-width: 440px;",
+      "  background: #FFFFFF;",
+      "  z-index: 99999999;",
+      "  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.2);",
+      "  transform: translateX(100%);",
+      "  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);",
+      "  display: flex;",
+      "  flex-direction: column;",
+      "  box-sizing: border-box;",
+      "  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;",
+      "}",
+      ".aqivo-account-sheet.open { transform: translateX(0); }",
+      ".aqivo-account-header {",
+      "  display: flex;",
+      "  align-items: center;",
+      "  justify-content: space-between;",
+      "  padding: 18px 20px;",
+      "  background: #FFFFFF;",
+      "  border-bottom: 1px solid #F1F5F9;",
+      "}",
+      ".aqivo-account-header h3 {",
+      "  font-size: 17px;",
+      "  font-weight: 800;",
+      "  color: #0F172A;",
+      "  margin: 0;",
+      "}",
+      ".aqivo-account-body {",
+      "  padding: 20px;",
+      "  overflow-y: auto;",
+      "  flex: 1;",
+      "  display: flex;",
+      "  flex-direction: column;",
+      "  gap: 18px;",
+      "}",
+      ".aqivo-profile-card {",
+      "  background: #F8FAFC;",
+      "  border-radius: 20px;",
+      "  padding: 16px;",
+      "  border: 1px solid #E2E8F0;",
+      "}",
+      ".aqivo-order-card {",
+      "  background: #FFFFFF;",
+      "  border-radius: 16px;",
+      "  padding: 14px;",
+      "  border: 1px solid #E2E8F0;",
+      "  box-shadow: 0 1px 3px rgba(0,0,0,0.03);",
+      "  display: flex;",
+      "  flex-direction: column;",
+      "  gap: 8px;",
+      "}",
+      ".aqivo-receipt-link {",
+      "  display: inline-flex;",
+      "  align-items: center;",
+      "  gap: 5px;",
+      "  font-size: 12px;",
+      "  font-weight: 700;",
+      "  color: #111111;",
+      "  background: #F1F5F9;",
+      "  padding: 7px 12px;",
+      "  border-radius: 10px;",
+      "  text-decoration: none;",
+      "  align-self: flex-start;",
+      "  transition: all 0.15s ease;",
+      "}",
+      ".aqivo-receipt-link:hover {",
+      "  background: #D8F29E;",
+      "  color: #111111;",
+      "}"
+    ].join("\n");
+    document.head.appendChild(style);
+  }
+
+  function showMandatoryCustomerModal(onDone) {
+    if (isEditorOrPreview() || isReceiptView()) return;
+    if (getAqivoCustomer()) return;
+
+    ensureCustomerStyles();
+    var veil = document.getElementById("aqivo-entry-veil");
+    if (!veil) {
+      veil = document.createElement("div");
+      veil.id = "aqivo-entry-veil";
+      veil.className = "aqivo-entry-veil";
+      veil.innerHTML = [
+        '<div class="aqivo-entry-card" role="dialog" aria-modal="true" aria-labelledby="aqivo-entry-title">',
+        '  <div class="aqivo-entry-badge">',
+        '    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+        '    <span>Customer Identification</span>',
+        '  </div>',
+        '  <h2 id="aqivo-entry-title" class="aqivo-entry-title">Welcome! Let\'s Get You Started</h2>',
+        '  <p class="aqivo-entry-desc">Please provide your details below so we can personalize your shopping experience, arrange delivery, and manage your orders.</p>',
+        '  <form id="aqivo-entry-form" class="aqivo-entry-form" novalidate>',
+        '    <div class="aqivo-entry-field">',
+        '      <label for="aqivo-entry-name">Full Name <span class="req">*</span></label>',
+        '      <div class="aqivo-input-box">',
+        '        <svg class="aqivo-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+        '        <input type="text" id="aqivo-entry-name" placeholder="e.g. Sarah Mwangi" autocomplete="name" required />',
+        '      </div>',
+        '    </div>',
+        '    <div class="aqivo-entry-field">',
+        '      <label for="aqivo-entry-phone">Phone Number <span class="req">*</span></label>',
+        '      <div class="aqivo-input-box">',
+        '        <svg class="aqivo-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+        '        <input type="tel" id="aqivo-entry-phone" placeholder="e.g. 0712 345 678" autocomplete="tel" required />',
+        '      </div>',
+        '      <span class="aqivo-field-tip">Used as your unique customer ID and for order updates.</span>',
+        '    </div>',
+        '    <div class="aqivo-entry-field">',
+        '      <label for="aqivo-entry-location">Delivery Location / Town <span class="req">*</span></label>',
+        '      <div class="aqivo-input-box">',
+        '        <svg class="aqivo-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+        '        <input type="text" id="aqivo-entry-location" placeholder="e.g. Westlands, Nairobi or Kayole, Naivasha" required />',
+        '      </div>',
+        '      <span class="aqivo-field-tip">Helps us coordinate delivery and confirm dispatch options.</span>',
+        '    </div>',
+        '    <div id="aqivo-entry-error" class="aqivo-entry-error" style="display:none;"></div>',
+        '    <button type="submit" id="aqivo-entry-submit" class="aqivo-entry-btn">',
+        '      <span>Start Shopping</span>',
+        '      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+        '    </button>',
+        '    <div class="aqivo-entry-security">',
+        '      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+        '      <span>Returning customers are recognized automatically.</span>',
+        '    </div>',
+        '  </form>',
+        '</div>'
+      ].join("\n");
+      document.body.appendChild(veil);
+
+      var form = veil.querySelector("#aqivo-entry-form");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var nameInp = veil.querySelector("#aqivo-entry-name");
+        var phoneInp = veil.querySelector("#aqivo-entry-phone");
+        var locInp = veil.querySelector("#aqivo-entry-location");
+        var errBox = veil.querySelector("#aqivo-entry-error");
+        var submitBtn = veil.querySelector("#aqivo-entry-submit");
+
+        var nameVal = (nameInp && nameInp.value || "").trim();
+        var phoneVal = (phoneInp && phoneInp.value || "").trim();
+        var locVal = (locInp && locInp.value || "").trim();
+
+        if (!nameVal) {
+          errBox.textContent = "Please enter your full name.";
+          errBox.style.display = "block";
+          if (nameInp) nameInp.focus();
+          return;
+        }
+        if (!phoneVal) {
+          errBox.textContent = "Please provide your phone number.";
+          errBox.style.display = "block";
+          if (phoneInp) phoneInp.focus();
+          return;
+        }
+        if (!locVal) {
+          errBox.textContent = "Please enter your delivery location or town.";
+          errBox.style.display = "block";
+          if (locInp) locInp.focus();
+          return;
+        }
+
+        errBox.style.display = "none";
+        submitBtn.disabled = true;
+        var originalBtnHtml = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span>Setting up your profile...</span>';
+
+        var apiSlug = B.slug || "default";
+        fetch("/api/v1/public/" + encodeURIComponent(apiSlug) + "/account/identify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Bizora": "1" },
+          body: JSON.stringify({ name: nameVal, phone: phoneVal, location: locVal })
+        }).then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (j) {
+            return { ok: r.ok, status: r.status, j: j };
+          });
+        }).then(function (res) {
+          if (!res.ok) {
+            throw new Error(extractApiError(res.j, "Could not set up your profile. Please check your phone number."));
+          }
+          var cust = res.j.customer || { name: nameVal, phone: phoneVal, location: locVal };
+          setAqivoCustomer(cust, res.j.token);
+
+          veil.classList.remove("open");
+          document.body.style.overflow = "";
+          setTimeout(function () { veil.remove(); }, 350);
+
+          renderCustomerAccountPill();
+
+          // Sync checkout inputs if open
+          var chkName = document.getElementById("chk-cust-name");
+          var chkPhone = document.getElementById("chk-cust-phone");
+          var chkAddr = document.getElementById("chk-delivery-addr");
+          if (chkName && !chkName.value) chkName.value = cust.name;
+          if (chkPhone && !chkPhone.value) chkPhone.value = cust.phone;
+          if (chkAddr && !chkAddr.value) chkAddr.value = cust.location || "";
+
+          if (typeof onDone === "function") onDone(cust);
+        }).catch(function (err) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnHtml;
+          errBox.textContent = extractApiError(err, "Could not set up your profile. Please try again.");
+          errBox.style.display = "block";
+        });
+      });
+    }
+
+    veil.classList.add("open");
+    document.body.style.overflow = "hidden";
+    var firstInp = veil.querySelector("#aqivo-entry-name");
+    if (firstInp) setTimeout(function () { firstInp.focus(); }, 150);
+  }
+  window.showMandatoryCustomerModal = showMandatoryCustomerModal;
+
+  function renderCustomerAccountPill() {
+    if (isEditorOrPreview() || isReceiptView()) return;
+    var cust = getAqivoCustomer();
+    if (!cust) return;
+
+    ensureCustomerStyles();
+    var pill = document.getElementById("aqivo-account-pill");
+    var firstName = (cust.name || "Customer").split(" ")[0];
+    var initial = firstName.charAt(0).toUpperCase();
+
+    if (!pill) {
+      pill = document.createElement("button");
+      pill.type = "button";
+      pill.id = "aqivo-account-pill";
+      pill.className = "aqivo-account-pill";
+      pill.setAttribute("aria-label", "Customer Account & Orders");
+      document.body.appendChild(pill);
+      pill.addEventListener("click", function () {
+        openAqivoAccountModal(false);
+      });
+    }
+    pill.innerHTML = [
+      '<div class="aqivo-account-avatar">' + esc(initial) + '</div>',
+      '<span>' + esc(firstName) + ' • Orders</span>'
+    ].join("");
+  }
+  window.renderCustomerAccountPill = renderCustomerAccountPill;
+
+  function openAqivoAccountModal(isEditMode) {
+    ensureCustomerStyles();
+    var cust = getAqivoCustomer();
+    if (!cust) {
+      showMandatoryCustomerModal();
+      return;
+    }
+
+    var veil = document.getElementById("aqivo-account-veil");
+    var sheet = document.getElementById("aqivo-account-sheet");
+    if (!veil) {
+      veil = document.createElement("div");
+      veil.id = "aqivo-account-veil";
+      veil.className = "aqivo-account-veil";
+      document.body.appendChild(veil);
+      veil.addEventListener("click", closeAqivoAccountModal);
+    }
+    if (!sheet) {
+      sheet = document.createElement("div");
+      sheet.id = "aqivo-account-sheet";
+      sheet.className = "aqivo-account-sheet";
+      document.body.appendChild(sheet);
+    }
+
+    renderAccountSheetContent(sheet, cust, isEditMode);
+    veil.classList.add("open");
+    sheet.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  window.openAqivoAccountModal = openAqivoAccountModal;
+
+  function closeAqivoAccountModal() {
+    var veil = document.getElementById("aqivo-account-veil");
+    var sheet = document.getElementById("aqivo-account-sheet");
+    if (veil) veil.classList.remove("open");
+    if (sheet) sheet.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  window.closeAqivoAccountModal = closeAqivoAccountModal;
+
+  function renderAccountSheetContent(sheet, cust, isEditMode) {
+    var initials = (cust.name || "Customer").split(" ").map(function(w){return w.charAt(0);}).slice(0, 2).join("").toUpperCase();
+
+    var profileHtml = "";
+    if (isEditMode) {
+      profileHtml = [
+        '<div class="aqivo-profile-card">',
+        '  <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3">Edit Details</h4>',
+        '  <div class="space-y-2.5">',
+        '    <div>',
+        '      <label class="block text-[11px] font-bold text-slate-600 mb-1">Full Name</label>',
+        '      <input type="text" id="edit-cust-name" class="checkout-input h-10 text-xs" value="' + esc(cust.name || "") + '" />',
+        '    </div>',
+        '    <div>',
+        '      <label class="block text-[11px] font-bold text-slate-600 mb-1">Phone Number (Cannot be changed)</label>',
+        '      <input type="tel" id="edit-cust-phone" class="checkout-input h-10 text-xs bg-slate-100 text-slate-500 cursor-not-allowed" value="' + esc(cust.phone || "") + '" disabled />',
+        '    </div>',
+        '    <div>',
+        '      <label class="block text-[11px] font-bold text-slate-600 mb-1">Delivery Location</label>',
+        '      <input type="text" id="edit-cust-location" class="checkout-input h-10 text-xs" value="' + esc(cust.location || "") + '" />',
+        '    </div>',
+        '    <div id="edit-cust-err" class="text-xs text-rose-600 font-semibold hidden"></div>',
+        '    <div class="flex gap-2 pt-1">',
+        '      <button type="button" id="btn-save-cust" class="h-9 px-4 rounded-xl bg-slate-900 text-white font-bold text-xs flex-1">Save Profile</button>',
+        '      <button type="button" id="btn-cancel-edit-cust" class="h-9 px-3 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs">Cancel</button>',
+        '    </div>',
+        '  </div>',
+        '</div>'
+      ].join("\n");
+    } else {
+      profileHtml = [
+        '<div class="aqivo-profile-card flex items-start justify-between gap-3">',
+        '  <div class="flex items-center gap-3">',
+        '    <div class="w-11 h-11 rounded-full bg-[#D8F29E] text-slate-900 font-extrabold flex items-center justify-center text-sm">' + esc(initials) + '</div>',
+        '    <div>',
+        '      <h4 class="font-bold text-sm text-slate-900 m-0">' + esc(cust.name) + '</h4>',
+        '      <div class="text-xs text-slate-500 font-mono mt-0.5">' + esc(cust.phone) + '</div>',
+        '      <div class="text-[11px] text-slate-600 mt-1 flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ' + esc(cust.location || "No default location") + '</div>',
+        '    </div>',
+        '  </div>',
+        '  <button type="button" id="btn-start-edit-cust" class="text-xs font-bold text-slate-800 underline hover:text-black">Edit</button>',
+        '</div>'
+      ].join("\n");
+    }
+
+    sheet.innerHTML = [
+      '<div class="aqivo-account-header">',
+      '  <h3>My Account</h3>',
+      '  <button type="button" id="btn-close-account" class="icon-btn" aria-label="Close">',
+      '    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>',
+      '  </button>',
+      '</div>',
+      '<div class="aqivo-account-body">',
+      profileHtml,
+      '  <div>',
+      '    <div class="flex items-center justify-between mb-3">',
+      '      <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 m-0">My Orders & Receipts</h4>',
+      '      <span id="account-orders-badge" class="text-[11px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">...</span>',
+      '    </div>',
+      '    <div id="account-orders-list" class="space-y-3">',
+      '      <div class="text-center py-6 text-xs text-slate-400">Loading your orders...</div>',
+      '    </div>',
+      '  </div>',
+      '  <div class="mt-auto pt-4 border-t border-slate-100 text-center">',
+      '    <button type="button" id="btn-switch-account" class="text-xs font-bold text-rose-600 hover:text-rose-800 underline">Switch Account / Sign Out</button>',
+      '  </div>',
+      '</div>'
+    ].join("\n");
+
+    var closeBtn = sheet.querySelector("#btn-close-account");
+    if (closeBtn) closeBtn.addEventListener("click", closeAqivoAccountModal);
+
+    var startEditBtn = sheet.querySelector("#btn-start-edit-cust");
+    if (startEditBtn) {
+      startEditBtn.addEventListener("click", function () {
+        renderAccountSheetContent(sheet, cust, true);
+      });
+    }
+
+    var cancelEditBtn = sheet.querySelector("#btn-cancel-edit-cust");
+    if (cancelEditBtn) {
+      cancelEditBtn.addEventListener("click", function () {
+        renderAccountSheetContent(sheet, cust, false);
+      });
+    }
+
+    var saveBtn = sheet.querySelector("#btn-save-cust");
+    if (saveBtn) {
+      saveBtn.addEventListener("click", function () {
+        var nInp = sheet.querySelector("#edit-cust-name");
+        var lInp = sheet.querySelector("#edit-cust-location");
+        var errEl = sheet.querySelector("#edit-cust-err");
+        var newName = (nInp && nInp.value || "").trim();
+        var newLoc = (lInp && lInp.value || "").trim();
+
+        if (!newName || !newLoc) {
+          if (errEl) { errEl.textContent = "Please fill in both name and delivery location."; errEl.classList.remove("hidden"); }
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+        var apiSlug = B.slug || "default";
+
+        fetch("/api/v1/public/" + encodeURIComponent(apiSlug) + "/account/identify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Bizora": "1" },
+          body: JSON.stringify({ name: newName, phone: cust.phone, location: newLoc })
+        }).then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (j) {
+            return { ok: r.ok, j: j };
+          });
+        }).then(function (res) {
+          if (!res.ok) throw new Error(extractApiError(res.j, "Could not update profile."));
+          var updatedCust = res.j.customer || { name: newName, phone: cust.phone, location: newLoc };
+          setAqivoCustomer(updatedCust, res.j.token);
+          renderCustomerAccountPill();
+          renderAccountSheetContent(sheet, updatedCust, false);
+        }).catch(function (err) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save Profile";
+          if (errEl) { errEl.textContent = extractApiError(err, "Update failed."); errEl.classList.remove("hidden"); }
+        });
+      });
+    }
+
+    var switchBtn = sheet.querySelector("#btn-switch-account");
+    if (switchBtn) {
+      switchBtn.addEventListener("click", function () {
+        setAqivoCustomer(null, null);
+        closeAqivoAccountModal();
+        var pill = document.getElementById("aqivo-account-pill");
+        if (pill) pill.remove();
+        showMandatoryCustomerModal();
+      });
+    }
+
+    // Load customer orders from server + localStorage
+    loadCustomerOrders(sheet);
+  }
+
+  function loadCustomerOrders(sheet) {
+    var listEl = sheet.querySelector("#account-orders-list");
+    var badgeEl = sheet.querySelector("#account-orders-badge");
+    if (!listEl) return;
+
+    var localOrders = [];
+    try {
+      localOrders = JSON.parse(localStorage.getItem("aqivo_orders") || "[]");
+    } catch (e) {}
+
+    var token = getAqivoCustomerToken();
+    var apiSlug = B.slug || "default";
+    var headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = "Bearer " + token;
+
+    fetch("/api/v1/public/" + encodeURIComponent(apiSlug) + "/account/orders", {
+      headers: headers
+    }).then(function (r) {
+      return r.json().catch(function () { return []; }).then(function (j) {
+        return { ok: r.ok, orders: Array.isArray(j) ? j : [] };
+      });
+    }).then(function (res) {
+      var serverOrders = res.orders || [];
+      // Merge server & local orders deduplicating by order number
+      var seen = {};
+      var allOrders = [];
+
+      localOrders.forEach(function (o) {
+        var num = String(o.receiptNo || o.orderId || o.number || "");
+        if (num && !seen[num]) {
+          seen[num] = true;
+          allOrders.push(o);
+        }
+      });
+
+      serverOrders.forEach(function (so) {
+        var num = String(so.number || "");
+        if (num && !seen[num]) {
+          seen[num] = true;
+          allOrders.push({
+            receiptNo: num,
+            orderId: num,
+            token: so.token || "",
+            total: so.total,
+            currencySymbol: so.currency || B.symbol || "KSh",
+            date: so.created_at ? new Date(so.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Recent",
+            items: (so.line_items || so.items || []).map(function(it){
+              if (typeof it === "string") return { name: it, qty: 1 };
+              return { name: it.name, qty: it.qty, price: it.total };
+            }),
+            statusText: so.status_text || so.status || "Order confirmed"
+          });
+        }
+      });
+
+      if (badgeEl) badgeEl.textContent = allOrders.length + " orders";
+
+      if (!allOrders.length) {
+        listEl.innerHTML = '<div class="text-center py-8 text-xs text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">No orders placed yet.<br>Your order receipts will appear here automatically.</div>';
+        return;
+      }
+
+      listEl.innerHTML = allOrders.map(function (o) {
+        var num = o.receiptNo || o.orderId || o.number;
+        var rUrl = "receipt.html?orderId=" + encodeURIComponent(num) + (o.token ? "&token=" + encodeURIComponent(o.token) : "");
+        var itemsDesc = (o.items && o.items.length) ? o.items.map(function(it){
+          if (typeof it === "string") return it;
+          return (it.qty || 1) + "x " + (it.name || "Item");
+        }).join(", ") : "Order items";
+
+        return [
+          '<div class="aqivo-order-card">',
+          '  <div class="flex items-center justify-between">',
+          '    <span class="font-mono font-bold text-xs text-slate-800">#' + esc(num) + '</span>',
+          '    <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100">' + esc(st) + '</span>',
+          '  </div>',
+          '  <div class="text-[11px] text-slate-500 line-clamp-1">' + esc(itemsDesc) + '</div>',
+          '  <div class="flex items-center justify-between border-t border-slate-100 pt-2 mt-1">',
+          '    <div>',
+          '      <span class="text-[10px] text-slate-400 block">' + esc(date) + '</span>',
+          '      <strong class="text-xs text-slate-900">' + (o.currencySymbol || "KSh") + ' ' + Number(o.total || 0).toLocaleString() + '</strong>',
+          '    </div>',
+          '    <a href="' + rUrl + '" class="aqivo-receipt-link">',
+          '      <span>View Receipt</span>',
+          '      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>',
+          '    </a>',
+          '  </div>',
+          '</div>'
+        ].join("\n");
+      }).join("\n");
+    }).catch(function () {
+      if (badgeEl) badgeEl.textContent = localOrders.length + " orders";
+      if (!localOrders.length) {
+        listEl.innerHTML = '<div class="text-center py-8 text-xs text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-200">No orders placed yet.</div>';
+      }
+    });
+  }
+
+  function initAqivoCustomerSystem() {
+    if (isEditorOrPreview() || isReceiptView()) return;
+    ensureCustomerStyles();
+    if (getAqivoCustomer()) {
+      renderCustomerAccountPill();
+    } else {
+      showMandatoryCustomerModal();
+    }
+  }
+  window.initAqivoCustomerSystem = initAqivoCustomerSystem;
+  onReady(initAqivoCustomerSystem);
+
   function openServiceBooking(it, price) {
     if (!it) return;
     if (window.AqivoBookingBridge && window.AqivoBookingBridge.openFor) {
@@ -2158,6 +2993,28 @@
           '</div>' +
         '</div>';
 
+        var custProfile = getAqivoCustomer();
+        var defaultName = custProfile ? (custProfile.name || "") : "";
+        var defaultPhone = custProfile ? (custProfile.phone || "") : "";
+        var defaultEmail = custProfile ? (custProfile.email || "") : "";
+        var defaultLocation = custProfile ? (custProfile.location || "") : "";
+
+        var profileBanner = "";
+        if (custProfile && custProfile.name) {
+          profileBanner = '<div class="bg-emerald-50 text-emerald-950 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between gap-2 mb-2">' +
+            '<div class="flex items-center gap-2 min-w-0">' +
+              '<svg width="16" height="16" class="text-emerald-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>' +
+              '<span class="truncate">Verified Profile: <strong>' + esc(defaultName) + '</strong> (' + esc(defaultPhone) + ')</span>' +
+            '</div>' +
+            '<button type="button" id="btn-edit-order-profile" class="text-emerald-800 underline font-bold shrink-0 hover:text-black">Change</button>' +
+          '</div>';
+        } else {
+          profileBanner = '<div class="bg-emerald-50 text-emerald-800 border border-emerald-200/60 rounded-xl p-3 text-xs flex items-center gap-2 mb-2">' +
+            '<svg width="16" height="16" class="text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>' +
+            '<span><strong>Customer Profile:</strong> Your order will be linked to your phone number.</span>' +
+          '</div>';
+        }
+
         sheet.innerHTML = (
           '<div class="aqivo-sheet-header">' +
             '<button type="button" id="btn-back-to-cart" class="text-xs font-bold text-slate-600 flex items-center gap-1 hover:text-black">' +
@@ -2170,22 +3027,19 @@
             '</button>' +
           '</div>' +
           '<div class="aqivo-sheet-body">' +
-            '<div class="bg-emerald-50 text-emerald-800 border border-emerald-200/60 rounded-xl p-3 text-xs flex items-center gap-2">' +
-              '<svg width="16" height="16" class="text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>' +
-              '<span><strong>Guest Checkout:</strong> No account or login required.</span>' +
-            '</div>' +
+            profileBanner +
             '<div class="space-y-3 mt-1">' +
               '<div>' +
                 '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Full Name <span class="text-rose-500">*</span></label>' +
-                '<input type="text" id="chk-cust-name" class="checkout-input" placeholder="Your name" required />' +
+                '<input type="text" id="chk-cust-name" class="checkout-input" placeholder="Your name" value="' + esc(defaultName) + '" required />' +
               '</div>' +
               '<div>' +
                 '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number <span class="text-rose-500">*</span></label>' +
-                '<input type="tel" id="chk-cust-phone" class="checkout-input" placeholder="e.g. 0712 345 678" required />' +
+                '<input type="tel" id="chk-cust-phone" class="checkout-input" placeholder="e.g. 0712 345 678" value="' + esc(defaultPhone) + '" required />' +
               '</div>' +
               '<div>' +
                 '<label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address ' + (cfg.require_email ? '<span class="text-rose-500">*</span>' : '<span class="text-slate-400 font-normal">(optional)</span>') + '</label>' +
-                '<input type="email" id="chk-cust-email" class="checkout-input" placeholder="Receipt email" />' +
+                '<input type="email" id="chk-cust-email" class="checkout-input" placeholder="Receipt email" value="' + esc(defaultEmail) + '" />' +
               '</div>' +
             '</div>' +
             pillsHtml +
@@ -2210,9 +3064,23 @@
           '</div>'
         );
 
+        // Pre-fill delivery address if we have default customer location
+        if (defaultLocation) {
+          var addrField = sheet.querySelector("#chk-delivery-addr");
+          if (addrField && !addrField.value) addrField.value = defaultLocation;
+        }
+
         // Events
         var closeBtn = sheet.querySelector("#aqivo-modal-close-btn");
         if (closeBtn) closeBtn.addEventListener("click", closeAqivoCartModal);
+
+        var editProfileBtn = sheet.querySelector("#btn-edit-order-profile");
+        if (editProfileBtn) {
+          editProfileBtn.addEventListener("click", function () {
+            closeAqivoCartModal();
+            openAqivoAccountModal(true);
+          });
+        }
 
         var backBtn = sheet.querySelector("#btn-back-to-cart");
         if (backBtn) backBtn.addEventListener("click", function () {
@@ -2345,10 +3213,8 @@
             }).then(function (r) {
               if (timeoutId) clearTimeout(timeoutId);
               if (!r.ok) {
-                return r.json().then(function (err) {
-                  throw new Error(err.detail || ("Order submission failed (code " + r.status + ")"));
-                }).catch(function (e) {
-                  throw new Error(e.message || "Order submission failed");
+                return r.json().catch(function () { return {}; }).then(function (err) {
+                  throw new Error(extractApiError(err, "Order submission failed (code " + r.status + ")"));
                 });
               }
               return r.json();
@@ -2368,7 +3234,8 @@
                 return;
               }
               if (errBanner) {
-                errBanner.textContent = (err && err.name === "AbortError") ? "Order taking longer than expected. Please check your connection and try again." : (err.message || "Failed to place order. Please try again.");
+                var errMsg = (err && err.name === "AbortError") ? "Order taking longer than expected. Please check your connection and try again." : extractApiError(err, "Failed to place order. Please try again.");
+                errBanner.textContent = errMsg;
                 errBanner.classList.remove("hidden");
               }
               submitBtn.disabled = false;
@@ -2421,10 +3288,25 @@
           localStorage.setItem("aqivo_orders", JSON.stringify(prevOrders));
         } catch (e) {}
 
+        // Save / update customer profile with details used in order
+        var curCust = getAqivoCustomer() || {};
+        curCust.name = orderIn.name || curCust.name;
+        curCust.phone = orderIn.phone || curCust.phone;
+        if (orderIn.address && orderIn.delivery_method === "DELIVERY") {
+          curCust.location = orderIn.address;
+        }
+        setAqivoCustomer(curCust);
+        renderCustomerAccountPill();
+
         // Empty cart
         cart = [];
         saveCart();
 
+        // Redirect immediately to dedicated receipt page
+        var receiptUrl = "receipt.html?orderId=" + encodeURIComponent(orderNum) + (orderRes.token ? "&token=" + encodeURIComponent(orderRes.token) : "");
+        window.location.href = receiptUrl;
+
+        // Fallback for iframe preview or delayed navigation
         activeModalStep = "confirmed";
         renderModalStep({ order: receiptRecord, orderRes: orderRes });
       }
