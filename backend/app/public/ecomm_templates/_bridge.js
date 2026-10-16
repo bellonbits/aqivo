@@ -2006,9 +2006,10 @@
       if (window.StoreApp && typeof window.StoreApp.getReceiptPageUrl === "function") {
         window.StoreApp.getReceiptPageUrl = function (order) {
           var o = order || (window.StoreApp.getState && window.StoreApp.getState().lastOrder);
-          var receiptNo = o ? (o.receiptNo || o.orderId) : "";
+          var receiptNo = o ? (o.receiptNo || o.orderId || o.number) : "";
+          var token = o ? o.token : "";
           var root = (B.root || ("/" + B.slug)).replace(/\/+$/, "");
-          return window.location.origin + root + "/receipt.html" + (receiptNo ? "?orderId=" + encodeURIComponent(receiptNo) : "");
+          return window.location.origin + root + "/receipt.html" + (receiptNo ? "?orderId=" + encodeURIComponent(receiptNo) : "") + (token ? "&token=" + encodeURIComponent(token) : "");
         };
       }
 

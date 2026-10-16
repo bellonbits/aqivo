@@ -2,34 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Order Receipt — Powered by Aqivo</title>
   <meta name="description" content="Official order receipt powered by Aqivo. View online, download as PDF, or share via WhatsApp." />
-  
+
   <link rel="icon" type="image/png" sizes="64x64" href="/brand/aqivo-mark.png" />
   <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --bg: #ECEEF2;
+      --bg: #F8FAFC;
       --surface: #FFFFFF;
-      --box-bg: #F8F9FA;
-      --border-soft: #ECEEF1;
-      --border-card: #E5E7EB;
-      --ink: #111111;
-      --muted: #4B5563;
-      --subtle: #9CA3AF;
+      --ink: #0B1736;
+      --muted: #475569;
+      --subtle: #94A3B8;
+      --border: #E2E8F0;
+      --border-soft: #F1F5F9;
       --accent: #5B21F5;
       --accent-soft: #EDE9FE;
-      --accent-green: #15803D;
-      --card-radius: 42px;
-      --box-radius: 24px;
-      --phone-width: 375px;
+      --success: #10B981;
+      --success-dark: #059669;
+      --success-soft: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-soft: #FEF3C7;
+      --danger: #EF4444;
+      --danger-soft: #FEE2E2;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
     }
 
     * {
@@ -46,776 +52,764 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 32px 16px 64px;
     }
 
-    /* Top Navigation */
-    .receipt-top-nav {
-      width: 100%;
-      max-width: 860px;
+    /* Top Sticky Navigation Bar (Real Store Navbar) */
+    .receipt-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .navbar-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
+      gap: 16px;
     }
 
-    .receipt-return-pill {
-      display: inline-flex;
+    .store-brand-group {
+      display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: #FFFFFF;
-      border: 1px solid var(--border-card);
-      border-radius: 9999px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #111827;
+      gap: 12px;
       text-decoration: none;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-      transition: all 0.15s ease;
-    }
-
-    .receipt-return-pill:hover {
-      background: #F9FAFB;
-      border-color: #D1D5DB;
-    }
-
-    .receipt-brand-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 14px;
-      background: #FFFFFF;
-      border: 1px solid var(--border-card);
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #111827;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-
-    .receipt-brand-badge img {
-      width: 18px;
-      height: 18px;
-      object-fit: contain;
-      border-radius: 4px;
-    }
-
-    /* Dual Phone Mockup Canvas */
-    .phones-canvas {
-      width: 100%;
-      max-width: 860px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 36px;
-    }
-
-    .phone-mockup {
-      width: 100%;
-      max-width: var(--phone-width);
-      background: var(--surface);
-      border-radius: var(--card-radius);
-      box-shadow: 0 14px 40px -8px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
-      padding: 18px 18px 28px;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    /* Phone Status Bar */
-    .phone-status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 8px 10px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #111111;
-    }
-
-    .phone-status-icons {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .phone-battery {
-      width: 22px;
-      height: 11px;
-      border: 1.5px solid #111111;
-      border-radius: 3px;
-      padding: 1px;
-      display: flex;
-      align-items: center;
-    }
-
-    .phone-battery-fill {
-      width: 85%;
-      height: 100%;
-      background: #111111;
-      border-radius: 1px;
-    }
-
-    /* Top Action Bar inside mockup */
-    .phone-top-action {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 4px 6px 12px;
-    }
-
-    .receipt-close-link {
-      font-size: 14px;
-      font-weight: 600;
-      color: #6B7280;
-      text-decoration: none;
-      cursor: pointer;
-    }
-
-    .receipt-close-link:hover {
-      color: #111111;
-    }
-
-    .receipt-live-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 3px 9px;
-      background: #DCFCE7;
-      color: #15803D;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-    }
-
-    .receipt-live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #16A34A;
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    /* Store Header */
-    .receipt-store-title {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: 26px;
-      font-weight: 700;
-      text-align: center;
-      color: #111111;
-      line-height: 1.15;
-      margin-top: 2px;
-      margin-bottom: 4px;
-    }
-
-    .receipt-order-placed-banner {
-      font-size: 13.5px;
-      font-weight: 800;
-      color: #15803D;
-      text-align: center;
-      margin-bottom: 2px;
-    }
-
-    .receipt-thankyou-sub {
-      font-size: 13px;
-      font-weight: 600;
-      color: #4B5563;
-      text-align: center;
-      margin-bottom: 14px;
-    }
-
-    /* Inner Gray Box */
-    .receipt-gray-box {
-      background: var(--box-bg);
-      border-radius: var(--box-radius);
-      padding: 18px 16px;
-      border: 1px solid var(--border-soft);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .receipt-box-top-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .receipt-box-heading {
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.8px;
-      color: #111111;
-      text-transform: uppercase;
-    }
-
-    .receipt-status-pill {
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 9px;
-      border-radius: 9999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .status-amber { background: #FEF3C7; color: #92400E; }
-    .status-blue { background: #E0E7FF; color: #3730A3; }
-    .status-purple { background: #EDE9FE; color: #5B21F5; }
-    .status-teal { background: #CCFBF1; color: #0F766E; }
-    .status-green { background: #DCFCE7; color: #15803D; }
-    .status-rose { background: #FFE4E6; color: #9F1239; }
-
-    .receipt-meta-lines {
-      font-size: 12.5px;
-      color: #374151;
-      line-height: 1.5;
-      font-weight: 500;
-    }
-
-    .receipt-meta-lines strong {
-      color: #111111;
-      font-weight: 700;
-    }
-
-    /* Tracking Stepper */
-    .receipt-tracker-card {
-      margin-top: 14px;
-      margin-bottom: 14px;
-      background: #FFFFFF;
-      border-radius: 16px;
-      padding: 12px 14px;
-      border: 1px solid var(--border-soft);
-    }
-
-    .receipt-tracker-title {
-      font-size: 11.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #6B7280;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .receipt-stepper {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      position: relative;
-    }
-
-    .receipt-step-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      position: relative;
-    }
-
-    .receipt-step-bullet {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #E5E7EB;
-      color: #9CA3AF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 800;
-      flex-shrink: 0;
-      margin-top: 1px;
-      z-index: 2;
-    }
-
-    .receipt-step-item.done .receipt-step-bullet {
-      background: #16A34A;
-      color: #FFFFFF;
-    }
-
-    .receipt-step-item.active .receipt-step-bullet {
-      background: #5B21F5;
-      color: #FFFFFF;
-      box-shadow: 0 0 0 3px rgba(91, 33, 245, 0.2);
-    }
-
-    .receipt-step-info {
-      flex: 1;
-    }
-
-    .receipt-step-name {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: #374151;
-      line-height: 1.25;
-    }
-
-    .receipt-step-item.done .receipt-step-name {
-      color: #111827;
-    }
-
-    .receipt-step-item.active .receipt-step-name {
-      color: #5B21F5;
-      font-weight: 800;
-    }
-
-    .receipt-step-time {
-      font-size: 11px;
-      color: #9CA3AF;
-      margin-top: 1px;
-    }
-
-    /* Customer Block */
-    .receipt-customer-block {
-      margin-top: 4px;
-      margin-bottom: 14px;
-      background: #FFFFFF;
-      border-radius: 14px;
-      padding: 10px 12px;
-      border: 1px solid var(--border-soft);
-    }
-
-    .receipt-customer-name-row {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #111111;
-      margin-bottom: 4px;
-    }
-
-    .receipt-customer-address {
-      font-size: 12px;
-      color: #4B5563;
-      line-height: 1.4;
-      padding-left: 21px;
-    }
-
-    .receipt-delivery-estimate {
-      font-size: 11.5px;
-      color: #15803D;
-      padding-left: 21px;
-      margin-top: 4px;
-      font-weight: 600;
-    }
-
-    /* Items List Container */
-    .receipt-items-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .receipt-item-card {
-      background: #FFFFFF;
-      border-radius: 14px;
-      padding: 10px 12px;
-      border: 1px solid var(--border-soft);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .receipt-item-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
+      color: var(--ink);
       min-width: 0;
     }
 
-    .receipt-item-img-box {
+    .store-brand-avatar {
       width: 42px;
       height: 42px;
-      border-radius: 10px;
-      background: #F3F4F6;
-      overflow: hidden;
-      flex-shrink: 0;
+      border-radius: 12px;
+      background: #F1F5F9;
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #E5E7EB;
+      font-weight: 900;
+      font-size: 18px;
+      color: var(--accent);
+      flex-shrink: 0;
+      overflow: hidden;
     }
 
-    .receipt-item-img {
+    .store-brand-avatar img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .receipt-item-title {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: #111827;
-      line-height: 1.3;
-      word-break: break-word;
+    .store-brand-info {
+      min-width: 0;
     }
 
-    .receipt-item-variant {
-      font-size: 11px;
-      color: #6B7280;
-      font-weight: 500;
-    }
-
-    .receipt-item-right {
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .receipt-item-price {
-      font-size: 13px;
-      font-weight: 700;
-      color: #111827;
-    }
-
-    .receipt-item-qty {
-      font-size: 11px;
-      color: #6B7280;
-      margin-top: 1px;
-    }
-
-    /* Summary Lines */
-    .receipt-summary-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12.5px;
-      color: #374151;
-      padding: 3px 2px;
-      font-weight: 600;
-    }
-
-    .receipt-summary-line.total-line {
-      font-size: 13.5px;
-      color: #111111;
-      font-weight: 800;
-      padding-top: 8px;
-      margin-top: 4px;
-      border-top: 1px solid #E5E7EB;
-    }
-
-    .receipt-summary-line.total-line .val {
+    .store-brand-name {
       font-size: 16px;
-      font-weight: 900;
+      font-weight: 800;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
     }
 
-    /* Payment Method Box */
-    .receipt-payment-card {
-      background: #FFFFFF;
-      border-radius: 16px;
-      padding: 12px 14px;
-      border: 1px solid var(--border-soft);
-      margin-top: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .receipt-payment-main-row {
+    .store-brand-breadcrumbs {
+      font-size: 12px;
+      color: var(--muted);
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .receipt-payment-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #111827;
-      line-height: 1.25;
-    }
-
-    .receipt-payment-sub {
-      font-size: 11px;
-      color: #6B7280;
-      margin-top: 1px;
-    }
-
-    .receipt-payment-instructions {
-      background: #F9FAFB;
-      border-radius: 10px;
-      padding: 8px 10px;
-      font-size: 11.5px;
-      color: #374151;
-      line-height: 1.45;
-      border: 1px dashed #D1D5DB;
-    }
-
-    .receipt-ref-form {
-      display: flex;
       gap: 6px;
       margin-top: 2px;
     }
 
-    .receipt-ref-input {
-      flex: 1;
-      padding: 6px 10px;
-      font-size: 12px;
-      border: 1px solid #D1D5DB;
-      border-radius: 8px;
-      font-family: inherit;
-      text-transform: uppercase;
+    .navbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
     }
 
-    .receipt-ref-btn {
-      padding: 6px 12px;
-      font-size: 11.5px;
+    .nav-btn-store {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      font-size: 13px;
       font-weight: 700;
-      background: #111827;
-      color: #FFFFFF;
-      border: none;
-      border-radius: 8px;
+      color: var(--ink);
+      text-decoration: none;
+      transition: all 0.15s ease;
       cursor: pointer;
     }
 
-    /* Phone 2 (Support, Returns, Social, QR & Buttons) */
-    .receipt-next-box {
-      background: #EFF6FF;
-      border-radius: var(--box-radius);
-      padding: 16px 16px;
-      border: 1px solid #DBEAFE;
-      margin-bottom: 16px;
+    .nav-btn-store:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
     }
 
-    .receipt-next-title {
-      font-size: 13px;
+    .nav-btn-wa {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--success-soft);
+      border: 1px solid #A7F3D0;
+      color: var(--success-dark);
+      border-radius: 9999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn-wa:hover {
+      background: #D1FAE5;
+    }
+
+    /* Main Content Layout */
+    .receipt-main-wrapper {
+      flex: 1;
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 16px 64px;
+    }
+
+    /* Confirmation Hero Card */
+    .receipt-hero-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-left-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .hero-check-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--success-soft);
+      border: 2px solid #A7F3D0;
+      color: var(--success-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .hero-check-circle.cancelled {
+      background: var(--danger-soft);
+      border-color: #FECDD3;
+      color: var(--danger);
+    }
+
+    .hero-title-group {
+      min-width: 0;
+    }
+
+    .hero-heading {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .hero-subheading {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .hero-meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* Live Tracking Stepper Card */
+    .receipt-tracker-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .tracker-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .tracker-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tracker-status-pill {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-amber { background: var(--warning-soft); color: #B45309; border: 1px solid #FDE68A; }
+    .status-blue { background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; }
+    .status-purple { background: var(--accent-soft); color: var(--accent); border: 1px solid #DDD6FE; }
+    .status-teal { background: #CCFBF1; color: #0F766E; border: 1px solid #99F6E4; }
+    .status-green { background: var(--success-soft); color: var(--success-dark); border: 1px solid #A7F3D0; }
+    .status-rose { background: var(--danger-soft); color: var(--danger); border: 1px solid #FECDD3; }
+
+    /* Horizontal Stepper */
+    .stepper-track {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      position: relative;
+    }
+
+    .stepper-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .stepper-bullet {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #E2E8F0;
+      color: #94A3B8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      transition: all 0.2s ease;
+      z-index: 2;
+    }
+
+    .stepper-step.done .stepper-bullet {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+
+    .stepper-step.active .stepper-bullet {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 0 0 4px rgba(91, 33, 245, 0.15);
+    }
+
+    .stepper-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .stepper-step.done .stepper-label {
+      color: var(--ink);
+    }
+
+    .stepper-step.active .stepper-label {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .stepper-time {
+      font-size: 10.5px;
+      color: var(--subtle);
+      margin-top: 2px;
+    }
+
+    /* 2-Column Grid */
+    .receipt-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 28px;
+      align-items: flex-start;
+    }
+
+    /* Left Column: Items, Customer, Next Steps */
+    .receipt-left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .receipt-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Line Items */
+    .items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .item-row:last-child {
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-img-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .item-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .item-info {
+      min-width: 0;
+    }
+
+    .item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .item-variant {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .item-qty-tag {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .item-price-col {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .item-total-price {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    /* Customer & Fulfillment Sub-cards */
+    .details-subgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .detail-subcard {
+      background: #F8FAFC;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .detail-label {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .detail-value-main {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.35;
+    }
+
+    .detail-value-sub {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    /* What Happens Next Card */
+    .next-steps-card {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+    }
+
+    .next-steps-title {
+      font-size: 14px;
       font-weight: 800;
       color: #1E40AF;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .receipt-next-body {
-      font-size: 12px;
+    .next-steps-body {
+      font-size: 13px;
       color: #1E3A8A;
-      line-height: 1.45;
-    }
-
-    .receipt-support-box {
-      background: var(--box-bg);
-      border-radius: var(--box-radius);
-      padding: 16px 16px;
-      border: 1px solid var(--border-soft);
-      margin-bottom: 18px;
-      font-size: 12.5px;
-      color: #374151;
       line-height: 1.5;
     }
 
-    .receipt-support-title {
-      font-size: 13px;
-      font-weight: 800;
-      color: #111111;
-      margin-bottom: 8px;
+    /* Right Column: Sticky Summary & Actions */
+    .receipt-right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: sticky;
+      top: 80px;
     }
 
-    .receipt-support-link {
+    /* Financial Summary */
+    .summary-line {
       display: flex;
       align-items: center;
-      gap: 6px;
-      color: #374151;
-      text-decoration: none;
-      margin-bottom: 5px;
+      justify-content: space-between;
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .summary-line.total-row {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--ink);
+      padding-top: 12px;
+      margin-top: 12px;
+      border-top: 1.5px solid var(--border);
+      margin-bottom: 0;
+    }
+
+    .summary-line.total-row .val {
+      font-size: 20px;
+      color: var(--ink);
+    }
+
+    /* Payment Card */
+    .payment-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .payment-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .payment-method-name {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .payment-instructions-box {
       font-size: 12px;
-      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #CBD5E1;
+    }
+
+    .ref-submit-form {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .ref-input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 12.5px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      text-transform: uppercase;
+      outline: none;
+    }
+
+    .ref-input:focus {
+      border-color: var(--accent);
+    }
+
+    .ref-btn {
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--ink);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .ref-btn:hover {
+      background: #000000;
+    }
+
+    /* Primary Action Buttons */
+    .action-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-primary-action {
+      width: 100%;
+      height: 48px;
+      background: var(--accent);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 4px rgba(91, 33, 245, 0.2);
+    }
+
+    .btn-primary-action:hover {
+      background: #4C1D95;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary-action {
+      width: 100%;
+      height: 44px;
+      background: #FFFFFF;
+      color: var(--ink);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary-action:hover {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+
+    .sub-action-pills {
+      display: flex;
+      gap: 8px;
+    }
+
+    .sub-action-pill {
+      flex: 1;
+      height: 38px;
+      background: #F1F5F9;
+      color: var(--ink);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .sub-action-pill:hover {
+      background: #E2E8F0;
+    }
+
+    .btn-cancel-link {
+      background: none;
+      border: none;
+      color: #EF4444;
+      font-size: 12.5px;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      padding: 6px;
       transition: color 0.15s ease;
     }
 
-    .receipt-support-link:hover {
-      color: #000000;
+    .btn-cancel-link:hover {
       text-decoration: underline;
     }
 
-    .receipt-support-divider {
-      height: 1px;
-      background: var(--border-soft);
-      margin: 12px 0 10px;
+    /* Store Contact & Policy Box */
+    .support-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
-    /* Center Section (Thank you & social) */
-    .receipt-center-section {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-
-    .receipt-center-bold {
-      font-size: 13.5px;
+    .support-card-title {
+      font-size: 13px;
       font-weight: 800;
-      color: #111111;
-      margin-bottom: 4px;
+      color: var(--ink);
+      margin-bottom: 10px;
     }
 
-    .receipt-follow-label {
-      font-size: 12px;
-      color: #6B7280;
-      font-weight: 500;
-      margin-bottom: 12px;
-    }
-
-    .receipt-social-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .receipt-social-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      transition: transform 0.15s ease;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    }
-
-    .receipt-social-icon:hover { transform: scale(1.08); }
-    .receipt-social-icon.wa { background: #25D366; color: #FFFFFF; }
-    .receipt-social-icon.ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%); color: #FFFFFF; }
-    .receipt-social-icon.fb { background: #1877F2; color: #FFFFFF; }
-    .receipt-social-icon.x-tw { background: #000000; color: #FFFFFF; }
-
-    /* QR Code Frame */
-    .receipt-qr-caption {
-      font-size: 11.5px;
-      color: #374151;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .receipt-qr-frame {
-      display: inline-flex;
-      padding: 8px;
-      background: #FFFFFF;
-      border-radius: 14px;
-      border: 1px solid var(--border-soft);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    }
-
-    .receipt-qr-img {
-      width: 100px;
-      height: 100px;
-      display: block;
-      border-radius: 8px;
-    }
-
-    /* Buttons Stack */
-    .receipt-actions-stack {
+    .support-links-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-    .receipt-btn-white {
-      width: 100%;
-      height: 44px;
-      background: #FFFFFF;
-      border: 1.5px solid #111111;
-      border-radius: 9999px;
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #111111;
-      cursor: pointer;
+    .support-link-item {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 7px;
-      transition: all 0.15s ease;
-    }
-
-    .receipt-btn-white:hover {
-      background: #F9FAFB;
-      transform: translateY(-1px);
-    }
-
-    .receipt-btn-black {
-      width: 100%;
-      height: 44px;
-      background: #111111;
-      border: 1.5px solid #111111;
-      border-radius: 9999px;
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #FFFFFF;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      transition: all 0.15s ease;
-    }
-
-    .receipt-btn-black:hover {
-      background: #000000;
-      transform: translateY(-1px);
-    }
-
-    .receipt-btn-cancel-order {
-      width: 100%;
-      height: 38px;
-      background: transparent;
-      border: 1px solid #FECDD3;
-      color: #E11D48;
-      border-radius: 9999px;
-      font-size: 12.5px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .receipt-btn-cancel-order:hover {
-      background: #FFF1F2;
-      border-color: #FDA4AF;
-    }
-
-    .receipt-sub-actions-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
       gap: 8px;
-      margin-top: 4px;
+      font-size: 12.5px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.15s ease;
     }
 
-    .receipt-sub-pill {
-      display: inline-flex;
+    .support-link-item:hover {
+      color: var(--ink);
+    }
+
+    /* Real Page Footer */
+    .receipt-footer {
+      background: #FFFFFF;
+      border-top: 1px solid var(--border);
+      padding: 28px 16px;
+      margin-top: auto;
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .footer-attribution {
+      display: flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
-      background: #F3F4F6;
-      border: none;
-      border-radius: 9999px;
-      font-size: 11.5px;
       font-weight: 600;
-      color: #374151;
-      cursor: pointer;
-      transition: all 0.15s ease;
+      color: var(--ink);
     }
 
-    .receipt-sub-pill:hover {
-      background: #E5E7EB;
-      color: #111111;
-    }
-
-    /* Modal dialog */
+    /* Modals & Dialogs */
     .receipt-modal-veil {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(11, 23, 54, 0.5);
       backdrop-filter: blur(4px);
       z-index: 10000;
       display: none;
@@ -830,49 +824,49 @@
 
     .receipt-modal-card {
       background: #FFFFFF;
-      border-radius: 24px;
-      max-width: 420px;
+      border-radius: var(--radius-lg);
+      max-width: 440px;
       width: 100%;
       padding: 24px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
     }
 
-    .receipt-modal-title {
+    .modal-title {
       font-size: 16px;
-      font-weight: 800;
-      color: #111111;
+      font-weight: 900;
+      color: var(--ink);
       margin-bottom: 8px;
     }
 
-    .receipt-modal-desc {
+    .modal-desc {
       font-size: 13px;
-      color: #4B5563;
+      color: var(--muted);
       line-height: 1.5;
       margin-bottom: 18px;
     }
 
-    .receipt-modal-actions {
+    .modal-actions {
       display: flex;
       gap: 10px;
       justify-content: flex-end;
     }
 
-    .receipt-modal-btn {
-      padding: 8px 16px;
+    .modal-btn {
+      padding: 8px 18px;
       font-size: 13px;
       font-weight: 700;
       border-radius: 9999px;
       cursor: pointer;
     }
 
-    .receipt-modal-btn.secondary {
-      background: #F3F4F6;
-      color: #374151;
-      border: none;
+    .modal-btn.secondary {
+      background: #F1F5F9;
+      color: var(--ink);
+      border: 1px solid var(--border);
     }
 
-    .receipt-modal-btn.danger {
-      background: #E11D48;
+    .modal-btn.danger {
+      background: var(--danger);
       color: #FFFFFF;
       border: none;
     }
@@ -883,11 +877,11 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: #111827;
+      background: var(--ink);
       color: #FFFFFF;
       font-size: 13px;
       font-weight: 600;
-      padding: 12px 22px;
+      padding: 12px 24px;
       border-radius: 9999px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -899,25 +893,29 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Responsive */
-    @media (max-width: 840px) {
-      .phones-canvas {
-        flex-direction: column;
+    /* Responsive Breakdown */
+    @media (max-width: 860px) {
+      .receipt-grid {
+        grid-template-columns: 1fr;
+      }
+      .receipt-right-col {
+        position: static;
+      }
+      .stepper-track {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .stepper-step {
+        flex-direction: row;
         align-items: center;
-        gap: 24px;
+        text-align: left;
+        gap: 12px;
       }
-      .phone-mockup {
-        max-width: 390px;
+      .stepper-bullet {
+        margin-bottom: 0;
       }
-    }
-
-    @media (max-width: 440px) {
-      body {
-        padding: 16px 10px 48px;
-      }
-      .phone-mockup {
-        border-radius: 28px;
-        padding: 14px 14px 22px;
+      .details-subgrid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -925,295 +923,261 @@
     @media print {
       body {
         background: #FFFFFF !important;
-        padding: 0 !important;
       }
-      .receipt-top-nav,
-      .phone-status-bar,
-      .phone-top-action,
-      .receipt-actions-stack,
-      .receipt-sub-actions-row,
+      .receipt-navbar,
+      .action-stack,
+      .sub-action-pills,
+      .ref-submit-form,
+      .btn-cancel-link,
       .receipt-toast,
       .receipt-modal-veil,
-      #phone-card-2 {
+      .receipt-footer {
         display: none !important;
       }
-      .phones-canvas {
-        display: block !important;
-        max-width: 100% !important;
-      }
-      .phone-mockup {
-        box-shadow: none !important;
+      .receipt-main-wrapper {
         max-width: 100% !important;
         padding: 0 !important;
-        border: none !important;
       }
-      .receipt-gray-box {
-        border: 1px solid #D1D5DB !important;
+      .receipt-grid {
+        display: block !important;
+      }
+      .receipt-right-col {
+        margin-top: 24px;
+      }
+      .receipt-card,
+      .receipt-hero-card,
+      .receipt-tracker-card {
+        box-shadow: none !important;
+        border: 1px solid #CBD5E1 !important;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation & Return -->
-  <header class="receipt-top-nav">
-    <a href="index.html" class="receipt-return-pill" id="receipt-back-btn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      <span id="receipt-back-btn-text">Back to Store</span>
-    </a>
-    <div class="receipt-brand-badge">
-      <img src="aqivo-mark.png" alt="Aqivo" onerror="this.onerror=null;this.src='/brand/aqivo-mark.png';" />
-      <span>Verified Aqivo Receipt</span>
+  <!-- Top Sticky Store Navigation Bar -->
+  <header class="receipt-navbar">
+    <div class="navbar-container">
+      <a href="index.html" class="store-brand-group" id="nav-store-link">
+        <div class="store-brand-avatar" id="nav-store-logo">
+          <span id="nav-store-initial">A</span>
+        </div>
+        <div class="store-brand-info">
+          <div class="store-brand-name" id="nav-store-name">Store Name</div>
+          <div class="store-brand-breadcrumbs">
+            <span>Home</span>
+            <span>›</span>
+            <span>Order Receipt</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="navbar-actions">
+        <a href="#" class="nav-btn-wa" id="nav-wa-link" onclick="contactShopViaWhatsApp(); return false;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.4 5 5.1-1.3A10 10 0 1 0 12 2zm5.2 13.9c-.2.6-1.2 1.2-1.7 1.2-.4.1-1 .1-1.6-.1a14 14 0 0 1-5.7-5c-.5-.7-1-1.6-1-2.6 0-1 .5-1.5.7-1.7.2-.2.4-.3.6-.3h.4c.1 0 .3 0 .5.4l.7 1.7c.1.2.1.3 0 .5l-.3.4-.3.4c-.1.1-.2.3-.1.5.5.9 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.9c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.2.1.7-.1 1.3z"/></svg>
+          <span>Chat with Store</span>
+        </a>
+        <button type="button" class="nav-btn-store" onclick="continueShopping()">
+          <span>Continue Shopping</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Dual Phone Mockup Canvas -->
-  <main class="phones-canvas" id="receipt-card-mount">
+  <!-- Main Content Page -->
+  <main class="receipt-main-wrapper">
 
-    <!-- Phone 1: Main Order Receipt -->
-    <article class="phone-mockup" id="phone-card-1">
-      <!-- Phone Status Bar -->
-      <div class="phone-status-bar">
-        <span class="phone-time" id="phone-time-1">9:41</span>
-        <div class="phone-status-icons">
-          <svg width="15" height="11" viewBox="0 0 17 11" fill="currentColor">
-            <rect x="0" y="8" width="3" height="3" rx="0.5"/>
-            <rect x="4.5" y="5.5" width="3" height="5.5" rx="0.5"/>
-            <rect x="9" y="3" width="3" height="8" rx="0.5"/>
-            <rect x="13.5" y="0" width="3" height="11" rx="0.5"/>
-          </svg>
-          <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor">
-            <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm-3.5-3.5a5 5 0 0 1 7 0 .75.75 0 0 1-1.06 1.06 3.5 3.5 0 0 0-4.88 0A.75.75 0 0 1 4.5 6Zm-3-3a9 9 0 0 1 13 0 .75.75 0 0 1-1.06 1.06 7.5 7.5 0 0 0-10.88 0A.75.75 0 0 1 1.5 3Z"/>
-          </svg>
-          <div class="phone-battery">
-            <div class="phone-battery-fill"></div>
-          </div>
+    <!-- Hero Confirmation Card -->
+    <section class="receipt-hero-card">
+      <div class="hero-left-content">
+        <div class="hero-check-circle" id="hero-status-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="hero-title-group">
+          <h1 class="hero-heading" id="r-hero-title">Order Confirmed!</h1>
+          <p class="hero-subheading" id="r-hero-subtitle">Thank you for your order. We've received your request and the store has been notified.</p>
         </div>
       </div>
+      <div class="hero-meta-badge">
+        <span>Receipt #:</span>
+        <strong id="r-receipt-no">AQ-1006</strong>
+        <span style="color:#CBD5E1;">|</span>
+        <span id="r-date">May 30, 2025</span>
+      </div>
+    </section>
 
-      <!-- Live Order Indicator & Return -->
-      <div class="phone-top-action">
-        <div class="receipt-live-badge">
-          <span class="receipt-live-dot"></span>
-          <span id="r-sync-status">Verified Order</span>
+    <!-- Real Tracking Stepper Card -->
+    <section class="receipt-tracker-card">
+      <div class="tracker-header-row">
+        <div class="tracker-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>Live Order Tracking</span>
         </div>
-        <a href="index.html" class="receipt-close-link" id="receipt-close-link">Done</a>
+        <span class="tracker-status-pill status-amber" id="r-status-badge">Awaiting seller confirmation</span>
       </div>
 
-      <!-- Store Header -->
-      <div class="receipt-order-placed-banner" id="r-placed-banner">Order placed successfully</div>
-      <h1 class="receipt-store-title" id="receipt-store-title">Urban Attire</h1>
-      <div class="receipt-thankyou-sub" id="r-order-sub">Thank you for your order!</div>
+      <div class="stepper-track" id="r-stepper-track">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
 
-      <!-- Receipt Gray Container -->
-      <div class="receipt-gray-box">
-        <div class="receipt-box-top-row">
-          <span class="receipt-box-heading">RECEIPT</span>
-          <span class="receipt-status-pill status-amber" id="r-status-badge">Awaiting seller confirmation</span>
-        </div>
+    <!-- Two-Column Page Layout -->
+    <div class="receipt-grid">
 
-        <div class="receipt-meta-lines">
-          <div>Receipt #: <strong id="r-receipt-no">AQ-1006</strong></div>
-          <div>Order #: <span id="r-order-no">1006</span></div>
-          <div>Date: <span id="r-date">May 30, 2025</span></div>
-        </div>
+      <!-- Left Column: Items, Customer, Next Steps -->
+      <div class="receipt-left-col">
 
-        <!-- Real Tracking Stepper -->
-        <div class="receipt-tracker-card">
-          <div class="receipt-tracker-title">
-            <span>Order Progress</span>
-            <span id="r-tracker-current-label" style="color:#111827;">Placed</span>
+        <!-- Line Items Card -->
+        <section class="receipt-card">
+          <div class="card-title">
+            <span>Items Ordered</span>
+            <span id="r-items-count-badge" style="font-size:12px;color:var(--muted);font-weight:600;">1 item</span>
           </div>
-          <div class="receipt-stepper" id="r-stepper-list">
-            <!-- Filled dynamically -->
+          <div class="items-list" id="r-items-container">
+            <!-- Populated dynamically -->
           </div>
-        </div>
+        </section>
 
-        <!-- Customer & Location -->
-        <div class="receipt-customer-block">
-          <div class="receipt-customer-name-row">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span id="r-customer-name">Customer</span>
-          </div>
-          <div class="receipt-customer-address" id="r-customer-address">
-            Standard Delivery
-          </div>
-          <div class="receipt-delivery-estimate" id="r-delivery-estimate">
-            Estimated Delivery: 2–4 Business Days
-          </div>
-        </div>
-
-        <!-- Items List -->
-        <div class="receipt-items-container" id="r-items-container">
-          <!-- Dynamically populated items -->
-        </div>
-
-        <!-- Financial Summary -->
-        <div class="receipt-summary-line" id="r-subtotal-row">
-          <span>Subtotal</span>
-          <span id="r-subtotal-val">$0.00</span>
-        </div>
-        <div class="receipt-summary-line" id="r-shipping-row">
-          <span>Shipping</span>
-          <span id="r-shipping-val">Free</span>
-        </div>
-        <div class="receipt-summary-line" id="r-discount-row" style="display:none;color:#15803D;">
-          <span>Discount</span>
-          <span id="r-discount-val">-$0.00</span>
-        </div>
-        <div class="receipt-summary-line total-line">
-          <span id="r-total-label">TOTAL DUE:</span>
-          <span class="val" id="r-total-val">$0.00</span>
-        </div>
-
-        <!-- Payment Method & Real Instructions -->
-        <div class="receipt-payment-card" id="r-payment-card">
-          <div class="receipt-payment-main-row">
-            <div>
-              <div class="receipt-payment-title" id="r-payment-title">M-Pesa</div>
-              <div class="receipt-payment-sub" id="r-payment-sub">Payment pending</div>
+        <!-- Customer & Delivery Sub-cards -->
+        <section class="receipt-card">
+          <div class="card-title">Delivery & Customer Details</div>
+          <div class="details-subgrid">
+            <div class="detail-subcard">
+              <div class="detail-label">Customer Information</div>
+              <div class="detail-value-main" id="r-customer-name">Customer</div>
+              <div class="detail-value-sub" id="r-customer-phone">+254 700 000 000</div>
+              <div class="detail-value-sub" id="r-customer-email"></div>
             </div>
-            <span class="receipt-status-pill status-amber" id="r-payment-status-pill">Pending</span>
+            <div class="detail-subcard">
+              <div class="detail-label">Fulfillment & Address</div>
+              <div class="detail-value-main" id="r-fulfillment-method">Courier Delivery</div>
+              <div class="detail-value-sub" id="r-customer-address">Delivery Address</div>
+              <div class="detail-value-sub" id="r-delivery-estimate" style="color:var(--success-dark);font-weight:600;margin-top:4px;">Estimated Delivery: 2–4 Business Days</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- What Happens Next? -->
+        <section class="next-steps-card">
+          <div class="next-steps-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>What happens next?</span>
+          </div>
+          <p class="next-steps-body">The seller will review your order and confirm item availability. You will receive real-time updates as your order is packed and dispatched. You can track this order at any time or contact the shop directly.</p>
+        </section>
+
+      </div>
+
+      <!-- Right Column: Summary, Payment & Actions -->
+      <div class="receipt-right-col">
+
+        <!-- Summary & Payment Card -->
+        <section class="receipt-card">
+          <div class="card-title">Order Summary</div>
+
+          <div class="summary-line" id="r-subtotal-row">
+            <span>Subtotal</span>
+            <span id="r-subtotal-val">KSh 0.00</span>
+          </div>
+          <div class="summary-line" id="r-shipping-row">
+            <span>Delivery Fee</span>
+            <span id="r-shipping-val">Free</span>
+          </div>
+          <div class="summary-line" id="r-discount-row" style="display:none;color:var(--success);">
+            <span>Discount</span>
+            <span id="r-discount-val">-KSh 0.00</span>
+          </div>
+          <div class="summary-line total-row">
+            <span id="r-total-label">TOTAL DUE:</span>
+            <span class="val" id="r-total-val">KSh 0.00</span>
           </div>
 
-          <div class="receipt-payment-instructions" id="r-payment-instructions" style="display:none;"></div>
+          <!-- Payment Details Box -->
+          <div class="payment-box">
+            <div class="payment-header">
+              <span class="payment-method-name" id="r-payment-title">Payment Method</span>
+              <span class="tracker-status-pill status-amber" id="r-payment-chip">Pending</span>
+            </div>
+            <div class="payment-instructions-box" id="r-payment-instructions" style="display:none;"></div>
 
-          <div class="receipt-ref-form" id="r-ref-form" style="display:none;">
-            <input type="text" id="r-ref-input" placeholder="M-Pesa code (e.g. QK84X...)" class="receipt-ref-input" />
-            <button type="button" id="r-ref-submit-btn" class="receipt-ref-btn" onclick="submitMpesaReference()">Submit Code</button>
+            <div class="ref-submit-form" id="r-ref-form" style="display:none;">
+              <input type="text" id="r-ref-input" placeholder="M-Pesa code (e.g. QK84X...)" class="ref-input" />
+              <button type="button" id="r-ref-submit-btn" class="ref-btn" onclick="submitMpesaReference()">Submit</button>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Official Powered by Aqivo footer -->
-        <div class="receipt-gray-box-footer" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid #ECEEF1;font-size:11.5px;color:#6B7280;font-weight:600;">
-          <span>Official receipt powered by</span>
-          <img src="aqivo-mark.png" alt="Aqivo" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;" onerror="this.onerror=null;this.src='/brand/aqivo-mark.png';" />
-          <strong style="color:#111111;font-weight:800;">Aqivo.shop</strong>
-        </div>
-      </div>
-    </article>
-
-    <!-- Phone 2: Support, Returns, Social, QR & Buttons -->
-    <article class="phone-mockup" id="phone-card-2">
-      <!-- Phone Status Bar -->
-      <div class="phone-status-bar">
-        <span class="phone-time" id="phone-time-2">9:41</span>
-        <div class="phone-status-icons">
-          <svg width="15" height="11" viewBox="0 0 17 11" fill="currentColor">
-            <rect x="0" y="8" width="3" height="3" rx="0.5"/>
-            <rect x="4.5" y="5.5" width="3" height="5.5" rx="0.5"/>
-            <rect x="9" y="3" width="3" height="8" rx="0.5"/>
-            <rect x="13.5" y="0" width="3" height="11" rx="0.5"/>
-          </svg>
-          <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor">
-            <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm-3.5-3.5a5 5 0 0 1 7 0 .75.75 0 0 1-1.06 1.06 3.5 3.5 0 0 0-4.88 0A.75.75 0 0 1 4.5 6Zm-3-3a9 9 0 0 1 13 0 .75.75 0 0 1-1.06 1.06 7.5 7.5 0 0 0-10.88 0A.75.75 0 0 1 1.5 3Z"/>
-          </svg>
-          <div class="phone-battery">
-            <div class="phone-battery-fill"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- What Happens Next Box -->
-      <div class="receipt-next-box">
-        <div class="receipt-next-title">What happens next?</div>
-        <p class="receipt-next-body">The seller will review your order and confirm availability. You can check your order status at any time or contact the shop below.</p>
-      </div>
-
-      <!-- Support & Returns Box -->
-      <div class="receipt-support-box">
-        <div class="receipt-support-title">Need help with this order?</div>
-        <a href="tel:" class="receipt-support-link" id="r-support-phone">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          <span id="r-support-phone-text">Call Store</span>
-        </a>
-        <a href="#" class="receipt-support-link" id="r-support-wa" onclick="contactShopViaWhatsApp(); return false;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.697c.969.541 1.835.82 2.806.82h.005c3.182 0 5.769-2.587 5.769-5.766.001-3.182-2.585-5.769-5.769-5.769zm3.435 8.134c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.802-.411-1.398-.578-2.316-1.99-2.387-2.083-.07-.094-.567-.754-.567-1.438 0-.684.358-1.02.485-1.16.128-.14.281-.175.375-.175s.188.006.27.011c.088.006.206-.033.322.247.12.288.406 1.004.442 1.077.035.072.059.156.012.25-.047.094-.07.153-.14.234-.07.083-.149.186-.212.25-.07.07-.143.146-.062.285.082.139.364.6.782.973.538.48 1.002.628 1.143.698.14.07.222.058.305-.036.082-.093.352-.408.446-.549.094-.14.188-.117.316-.07.129.047.818.385.958.455.14.07.234.105.269.164.035.059.035.341-.109.746z"/></svg>
-          <span>Chat on WhatsApp</span>
-        </a>
-        <a href="mailto:" class="receipt-support-link" id="r-support-email">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <span id="r-support-email-text">Email Store</span>
-        </a>
-
-        <div class="receipt-support-divider"></div>
-
-        <div class="receipt-support-title">Store Return Policy</div>
-        <a href="#" class="receipt-support-link" onclick="openReturnsModal(); return false;" id="r-support-returns">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-          <span>View Return & Exchange Policy</span>
-        </a>
-      </div>
-
-      <!-- Thank You, Social & QR Code -->
-      <div class="receipt-center-section">
-        <div class="receipt-center-bold">Thank you for shopping with us!</div>
-        <div class="receipt-follow-label" id="r-follow-label">Follow us for updates & new drops</div>
-
-        <!-- Social Links -->
-        <div class="receipt-social-row">
-          <a href="#" class="receipt-social-icon wa" onclick="shareReceiptDoc(); return false;" aria-label="WhatsApp">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.697c.969.541 1.835.82 2.806.82h.005c3.182 0 5.769-2.587 5.769-5.766.001-3.182-2.585-5.769-5.769-5.769zm3.435 8.134c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.802-.411-1.398-.578-2.316-1.99-2.387-2.083-.07-.094-.567-.754-.567-1.438 0-.684.358-1.02.485-1.16.128-.14.281-.175.375-.175s.188.006.27.011c.088.006.206-.033.322.247.12.288.406 1.004.442 1.077.035.072.059.156.012.25-.047.094-.07.153-.14.234-.07.083-.149.186-.212.25-.07.07-.143.146-.062.285.082.139.364.6.782.973.538.48 1.002.628 1.143.698.14.07.222.058.305-.036.082-.093.352-.408.446-.549.094-.14.188-.117.316-.07.129.047.818.385.958.455.14.07.234.105.269.164.035.059.035.341-.109.746z"/></svg>
-          </a>
-          <a href="#" class="receipt-social-icon ig" aria-label="Instagram" id="r-social-ig">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-          </a>
-          <a href="#" class="receipt-social-icon fb" aria-label="Facebook" id="r-social-fb">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          </a>
-          <a href="#" class="receipt-social-icon x-tw" aria-label="X (Twitter)" id="r-social-x">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          </a>
-        </div>
-
-        <!-- QR Code Frame -->
-        <div class="receipt-qr-caption">Scan to verify or revisit this receipt:</div>
-        <div class="receipt-qr-frame">
-          <img id="r-qr-image" src="" alt="Order QR" class="receipt-qr-img" />
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="receipt-actions-stack">
-        <button type="button" class="receipt-btn-white" onclick="continueShopping()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-          <span>Continue Shopping</span>
-        </button>
-        <button type="button" class="receipt-btn-black" onclick="printReceiptDoc()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
-          <span>Download Receipt (PDF)</span>
-        </button>
-        <button type="button" class="receipt-btn-cancel-order" id="btn-cancel-order" onclick="openCancelModal()" style="display:none;">
-          Cancel This Order
-        </button>
-        <div class="receipt-sub-actions-row">
-          <button type="button" class="receipt-sub-pill" onclick="shareReceiptDoc()">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            <span>Share on WhatsApp</span>
+        <!-- Primary Actions Stack -->
+        <div class="action-stack">
+          <button type="button" class="btn-primary-action" onclick="continueShopping()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            <span>Continue Shopping</span>
           </button>
-          <button type="button" class="receipt-sub-pill" onclick="copyReceiptDoc()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span>Copy Link</span>
+          <button type="button" class="btn-secondary-action" onclick="printReceiptDoc()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+            <span>Download Invoice (PDF)</span>
+          </button>
+          <div class="sub-action-pills">
+            <button type="button" class="sub-action-pill" onclick="shareReceiptDoc()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.697c.969.541 1.835.82 2.806.82h.005c3.182 0 5.769-2.587 5.769-5.766.001-3.182-2.585-5.769-5.769-5.769zm3.435 8.134c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.802-.411-1.398-.578-2.316-1.99-2.387-2.083-.07-.094-.567-.754-.567-1.438 0-.684.358-1.02.485-1.16.128-.14.281-.175.375-.175s.188.006.27.011c.088.006.206-.033.322.247.12.288.406 1.004.442 1.077.035.072.059.156.012.25-.047.094-.07.153-.14.234-.07.083-.149.186-.212.25-.07.07-.143.146-.062.285.082.139.364.6.782.973.538.48 1.002.628 1.143.698.14.07.222.058.305-.036.082-.093.352-.408.446-.549.094-.14.188-.117.316-.07.129.047.818.385.958.455.14.07.234.105.269.164.035.059.035.341-.109.746z"/></svg>
+              <span>WhatsApp</span>
+            </button>
+            <button type="button" class="sub-action-pill" onclick="copyReceiptDoc()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy Link</span>
+            </button>
+          </div>
+          <button type="button" class="btn-cancel-link" id="btn-cancel-order" onclick="openCancelModal()" style="display:none;">
+            Cancel This Order
           </button>
         </div>
 
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;font-size:11.5px;color:#6B7280;font-weight:600;">
-          <span>Powered by</span>
-          <img src="aqivo-mark.png" alt="Aqivo" style="width:15px;height:15px;object-fit:contain;vertical-align:middle;" onerror="this.onerror=null;this.src='/brand/aqivo-mark.png';" />
-          <strong style="color:#111111;font-weight:800;">Aqivo.shop</strong>
-        </div>
+        <!-- Need Help / Store Support Box -->
+        <section class="support-card">
+          <div class="support-card-title">Need Help?</div>
+          <div class="support-links-list">
+            <a href="#" class="support-link-item" id="r-support-phone" onclick="callStore(); return false;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span id="r-support-phone-text">Call Store</span>
+            </a>
+            <a href="#" class="support-link-item" id="r-support-email" onclick="emailStore(); return false;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span id="r-support-email-text">Email Store</span>
+            </a>
+            <a href="#" class="support-link-item" onclick="openReturnsModal(); return false;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              <span>Returns & Exchanges Policy</span>
+            </a>
+          </div>
+        </section>
+
       </div>
-    </article>
+
+    </div>
+
   </main>
+
+  <!-- Real Store Footer -->
+  <footer class="receipt-footer">
+    <div class="footer-inner">
+      <div>&copy; <span id="footer-year">2026</span> <strong id="footer-store-name">Aqivo Store</strong>. All rights reserved.</div>
+      <div class="footer-attribution">
+        <span>Official Order Receipt powered by</span>
+        <img src="aqivo-mark.png" alt="Aqivo" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;" onerror="this.onerror=null;this.src='/brand/aqivo-mark.png';" />
+        <strong style="color:#0B1736;">Aqivo.shop</strong>
+      </div>
+    </div>
+  </footer>
 
   <!-- Cancel Confirmation Modal -->
   <div class="receipt-modal-veil" id="cancel-modal-veil">
     <div class="receipt-modal-card">
-      <div class="receipt-modal-title">Cancel this order?</div>
-      <p class="receipt-modal-desc">Are you sure you want to cancel your order? The seller will be notified immediately and reserved stock will be returned.</p>
-      <div class="receipt-modal-actions">
-        <button type="button" class="receipt-modal-btn secondary" onclick="closeCancelModal()">Keep Order</button>
-        <button type="button" class="receipt-modal-btn danger" id="btn-confirm-cancel" onclick="confirmCancelOrder()">Yes, Cancel</button>
+      <div class="modal-title">Cancel this order?</div>
+      <p class="modal-desc">Are you sure you want to cancel your order? The seller will be notified immediately and reserved stock will be returned.</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn secondary" onclick="closeCancelModal()">Keep Order</button>
+        <button type="button" class="modal-btn danger" id="btn-confirm-cancel" onclick="confirmCancelOrder()">Yes, Cancel</button>
       </div>
     </div>
   </div>
@@ -1221,10 +1185,10 @@
   <!-- Return Policy Modal -->
   <div class="receipt-modal-veil" id="returns-modal-veil">
     <div class="receipt-modal-card">
-      <div class="receipt-modal-title">Return & Exchange Policy</div>
-      <p class="receipt-modal-desc" id="r-policy-text">30-day return policy for unused, unopened items in original packaging. Please contact the seller directly to initiate returns.</p>
-      <div class="receipt-modal-actions">
-        <button type="button" class="receipt-modal-btn secondary" onclick="closeReturnsModal()">Close</button>
+      <div class="modal-title">Return & Exchange Policy</div>
+      <p class="modal-desc" id="r-policy-text">30-day return policy for unused, unopened items in original packaging. Please contact the seller directly to initiate returns.</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn secondary" onclick="closeReturnsModal()">Close</button>
       </div>
     </div>
   </div>
@@ -1257,9 +1221,9 @@
       if (B.root) return B.root.replace(/\/+$/, '') || '/';
       if (B.slug) return '/' + B.slug;
       var path = window.location.pathname || '';
-      if (path.indexOf('receipt.html') !== -1) {
-        var prefix = path.replace(/receipt\.html.*$/, '');
-        if (prefix) return prefix;
+      if (path.indexOf('receipt.html') !== -1 || path.indexOf('receipt') !== -1) {
+        var prefix = path.replace(/receipt(\.html)?.*$/, '');
+        if (prefix && prefix !== '/') return prefix;
       }
       return 'index.html';
     }
@@ -1272,7 +1236,6 @@
       window.print();
     }
 
-    /* Modal controls */
     function openCancelModal() {
       var m = document.getElementById('cancel-modal-veil');
       if (m) m.classList.add('open');
@@ -1293,19 +1256,6 @@
       if (m) m.classList.remove('open');
     }
 
-    function contactShopViaWhatsApp() {
-      if (!currentReceiptOrder) return;
-      var o = currentReceiptOrder;
-      var phone = (o.store && (o.store.whatsapp || o.store.phone)) || o.storePhone || '';
-      var clean = normalisePhone(phone);
-      var msg = 'Hello ' + (o.storeName || o.store || 'there') + '! I am inquiring about my Order #' + (o.rawNumber || o.number || o.receiptNo || '');
-      if (clean) {
-        window.open('https://wa.me/' + clean + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
-      } else {
-        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
-      }
-    }
-
     function normalisePhone(raw) {
       if (!raw) return '';
       var s = String(raw).trim();
@@ -1316,10 +1266,40 @@
       return d;
     }
 
+    function callStore() {
+      if (!currentReceiptOrder) return;
+      var p = (currentReceiptOrder.store && (currentReceiptOrder.store.phone || currentReceiptOrder.store.whatsapp)) || currentReceiptOrder.storePhone || '';
+      if (p) window.location.href = 'tel:' + p.replace(/[^0-9+]/g, '');
+    }
+
+    function emailStore() {
+      if (!currentReceiptOrder) return;
+      var e = (currentReceiptOrder.store && currentReceiptOrder.store.email) || currentReceiptOrder.storeEmail || '';
+      if (e) window.location.href = 'mailto:' + e;
+    }
+
+    function contactShopViaWhatsApp() {
+      if (!currentReceiptOrder) {
+        var B = window.__BZ || {};
+        var fallbackPhone = normalisePhone(B.phone || B.wa_phone || B.wa || '');
+        if (fallbackPhone) window.open('https://wa.me/' + fallbackPhone, '_blank', 'noopener');
+        return;
+      }
+      var o = currentReceiptOrder;
+      var phone = (o.store && (o.store.whatsapp || o.store.phone)) || o.storePhone || '';
+      var clean = normalisePhone(phone);
+      var msg = 'Hello ' + (o.storeName || 'there') + '! I am inquiring about my Order #' + (o.rawNumber || o.number || o.receiptNo || '');
+      if (clean) {
+        window.open('https://wa.me/' + clean + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+      } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+      }
+    }
+
     function shareReceiptDoc() {
       if (!currentReceiptOrder) return;
       var o = currentReceiptOrder;
-      var storeName = o.storeName || o.store || 'Store';
+      var storeName = o.storeName || 'Store';
       var lines = [
         'Hello ' + storeName + '! Here is my order confirmation:',
         '',
@@ -1355,7 +1335,6 @@
       }
     }
 
-    /* Submit M-Pesa transaction reference */
     function submitMpesaReference() {
       if (!currentReceiptOrder) return;
       var input = document.getElementById('r-ref-input');
@@ -1381,16 +1360,15 @@
       }).then(function () {
         showToast('M-Pesa code submitted for verification ✓');
         if (input) input.value = '';
-        var subEl = document.getElementById('r-payment-sub');
-        if (subEl) subEl.textContent = 'M-Pesa reference: ' + code + ' (Verification pending)';
+        var chip = document.getElementById('r-payment-chip');
+        if (chip) { chip.textContent = 'Reported'; chip.className = 'tracker-status-pill status-blue'; }
       }).catch(function () {
         showToast('Could not record reference. Please share via WhatsApp.');
       }).finally(function () {
-        if (btn) { btn.disabled = false; btn.textContent = 'Submit Code'; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
       });
     }
 
-    /* Cancel Order via Backend */
     function confirmCancelOrder() {
       if (!currentReceiptOrder) return;
       var btn = document.getElementById('btn-confirm-cancel');
@@ -1421,7 +1399,7 @@
         closeCancelModal();
         showToast('Order successfully cancelled.');
         renderOrder(normalizeOrder(updated));
-      }).catch(function (err) {
+      }).catch(function () {
         closeCancelModal();
         showToast('Cannot cancel: Order is already being prepared or fulfilled.');
       }).finally(function () {
@@ -1429,14 +1407,12 @@
       });
     }
 
-    /* Format and normalize backend order response */
     function normalizeOrder(o) {
       var B = window.__BZ || {};
       var storeObj = o.store || {};
-      var storeName = storeObj.name || o.store || B.name || 'Urban Attire';
+      var storeName = storeObj.name || o.store || B.name || 'Aqivo Store';
       var currency = o.currency_symbol || o.currencySymbol || B.symbol || B.currency || 'KSh';
 
-      // Items parsing
       var items = [];
       var srcItems = o.items || o.line_items || [];
       if (Array.isArray(srcItems) && srcItems.length > 0) {
@@ -1464,23 +1440,23 @@
       var cust = o.customer || {};
       var customerName = cust.name || o.customer_name || o.customerName || 'Valued Customer';
       var customerPhone = cust.phone || o.customer_phone || o.phone || '';
+      var customerEmail = cust.email || o.customer_email || '';
 
       var deliv = o.delivery || {};
-      var address = deliv.address || o.address || (deliv.method === 'PICKUP' ? 'Store Collection' : (B.address || 'Standard Delivery'));
+      var isPickup = (deliv.method === 'PICKUP' || o.delivery_method === 'PICKUP');
+      var address = deliv.address || o.address || (isPickup ? 'Store Collection / Pickup' : (B.address || 'Standard Delivery'));
 
-      // Date
       var dateStr = o.created_at || o.createdAt || o.date;
       var formattedDate = 'Today';
       try {
         if (dateStr) formattedDate = new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       } catch (e) {}
 
-      // Tracking steps
       var defaultSteps = [
         { code: 'PLACED', title: 'Order placed', done: true, current: o.status === 'PENDING' || !o.status },
         { code: 'CONFIRMED', title: 'Accepted by seller', done: ['CONFIRMED', 'PREPARING', 'READY', 'COMPLETED'].indexOf(o.status) !== -1, current: o.status === 'CONFIRMED' },
         { code: 'PREPARING', title: 'Preparing your order', done: ['PREPARING', 'READY', 'COMPLETED'].indexOf(o.status) !== -1, current: o.status === 'PREPARING' },
-        { code: 'READY', title: (deliv.method === 'PICKUP' ? 'Ready for collection' : 'Out for delivery'), done: ['READY', 'COMPLETED'].indexOf(o.status) !== -1, current: o.status === 'READY' },
+        { code: 'READY', title: (isPickup ? 'Ready for collection' : 'Out for delivery'), done: ['READY', 'COMPLETED'].indexOf(o.status) !== -1, current: o.status === 'READY' },
         { code: 'COMPLETED', title: 'Completed', done: o.status === 'COMPLETED', current: o.status === 'COMPLETED' }
       ];
       var trackingSteps = Array.isArray(o.tracking_steps) && o.tracking_steps.length > 0 ? o.tracking_steps : defaultSteps;
@@ -1503,7 +1479,6 @@
         paymentStatus: payStatus,
         paymentMethod: payMethod,
         paymentInstructions: o.payment_instructions || '',
-        paymentReference: o.payment_reference || '',
         currencySymbol: currency,
         subtotal: subtotal,
         deliveryFee: deliveryFee,
@@ -1511,11 +1486,11 @@
         total: total,
         customerName: customerName,
         customerPhone: customerPhone,
+        customerEmail: customerEmail,
         address: address,
-        deliveryMethod: deliv.method || o.delivery_method || 'DELIVERY',
+        deliveryMethod: isPickup ? 'Store Collection' : 'Courier Delivery',
         estimatedDelivery: 'Estimated Delivery: 2–4 Business Days',
         dateFormatted: formattedDate,
-        createdAt: dateStr || new Date().toISOString(),
         items: items,
         store: storeObj,
         storeName: storeName,
@@ -1527,48 +1502,53 @@
       };
     }
 
-    /* Render Order to UI */
     function renderOrder(order) {
       currentReceiptOrder = order;
 
-      // Titles & banner
-      var storeTitleEl = document.getElementById('receipt-store-title');
-      if (storeTitleEl) storeTitleEl.textContent = order.storeName;
+      // Navbar Store Identity
+      var navStoreName = document.getElementById('nav-store-name');
+      if (navStoreName) navStoreName.textContent = order.storeName;
 
-      var placedBanner = document.getElementById('r-placed-banner');
-      if (placedBanner) {
+      var navInitial = document.getElementById('nav-store-initial');
+      if (navInitial) navInitial.textContent = (order.storeName || 'A').charAt(0).toUpperCase();
+
+      var footerStoreName = document.getElementById('footer-store-name');
+      if (footerStoreName) footerStoreName.textContent = order.storeName;
+
+      var footerYear = document.getElementById('footer-year');
+      if (footerYear) footerYear.textContent = new Date().getFullYear();
+
+      // Hero Card
+      var heroTitle = document.getElementById('r-hero-title');
+      var heroSubtitle = document.getElementById('r-hero-subtitle');
+      var heroIcon = document.getElementById('hero-status-icon');
+      if (heroTitle) {
         if (order.status === 'CANCELLED') {
-          placedBanner.textContent = 'Order Cancelled';
-          placedBanner.style.color = '#E11D48';
+          heroTitle.textContent = 'Order Cancelled';
+          if (heroSubtitle) heroSubtitle.textContent = 'This order was cancelled. Reserved inventory has been released.';
+          if (heroIcon) heroIcon.className = 'hero-check-circle cancelled';
         } else if (order.status === 'COMPLETED') {
-          placedBanner.textContent = 'Order Completed ✓';
-          placedBanner.style.color = '#15803D';
+          heroTitle.textContent = 'Order Completed!';
+          if (heroSubtitle) heroSubtitle.textContent = 'Thank you! Your order has been delivered and completed.';
+          if (heroIcon) heroIcon.className = 'hero-check-circle';
         } else {
-          placedBanner.textContent = 'Order placed successfully';
-          placedBanner.style.color = '#15803D';
+          heroTitle.textContent = 'Order Confirmed!';
+          if (heroSubtitle) heroSubtitle.textContent = 'Thank you, ' + esc(order.customerName) + '! We've received your order and the seller has been notified.';
+          if (heroIcon) heroIcon.className = 'hero-check-circle';
         }
       }
 
-      var orderSub = document.getElementById('r-order-sub');
-      if (orderSub) {
-        orderSub.textContent = order.status === 'CANCELLED' ? 'This order was cancelled.' : 'Thank you for your order!';
-      }
-
-      // Meta lines
       var rNo = document.getElementById('r-receipt-no');
       if (rNo) rNo.textContent = order.receiptNo;
-
-      var oNo = document.getElementById('r-order-no');
-      if (oNo) oNo.textContent = order.number;
 
       var dEl = document.getElementById('r-date');
       if (dEl) dEl.textContent = order.dateFormatted;
 
-      // Status Badge
+      // Status Pill
       var statusBadge = document.getElementById('r-status-badge');
       if (statusBadge) {
         statusBadge.textContent = order.statusLabel;
-        statusBadge.className = 'receipt-status-pill ' + (
+        statusBadge.className = 'tracker-status-pill ' + (
           order.status === 'COMPLETED' ? 'status-green' :
           order.status === 'CANCELLED' ? 'status-rose' :
           order.status === 'CONFIRMED' ? 'status-blue' :
@@ -1577,21 +1557,18 @@
         );
       }
 
-      // Stepper
-      var stepperList = document.getElementById('r-stepper-list');
-      var trackerLabel = document.getElementById('r-tracker-current-label');
-      if (trackerLabel) trackerLabel.textContent = order.statusLabel;
-
-      if (stepperList) {
-        stepperList.innerHTML = order.trackingSteps.map(function (st, idx) {
+      // Live Tracking Stepper
+      var stepperTrack = document.getElementById('r-stepper-track');
+      if (stepperTrack) {
+        stepperTrack.innerHTML = order.trackingSteps.map(function (st, idx) {
           var cls = st.done ? 'done' : (st.current ? 'active' : '');
           var icon = st.done ? '✓' : (idx + 1);
-          var timeHtml = st.time ? '<div class="receipt-step-time">' + esc(new Date(st.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) + '</div>' : '';
+          var timeHtml = st.time ? '<div class="stepper-time">' + esc(new Date(st.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) + '</div>' : '';
           return [
-            '<div class="receipt-step-item ' + cls + '">',
-            '  <div class="receipt-step-bullet">' + icon + '</div>',
-            '  <div class="receipt-step-info">',
-            '    <div class="receipt-step-name">' + esc(st.title) + '</div>',
+            '<div class="stepper-step ' + cls + '">',
+            '  <div class="stepper-bullet">' + icon + '</div>',
+            '  <div>',
+            '    <div class="stepper-label">' + esc(st.title) + '</div>',
             timeHtml,
             '  </div>',
             '</div>'
@@ -1599,42 +1576,63 @@
         }).join('');
       }
 
-      // Customer
+      // Line Items
+      var itemsBox = document.getElementById('r-items-container');
+      var itemsCountBadge = document.getElementById('r-items-count-badge');
+      if (itemsCountBadge) {
+        itemsCountBadge.textContent = order.items.length + (order.items.length === 1 ? ' item' : ' items');
+      }
+
+      if (itemsBox) {
+        itemsBox.innerHTML = order.items.map(function (it) {
+          var imgHtml = it.image ?
+            '<img src="' + esc(it.image) + '" alt="" class="item-img" onerror="this.parentElement.innerHTML='📦';" />' :
+            '<span style="font-size:22px;">📦</span>';
+          var variantHtml = it.variant ? '<div class="item-variant">' + esc(it.variant) + '</div>' : '';
+
+          return [
+            '<div class="item-row">',
+            '  <div class="item-left">',
+            '    <div class="item-img-box">' + imgHtml + '</div>',
+            '    <div class="item-info">',
+            '      <div class="item-name">' + esc(it.name) + '</div>',
+            variantHtml,
+            '      <div class="item-qty-tag">Qty: ' + it.qty + ' × ' + order.currencySymbol + ' ' + fmtNumber(it.price) + '</div>',
+            '    </div>',
+            '  </div>',
+            '  <div class="item-price-col">',
+            '    <div class="item-total-price">' + order.currencySymbol + ' ' + fmtNumber(it.total) + '</div>',
+            '  </div>',
+            '</div>'
+          ].join('');
+        }).join('');
+      }
+
+      // Customer & Delivery
       var cName = document.getElementById('r-customer-name');
-      if (cName) cName.textContent = order.customerName + (order.customerPhone ? ' (' + order.customerPhone + ')' : '');
+      if (cName) cName.textContent = order.customerName;
+
+      var cPhone = document.getElementById('r-customer-phone');
+      if (cPhone) cPhone.textContent = order.customerPhone || 'Phone recorded';
+
+      var cEmail = document.getElementById('r-customer-email');
+      if (cEmail) {
+        if (order.customerEmail) {
+          cEmail.textContent = order.customerEmail;
+          cEmail.style.display = 'block';
+        } else {
+          cEmail.style.display = 'none';
+        }
+      }
+
+      var fMethod = document.getElementById('r-fulfillment-method');
+      if (fMethod) fMethod.textContent = order.deliveryMethod;
 
       var cAddr = document.getElementById('r-customer-address');
       if (cAddr) cAddr.textContent = order.address;
 
       var delivEst = document.getElementById('r-delivery-estimate');
       if (delivEst) delivEst.textContent = order.estimatedDelivery;
-
-      // Items list
-      var itemsBox = document.getElementById('r-items-container');
-      if (itemsBox) {
-        itemsBox.innerHTML = order.items.map(function (it) {
-          var imgHtml = it.image ?
-            '<img src="' + esc(it.image) + '" alt="" class="receipt-item-img" onerror="this.parentElement.innerHTML='📦';" />' :
-            '<span style="font-size:18px;">📦</span>';
-          var variantHtml = it.variant ? '<div class="receipt-item-variant">' + esc(it.variant) + '</div>' : '';
-
-          return [
-            '<div class="receipt-item-card">',
-            '  <div class="receipt-item-left">',
-            '    <div class="receipt-item-img-box">' + imgHtml + '</div>',
-            '    <div>',
-            '      <div class="receipt-item-title">' + esc(it.name) + '</div>',
-            variantHtml,
-            '      <div class="receipt-item-qty">Qty: ' + it.qty + ' × ' + order.currencySymbol + ' ' + fmtNumber(it.price) + '</div>',
-            '    </div>',
-            '  </div>',
-            '  <div class="receipt-item-right">',
-            '    <div class="receipt-item-price">' + order.currencySymbol + ' ' + fmtNumber(it.total) + '</div>',
-            '  </div>',
-            '</div>'
-          ].join('');
-        }).join('');
-      }
 
       // Financials
       var subVal = document.getElementById('r-subtotal-val');
@@ -1669,22 +1667,12 @@
                                order.paymentMethod;
       }
 
-      var paySub = document.getElementById('r-payment-sub');
-      if (paySub) {
-        if (order.paymentStatus === 'PAID') {
-          paySub.textContent = 'Payment verified & confirmed ✓';
-        } else {
-          paySub.textContent = order.paymentReference ? ('Reference submitted: ' + order.paymentReference) : 'Awaiting payment confirmation';
-        }
-      }
-
-      var payChip = document.getElementById('r-payment-status-pill');
+      var payChip = document.getElementById('r-payment-chip');
       if (payChip) {
         payChip.textContent = order.paymentStatus === 'PAID' ? 'Paid ✓' : (order.paymentStatus === 'FAILED' ? 'Failed' : 'Payment Due');
-        payChip.className = 'receipt-status-pill ' + (order.paymentStatus === 'PAID' ? 'status-green' : (order.paymentStatus === 'FAILED' ? 'status-rose' : 'status-amber'));
+        payChip.className = 'tracker-status-pill ' + (order.paymentStatus === 'PAID' ? 'status-green' : (order.paymentStatus === 'FAILED' ? 'status-rose' : 'status-amber'));
       }
 
-      // Payment instructions & form
       var payInstrBox = document.getElementById('r-payment-instructions');
       var refForm = document.getElementById('r-ref-form');
       if (payInstrBox) {
@@ -1703,39 +1691,23 @@
         }
       }
 
-      // Support info
+      // Support & Policy
       var pText = document.getElementById('r-support-phone-text');
-      var pLink = document.getElementById('r-support-phone');
-      if (pText && order.storePhone) {
-        pText.textContent = 'Call ' + order.storePhone;
-        if (pLink) pLink.href = 'tel:' + order.storePhone.replace(/[^0-9+]/g, '');
-      }
+      if (pText && order.storePhone) pText.textContent = 'Call ' + order.storePhone;
 
       var eText = document.getElementById('r-support-email-text');
-      var eLink = document.getElementById('r-support-email');
-      if (eText && order.storeEmail) {
-        eText.textContent = order.storeEmail;
-        if (eLink) eLink.href = 'mailto:' + order.storeEmail;
-      }
+      if (eText && order.storeEmail) eText.textContent = 'Email ' + order.storeEmail;
 
-      // Return policy
       var polText = document.getElementById('r-policy-text');
       if (polText && order.returnPolicy) polText.textContent = order.returnPolicy;
 
-      // Cancel button visibility
+      // Cancel button
       var cancelBtn = document.getElementById('btn-cancel-order');
       if (cancelBtn) {
         cancelBtn.style.display = (order.canCancel && order.status !== 'CANCELLED' && order.status !== 'COMPLETED') ? 'block' : 'none';
       }
-
-      // QR Code
-      var qrImg = document.getElementById('r-qr-image');
-      if (qrImg) {
-        qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(window.location.href);
-      }
     }
 
-    /* Asynchronous backend order loading */
     function loadReceiptOrder() {
       var params = new URLSearchParams(window.location.search);
       var queryOrderId = params.get('orderId') || params.get('order') || params.get('receipt');
@@ -1792,9 +1764,6 @@
       if (cust.phone) q.push('phone=' + encodeURIComponent(cust.phone));
       if (q.length) fetchUrl += '?' + q.join('&');
 
-      var syncStatusEl = document.getElementById('r-sync-status');
-      if (syncStatusEl) syncStatusEl.textContent = 'Updating...';
-
       fetch(fetchUrl, {
         headers: {
           'Accept': 'application/json',
@@ -1804,7 +1773,6 @@
         if (!res.ok) throw new Error('HTTP ' + res.status);
         return res.json();
       }).then(function (backendOrder) {
-        if (syncStatusEl) syncStatusEl.textContent = 'Verified Live';
         var norm = normalizeOrder(backendOrder);
         renderOrder(norm);
 
@@ -1823,8 +1791,7 @@
           }
           localStorage.setItem('aqivo_orders', JSON.stringify(list));
         } catch (e) {}
-      }).catch(function (err) {
-        if (syncStatusEl) syncStatusEl.textContent = 'Saved Order';
+      }).catch(function () {
         if (!cachedOrder) {
           renderShowcaseOrder();
         }
@@ -1833,10 +1800,10 @@
 
     function renderShowcaseOrder() {
       var B = window.__BZ || {};
-      var storeName = B.name || 'Urban Attire';
+      var storeName = B.name || 'Aqivo Store';
       var showcase = {
-        receiptNo: 'AQ-10482',
-        number: '10482',
+        receiptNo: 'AQ-1006',
+        number: '1006',
         storeName: storeName,
         dateFormatted: 'Today',
         status: 'PENDING',
@@ -1844,17 +1811,17 @@
         paymentStatus: 'PENDING',
         paymentMethod: 'MPESA',
         paymentInstructions: 'Pay with M-Pesa Buy Goods Till 123456. Add transaction reference code above after paying.',
-        customerName: 'Ayan Ali',
-        customerPhone: '+254712345678',
+        customerName: 'Valued Customer',
+        customerPhone: '+254700000000',
         address: 'Standard Courier Delivery',
         estimatedDelivery: 'Estimated Delivery: 2–3 Business Days',
-        subtotal: 2500,
-        deliveryFee: 200,
+        subtotal: 4500,
+        deliveryFee: 0,
         discount: 0,
-        total: 2700,
+        total: 4500,
         currencySymbol: 'KSh',
         items: [
-          { name: 'Classic Sneakers', variant: 'Size 36 - Essential Edition', price: 2500, total: 2500, qty: 1, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=150&auto=format&fit=crop&q=80' }
+          { name: 'Leather Handbag', variant: 'Classic Tan', price: 4500, total: 4500, qty: 1, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=150&auto=format&fit=crop&q=80' }
         ],
         trackingSteps: [
           { code: 'PLACED', title: 'Order placed', done: true, current: true, time: new Date().toISOString() },
@@ -1869,18 +1836,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-      function updatePhoneClocks() {
-        var d = new Date();
-        var h = d.getHours();
-        var m = d.getMinutes();
-        var timeStr = (h % 12 || 12) + ':' + (m < 10 ? '0' + m : m);
-        var t1 = document.getElementById('phone-time-1');
-        var t2 = document.getElementById('phone-time-2');
-        if (t1) t1.textContent = timeStr;
-        if (t2) t2.textContent = timeStr;
-      }
-      updatePhoneClocks();
-
       loadReceiptOrder();
     });
   </script>
