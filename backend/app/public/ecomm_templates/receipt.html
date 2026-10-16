@@ -24,16 +24,19 @@
       --ink: #111111;
       --muted: #4B5563;
       --subtle: #9CA3AF;
-      --accent: #D8F29E;
-      --accent-deep: #15803D;
+      --accent: #5B21F5;
+      --accent-soft: #EDE9FE;
+      --accent-green: #15803D;
       --card-radius: 42px;
-      --box-radius: 22px;
+      --box-radius: 24px;
+      --phone-width: 375px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-font-smoothing: antialiased;
     }
 
     body {
@@ -44,11 +47,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 16px 56px;
-      -webkit-font-smoothing: antialiased;
+      padding: 32px 16px 64px;
     }
 
-    /* Top Nav Bar */
+    /* Top Navigation */
     .receipt-top-nav {
       width: 100%;
       max-width: 860px;
@@ -56,80 +58,81 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
-      padding: 0 8px;
     }
 
     .receipt-return-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--ink);
-      text-decoration: none;
+      gap: 8px;
       padding: 8px 16px;
-      background: var(--surface);
+      background: #FFFFFF;
       border: 1px solid var(--border-card);
       border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #111827;
+      text-decoration: none;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: all 0.15s ease;
     }
 
     .receipt-return-pill:hover {
       background: #F9FAFB;
-      transform: translateY(-1px);
+      border-color: #D1D5DB;
     }
 
     .receipt-brand-badge {
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
+      padding: 6px 14px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-card);
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #111827;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
-    .receipt-brand-badge svg {
-      color: #111111;
+    .receipt-brand-badge img {
+      width: 18px;
+      height: 18px;
+      object-fit: contain;
+      border-radius: 4px;
     }
 
-    /* Canvas with Dual Phone Mockups */
+    /* Dual Phone Mockup Canvas */
     .phones-canvas {
-      display: flex;
-      gap: 28px;
-      justify-content: center;
-      align-items: flex-start;
       width: 100%;
       max-width: 860px;
-      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 36px;
     }
 
-    /* Single Phone Mockup Card */
     .phone-mockup {
+      width: 100%;
+      max-width: var(--phone-width);
       background: var(--surface);
       border-radius: var(--card-radius);
-      box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.09), 0 4px 16px rgba(0, 0, 0, 0.03);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      width: 100%;
-      max-width: 400px;
-      padding: 16px 20px 28px;
+      box-shadow: 0 14px 40px -8px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+      padding: 18px 18px 28px;
       display: flex;
       flex-direction: column;
       position: relative;
     }
 
-    /* Status Bar */
+    /* Phone Status Bar */
     .phone-status-bar {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 2px 8px 14px;
-      color: #111111;
-      font-size: 13.5px;
+      align-items: center;
+      padding: 0 8px 10px;
+      font-size: 13px;
       font-weight: 600;
-      user-select: none;
+      color: #111111;
     }
 
     .phone-status-icons {
@@ -140,137 +143,271 @@
 
     .phone-battery {
       width: 22px;
-      height: 11.5px;
+      height: 11px;
       border: 1.5px solid #111111;
-      border-radius: 3.5px;
-      padding: 1.5px;
-      position: relative;
-    }
-
-    .phone-battery::after {
-      content: '';
-      position: absolute;
-      right: -3.5px;
-      top: 2.5px;
-      width: 2px;
-      height: 4px;
-      background: #111111;
-      border-radius: 0 1px 1px 0;
+      border-radius: 3px;
+      padding: 1px;
+      display: flex;
+      align-items: center;
     }
 
     .phone-battery-fill {
-      width: 100%;
+      width: 85%;
       height: 100%;
       background: #111111;
       border-radius: 1px;
     }
 
-    /* Cancel Header Action */
+    /* Top Action Bar inside mockup */
     .phone-top-action {
       display: flex;
-      justify-content: flex-end;
-      padding: 0 4px 2px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 6px 12px;
     }
 
-    .receipt-cancel-btn {
-      font-size: 13px;
-      font-weight: 500;
-      color: #374151;
+    .receipt-close-link {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6B7280;
       text-decoration: none;
-      padding: 4px 6px;
-      transition: color 0.15s ease;
+      cursor: pointer;
     }
 
-    .receipt-cancel-btn:hover {
-      color: #000000;
+    .receipt-close-link:hover {
+      color: #111111;
     }
 
-    /* Store Header in Phone 1 */
+    .receipt-live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      background: #DCFCE7;
+      color: #15803D;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .receipt-live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #16A34A;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Store Header */
     .receipt-store-title {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: 27px;
+      font-size: 26px;
       font-weight: 700;
-      color: #111111;
-      letter-spacing: -0.4px;
       text-align: center;
-      margin-top: 4px;
-      margin-bottom: 6px;
-      line-height: 1.25;
+      color: #111111;
+      line-height: 1.15;
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+
+    .receipt-order-placed-banner {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #15803D;
+      text-align: center;
+      margin-bottom: 2px;
     }
 
     .receipt-thankyou-sub {
-      font-size: 14.5px;
-      font-weight: 700;
-      color: #111111;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4B5563;
       text-align: center;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     /* Inner Gray Box */
     .receipt-gray-box {
       background: var(--box-bg);
       border-radius: var(--box-radius);
-      padding: 20px 18px;
+      padding: 18px 16px;
       border: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
     }
 
-    .receipt-box-heading {
-      font-size: 12.5px;
-      font-weight: 800;
-      letter-spacing: 0.6px;
-      color: #111111;
-      text-transform: uppercase;
-      margin-bottom: 10px;
+    .receipt-box-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
     }
 
+    .receipt-box-heading {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: #111111;
+      text-transform: uppercase;
+    }
+
+    .receipt-status-pill {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-amber { background: #FEF3C7; color: #92400E; }
+    .status-blue { background: #E0E7FF; color: #3730A3; }
+    .status-purple { background: #EDE9FE; color: #5B21F5; }
+    .status-teal { background: #CCFBF1; color: #0F766E; }
+    .status-green { background: #DCFCE7; color: #15803D; }
+    .status-rose { background: #FFE4E6; color: #9F1239; }
+
     .receipt-meta-lines {
-      font-size: 13px;
+      font-size: 12.5px;
       color: #374151;
-      line-height: 1.55;
+      line-height: 1.5;
       font-weight: 500;
     }
 
     .receipt-meta-lines strong {
       color: #111111;
-      font-weight: 600;
+      font-weight: 700;
+    }
+
+    /* Tracking Stepper */
+    .receipt-tracker-card {
+      margin-top: 14px;
+      margin-bottom: 14px;
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .receipt-tracker-title {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6B7280;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .receipt-stepper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+    }
+
+    .receipt-step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      position: relative;
+    }
+
+    .receipt-step-bullet {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #E5E7EB;
+      color: #9CA3AF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+      z-index: 2;
+    }
+
+    .receipt-step-item.done .receipt-step-bullet {
+      background: #16A34A;
+      color: #FFFFFF;
+    }
+
+    .receipt-step-item.active .receipt-step-bullet {
+      background: #5B21F5;
+      color: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(91, 33, 245, 0.2);
+    }
+
+    .receipt-step-info {
+      flex: 1;
+    }
+
+    .receipt-step-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #374151;
+      line-height: 1.25;
+    }
+
+    .receipt-step-item.done .receipt-step-name {
+      color: #111827;
+    }
+
+    .receipt-step-item.active .receipt-step-name {
+      color: #5B21F5;
+      font-weight: 800;
+    }
+
+    .receipt-step-time {
+      font-size: 11px;
+      color: #9CA3AF;
+      margin-top: 1px;
     }
 
     /* Customer Block */
     .receipt-customer-block {
-      margin-top: 14px;
-      margin-bottom: 16px;
+      margin-top: 4px;
+      margin-bottom: 14px;
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--border-soft);
     }
 
     .receipt-customer-name-row {
       display: flex;
       align-items: center;
       gap: 7px;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: #111111;
       margin-bottom: 4px;
     }
 
-    .receipt-customer-name-row svg {
-      color: #111111;
-      flex-shrink: 0;
-    }
-
     .receipt-customer-address {
-      font-size: 12.5px;
+      font-size: 12px;
       color: #4B5563;
-      line-height: 1.45;
+      line-height: 1.4;
       padding-left: 21px;
     }
 
     .receipt-delivery-estimate {
-      font-size: 12px;
-      color: #4B5563;
+      font-size: 11.5px;
+      color: #15803D;
       padding-left: 21px;
       margin-top: 4px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     /* Items List Container */
@@ -278,7 +415,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .receipt-item-card {
@@ -286,7 +423,6 @@
       border-radius: 14px;
       padding: 10px 12px;
       border: 1px solid var(--border-soft);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -296,21 +432,22 @@
     .receipt-item-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex: 1;
       min-width: 0;
     }
 
     .receipt-item-img-box {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       border-radius: 10px;
-      background: #E5E7EB;
+      background: #F3F4F6;
       overflow: hidden;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      border: 1px solid #E5E7EB;
     }
 
     .receipt-item-img {
@@ -320,11 +457,17 @@
     }
 
     .receipt-item-title {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 700;
       color: #111827;
       line-height: 1.3;
       word-break: break-word;
+    }
+
+    .receipt-item-variant {
+      font-size: 11px;
+      color: #6B7280;
+      font-weight: 500;
     }
 
     .receipt-item-right {
@@ -333,7 +476,7 @@
     }
 
     .receipt-item-price {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: #111827;
     }
@@ -341,7 +484,7 @@
     .receipt-item-qty {
       font-size: 11px;
       color: #6B7280;
-      margin-top: 2px;
+      margin-top: 1px;
     }
 
     /* Summary Lines */
@@ -349,44 +492,43 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 13px;
-      color: #111111;
-      padding: 4px 2px;
-      font-weight: 700;
+      font-size: 12.5px;
+      color: #374151;
+      padding: 3px 2px;
+      font-weight: 600;
     }
 
     .receipt-summary-line.total-line {
-      padding-top: 10px;
-      margin-top: 4px;
       font-size: 13.5px;
+      color: #111111;
       font-weight: 800;
-      letter-spacing: 0.3px;
+      padding-top: 8px;
+      margin-top: 4px;
+      border-top: 1px solid #E5E7EB;
     }
 
     .receipt-summary-line.total-line .val {
-      font-size: 14.5px;
-      font-weight: 800;
+      font-size: 16px;
+      font-weight: 900;
     }
 
-    /* Payment Method Card */
+    /* Payment Method Box */
     .receipt-payment-card {
       background: #FFFFFF;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 12px 14px;
       border: 1px solid var(--border-soft);
-      display: flex;
-      align-items: center;
-      gap: 12px;
       margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .receipt-payment-logo {
-      width: 38px;
-      height: 24px;
+    .receipt-payment-main-row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      justify-content: space-between;
+      gap: 10px;
     }
 
     .receipt-payment-title {
@@ -402,59 +544,123 @@
       margin-top: 1px;
     }
 
+    .receipt-payment-instructions {
+      background: #F9FAFB;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 11.5px;
+      color: #374151;
+      line-height: 1.45;
+      border: 1px dashed #D1D5DB;
+    }
+
+    .receipt-ref-form {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .receipt-ref-input {
+      flex: 1;
+      padding: 6px 10px;
+      font-size: 12px;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      font-family: inherit;
+      text-transform: uppercase;
+    }
+
+    .receipt-ref-btn {
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      background: #111827;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
     /* Phone 2 (Support, Returns, Social, QR & Buttons) */
+    .receipt-next-box {
+      background: #EFF6FF;
+      border-radius: var(--box-radius);
+      padding: 16px 16px;
+      border: 1px solid #DBEAFE;
+      margin-bottom: 16px;
+    }
+
+    .receipt-next-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1E40AF;
+      margin-bottom: 4px;
+    }
+
+    .receipt-next-body {
+      font-size: 12px;
+      color: #1E3A8A;
+      line-height: 1.45;
+    }
+
     .receipt-support-box {
       background: var(--box-bg);
       border-radius: var(--box-radius);
-      padding: 20px 18px;
+      padding: 16px 16px;
       border: 1px solid var(--border-soft);
-      margin-bottom: 22px;
+      margin-bottom: 18px;
       font-size: 12.5px;
       color: #374151;
-      line-height: 1.55;
+      line-height: 1.5;
     }
 
     .receipt-support-title {
-      font-size: 13.5px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
       color: #111111;
       margin-bottom: 8px;
     }
 
     .receipt-support-link {
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       color: #374151;
       text-decoration: none;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
+      font-size: 12px;
+      font-weight: 500;
       transition: color 0.15s ease;
     }
 
     .receipt-support-link:hover {
       color: #000000;
+      text-decoration: underline;
     }
 
     .receipt-support-divider {
       height: 1px;
       background: var(--border-soft);
-      margin: 14px 0 12px;
+      margin: 12px 0 10px;
     }
 
-    /* Thank you & Social */
+    /* Center Section (Thank you & social) */
     .receipt-center-section {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
 
     .receipt-center-bold {
-      font-size: 15.5px;
+      font-size: 13.5px;
       font-weight: 800;
       color: #111111;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .receipt-follow-label {
-      font-size: 12.5px;
-      color: #4B5563;
+      font-size: 12px;
+      color: #6B7280;
+      font-weight: 500;
       margin-bottom: 12px;
     }
 
@@ -462,8 +668,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
-      margin-bottom: 20px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
     .receipt-social-icon {
@@ -478,105 +684,103 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
 
-    .receipt-social-icon:hover {
-      transform: scale(1.08);
-    }
+    .receipt-social-icon:hover { transform: scale(1.08); }
+    .receipt-social-icon.wa { background: #25D366; color: #FFFFFF; }
+    .receipt-social-icon.ig { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%); color: #FFFFFF; }
+    .receipt-social-icon.fb { background: #1877F2; color: #FFFFFF; }
+    .receipt-social-icon.x-tw { background: #000000; color: #FFFFFF; }
 
-    .receipt-social-icon.fb {
-      background: #1877F2;
-      color: #FFFFFF;
-    }
-
-    .receipt-social-icon.ig {
-      background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-      color: #FFFFFF;
-      border-radius: 9px;
-    }
-
-    .receipt-social-icon.x-tw {
-      background: #000000;
-      color: #FFFFFF;
-    }
-
-    .receipt-social-icon.wa {
-      background: #25D366;
-      color: #FFFFFF;
-    }
-
-    /* QR Code Box */
+    /* QR Code Frame */
     .receipt-qr-caption {
-      font-size: 12px;
+      font-size: 11.5px;
       color: #374151;
-      font-weight: 500;
-      margin-bottom: 10px;
+      font-weight: 600;
+      margin-bottom: 8px;
     }
 
     .receipt-qr-frame {
       display: inline-flex;
-      padding: 10px;
+      padding: 8px;
       background: #FFFFFF;
-      border-radius: 16px;
+      border-radius: 14px;
       border: 1px solid var(--border-soft);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
     }
 
     .receipt-qr-img {
-      width: 120px;
-      height: 120px;
+      width: 100px;
+      height: 100px;
       display: block;
-      object-fit: contain;
+      border-radius: 8px;
     }
 
-    /* Action Buttons */
+    /* Buttons Stack */
     .receipt-actions-stack {
       display: flex;
       flex-direction: column;
-      gap: 9px;
-      margin-top: auto;
+      gap: 8px;
     }
 
     .receipt-btn-white {
-      height: 48px;
-      border: 1.5px solid #111111;
+      width: 100%;
+      height: 44px;
       background: #FFFFFF;
-      color: #111111;
-      border-radius: 12px;
+      border: 1.5px solid #111111;
+      border-radius: 9999px;
       font-size: 13.5px;
       font-weight: 700;
+      color: #111111;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      text-decoration: none;
-      cursor: pointer;
+      gap: 7px;
       transition: all 0.15s ease;
-      width: 100%;
     }
 
     .receipt-btn-white:hover {
-      background: #F4F4F5;
+      background: #F9FAFB;
+      transform: translateY(-1px);
     }
 
     .receipt-btn-black {
-      height: 48px;
-      border: none;
+      width: 100%;
+      height: 44px;
       background: #111111;
-      color: #FFFFFF;
-      border-radius: 12px;
+      border: 1.5px solid #111111;
+      border-radius: 9999px;
       font-size: 13.5px;
       font-weight: 700;
+      color: #FFFFFF;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      text-decoration: none;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      gap: 7px;
       transition: all 0.15s ease;
-      width: 100%;
     }
 
     .receipt-btn-black:hover {
-      background: #222222;
+      background: #000000;
       transform: translateY(-1px);
+    }
+
+    .receipt-btn-cancel-order {
+      width: 100%;
+      height: 38px;
+      background: transparent;
+      border: 1px solid #FECDD3;
+      color: #E11D48;
+      border-radius: 9999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .receipt-btn-cancel-order:hover {
+      background: #FFF1F2;
+      border-color: #FDA4AF;
     }
 
     .receipt-sub-actions-row {
@@ -584,22 +788,21 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .receipt-sub-pill {
-      font-size: 11.5px;
-      font-weight: 700;
-      color: #4B5563;
-      background: #F3F4F6;
-      border: 1px solid #E5E7EB;
-      padding: 6px 12px;
-      border-radius: 9999px;
-      cursor: pointer;
-      text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #F3F4F6;
+      border: none;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
       transition: all 0.15s ease;
     }
 
@@ -608,7 +811,73 @@
       color: #111111;
     }
 
-    /* Floating Toast */
+    /* Modal dialog */
+    .receipt-modal-veil {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .receipt-modal-veil.open {
+      display: flex;
+    }
+
+    .receipt-modal-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      max-width: 420px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .receipt-modal-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #111111;
+      margin-bottom: 8px;
+    }
+
+    .receipt-modal-desc {
+      font-size: 13px;
+      color: #4B5563;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .receipt-modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .receipt-modal-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+
+    .receipt-modal-btn.secondary {
+      background: #F3F4F6;
+      color: #374151;
+      border: none;
+    }
+
+    .receipt-modal-btn.danger {
+      background: #E11D48;
+      color: #FFFFFF;
+      border: none;
+    }
+
+    /* Toast */
     .receipt-toast {
       position: fixed;
       bottom: 24px;
@@ -628,64 +897,6 @@
 
     .receipt-toast.active {
       transform: translateX(-50%) translateY(0);
-    }
-
-    /* Payment Status Manager (Merchant Tool) */
-    .receipt-manager-wrap {
-      width: 100%;
-      max-width: 860px;
-      margin-top: 28px;
-    }
-
-    .receipt-status-manager {
-      background: #FFFFFF;
-      border-radius: 20px;
-      padding: 16px 20px;
-      border: 1px solid var(--border-card);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .receipt-manager-heading {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: #111111;
-    }
-
-    .receipt-manager-sub {
-      font-size: 11px;
-      color: #6B7280;
-    }
-
-    .receipt-status-segmented {
-      background: #F3F4F6;
-      padding: 3px;
-      border-radius: 9999px;
-      display: flex;
-      gap: 3px;
-    }
-
-    .receipt-segmented-tab {
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      border-radius: 9999px;
-      border: none;
-      background: transparent;
-      color: #4B5563;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .receipt-segmented-tab.active {
-      background: #111111;
-      color: #FFFFFF;
-      font-weight: 700;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
     /* Responsive */
@@ -708,11 +919,6 @@
         border-radius: 28px;
         padding: 14px 14px 22px;
       }
-      .receipt-gray-box,
-      .receipt-support-box {
-        border-radius: 18px;
-        padding: 16px 14px;
-      }
     }
 
     /* Print Styles */
@@ -726,19 +932,20 @@
       .phone-top-action,
       .receipt-actions-stack,
       .receipt-sub-actions-row,
-      .receipt-manager-wrap,
       .receipt-toast,
+      .receipt-modal-veil,
       #phone-card-2 {
         display: none !important;
       }
       .phones-canvas {
         display: block !important;
+        max-width: 100% !important;
       }
       .phone-mockup {
         box-shadow: none !important;
-        border: none !important;
         max-width: 100% !important;
         padding: 0 !important;
+        border: none !important;
       }
       .receipt-gray-box {
         border: 1px solid #D1D5DB !important;
@@ -755,7 +962,7 @@
       <span id="receipt-back-btn-text">Back to Store</span>
     </a>
     <div class="receipt-brand-badge">
-      <img src="aqivo-mark.png" alt="Aqivo" style="width:18px;height:18px;object-fit:contain;border-radius:4px;vertical-align:middle;" onerror="this.onerror=null;this.src='/brand/aqivo-mark.png';" />
+      <img src="aqivo-mark.png" alt="Aqivo" onerror="this.onerror=null;this.src='/brand/aqivo-mark.png';" />
       <span>Verified Aqivo Receipt</span>
     </div>
   </header>
@@ -784,35 +991,55 @@
         </div>
       </div>
 
-      <!-- Cancel Action -->
+      <!-- Live Order Indicator & Return -->
       <div class="phone-top-action">
-        <a href="index.html" class="receipt-cancel-btn" id="receipt-cancel-link">Cancel</a>
+        <div class="receipt-live-badge">
+          <span class="receipt-live-dot"></span>
+          <span id="r-sync-status">Verified Order</span>
+        </div>
+        <a href="index.html" class="receipt-close-link" id="receipt-close-link">Done</a>
       </div>
 
       <!-- Store Header -->
+      <div class="receipt-order-placed-banner" id="r-placed-banner">Order placed successfully</div>
       <h1 class="receipt-store-title" id="receipt-store-title">Urban Attire</h1>
-      <div class="receipt-thankyou-sub">Thank you for your order!</div>
+      <div class="receipt-thankyou-sub" id="r-order-sub">Thank you for your order!</div>
 
       <!-- Receipt Gray Container -->
       <div class="receipt-gray-box">
-        <div class="receipt-box-heading">RECEIPT</div>
+        <div class="receipt-box-top-row">
+          <span class="receipt-box-heading">RECEIPT</span>
+          <span class="receipt-status-pill status-amber" id="r-status-badge">Awaiting seller confirmation</span>
+        </div>
+
         <div class="receipt-meta-lines">
-          <div>Receipt #: <strong id="r-receipt-no">UA-568921</strong></div>
-          <div>Order #: <span id="r-order-no">ORD-983742</span></div>
+          <div>Receipt #: <strong id="r-receipt-no">AQ-1006</strong></div>
+          <div>Order #: <span id="r-order-no">1006</span></div>
           <div>Date: <span id="r-date">May 30, 2025</span></div>
+        </div>
+
+        <!-- Real Tracking Stepper -->
+        <div class="receipt-tracker-card">
+          <div class="receipt-tracker-title">
+            <span>Order Progress</span>
+            <span id="r-tracker-current-label" style="color:#111827;">Placed</span>
+          </div>
+          <div class="receipt-stepper" id="r-stepper-list">
+            <!-- Filled dynamically -->
+          </div>
         </div>
 
         <!-- Customer & Location -->
         <div class="receipt-customer-block">
           <div class="receipt-customer-name-row">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span id="r-customer-name">Ayan Ali</span>
+            <span id="r-customer-name">Customer</span>
           </div>
           <div class="receipt-customer-address" id="r-customer-address">
-            House 12, Street 45, F-11/2<br>Islamabad, Pakistan
+            Standard Delivery
           </div>
           <div class="receipt-delivery-estimate" id="r-delivery-estimate">
-            Estimated Delivery: June 5–7, 2025
+            Estimated Delivery: 2–4 Business Days
           </div>
         </div>
 
@@ -821,28 +1048,39 @@
           <!-- Dynamically populated items -->
         </div>
 
-        <!-- Shipping & Total Summary -->
-        <div class="receipt-summary-line">
+        <!-- Financial Summary -->
+        <div class="receipt-summary-line" id="r-subtotal-row">
+          <span>Subtotal</span>
+          <span id="r-subtotal-val">$0.00</span>
+        </div>
+        <div class="receipt-summary-line" id="r-shipping-row">
           <span>Shipping</span>
-          <span id="r-shipping-val">$5.00</span>
+          <span id="r-shipping-val">Free</span>
+        </div>
+        <div class="receipt-summary-line" id="r-discount-row" style="display:none;color:#15803D;">
+          <span>Discount</span>
+          <span id="r-discount-val">-$0.00</span>
         </div>
         <div class="receipt-summary-line total-line">
-          <span>TOTAL PAID:</span>
-          <span class="val" id="r-total-val">$104.97</span>
+          <span id="r-total-label">TOTAL DUE:</span>
+          <span class="val" id="r-total-val">$0.00</span>
         </div>
 
-        <!-- Payment Method Box -->
+        <!-- Payment Method & Real Instructions -->
         <div class="receipt-payment-card" id="r-payment-card">
-          <div class="receipt-payment-logo" id="r-payment-logo">
-            <!-- Overlapping Mastercard circles -->
-            <svg width="34" height="22" viewBox="0 0 34 22" fill="none">
-              <circle cx="12" cy="11" r="10" fill="#EB001B"/>
-              <circle cx="22" cy="11" r="10" fill="#F79E1B" fill-opacity="0.9"/>
-            </svg>
+          <div class="receipt-payment-main-row">
+            <div>
+              <div class="receipt-payment-title" id="r-payment-title">M-Pesa</div>
+              <div class="receipt-payment-sub" id="r-payment-sub">Payment pending</div>
+            </div>
+            <span class="receipt-status-pill status-amber" id="r-payment-status-pill">Pending</span>
           </div>
-          <div>
-            <div class="receipt-payment-title" id="r-payment-title">MasterCard</div>
-            <div class="receipt-payment-sub" id="r-payment-sub">MasterCard ending in 9876</div>
+
+          <div class="receipt-payment-instructions" id="r-payment-instructions" style="display:none;"></div>
+
+          <div class="receipt-ref-form" id="r-ref-form" style="display:none;">
+            <input type="text" id="r-ref-input" placeholder="M-Pesa code (e.g. QK84X...)" class="receipt-ref-input" />
+            <button type="button" id="r-ref-submit-btn" class="receipt-ref-btn" onclick="submitMpesaReference()">Submit Code</button>
           </div>
         </div>
 
@@ -876,42 +1114,60 @@
         </div>
       </div>
 
+      <!-- What Happens Next Box -->
+      <div class="receipt-next-box">
+        <div class="receipt-next-title">What happens next?</div>
+        <p class="receipt-next-body">The seller will review your order and confirm availability. You can check your order status at any time or contact the shop below.</p>
+      </div>
+
       <!-- Support & Returns Box -->
       <div class="receipt-support-box">
-        <div class="receipt-support-title">Need help?</div>
-        <a href="tel:+18001234567" class="receipt-support-link" id="r-support-phone">+1 (800) 123-4567</a>
-        <a href="mailto:support@urbanattire.com" class="receipt-support-link" id="r-support-email">support@urbanattire.com</a>
-        <div class="receipt-support-link" id="r-support-track">Track Order: urbanattire.com/track</div>
+        <div class="receipt-support-title">Need help with this order?</div>
+        <a href="tel:" class="receipt-support-link" id="r-support-phone">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span id="r-support-phone-text">Call Store</span>
+        </a>
+        <a href="#" class="receipt-support-link" id="r-support-wa" onclick="contactShopViaWhatsApp(); return false;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.697c.969.541 1.835.82 2.806.82h.005c3.182 0 5.769-2.587 5.769-5.766.001-3.182-2.585-5.769-5.769-5.769zm3.435 8.134c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.802-.411-1.398-.578-2.316-1.99-2.387-2.083-.07-.094-.567-.754-.567-1.438 0-.684.358-1.02.485-1.16.128-.14.281-.175.375-.175s.188.006.27.011c.088.006.206-.033.322.247.12.288.406 1.004.442 1.077.035.072.059.156.012.25-.047.094-.07.153-.14.234-.07.083-.149.186-.212.25-.07.07-.143.146-.062.285.082.139.364.6.782.973.538.48 1.002.628 1.143.698.14.07.222.058.305-.036.082-.093.352-.408.446-.549.094-.14.188-.117.316-.07.129.047.818.385.958.455.14.07.234.105.269.164.035.059.035.341-.109.746z"/></svg>
+          <span>Chat on WhatsApp</span>
+        </a>
+        <a href="mailto:" class="receipt-support-link" id="r-support-email">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <span id="r-support-email-text">Email Store</span>
+        </a>
 
         <div class="receipt-support-divider"></div>
 
-        <div class="receipt-support-title">30-Day Easy Returns</div>
-        <div class="receipt-support-link" id="r-support-returns">Visit: urbanattire.com/returns</div>
+        <div class="receipt-support-title">Store Return Policy</div>
+        <a href="#" class="receipt-support-link" onclick="openReturnsModal(); return false;" id="r-support-returns">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <span>View Return & Exchange Policy</span>
+        </a>
       </div>
 
       <!-- Thank You, Social & QR Code -->
       <div class="receipt-center-section">
         <div class="receipt-center-bold">Thank you for shopping with us!</div>
-        <div class="receipt-follow-label" id="r-follow-label">Follow us @urbanattire</div>
+        <div class="receipt-follow-label" id="r-follow-label">Follow us for updates & new drops</div>
 
         <!-- Social Links -->
         <div class="receipt-social-row">
-          <a href="#" class="receipt-social-icon fb" aria-label="Facebook">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          </a>
-          <a href="#" class="receipt-social-icon ig" aria-label="Instagram">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-          </a>
-          <a href="#" class="receipt-social-icon x-tw" aria-label="X (Twitter)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          </a>
           <a href="#" class="receipt-social-icon wa" onclick="shareReceiptDoc(); return false;" aria-label="WhatsApp">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.697c.969.541 1.835.82 2.806.82h.005c3.182 0 5.769-2.587 5.769-5.766.001-3.182-2.585-5.769-5.769-5.769zm3.435 8.134c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.802-.411-1.398-.578-2.316-1.99-2.387-2.083-.07-.094-.567-.754-.567-1.438 0-.684.358-1.02.485-1.16.128-.14.281-.175.375-.175s.188.006.27.011c.088.006.206-.033.322.247.12.288.406 1.004.442 1.077.035.072.059.156.012.25-.047.094-.07.153-.14.234-.07.083-.149.186-.212.25-.07.07-.143.146-.062.285.082.139.364.6.782.973.538.48 1.002.628 1.143.698.14.07.222.058.305-.036.082-.093.352-.408.446-.549.094-.14.188-.117.316-.07.129.047.818.385.958.455.14.07.234.105.269.164.035.059.035.341-.109.746z"/></svg>
+          </a>
+          <a href="#" class="receipt-social-icon ig" aria-label="Instagram" id="r-social-ig">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="#" class="receipt-social-icon fb" aria-label="Facebook" id="r-social-fb">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="#" class="receipt-social-icon x-tw" aria-label="X (Twitter)" id="r-social-x">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
         </div>
 
         <!-- QR Code Frame -->
-        <div class="receipt-qr-caption">Scan to get 10% OFF on your next order:</div>
+        <div class="receipt-qr-caption">Scan to verify or revisit this receipt:</div>
         <div class="receipt-qr-frame">
           <img id="r-qr-image" src="" alt="Order QR" class="receipt-qr-img" />
         </div>
@@ -919,12 +1175,21 @@
 
       <!-- Action Buttons -->
       <div class="receipt-actions-stack">
-        <button type="button" class="receipt-btn-white" onclick="continueShopping()">Continue Shopping</button>
-        <button type="button" class="receipt-btn-black" onclick="printReceiptDoc()">Download Receipt</button>
+        <button type="button" class="receipt-btn-white" onclick="continueShopping()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          <span>Continue Shopping</span>
+        </button>
+        <button type="button" class="receipt-btn-black" onclick="printReceiptDoc()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+          <span>Download Receipt (PDF)</span>
+        </button>
+        <button type="button" class="receipt-btn-cancel-order" id="btn-cancel-order" onclick="openCancelModal()" style="display:none;">
+          Cancel This Order
+        </button>
         <div class="receipt-sub-actions-row">
           <button type="button" class="receipt-sub-pill" onclick="shareReceiptDoc()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            <span>Share via WhatsApp</span>
+            <span>Share on WhatsApp</span>
           </button>
           <button type="button" class="receipt-sub-pill" onclick="copyReceiptDoc()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -941,40 +1206,42 @@
     </article>
   </main>
 
-  <!-- Merchant Payment Status Simulator (Live Preview & Testing) -->
-  <aside class="receipt-manager-wrap">
-    <div class="receipt-status-manager">
-      <div>
-        <div class="receipt-manager-heading">Payment Status Manager</div>
-        <div class="receipt-manager-sub">Merchant testing & live verification</div>
-      </div>
-      <div class="receipt-status-segmented">
-        <button type="button" class="receipt-segmented-tab active" id="tab-status-awaiting" onclick="setReceiptPaymentStatus('Awaiting payment confirmation')">Awaiting</button>
-        <button type="button" class="receipt-segmented-tab" id="tab-status-reported" onclick="setReceiptPaymentStatus('Payment reported')">Reported</button>
-        <button type="button" class="receipt-segmented-tab" id="tab-status-paid" onclick="setReceiptPaymentStatus('Paid')">Paid</button>
+  <!-- Cancel Confirmation Modal -->
+  <div class="receipt-modal-veil" id="cancel-modal-veil">
+    <div class="receipt-modal-card">
+      <div class="receipt-modal-title">Cancel this order?</div>
+      <p class="receipt-modal-desc">Are you sure you want to cancel your order? The seller will be notified immediately and reserved stock will be returned.</p>
+      <div class="receipt-modal-actions">
+        <button type="button" class="receipt-modal-btn secondary" onclick="closeCancelModal()">Keep Order</button>
+        <button type="button" class="receipt-modal-btn danger" id="btn-confirm-cancel" onclick="confirmCancelOrder()">Yes, Cancel</button>
       </div>
     </div>
-  </aside>
+  </div>
 
-  <div class="receipt-toast" id="receipt-toast">Receipt link copied!</div>
+  <!-- Return Policy Modal -->
+  <div class="receipt-modal-veil" id="returns-modal-veil">
+    <div class="receipt-modal-card">
+      <div class="receipt-modal-title">Return & Exchange Policy</div>
+      <p class="receipt-modal-desc" id="r-policy-text">30-day return policy for unused, unopened items in original packaging. Please contact the seller directly to initiate returns.</p>
+      <div class="receipt-modal-actions">
+        <button type="button" class="receipt-modal-btn secondary" onclick="closeReturnsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast Notification -->
+  <div class="receipt-toast" id="receipt-toast">Status updated</div>
 
   <script>
     var currentReceiptOrder = null;
 
-    function esc(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    function esc(s) {
+      if (s == null) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    function fmtNumber(num) {
-      var n = Number(num);
-      if (isNaN(n)) return '0';
-      return n.toLocaleString('en-US');
+    function fmtNumber(n) {
+      return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function showToast(msg) {
@@ -1001,436 +1268,37 @@
       window.location.href = getStoreHomeUrl();
     }
 
-    function generateShowcaseOrder() {
-      var B = window.__BZ || {};
-      var storeName = B.name || "Urban Attire";
-      var currency = B.symbol || B.currency || "$";
-
-      var showcaseItems = [];
-      if (B.items && B.items.length >= 2) {
-        showcaseItems.push({
-          name: B.items[0].name,
-          price: Number(B.items[0].price) || 59.99,
-          qty: 1,
-          image: B.items[0].image || B.items[0].img || ''
-        });
-        showcaseItems.push({
-          name: B.items[1].name,
-          price: Number(B.items[1].price) || 59.99,
-          qty: 1,
-          image: B.items[1].image || B.items[1].img || ''
-        });
-      } else if (B.items && B.items.length === 1) {
-        showcaseItems.push({
-          name: B.items[0].name,
-          price: Number(B.items[0].price) || 59.99,
-          qty: 1,
-          image: B.items[0].image || ''
-        });
-      } else {
-        // Pixel-perfect showcase matching reference mockup
-        showcaseItems = [
-          {
-            name: "Classic Denim Jacket",
-            price: (currency === "$" ? 59.99 : 4500),
-            qty: 1,
-            image: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=150&auto=format&fit=crop&q=80"
-          },
-          {
-            name: "Oversized Cotton Tee",
-            price: (currency === "$" ? 59.99 : 2500),
-            qty: 1,
-            image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=150&auto=format&fit=crop&q=80"
-          }
-        ];
-      }
-
-      var subtotal = showcaseItems.reduce(function (sum, it) {
-        return sum + (it.price * (it.qty || 1));
-      }, 0);
-
-      var deliveryFee = (currency === "$" ? 5.00 : 0);
-      var total = subtotal + deliveryFee;
-
-      var todayFormatted = "May 30, 2025";
-      try {
-        todayFormatted = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-      } catch (e) {}
-
-      return {
-        receiptNo: "UA-568921",
-        orderId: "ORD-983742",
-        store: storeName,
-        businessSlug: B.slug || "urbanattire",
-        storePhone: B.phone || B.wa || "+1 (800) 123-4567",
-        storeEmail: B.email || "support@urbanattire.com",
-        customerName: "Ayan Ali",
-        address: "House 12, Street 45, F-11/2\nIslamabad, Pakistan",
-        estimatedDelivery: "June 5–7, 2025",
-        date: todayFormatted,
-        dateFormatted: todayFormatted,
-        createdAt: new Date().toISOString(),
-        items: showcaseItems,
-        subtotal: subtotal,
-        deliveryFee: deliveryFee,
-        total: total,
-        currencySymbol: currency,
-        paymentMethod: "card",
-        paymentTitle: "MasterCard",
-        paymentSubtitle: "MasterCard ending in 9876",
-        paymentStatus: "Paid",
-        orderStatus: "Order confirmed",
-        isShowcase: true
-      };
-    }
-
-    function normalizeOrder(o) {
-      var B = window.__BZ || {};
-      var storeName = o.store || B.name || "Urban Attire";
-      var currency = o.currencySymbol || B.symbol || B.currency || (storeName === "Urban Attire" ? "$" : "KSh");
-
-      var items = [];
-      if (Array.isArray(o.items) && o.items.length > 0) {
-        items = o.items.map(function (it) {
-          if (typeof it === "string") return { name: it, price: 0, qty: 1, image: "" };
-          return {
-            name: it.name || "Store Item",
-            price: Number(it.price) || 0,
-            qty: Number(it.qty || it.quantity) || 1,
-            image: it.image || it.img || ""
-          };
-        });
-      } else if (Array.isArray(o.line_items) && o.line_items.length > 0) {
-        items = o.line_items.map(function (it) {
-          return {
-            name: it.name || "Store Item",
-            price: Number(it.total ? (it.total / (it.qty || 1)) : 0),
-            qty: Number(it.qty || it.quantity) || 1,
-            image: it.image || ""
-          };
-        });
-      } else {
-        items = [
-          { name: "Store Item", price: Number(o.total) || 2500, qty: 1, image: "" }
-        ];
-      }
-
-      var subtotal = Number(o.subtotal);
-      if (!subtotal || subtotal <= 0) {
-        subtotal = items.reduce(function (sum, it) {
-          return sum + (it.price * it.qty);
-        }, 0);
-      }
-
-      var deliveryFee = Number(o.deliveryFee) || 0;
-      var total = Number(o.total) || (subtotal + deliveryFee);
-
-      var customerName = o.customerName || (o.customer && o.customer.name) || "Ayan Ali";
-      var phone = o.phone || (o.customer && o.customer.phone) || B.phone || "";
-      var address = o.address || (o.fulfilment === "PICKUP" ? "Store Collection" : (B.address || "Westlands, Nairobi"));
-
-      var dateVal = o.date || o.dateFormatted;
-      if (!dateVal && o.createdAt) {
-        try {
-          dateVal = new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-        } catch (e) {}
-      }
-      if (!dateVal) {
-        dateVal = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-      }
-
-      // Calculate estimated delivery: 3–5 days after order date
-      var estDelivery = "Estimated Delivery: Standard Dispatch";
-      try {
-        var baseDate = o.createdAt ? new Date(o.createdAt) : new Date();
-        var d1 = new Date(baseDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-        var d2 = new Date(baseDate.getTime() + 5 * 24 * 60 * 60 * 1000);
-        var m1 = d1.toLocaleDateString("en-US", { month: "short" });
-        var m2 = d2.toLocaleDateString("en-US", { month: "short" });
-        if (m1 === m2) {
-          estDelivery = "Estimated Delivery: " + m1 + " " + d1.getDate() + "–" + d2.getDate() + ", " + d2.getFullYear();
-        } else {
-          estDelivery = "Estimated Delivery: " + m1 + " " + d1.getDate() + " – " + m2 + " " + d2.getDate() + ", " + d2.getFullYear();
-        }
-      } catch (e) {}
-
-      var rawPay = String(o.paymentMethod || o.payment || "").toLowerCase();
-      var payTitle = "Cash on Delivery";
-      var paySub = "Pay upon delivery";
-      if (rawPay.indexOf("card") !== -1 || rawPay.indexOf("master") !== -1 || rawPay.indexOf("visa") !== -1) {
-        payTitle = "MasterCard";
-        paySub = "MasterCard ending in 9876";
-      } else if (rawPay.indexOf("mpesa") !== -1 || rawPay.indexOf("mobile") !== -1 || rawPay.indexOf("till") !== -1 || rawPay.indexOf("paybill") !== -1) {
-        payTitle = "M-Pesa";
-        paySub = "Paybill / Till confirmed";
-      }
-
-      var rawNo = String(o.receiptNo || o.orderId || o.number || "1006");
-      var receiptNum = rawNo.indexOf("UA-") === 0 ? rawNo : ("UA-" + rawNo);
-      var orderNum = rawNo.indexOf("ORD-") === 0 ? rawNo : ("ORD-" + rawNo);
-
-      return {
-        receiptNo: receiptNum,
-        orderId: orderNum,
-        rawNumber: rawNo,
-        token: o.token || "",
-        store: storeName,
-        businessSlug: o.businessSlug || B.slug || "",
-        storePhone: B.phone || B.wa || "+1 (800) 123-4567",
-        storeEmail: B.email || ("support@" + (B.slug || "urbanattire") + ".com"),
-        customerName: customerName,
-        address: address,
-        estimatedDelivery: estDelivery,
-        date: dateVal,
-        createdAt: o.createdAt || new Date().toISOString(),
-        items: items,
-        subtotal: subtotal,
-        deliveryFee: deliveryFee,
-        total: total,
-        currencySymbol: currency,
-        paymentMethod: rawPay,
-        paymentTitle: payTitle,
-        paymentSubtitle: paySub,
-        paymentStatus: o.paymentStatus || "Paid",
-        orderStatus: o.orderStatus || "Order confirmed",
-        isShowcase: false
-      };
-    }
-
-    function renderOrder(order) {
-      currentReceiptOrder = order;
-      var currency = order.currencySymbol || "$";
-
-      // 1. Store Title & Header
-      var titleEl = document.getElementById("receipt-store-title");
-      if (titleEl) titleEl.textContent = order.store || "Urban Attire";
-
-      var backBtnText = document.getElementById("receipt-back-btn-text");
-      if (backBtnText && order.store) backBtnText.textContent = "Back to " + order.store;
-
-      var cancelLink = document.getElementById("receipt-cancel-link");
-      if (cancelLink) cancelLink.href = getStoreHomeUrl();
-
-      var backLink = document.getElementById("receipt-back-btn");
-      if (backLink) backLink.href = getStoreHomeUrl();
-
-      // 2. Metadata Lines
-      var rNo = document.getElementById("r-receipt-no");
-      if (rNo) rNo.textContent = order.receiptNo || "UA-568921";
-
-      var oNo = document.getElementById("r-order-no");
-      if (oNo) oNo.textContent = order.orderId || "ORD-983742";
-
-      var dEl = document.getElementById("r-date");
-      if (dEl) dEl.textContent = order.date || "May 30, 2025";
-
-      // 3. Customer Info
-      var cName = document.getElementById("r-customer-name");
-      if (cName) cName.textContent = order.customerName || "Ayan Ali";
-
-      var cAddr = document.getElementById("r-customer-address");
-      if (cAddr) cAddr.innerHTML = esc(order.address || "Westlands, Nairobi").replace(/\n/g, "<br>");
-
-      var dEst = document.getElementById("r-delivery-estimate");
-      if (dEst) dEst.textContent = order.estimatedDelivery || "Estimated Delivery: Standard Dispatch";
-
-      // 4. Items List
-      var itemsBox = document.getElementById("r-items-container");
-      if (itemsBox) {
-        itemsBox.innerHTML = (order.items || []).map(function (it) {
-          var priceVal = currency + " " + fmtNumber(it.price || 0);
-          var qtyVal = "Qty: " + (it.qty || 1);
-          var imgHtml = "";
-          if (it.image) {
-            imgHtml = '<img src="' + esc(it.image) + '" alt="' + esc(it.name) + '" class="receipt-item-img" onerror="this.onerror=null;this.parentElement.innerHTML=\'<svg width=\\\'20\\\' height=\\\'20\\\' viewBox=\\\'0 0 24 24\\\' fill=\\\'none\\\' stroke=\\\'#4B5563\\\' stroke-width=\\\'2\\\'><path d=\\\'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\\\'/></svg>\';" />';
-          } else {
-            imgHtml = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
-          }
-
-          return [
-            '<div class="receipt-item-card">',
-            '  <div class="receipt-item-left">',
-            '    <div class="receipt-item-img-box">' + imgHtml + '</div>',
-            '    <div class="receipt-item-title">' + esc(it.name) + '</div>',
-            '  </div>',
-            '  <div class="receipt-item-right">',
-            '    <div class="receipt-item-price">' + esc(priceVal) + '</div>',
-            '    <div class="receipt-item-qty">' + esc(qtyVal) + '</div>',
-            '  </div>',
-            '</div>'
-          ].join("\n");
-        }).join("\n");
-      }
-
-      // 5. Shipping & Total
-      var shipEl = document.getElementById("r-shipping-val");
-      if (shipEl) {
-        shipEl.textContent = order.deliveryFee > 0 ? (currency + " " + fmtNumber(order.deliveryFee)) : (currency === "$" ? "$5.00" : "Free");
-      }
-
-      var totalEl = document.getElementById("r-total-val");
-      if (totalEl) {
-        totalEl.textContent = currency + " " + fmtNumber(order.total);
-      }
-
-      // 6. Payment Method Card
-      var payTitleEl = document.getElementById("r-payment-title");
-      if (payTitleEl) payTitleEl.textContent = order.paymentTitle || "MasterCard";
-
-      var paySubEl = document.getElementById("r-payment-sub");
-      if (paySubEl) paySubEl.textContent = order.paymentSubtitle || "MasterCard ending in 9876";
-
-      var payLogoBox = document.getElementById("r-payment-logo");
-      if (payLogoBox) {
-        var pMeth = String(order.paymentMethod || "").toLowerCase();
-        if (pMeth.indexOf("mpesa") !== -1) {
-          payLogoBox.innerHTML = '<span style="background:#00A859;color:#FFF;font-size:9.5px;font-weight:900;padding:3px 6px;border-radius:4px;letter-spacing:0.5px;">M-PESA</span>';
-        } else if (pMeth.indexOf("cash") !== -1) {
-          payLogoBox.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>';
-        } else {
-          payLogoBox.innerHTML = '<svg width="34" height="22" viewBox="0 0 34 22" fill="none"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" fill-opacity="0.9"/></svg>';
-        }
-      }
-
-      // 7. Phone 2 (Support, Returns, Social, QR)
-      var sPhone = document.getElementById("r-support-phone");
-      if (sPhone) {
-        sPhone.textContent = order.storePhone || "+1 (800) 123-4567";
-        sPhone.href = "tel:" + (order.storePhone || "+18001234567").replace(/\s+/g, "");
-      }
-
-      var sEmail = document.getElementById("r-support-email");
-      if (sEmail) {
-        sEmail.textContent = order.storeEmail || "support@urbanattire.com";
-        sEmail.href = "mailto:" + (order.storeEmail || "support@urbanattire.com");
-      }
-
-      var sTrack = document.getElementById("r-support-track");
-      if (sTrack) {
-        var host = window.location.host || (order.businessSlug ? order.businessSlug + ".aqivo.shop" : "urbanattire.com");
-        sTrack.textContent = "Track Order: " + host + "/track";
-      }
-
-      var sRet = document.getElementById("r-support-returns");
-      if (sRet) {
-        var host = window.location.host || (order.businessSlug ? order.businessSlug + ".aqivo.shop" : "urbanattire.com");
-        sRet.textContent = "Visit: " + host + "/returns";
-      }
-
-      var followEl = document.getElementById("r-follow-label");
-      if (followEl) {
-        var handle = (order.store || "urbanattire").toLowerCase().replace(/[^a-z0-9]/g, "");
-        followEl.textContent = "Follow us @" + (handle || "urbanattire");
-      }
-
-      // QR Code Generation
-      var qrImg = document.getElementById("r-qr-image");
-      if (qrImg) {
-        var qrPayload = window.location.href;
-        qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=2&data=" + encodeURIComponent(qrPayload);
-      }
-
-      // Sync simulator tab
-      syncStatusChips(order.paymentStatus);
-    }
-
-    function syncStatusChips(status) {
-      var tabWait = document.getElementById('tab-status-awaiting');
-      var tabRep = document.getElementById('tab-status-reported');
-      var tabPaid = document.getElementById('tab-status-paid');
-      if (!tabWait || !tabRep || !tabPaid) return;
-
-      tabWait.classList.remove('active');
-      tabRep.classList.remove('active');
-      tabPaid.classList.remove('active');
-
-      if (status === 'Paid' || (status && status.toLowerCase().indexOf('paid') !== -1)) {
-        tabPaid.classList.add('active');
-      } else if (status && status.toLowerCase().indexOf('reported') !== -1) {
-        tabRep.classList.add('active');
-      } else {
-        tabWait.classList.add('active');
-      }
-    }
-
-    function setReceiptPaymentStatus(newStatus) {
-      if (!currentReceiptOrder) return;
-      currentReceiptOrder.paymentStatus = newStatus;
-
-      try {
-        var raw = localStorage.getItem('aqivo_orders');
-        if (raw) {
-          var list = JSON.parse(raw);
-          var found = list.find(function (it) {
-            return String(it.receiptNo) === String(currentReceiptOrder.rawNumber || currentReceiptOrder.receiptNo) ||
-                   String(it.orderId) === String(currentReceiptOrder.rawNumber || currentReceiptOrder.orderId);
-          });
-          if (found) {
-            found.paymentStatus = newStatus;
-            localStorage.setItem('aqivo_orders', JSON.stringify(list));
-          }
-        }
-      } catch (e) {}
-
-      syncStatusChips(newStatus);
-      showToast('Payment status: ' + (newStatus.indexOf('Paid') !== -1 ? 'Paid ✓' : newStatus));
-    }
-
     function printReceiptDoc() {
       window.print();
     }
 
-    /* Aqivo WhatsApp order messaging */
-    (function (root) {
-      'use strict';
+    /* Modal controls */
+    function openCancelModal() {
+      var m = document.getElementById('cancel-modal-veil');
+      if (m) m.classList.add('open');
+    }
 
-      function money(n, sym) {
-        return (sym || 'KSh') + ' ' + Number(n || 0).toLocaleString('en-KE');
-      }
+    function closeCancelModal() {
+      var m = document.getElementById('cancel-modal-veil');
+      if (m) m.classList.remove('open');
+    }
 
-      function normalisePhone(raw) {
-        if (!raw) return '';
-        var s = String(raw).trim();
-        var d = s.replace(/\D/g, '');
-        if (!d) return '';
-        if (d.charAt(0) === '0' && d.length === 10) d = '254' + d.slice(1);
-        if (d.length === 9 && /^[17]/.test(d)) d = '254' + d;
-        return d;
-      }
+    function openReturnsModal() {
+      var m = document.getElementById('returns-modal-veil');
+      if (m) m.classList.add('open');
+    }
 
-      function buildOrderMessage(o, opts) {
-        opts = opts || {};
-        var sym = o.currencySymbol || 'KSh';
-        var no = o.rawNumber || o.receiptNo || o.orderId || '';
-        var storeName = opts.storeName || o.store || 'there';
-        var lines = [
-          'Hello ' + storeName + '! Here is my order receipt:',
-          '',
-          '🧾 Order #' + no,
-          '👤 Customer: ' + (o.customerName || 'Customer'),
-          '📍 Delivery: ' + (o.address || 'Standard Delivery'),
-          '💳 Payment: ' + (o.paymentTitle || o.paymentMethod || 'Confirmed'),
-          '💰 Total: ' + sym + ' ' + fmtNumber(o.total),
-          '',
-          'View Online Receipt: ' + window.location.href
-        ];
-        return lines.join('\n');
-      }
+    function closeReturnsModal() {
+      var m = document.getElementById('returns-modal-veil');
+      if (m) m.classList.remove('open');
+    }
 
-      root.AqivoWhatsApp = {
-        buildOrderMessage: buildOrderMessage,
-        normalisePhone: normalisePhone
-      };
-    })(typeof window !== 'undefined' ? window : globalThis);
-
-    function shareReceiptDoc() {
+    function contactShopViaWhatsApp() {
       if (!currentReceiptOrder) return;
       var o = currentReceiptOrder;
-      var B = window.__BZ || {};
-      var rawPhone = o.storePhone || B.phone || B.wa || '';
-      var clean = window.AqivoWhatsApp.normalisePhone(rawPhone);
-      var msg = window.AqivoWhatsApp.buildOrderMessage(o, { storeName: o.store });
-
+      var phone = (o.store && (o.store.whatsapp || o.store.phone)) || o.storePhone || '';
+      var clean = normalisePhone(phone);
+      var msg = 'Hello ' + (o.storeName || o.store || 'there') + '! I am inquiring about my Order #' + (o.rawNumber || o.number || o.receiptNo || '');
       if (clean) {
         window.open('https://wa.me/' + clean + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
       } else {
@@ -1438,16 +1306,47 @@
       }
     }
 
-    function copyReceiptDoc() {
+    function normalisePhone(raw) {
+      if (!raw) return '';
+      var s = String(raw).trim();
+      var d = s.replace(/\D/g, '');
+      if (!d) return '';
+      if (d.charAt(0) === '0' && d.length === 10) d = '254' + d.slice(1);
+      if (d.length === 9 && /^[17]/.test(d)) d = '254' + d;
+      return d;
+    }
+
+    function shareReceiptDoc() {
       if (!currentReceiptOrder) return;
       var o = currentReceiptOrder;
-      var text = (o.store || 'Order Receipt') + ' #' + (o.receiptNo || o.orderId) + '\n' +
-                 'Total: ' + (o.currencySymbol || '$') + ' ' + fmtNumber(o.total) + '\n' +
-                 'Receipt Link: ' + window.location.href;
+      var storeName = o.storeName || o.store || 'Store';
+      var lines = [
+        'Hello ' + storeName + '! Here is my order confirmation:',
+        '',
+        '🧾 Order #' + (o.rawNumber || o.number || o.receiptNo),
+        '👤 Customer: ' + (o.customerName || 'Customer'),
+        '📍 Delivery: ' + (o.address || 'Standard Delivery'),
+        '💳 Payment: ' + (o.paymentMethod || 'Confirmed'),
+        '💰 Total: ' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.total),
+        '',
+        'View Official Receipt: ' + window.location.href
+      ];
+      var text = lines.join('
+');
+      var phone = (o.store && (o.store.whatsapp || o.store.phone)) || o.storePhone || '';
+      var clean = normalisePhone(phone);
+      if (clean) {
+        window.open('https://wa.me/' + clean + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
+      } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+      }
+    }
 
+    function copyReceiptDoc() {
+      var text = window.location.href;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
-          showToast('Receipt link copied!');
+          showToast('Shareable receipt link copied!');
         }).catch(function () {
           showToast('Copied to clipboard');
         });
@@ -1456,17 +1355,520 @@
       }
     }
 
-    // Expose StoreApp interface
-    window.StoreApp = {
-      renderReceiptHTML: renderOrder,
-      shareReceiptWhatsApp: shareReceiptDoc,
-      printReceipt: printReceiptDoc,
-      copyReceipt: copyReceiptDoc,
-      setPaymentStatus: setReceiptPaymentStatus
-    };
+    /* Submit M-Pesa transaction reference */
+    function submitMpesaReference() {
+      if (!currentReceiptOrder) return;
+      var input = document.getElementById('r-ref-input');
+      var code = input ? input.value.trim().toUpperCase() : '';
+      if (!code || code.length < 5) {
+        showToast('Please enter a valid M-Pesa transaction code');
+        return;
+      }
+      var btn = document.getElementById('r-ref-submit-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+
+      var B = window.__BZ || {};
+      var slug = (currentReceiptOrder.store && currentReceiptOrder.store.slug) || currentReceiptOrder.businessSlug || B.slug || 'urbanattire';
+      var token = currentReceiptOrder.token || currentReceiptOrder.rawNumber;
+
+      fetch('/api/v1/public/' + encodeURIComponent(slug) + '/orders/' + encodeURIComponent(token) + '/payment-reference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reference: code })
+      }).then(function (res) {
+        if (!res.ok) throw new Error('Failed');
+        return res.json();
+      }).then(function () {
+        showToast('M-Pesa code submitted for verification ✓');
+        if (input) input.value = '';
+        var subEl = document.getElementById('r-payment-sub');
+        if (subEl) subEl.textContent = 'M-Pesa reference: ' + code + ' (Verification pending)';
+      }).catch(function () {
+        showToast('Could not record reference. Please share via WhatsApp.');
+      }).finally(function () {
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Code'; }
+      });
+    }
+
+    /* Cancel Order via Backend */
+    function confirmCancelOrder() {
+      if (!currentReceiptOrder) return;
+      var btn = document.getElementById('btn-confirm-cancel');
+      if (btn) { btn.disabled = true; btn.textContent = 'Cancelling...'; }
+
+      var B = window.__BZ || {};
+      var slug = (currentReceiptOrder.store && currentReceiptOrder.store.slug) || currentReceiptOrder.businessSlug || B.slug || 'urbanattire';
+      var token = currentReceiptOrder.token || currentReceiptOrder.rawNumber;
+
+      var cust = {};
+      try { cust = JSON.parse(localStorage.getItem('aqivo_customer') || '{}'); } catch (e) {}
+
+      var cancelUrl = '/api/v1/public/' + encodeURIComponent(slug) + '/orders/' + encodeURIComponent(token) + '/cancel';
+      if (currentReceiptOrder.token) cancelUrl += '?token=' + encodeURIComponent(currentReceiptOrder.token);
+      if (cust.phone) cancelUrl += (cancelUrl.indexOf('?') === -1 ? '?' : '&') + 'phone=' + encodeURIComponent(cust.phone);
+
+      fetch(cancelUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Customer-Phone': cust.phone || ''
+        },
+        body: JSON.stringify({ reason: 'Cancelled by customer via receipt' })
+      }).then(function (res) {
+        if (!res.ok) throw new Error('Cancellation not allowed');
+        return res.json();
+      }).then(function (updated) {
+        closeCancelModal();
+        showToast('Order successfully cancelled.');
+        renderOrder(normalizeOrder(updated));
+      }).catch(function (err) {
+        closeCancelModal();
+        showToast('Cannot cancel: Order is already being prepared or fulfilled.');
+      }).finally(function () {
+        if (btn) { btn.disabled = false; btn.textContent = 'Yes, Cancel'; }
+      });
+    }
+
+    /* Format and normalize backend order response */
+    function normalizeOrder(o) {
+      var B = window.__BZ || {};
+      var storeObj = o.store || {};
+      var storeName = storeObj.name || o.store || B.name || 'Urban Attire';
+      var currency = o.currency_symbol || o.currencySymbol || B.symbol || B.currency || 'KSh';
+
+      // Items parsing
+      var items = [];
+      var srcItems = o.items || o.line_items || [];
+      if (Array.isArray(srcItems) && srcItems.length > 0) {
+        items = srcItems.map(function (it) {
+          if (typeof it === 'string') return { name: it, price: 0, qty: 1, image: '', variant: '' };
+          var unitPrice = Number(it.unit_price != null ? it.unit_price : it.price) || 0;
+          var qty = Number(it.qty != null ? it.qty : it.quantity) || 1;
+          var lineTot = Number(it.total) || (unitPrice * qty);
+          return {
+            name: it.name || 'Store Item',
+            variant: it.variant || it.variant_title || '',
+            price: unitPrice || (lineTot / qty),
+            total: lineTot,
+            qty: qty,
+            image: it.image || it.image_url || it.img || ''
+          };
+        });
+      }
+
+      var subtotal = Number(o.subtotal) || items.reduce(function (s, i) { return s + (i.price * i.qty); }, 0);
+      var deliveryFee = Number(o.delivery_fee != null ? o.delivery_fee : o.deliveryFee) || 0;
+      var discount = Number(o.discount) || 0;
+      var total = Number(o.total) || (subtotal + deliveryFee - discount);
+
+      var cust = o.customer || {};
+      var customerName = cust.name || o.customer_name || o.customerName || 'Valued Customer';
+      var customerPhone = cust.phone || o.customer_phone || o.phone || '';
+
+      var deliv = o.delivery || {};
+      var address = deliv.address || o.address || (deliv.method === 'PICKUP' ? 'Store Collection' : (B.address || 'Standard Delivery'));
+
+      // Date
+      var dateStr = o.created_at || o.createdAt || o.date;
+      var formattedDate = 'Today';
+      try {
+        if (dateStr) formattedDate = new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      } catch (e) {}
+
+      // Tracking steps
+      var defaultSteps = [
+        { code: 'PLACED', title: 'Order placed', done: true, current: o.status === 'PENDING' || !o.status },
+        { code: 'CONFIRMED', title: 'Accepted by seller', done: ['CONFIRMED', 'PREPARING', 'READY', 'COMPLETED'].indexOf(o.status) !== -1, current: o.status === 'CONFIRMED' },
+        { code: 'PREPARING', title: 'Preparing your order', done: ['PREPARING', 'READY', 'COMPLETED'].indexOf(o.status) !== -1, current: o.status === 'PREPARING' },
+        { code: 'READY', title: (deliv.method === 'PICKUP' ? 'Ready for collection' : 'Out for delivery'), done: ['READY', 'COMPLETED'].indexOf(o.status) !== -1, current: o.status === 'READY' },
+        { code: 'COMPLETED', title: 'Completed', done: o.status === 'COMPLETED', current: o.status === 'COMPLETED' }
+      ];
+      var trackingSteps = Array.isArray(o.tracking_steps) && o.tracking_steps.length > 0 ? o.tracking_steps : defaultSteps;
+
+      var rawNo = String(o.number || o.rawNumber || o.orderId || o.receiptNo || '1006');
+      var receiptNum = o.receipt_no || (rawNo.indexOf('AQ-') === 0 ? rawNo : ('AQ-' + rawNo));
+
+      var status = (o.status || 'PENDING').toUpperCase();
+      var payStatus = (o.payment_status || o.paymentStatus || 'PENDING').toUpperCase();
+      var payMethod = (o.payment_method || o.paymentMethod || 'CASH').toUpperCase();
+
+      return {
+        id: o.id || '',
+        number: rawNo,
+        rawNumber: rawNo,
+        receiptNo: receiptNum,
+        token: o.token || '',
+        status: status,
+        statusLabel: o.status_label || (status === 'PENDING' ? 'Awaiting seller confirmation' : status),
+        paymentStatus: payStatus,
+        paymentMethod: payMethod,
+        paymentInstructions: o.payment_instructions || '',
+        paymentReference: o.payment_reference || '',
+        currencySymbol: currency,
+        subtotal: subtotal,
+        deliveryFee: deliveryFee,
+        discount: discount,
+        total: total,
+        customerName: customerName,
+        customerPhone: customerPhone,
+        address: address,
+        deliveryMethod: deliv.method || o.delivery_method || 'DELIVERY',
+        estimatedDelivery: 'Estimated Delivery: 2–4 Business Days',
+        dateFormatted: formattedDate,
+        createdAt: dateStr || new Date().toISOString(),
+        items: items,
+        store: storeObj,
+        storeName: storeName,
+        storePhone: storeObj.phone || storeObj.whatsapp || B.phone || B.wa || '',
+        storeEmail: storeObj.email || B.email || '',
+        returnPolicy: (storeObj.return_policy || o.return_policy || '30-day return policy for unused, unopened items in original packaging. Contact store directly.'),
+        trackingSteps: trackingSteps,
+        canCancel: Boolean(o.can_cancel != null ? o.can_cancel : (status === 'PENDING' || status === 'CONFIRMED'))
+      };
+    }
+
+    /* Render Order to UI */
+    function renderOrder(order) {
+      currentReceiptOrder = order;
+
+      // Titles & banner
+      var storeTitleEl = document.getElementById('receipt-store-title');
+      if (storeTitleEl) storeTitleEl.textContent = order.storeName;
+
+      var placedBanner = document.getElementById('r-placed-banner');
+      if (placedBanner) {
+        if (order.status === 'CANCELLED') {
+          placedBanner.textContent = 'Order Cancelled';
+          placedBanner.style.color = '#E11D48';
+        } else if (order.status === 'COMPLETED') {
+          placedBanner.textContent = 'Order Completed ✓';
+          placedBanner.style.color = '#15803D';
+        } else {
+          placedBanner.textContent = 'Order placed successfully';
+          placedBanner.style.color = '#15803D';
+        }
+      }
+
+      var orderSub = document.getElementById('r-order-sub');
+      if (orderSub) {
+        orderSub.textContent = order.status === 'CANCELLED' ? 'This order was cancelled.' : 'Thank you for your order!';
+      }
+
+      // Meta lines
+      var rNo = document.getElementById('r-receipt-no');
+      if (rNo) rNo.textContent = order.receiptNo;
+
+      var oNo = document.getElementById('r-order-no');
+      if (oNo) oNo.textContent = order.number;
+
+      var dEl = document.getElementById('r-date');
+      if (dEl) dEl.textContent = order.dateFormatted;
+
+      // Status Badge
+      var statusBadge = document.getElementById('r-status-badge');
+      if (statusBadge) {
+        statusBadge.textContent = order.statusLabel;
+        statusBadge.className = 'receipt-status-pill ' + (
+          order.status === 'COMPLETED' ? 'status-green' :
+          order.status === 'CANCELLED' ? 'status-rose' :
+          order.status === 'CONFIRMED' ? 'status-blue' :
+          order.status === 'PREPARING' ? 'status-purple' :
+          order.status === 'READY' ? 'status-teal' : 'status-amber'
+        );
+      }
+
+      // Stepper
+      var stepperList = document.getElementById('r-stepper-list');
+      var trackerLabel = document.getElementById('r-tracker-current-label');
+      if (trackerLabel) trackerLabel.textContent = order.statusLabel;
+
+      if (stepperList) {
+        stepperList.innerHTML = order.trackingSteps.map(function (st, idx) {
+          var cls = st.done ? 'done' : (st.current ? 'active' : '');
+          var icon = st.done ? '✓' : (idx + 1);
+          var timeHtml = st.time ? '<div class="receipt-step-time">' + esc(new Date(st.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) + '</div>' : '';
+          return [
+            '<div class="receipt-step-item ' + cls + '">',
+            '  <div class="receipt-step-bullet">' + icon + '</div>',
+            '  <div class="receipt-step-info">',
+            '    <div class="receipt-step-name">' + esc(st.title) + '</div>',
+            timeHtml,
+            '  </div>',
+            '</div>'
+          ].join('');
+        }).join('');
+      }
+
+      // Customer
+      var cName = document.getElementById('r-customer-name');
+      if (cName) cName.textContent = order.customerName + (order.customerPhone ? ' (' + order.customerPhone + ')' : '');
+
+      var cAddr = document.getElementById('r-customer-address');
+      if (cAddr) cAddr.textContent = order.address;
+
+      var delivEst = document.getElementById('r-delivery-estimate');
+      if (delivEst) delivEst.textContent = order.estimatedDelivery;
+
+      // Items list
+      var itemsBox = document.getElementById('r-items-container');
+      if (itemsBox) {
+        itemsBox.innerHTML = order.items.map(function (it) {
+          var imgHtml = it.image ?
+            '<img src="' + esc(it.image) + '" alt="" class="receipt-item-img" onerror="this.parentElement.innerHTML='📦';" />' :
+            '<span style="font-size:18px;">📦</span>';
+          var variantHtml = it.variant ? '<div class="receipt-item-variant">' + esc(it.variant) + '</div>' : '';
+
+          return [
+            '<div class="receipt-item-card">',
+            '  <div class="receipt-item-left">',
+            '    <div class="receipt-item-img-box">' + imgHtml + '</div>',
+            '    <div>',
+            '      <div class="receipt-item-title">' + esc(it.name) + '</div>',
+            variantHtml,
+            '      <div class="receipt-item-qty">Qty: ' + it.qty + ' × ' + order.currencySymbol + ' ' + fmtNumber(it.price) + '</div>',
+            '    </div>',
+            '  </div>',
+            '  <div class="receipt-item-right">',
+            '    <div class="receipt-item-price">' + order.currencySymbol + ' ' + fmtNumber(it.total) + '</div>',
+            '  </div>',
+            '</div>'
+          ].join('');
+        }).join('');
+      }
+
+      // Financials
+      var subVal = document.getElementById('r-subtotal-val');
+      if (subVal) subVal.textContent = order.currencySymbol + ' ' + fmtNumber(order.subtotal);
+
+      var shipVal = document.getElementById('r-shipping-val');
+      if (shipVal) shipVal.textContent = order.deliveryFee > 0 ? (order.currencySymbol + ' ' + fmtNumber(order.deliveryFee)) : 'Free';
+
+      var discRow = document.getElementById('r-discount-row');
+      var discVal = document.getElementById('r-discount-val');
+      if (discRow && discVal) {
+        if (order.discount > 0) {
+          discRow.style.display = 'flex';
+          discVal.textContent = '-' + order.currencySymbol + ' ' + fmtNumber(order.discount);
+        } else {
+          discRow.style.display = 'none';
+        }
+      }
+
+      var totLabel = document.getElementById('r-total-label');
+      if (totLabel) totLabel.textContent = order.paymentStatus === 'PAID' ? 'TOTAL PAID:' : 'TOTAL DUE:';
+
+      var totVal = document.getElementById('r-total-val');
+      if (totVal) totVal.textContent = order.currencySymbol + ' ' + fmtNumber(order.total);
+
+      // Payment Box
+      var payTitle = document.getElementById('r-payment-title');
+      if (payTitle) {
+        payTitle.textContent = order.paymentMethod === 'MPESA' ? 'M-Pesa Mobile Payment' :
+                               order.paymentMethod === 'CASH' ? 'Cash on Delivery' :
+                               order.paymentMethod === 'BANK' ? 'Bank Transfer' :
+                               order.paymentMethod;
+      }
+
+      var paySub = document.getElementById('r-payment-sub');
+      if (paySub) {
+        if (order.paymentStatus === 'PAID') {
+          paySub.textContent = 'Payment verified & confirmed ✓';
+        } else {
+          paySub.textContent = order.paymentReference ? ('Reference submitted: ' + order.paymentReference) : 'Awaiting payment confirmation';
+        }
+      }
+
+      var payChip = document.getElementById('r-payment-status-pill');
+      if (payChip) {
+        payChip.textContent = order.paymentStatus === 'PAID' ? 'Paid ✓' : (order.paymentStatus === 'FAILED' ? 'Failed' : 'Payment Due');
+        payChip.className = 'receipt-status-pill ' + (order.paymentStatus === 'PAID' ? 'status-green' : (order.paymentStatus === 'FAILED' ? 'status-rose' : 'status-amber'));
+      }
+
+      // Payment instructions & form
+      var payInstrBox = document.getElementById('r-payment-instructions');
+      var refForm = document.getElementById('r-ref-form');
+      if (payInstrBox) {
+        if (order.paymentStatus !== 'PAID' && order.paymentInstructions) {
+          payInstrBox.style.display = 'block';
+          payInstrBox.textContent = order.paymentInstructions;
+        } else {
+          payInstrBox.style.display = 'none';
+        }
+      }
+      if (refForm) {
+        if (order.paymentStatus !== 'PAID' && order.paymentMethod === 'MPESA') {
+          refForm.style.display = 'flex';
+        } else {
+          refForm.style.display = 'none';
+        }
+      }
+
+      // Support info
+      var pText = document.getElementById('r-support-phone-text');
+      var pLink = document.getElementById('r-support-phone');
+      if (pText && order.storePhone) {
+        pText.textContent = 'Call ' + order.storePhone;
+        if (pLink) pLink.href = 'tel:' + order.storePhone.replace(/[^0-9+]/g, '');
+      }
+
+      var eText = document.getElementById('r-support-email-text');
+      var eLink = document.getElementById('r-support-email');
+      if (eText && order.storeEmail) {
+        eText.textContent = order.storeEmail;
+        if (eLink) eLink.href = 'mailto:' + order.storeEmail;
+      }
+
+      // Return policy
+      var polText = document.getElementById('r-policy-text');
+      if (polText && order.returnPolicy) polText.textContent = order.returnPolicy;
+
+      // Cancel button visibility
+      var cancelBtn = document.getElementById('btn-cancel-order');
+      if (cancelBtn) {
+        cancelBtn.style.display = (order.canCancel && order.status !== 'CANCELLED' && order.status !== 'COMPLETED') ? 'block' : 'none';
+      }
+
+      // QR Code
+      var qrImg = document.getElementById('r-qr-image');
+      if (qrImg) {
+        qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(window.location.href);
+      }
+    }
+
+    /* Asynchronous backend order loading */
+    function loadReceiptOrder() {
+      var params = new URLSearchParams(window.location.search);
+      var queryOrderId = params.get('orderId') || params.get('order') || params.get('receipt');
+      var queryToken = params.get('token');
+
+      var cust = {};
+      try { cust = JSON.parse(localStorage.getItem('aqivo_customer') || '{}'); } catch (e) {}
+
+      // 1. Immediate local cache check for zero-loading delay
+      var cachedOrder = null;
+      try {
+        var raw = localStorage.getItem('aqivo_orders');
+        if (raw) {
+          var list = JSON.parse(raw);
+          if (Array.isArray(list) && list.length > 0) {
+            if (queryToken) {
+              cachedOrder = list.find(function (it) { return it.token === queryToken; });
+            }
+            if (!cachedOrder && queryOrderId) {
+              cachedOrder = list.find(function (it) {
+                return String(it.receiptNo) === String(queryOrderId) ||
+                       String(it.orderId) === String(queryOrderId) ||
+                       String(it.number) === String(queryOrderId) ||
+                       String(it.rawNumber) === String(queryOrderId);
+              });
+            }
+            if (!cachedOrder && !queryOrderId && !queryToken) {
+              cachedOrder = list[0];
+            }
+          }
+        }
+      } catch (e) {}
+
+      if (cachedOrder) {
+        renderOrder(normalizeOrder(cachedOrder));
+      }
+
+      // 2. Fetch fresh, verified persisted order from Backend API
+      var ref = queryToken || queryOrderId || (cachedOrder && (cachedOrder.token || cachedOrder.rawNumber));
+      if (!ref) {
+        if (!cachedOrder) {
+          renderShowcaseOrder();
+        }
+        return;
+      }
+
+      var B = window.__BZ || {};
+      var slug = (cachedOrder && cachedOrder.businessSlug) || B.slug || (window.location.pathname.split('/')[1] || 'urbanattire');
+      if (!slug || slug.indexOf('receipt') !== -1) slug = 'urbanattire';
+
+      var fetchUrl = '/api/v1/public/' + encodeURIComponent(slug) + '/orders/' + encodeURIComponent(ref);
+      var q = [];
+      if (queryToken && queryToken !== ref) q.push('token=' + encodeURIComponent(queryToken));
+      if (cust.phone) q.push('phone=' + encodeURIComponent(cust.phone));
+      if (q.length) fetchUrl += '?' + q.join('&');
+
+      var syncStatusEl = document.getElementById('r-sync-status');
+      if (syncStatusEl) syncStatusEl.textContent = 'Updating...';
+
+      fetch(fetchUrl, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Customer-Phone': cust.phone || ''
+        }
+      }).then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      }).then(function (backendOrder) {
+        if (syncStatusEl) syncStatusEl.textContent = 'Verified Live';
+        var norm = normalizeOrder(backendOrder);
+        renderOrder(norm);
+
+        // Update local order storage cache
+        try {
+          var rawList = localStorage.getItem('aqivo_orders');
+          var list = rawList ? JSON.parse(rawList) : [];
+          if (!Array.isArray(list)) list = [];
+          var idx = list.findIndex(function (it) {
+            return String(it.number || it.rawNumber || it.token) === String(norm.number || norm.token);
+          });
+          if (idx >= 0) {
+            list[idx] = Object.assign({}, list[idx], norm);
+          } else {
+            list.unshift(norm);
+          }
+          localStorage.setItem('aqivo_orders', JSON.stringify(list));
+        } catch (e) {}
+      }).catch(function (err) {
+        if (syncStatusEl) syncStatusEl.textContent = 'Saved Order';
+        if (!cachedOrder) {
+          renderShowcaseOrder();
+        }
+      });
+    }
+
+    function renderShowcaseOrder() {
+      var B = window.__BZ || {};
+      var storeName = B.name || 'Urban Attire';
+      var showcase = {
+        receiptNo: 'AQ-10482',
+        number: '10482',
+        storeName: storeName,
+        dateFormatted: 'Today',
+        status: 'PENDING',
+        statusLabel: 'Awaiting seller confirmation',
+        paymentStatus: 'PENDING',
+        paymentMethod: 'MPESA',
+        paymentInstructions: 'Pay with M-Pesa Buy Goods Till 123456. Add transaction reference code above after paying.',
+        customerName: 'Ayan Ali',
+        customerPhone: '+254712345678',
+        address: 'Standard Courier Delivery',
+        estimatedDelivery: 'Estimated Delivery: 2–3 Business Days',
+        subtotal: 2500,
+        deliveryFee: 200,
+        discount: 0,
+        total: 2700,
+        currencySymbol: 'KSh',
+        items: [
+          { name: 'Classic Sneakers', variant: 'Size 36 - Essential Edition', price: 2500, total: 2500, qty: 1, image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=150&auto=format&fit=crop&q=80' }
+        ],
+        trackingSteps: [
+          { code: 'PLACED', title: 'Order placed', done: true, current: true, time: new Date().toISOString() },
+          { code: 'CONFIRMED', title: 'Accepted by seller', done: false, current: false },
+          { code: 'PREPARING', title: 'Preparing your order', done: false, current: false },
+          { code: 'READY', title: 'Out for delivery', done: false, current: false },
+          { code: 'COMPLETED', title: 'Completed', done: false, current: false }
+        ],
+        canCancel: true
+      };
+      renderOrder(normalizeOrder(showcase));
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
-      // Set live clocks in mockup headers
       function updatePhoneClocks() {
         var d = new Date();
         var h = d.getHours();
@@ -1479,45 +1881,7 @@
       }
       updatePhoneClocks();
 
-      var params = new URLSearchParams(window.location.search);
-      var queryOrderId = params.get('orderId') || params.get('order') || params.get('receipt');
-      var queryToken = params.get('token');
-
-      var resolvedOrder = null;
-
-      try {
-        var raw = localStorage.getItem('aqivo_orders');
-        if (raw) {
-          var list = JSON.parse(raw);
-          if (Array.isArray(list) && list.length > 0) {
-            if (queryOrderId) {
-              resolvedOrder = list.find(function (it) {
-                return String(it.receiptNo) === String(queryOrderId) ||
-                       String(it.orderId) === String(queryOrderId) ||
-                       String(it.number) === String(queryOrderId);
-              });
-            }
-            if (!resolvedOrder && queryToken) {
-              resolvedOrder = list.find(function (it) {
-                return it.token === queryToken;
-              });
-            }
-            if (!resolvedOrder && !queryOrderId && !queryToken) {
-              var B = window.__BZ || {};
-              var storeOrder = list.find(function (it) {
-                return (B.slug && it.businessSlug === B.slug) || (B.name && it.store === B.name);
-              });
-              if (storeOrder) resolvedOrder = storeOrder;
-            }
-          }
-        }
-      } catch (e) {}
-
-      if (resolvedOrder) {
-        renderOrder(normalizeOrder(resolvedOrder));
-      } else {
-        renderOrder(generateShowcaseOrder());
-      }
+      loadReceiptOrder();
     });
   </script>
 </body>

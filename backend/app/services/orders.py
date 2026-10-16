@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import secrets
+import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
 
@@ -38,7 +39,8 @@ def _lock(db: Session, business: Business) -> None:
 
 
 def _event(order: Order, kind: str, message: str, *, status: str | None = None, actor=None) -> None:
-    order.events.append(OrderEvent(business_id=order.business_id, kind=kind, status=status, message=message[:300], actor_id=actor))
+    aid = actor if isinstance(actor, uuid.UUID) else None
+    order.events.append(OrderEvent(business_id=order.business_id, kind=kind, status=status, message=message[:300], actor_id=aid))
 
 
 def _clean_schedule(v: str | None) -> str | None:
@@ -137,7 +139,8 @@ def restock(db: Session, order: Order, reason: str, *, actor=None) -> None:
         p = db.get(Product, it.product_id)
         v = db.get(ProductVariant, it.variant_id) if it.variant_id else None
         if p is not None and p.business_id == order.business_id:
-            inv.adjust_stock(db, p, v, it.quantity, reason, note=f"Order #{order.number}", order_id=order.id, user_id=actor, allow_negative=True)
+            uid = actor if isinstance(actor, uuid.UUID) else None
+            inv.adjust_stock(db, p, v, it.quantity, reason, note=f"Order #{order.number}", order_id=order.id, user_id=uid, allow_negative=True)
     order.stock_restored = True
 
 

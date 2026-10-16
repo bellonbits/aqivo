@@ -303,3 +303,39 @@ def test_unpublished_section_is_not_leaked_after_first_publish(owner, client):
     assert "SECRET NEW SECTION" not in client.get(f"/{owner.slug}").text
     owner.post("/api/v1/websites/me/publish")
     assert "SECRET NEW SECTION" in client.get(f"/{owner.slug}").text
+
+
+def test_receipt_end_to_end_data_and_cancellation(owner, client):
+    p = product(owner, name="Classic Sneakers", price="2500", track_stock=True, stock_qty=5)
+    o = order(client, owner, [line(p, 1)], phone="0712345678", name="Ayan Ali").json()
+    tok = o["token"]
+    num = o["number"]
+
+    # 1. Fetch by secure token
+    rec = client.get(f"/api/v1/public/{owner.slug}/orders/{tok}").json()
+    assert rec["number"] == num
+    assert rec["receipt_no"] == f"AQ-{num}"
+    assert rec["status"] == "PENDING"
+    assert rec["status_label"] == "Awaiting seller confirmation"
+    assert rec["payment_status"] in ("UNPAID", "PENDING")
+    assert rec["customer"]["name"] == "Ayan Ali"
+    assert rec["total"] == 2500.0
+    assert len(rec["tracking_steps"]) == 5
+    assert rec["can_cancel"] is True
+
+    # 2. Fetch by number with token / phone verification
+    assert client.get(f"/api/v1/public/{owner.slug}/orders/{num}").status_code == 404
+    rec_by_num = client.get(f"/api/v1/public/{owner.slug}/orders/{num}", params={"token": tok}).json()
+    assert rec_by_num["token"] == tok
+
+    rec_by_phone = client.get(f"/api/v1/public/{owner.slug}/orders/{num}", headers={"X-Customer-Phone": "0712345678"}).json()
+    assert rec_by_phone["token"] == tok
+
+    # 3. Cancel order via public endpoint
+    cancel_res = client.post(f"/api/v1/public/{owner.slug}/orders/{tok}/cancel", json={"reason": "Changed my mind"}).json()
+    assert cancel_res["status"] == "CANCELLED"
+    assert cancel_res["can_cancel"] is False
+
+    # Stock should be restored to 5
+    mv = owner.get("/api/v1/inventory/movements", params={"product_id": p["id"]}).json()["items"]
+    assert mv[0]["reason"] == "CANCELLED" and mv[0]["qty_after"] == 5
