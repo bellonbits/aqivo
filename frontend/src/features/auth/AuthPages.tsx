@@ -2,7 +2,7 @@ import { useState, useEffect, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Eye, EyeOff, CheckCircle2, MessageSquare, RefreshCw, ShieldCheck } from 'lucide-react'
 import { useAuth } from './AuthContext'
-import { api } from '@/lib/api'
+import { api, setAccessToken } from '@/lib/api'
 import { Button, Input, TextField } from '@/components/ui'
 import { Logo } from '@/components/Logo'
 
@@ -339,8 +339,11 @@ export function VerifyEmailPage() {
 
   useEffect(() => {
     if (token) {
-      api.post('/auth/verify-email', { token })
-        .then(async () => {
+      api.post<{ access_token?: string; email_verified?: boolean }>('/auth/verify-email', { token })
+        .then(async (res) => {
+          if (res?.access_token) {
+            setAccessToken(res.access_token)
+          }
           setStatus('success')
           try {
             await reload()

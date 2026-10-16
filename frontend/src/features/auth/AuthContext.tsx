@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const reload = useCallback(async () => {
     try {
-      const m = await api.get<Me>('/auth/me')
+      const m = await api.get<Me>('/auth/me', { _t: Date.now() })
       setMe(m)
       setLocale(m.user.locale)
       return m

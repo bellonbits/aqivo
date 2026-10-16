@@ -78,6 +78,60 @@ app.mount("/media", StaticFiles(directory=settings.media_dir, check_dir=False), 
 app.mount("/static", StaticFiles(directory=BASE / "public" / "static"), name="static")
 app.mount("/brand", StaticFiles(directory=BASE / "public" / "static" / "brand"), name="brand")
 
+
+@app.get("/verify-email", include_in_schema=False)
+def direct_verify_email(token: str | None = None, db: Session = Depends(get_db)):
+    """Handles direct browser clicks from verification email if routed directly to backend."""
+    from fastapi.responses import RedirectResponse, HTMLResponse
+    s = settings
+    app_base = (s.app_base_url or "https://www.aqivo.shop").rstrip("/")
+    if not token:
+        return RedirectResponse(f"{app_base}/login", status_code=302)
+    try:
+        from app.core.security import decode_token, create_refresh_token
+        from app.models.identity import User
+        from app.services.audit import audit
+        claims = decode_token(token, "verify_email")
+        sub = claims.get("sub")
+        try:
+            uid = uuid.UUID(str(sub)) if sub else None
+        except (ValueError, TypeError):
+            uid = None
+        user = db.get(User, uid) if uid else None
+        if not user and claims.get("email"):
+            user = db.scalars(select(User).where(User.email == str(claims["email"]).lower(), User.deleted_at.is_(None))).first()
+        if not user or user.deleted_at or not user.is_active:
+            return HTMLResponse(
+                "<html><body style='font-family:-apple-system,sans-serif;text-align:center;padding:48px;background:#f8fafc;'>"
+                "<div style='max-width:440px;margin:40px auto;background:#fff;padding:36px;border-radius:12px;border:1px solid #e2e8f0;'>"
+                "<h2 style='color:#e11d48;margin-top:0;'>Invalid or Expired Link</h2>"
+                "<p style='color:#475569;'>This verification link is no longer valid or has expired.</p>"
+                f"<a href='{app_base}/login' style='display:inline-block;background:#0f172a;color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;font-weight:600;'>Return to Sign In</a>"
+                "</div></body></html>",
+                status_code=400,
+            )
+        if not user.email_verified:
+            user.email_verified = True
+            audit(db, "auth.email_verified", user_id=user.id)
+            db.commit()
+
+        # Set session cookie and redirect to dashboard
+        ref_token = create_refresh_token(str(user.id), user.token_version)
+        resp = RedirectResponse(f"{app_base}/dashboard?verified=true", status_code=302)
+        resp.set_cookie(
+            "bz_refresh",
+            ref_token,
+            httponly=True,
+            secure=(s.environment == "production"),
+            samesite="lax",
+            max_age=s.refresh_token_days * 86400,
+            path="/api/v1/auth",
+        )
+        return resp
+    except Exception:
+        return RedirectResponse(f"{app_base}/verify-email?token={token}", status_code=302)
+
+
 NOSTORE = {"Cache-Control": "no-store"}
 
 _PREVIEW_CTX_CACHE: dict[str, tuple[float, any, dict, dict]] = {}

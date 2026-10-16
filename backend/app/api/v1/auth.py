@@ -186,7 +186,7 @@ def reset_password(body: ResetIn, db: Session = Depends(get_db)):
 
 
 @router.post("/verify-email", dependencies=[Depends(rate_limit("verify_email", 15, 900))])
-def verify_email(body: VerifyEmailIn, db: Session = Depends(get_db)):
+def verify_email(body: VerifyEmailIn, response: Response, db: Session = Depends(get_db)):
     try:
         claims = decode_token(body.token, "verify_email")
         sub = claims.get("sub")
@@ -205,7 +205,16 @@ def verify_email(body: VerifyEmailIn, db: Session = Depends(get_db)):
         user.email_verified = True
         audit(db, "auth.email_verified", user_id=user.id)
         db.commit()
-    return {"message": "Email verified successfully", "email_verified": True}
+
+    # Automatically issue access token & refresh cookie so user is logged in
+    acc = create_access_token(str(user.id))
+    _set_refresh(response, user)
+    return {
+        "message": "Email verified successfully",
+        "email_verified": True,
+        "access_token": acc,
+        "user": UserOut.model_validate(user),
+    }
 
 
 @router.get("/verify-email")
@@ -239,7 +248,9 @@ def verify_email_link(token: str, db: Session = Depends(get_db)):
         user.email_verified = True
         audit(db, "auth.email_verified", user_id=user.id)
         db.commit()
-    return RedirectResponse(f"{s.app_base_url}/dashboard?verified=true", status_code=302)
+    redir = RedirectResponse(f"{s.app_base_url}/dashboard?verified=true", status_code=302)
+    _set_refresh(redir, user)
+    return redir
 
 
 @router.post("/resend-verification", dependencies=[Depends(rate_limit("resend_verify", 5, 900))])

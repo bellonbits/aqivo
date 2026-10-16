@@ -46,6 +46,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/verify-email",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/verify-phone",
+      "destination": "/index.html"
+    },
+    {
       "source": "/forgot-password",
       "destination": "/index.html"
     },
