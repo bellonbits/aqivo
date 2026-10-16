@@ -67,17 +67,24 @@ def _build_html_email(subject: str, body: str, kind: str, ctx: dict) -> str:
 
     is_order = kind in ("order_receipt", "new_order", "order_update") or bool(ctx.get("order_items") or ctx.get("order_number") or ctx.get("number"))
 
-    # Top Brand / Store Logo
-    store_logo = ctx.get("store_logo")
-    logo_src = "https://aqivo.shop/brand/logo-full.png"
-    if store_logo and str(store_logo).strip():
-        logo_html = f'''<img src="{_html.escape(str(store_logo))}" alt="Store Logo" height="38" style="max-height:42px;height:auto;max-width:180px;display:block;border:0;" onerror="this.onerror=null;this.src='https://aqivo.shop/brand/logo-full.png';" />'''
-    else:
-        logo_html = f'''<img src="{logo_src}" alt="Aqivo" width="132" style="width:132px;max-width:150px;height:auto;display:block;border:0;" onerror="this.onerror=null;this.src='https://aqivo.shop/brand/aqivo-logo.png';" />'''
+    # Official Aqivo.shop Logo (Always used as platform brand header)
+    logo_html = '''<table border="0" cellspacing="0" cellpadding="0" style="margin-bottom:6px;">
+        <tr>
+            <td valign="middle" style="padding-right:10px;">
+                <img src="https://aqivo.shop/brand/aqivo-mark.png" alt="Aqivo" width="36" height="36" style="width:36px;height:36px;max-width:36px;max-height:36px;display:block;border:0;border-radius:8px;" onerror="this.onerror=null;this.src='https://aqivo.shop/brand/aqivo-logo.png';" />
+            </td>
+            <td valign="middle">
+                <span style="font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:23px;font-weight:800;letter-spacing:-0.5px;line-height:1;display:inline-block;">
+                    <span style="color:#0B1736;">Aqivo</span><span style="color:#5B21F5;font-weight:900;">.shop</span>
+                </span>
+            </td>
+        </tr>
+    </table>'''
 
     if is_order:
         order_num = str(ctx.get("order_number") or ctx.get("number") or "").strip()
         customer_name = str(ctx.get("customer") or ctx.get("customer_name") or ctx.get("name") or "there").strip()
+        store_name = str(ctx.get("store_name") or ctx.get("business") or "").strip()
         order_total = str(ctx.get("total") or "").strip()
         subtotal = str(ctx.get("subtotal") or "").strip()
         tax = str(ctx.get("tax") or "").strip()
@@ -88,14 +95,24 @@ def _build_html_email(subject: str, body: str, kind: str, ctx: dict) -> str:
         address_html = "<br>".join(_html.escape(line) for line in raw_address.split("\n") if line.strip())
 
         order_heading = "Thanks for your purchase!"
-        order_subtitle = f"Hi {customer_name}, here's your receipt"
+        if store_name:
+            order_subtitle = f"Hi {customer_name}, here's your receipt for your order with {_html.escape(store_name)}"
+        else:
+            order_subtitle = f"Hi {customer_name}, here's your receipt"
+
         if kind == "order_update":
             status_txt = str(ctx.get("status") or "Updated").strip()
             order_heading = f"Order #{order_num} Update"
-            order_subtitle = f"Hi {customer_name}, your order status is now: {status_txt}"
+            if store_name:
+                order_subtitle = f"Hi {customer_name}, your order with {_html.escape(store_name)} is now: {status_txt}"
+            else:
+                order_subtitle = f"Hi {customer_name}, your order status is now: {status_txt}"
         elif kind == "new_order":
             order_heading = f"New Order Received! #{order_num}"
-            order_subtitle = f"Hi {customer_name}, a new order has been placed"
+            if store_name:
+                order_subtitle = f"Hi {customer_name}, a new order has been placed for {_html.escape(store_name)}"
+            else:
+                order_subtitle = f"Hi {customer_name}, a new order has been placed"
 
         # Line items
         order_items = ctx.get("order_items")
@@ -302,7 +319,7 @@ def _build_html_email(subject: str, body: str, kind: str, ctx: dict) -> str:
                                     Phone: <a href="tel:0793046776" style="color:#111827;text-decoration:underline;">0793046776</a>
                                 </p>
                                 <p style="margin:0;font-size:11.5px;color:#9CA3AF;">
-                                    &copy; 2026 Aqivo &middot; Modern commerce for Africa
+                                    &copy; 2026 Aqivo.shop &middot; Modern commerce for Africa
                                 </p>
                             </div>
                         </td>
