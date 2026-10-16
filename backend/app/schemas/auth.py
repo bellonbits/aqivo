@@ -14,7 +14,9 @@ class RegisterIn(BaseModel):
 
 
 class LoginIn(BaseModel):
-    email: EmailStr
+    email: str | None = Field(default=None, max_length=255)
+    identifier: str | None = Field(default=None, max_length=255)
+    phone: str | None = Field(default=None, max_length=32)
     password: str = Field(max_length=128)
 
 
@@ -57,6 +59,16 @@ class ForgotIn(BaseModel):
 
 class ResetIn(BaseModel):
     token: str
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class ForgotPhoneIn(BaseModel):
+    phone: str = Field(min_length=6, max_length=32)
+
+
+class ResetPhoneIn(BaseModel):
+    phone: str = Field(min_length=6, max_length=32)
+    code: str = Field(min_length=4, max_length=10)
     new_password: str = Field(min_length=8, max_length=128)
 
 

@@ -15,7 +15,7 @@ from app.core.errors import bad_request, conflict
 from app.core.rate_limit import rate_limit
 from app.core.security import (create_access_token, create_refresh_token, create_verification_token, decode_token, hash_password, verify_password)
 from app.models import Business, BusinessMember, User
-from app.schemas.auth import (ForgotIn, LoginIn, MeOut, PasswordChangeIn, ProfileUpdateIn, RegisterIn, RequestPhoneCodeIn, ResendVerificationIn, ResetIn, TokenOut, UserOut, VerifyEmailIn, VerifyPhoneIn)
+from app.schemas.auth import (ForgotIn, ForgotPhoneIn, LoginIn, MeOut, PasswordChangeIn, ProfileUpdateIn, RegisterIn, RequestPhoneCodeIn, ResendVerificationIn, ResetIn, ResetPhoneIn, TokenOut, UserOut, VerifyEmailIn, VerifyPhoneIn)
 from app.services.audit import audit
 from app.services.notifications import notify
 from app.services.sms import clean_phone, generate_otp, hash_otp, send_sms
@@ -37,7 +37,8 @@ def register(body: RegisterIn, request: Request, response: Response, db: Session
     email = body.email.lower()
     if db.scalar(select(User.id).where(User.email == email)):
         raise conflict("An account with this email already exists. Try signing in.")
-    user = User(email=email, password_hash=hash_password(body.password), full_name=body.full_name, phone=body.phone)
+    norm_phone = clean_phone(body.phone) if body.phone and body.phone.strip() else None
+    user = User(email=email, password_hash=hash_password(body.password), full_name=body.full_name, phone=norm_phone)
     db.add(user)
     db.flush()
     audit(db, "auth.register", user_id=user.id, resource_type="user", resource_id=user.id, request=request)
@@ -75,7 +76,26 @@ def guest(body: GuestIn, request: Request, response: Response, db: Session = Dep
 @router.post("/login", response_model=TokenOut, dependencies=[Depends(rate_limit("login", 20, 300))])
 def login(body: LoginIn, request: Request, response: Response, db: Session = Depends(get_db)):
     s = get_settings()
-    user = db.scalars(select(User).where(User.email == body.email.lower(), User.deleted_at.is_(None))).first()
+    raw_id = (body.identifier or body.email or body.phone or "").strip()
+    if not raw_id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Email or phone number is required")
+
+    user = None
+    if "@" in raw_id:
+        user = db.scalars(select(User).where(User.email == raw_id.lower(), User.deleted_at.is_(None))).first()
+    else:
+        norm = clean_phone(raw_id)
+        phone_variants = {raw_id, norm, f"+{norm}"}
+        if norm.startswith("254") and len(norm) == 12:
+            phone_variants.add("0" + norm[3:])
+            phone_variants.add(norm[3:])
+        user = db.scalars(
+            select(User).where(
+                User.phone.in_(phone_variants),
+                User.deleted_at.is_(None),
+            ).order_by(User.last_login_at.desc().nullslast(), User.created_at.desc())
+        ).first()
+
     now = datetime.now(timezone.utc)
     if user and user.locked_until and user.locked_until > now:
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Too many failed attempts. Try again in a few minutes.")
@@ -87,7 +107,7 @@ def login(body: LoginIn, request: Request, response: Response, db: Session = Dep
                 user.locked_until, user.failed_logins = now + timedelta(minutes=s.login_lock_minutes), 0
             audit(db, "auth.login_failed", user_id=user.id, request=request)
             db.commit()
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect email or password")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect email, phone number, or password")
     user.failed_logins, user.locked_until, user.last_login_at = 0, None, now
     audit(db, "auth.login", user_id=user.id, request=request)
     db.commit()
@@ -183,6 +203,78 @@ def reset_password(body: ResetIn, db: Session = Depends(get_db)):
     user.failed_logins, user.locked_until = 0, None
     audit(db, "auth.password_reset", user_id=user.id)
     db.commit()
+
+
+@router.post("/forgot-password-phone", status_code=202, dependencies=[Depends(rate_limit("forgot_phone", 5, 900))])
+def forgot_password_phone(body: ForgotPhoneIn, db: Session = Depends(get_db)):
+    raw_phone = body.phone.strip()
+    norm = clean_phone(raw_phone)
+    phone_variants = {raw_phone, norm, f"+{norm}"}
+    if norm.startswith("254") and len(norm) == 12:
+        phone_variants.add("0" + norm[3:])
+        phone_variants.add(norm[3:])
+    user = db.scalars(
+        select(User).where(
+            User.phone.in_(phone_variants),
+            User.deleted_at.is_(None),
+        ).order_by(User.last_login_at.desc().nullslast(), User.created_at.desc())
+    ).first()
+
+    if user and user.is_active:
+        code = generate_otp()
+        target_phone = user.phone or norm
+        user.phone = target_phone
+        user.phone_otp_hash = hash_otp(target_phone, code)
+        user.phone_otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+        db.commit()
+        send_sms(
+            recipient=target_phone,
+            message=f"Your Aqivo password reset code is {code}. It expires in 10 minutes. Do not share this code.",
+        )
+    return {"message": "If that phone number has an account, a verification code has been sent via SMS.", "phone": norm}
+
+
+@router.post("/reset-password-phone", dependencies=[Depends(rate_limit("reset_phone", 10, 900))])
+def reset_password_phone(body: ResetPhoneIn, response: Response, db: Session = Depends(get_db)):
+    raw_phone = body.phone.strip()
+    norm = clean_phone(raw_phone)
+    phone_variants = {raw_phone, norm, f"+{norm}"}
+    if norm.startswith("254") and len(norm) == 12:
+        phone_variants.add("0" + norm[3:])
+        phone_variants.add(norm[3:])
+    user = db.scalars(
+        select(User).where(
+            User.phone.in_(phone_variants),
+            User.deleted_at.is_(None),
+        ).order_by(User.last_login_at.desc().nullslast(), User.created_at.desc())
+    ).first()
+    if not user or not user.is_active:
+        raise bad_request("Account not found for this phone number")
+
+    if not user.phone_otp_expires_at or user.phone_otp_expires_at < datetime.now(timezone.utc):
+        raise bad_request("Verification code has expired. Please request a new code.")
+
+    target_phone = user.phone or norm
+    expected_hash = hash_otp(target_phone, body.code.strip())
+    if not user.phone_otp_hash or user.phone_otp_hash != expected_hash:
+        raise bad_request("Invalid verification code")
+
+    user.password_hash = hash_password(body.new_password)
+    user.token_version += 1
+    user.failed_logins, user.locked_until = 0, None
+    user.phone_otp_hash = None
+    user.phone_otp_expires_at = None
+    user.phone_verified = True
+    audit(db, "auth.password_reset_phone", user_id=user.id)
+    db.commit()
+
+    acc = create_access_token(str(user.id))
+    _set_refresh(response, user)
+    return {
+        "message": "Password reset successfully",
+        "access_token": acc,
+        "user": UserOut.model_validate(user),
+    }
 
 
 @router.post("/verify-email", dependencies=[Depends(rate_limit("verify_email", 15, 900))])

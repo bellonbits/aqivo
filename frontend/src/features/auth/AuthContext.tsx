@@ -7,7 +7,7 @@ import type { Me, User } from '@/types'
 interface AuthState {
   me: Me | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (identifier: string, password: string) => Promise<void>
   register: (email: string, password: string, fullName: string, phone?: string) => Promise<void>
   guest: () => Promise<void>
   logout: () => Promise<void>
@@ -57,8 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthState>(() => ({
     me, loading, reload,
-    login: async (email, password) => {
-      const r = await api.post<{ access_token: string }>('/auth/login', { email, password })
+    login: async (identifier, password) => {
+      const r = await api.post<{ access_token: string }>('/auth/login', { identifier, password })
       setAccessToken(r.access_token)
       qc.clear()
       await reload()

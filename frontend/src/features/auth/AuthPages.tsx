@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { Eye, EyeOff, CheckCircle2, MessageSquare, RefreshCw, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, CheckCircle2, MessageSquare, RefreshCw, ShieldCheck, Phone, Mail } from 'lucide-react'
 import { useAuth } from './AuthContext'
 import { api, setAccessToken } from '@/lib/api'
 import { Button, Input, TextField } from '@/components/ui'
@@ -51,11 +51,11 @@ export function LoginPage() {
   const loc = useLocation()
   const [params] = useSearchParams()
   const justVerified = params.get('verified') === 'true'
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const { error, busy, submit } = useSubmit(async () => {
-    await login(email.trim().toLowerCase(), password)
+    await login(identifier.trim(), password)
     nav((loc.state as { from?: string } | null)?.from ?? '/dashboard', { replace: true })
   })
   const tryGuest = useSubmit(async () => { await guest(); nav('/dashboard', { replace: true }) })
@@ -72,7 +72,17 @@ export function LoginPage() {
         </div>
       )}
       <form onSubmit={submit} className="space-y-4">
-        <TextField label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-ink">Email or Phone Number</label>
+          <Input
+            type="text"
+            autoComplete="username"
+            required
+            placeholder="e.g. 0712 345 678 or you@example.com"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+          />
+        </div>
         <div className="space-y-1.5">
           <label className="text-sm font-semibold text-ink">Password</label>
           <div className="relative">
@@ -83,6 +93,7 @@ export function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pr-10"
+              placeholder="Enter your password"
             />
             <button
               type="button"
@@ -118,10 +129,27 @@ export function RegisterPage() {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [clientError, setClientError] = useState('')
+
   const { error, busy, submit } = useSubmit(async () => {
+    if (password.length < 8) {
+      setClientError('Password must be at least 8 characters long.')
+      return
+    }
+    if (password !== confirmPassword) {
+      setClientError('Passwords do not match.')
+      return
+    }
+    setClientError('')
     await register(email, password, name, phone.trim() || undefined)
     nav('/onboarding' + (params.get('ref') ? `?ref=${params.get('ref')}` : '') + (params.get('template') ? `${params.get('ref') ? '&' : '?'}template=${params.get('template')}` : '') + (params.get('industry') ? `${nav_q(params)}industry=${params.get('industry')}` : ''), { replace: true })
   })
+
+  const displayError = clientError || error
+
   return (
     <AuthShell
       title="Create your Aqivo store"
@@ -140,8 +168,59 @@ export function RegisterPage() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
         />
-        <TextField label="Password" type="password" autoComplete="new-password" minLength={8} required hint="At least 8 characters." value={password} onChange={(e) => setPassword(e.target.value)} />
-        {error && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">{error}</p>}
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-ink">Password</label>
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              minLength={8}
+              required
+              placeholder="At least 8 characters"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setClientError('') }}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+              tabIndex={-1}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
+          <p className="text-xs text-muted">At least 8 characters.</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-ink">Confirm Password</label>
+          <div className="relative">
+            <Input
+              type={showConfirmPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              minLength={8}
+              required
+              placeholder="Re-enter your password"
+              value={confirmPassword}
+              onChange={(e) => { setConfirmPassword(e.target.value); setClientError('') }}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+              tabIndex={-1}
+              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+            >
+              {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
+        </div>
+
+        {displayError && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">{displayError}</p>}
         <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy}>Create your store</Button>
         <p className="text-xs text-muted">By continuing you agree to our terms and privacy policy.</p>
       </form>
@@ -150,16 +229,262 @@ export function RegisterPage() {
 }
 
 export function ForgotPage() {
+  const nav = useNavigate()
+  const { reload } = useAuth()
+  const [method, setMethod] = useState<'phone' | 'email'>('phone')
+
+  // Phone flow
+  const [phone, setPhone] = useState('')
+  const [phoneStep, setPhoneStep] = useState<'request' | 'reset'>('request')
+  const [code, setCode] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
+  const [phoneSuccess, setPhoneSuccess] = useState(false)
+  const [clientError, setClientError] = useState('')
+
+  // Email flow
   const [email, setEmail] = useState('')
-  const [done, setDone] = useState(false)
-  const { error, busy, submit } = useSubmit(async () => { await api.post('/auth/forgot-password', { email }); setDone(true) })
+  const [emailDone, setEmailDone] = useState(false)
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const id = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000)
+    return () => clearInterval(id)
+  }, [cooldown])
+
+  // Request code via SMS
+  const sendPhoneCode = useSubmit(async () => {
+    if (!phone.trim()) {
+      setClientError('Please enter your phone number.')
+      return
+    }
+    setClientError('')
+    await api.post('/auth/forgot-password-phone', { phone: phone.trim() })
+    setPhoneStep('reset')
+    setCooldown(60)
+  })
+
+  // Submit phone OTP and new password
+  const resetPhonePassword = useSubmit(async () => {
+    if (!code.trim()) {
+      setClientError('Please enter the verification code.')
+      return
+    }
+    if (newPassword.length < 8) {
+      setClientError('Password must be at least 8 characters long.')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setClientError('Passwords do not match.')
+      return
+    }
+    setClientError('')
+    const res = await api.post<{ access_token?: string }>('/auth/reset-password-phone', {
+      phone: phone.trim(),
+      code: code.trim(),
+      new_password: newPassword,
+    })
+    if (res?.access_token) {
+      setAccessToken(res.access_token)
+      try { await reload() } catch {}
+    }
+    setPhoneSuccess(true)
+    setTimeout(() => {
+      nav('/dashboard', { replace: true })
+    }, 2000)
+  })
+
+  // Email reset link
+  const sendEmailReset = useSubmit(async () => {
+    await api.post('/auth/forgot-password', { email: email.trim().toLowerCase() })
+    setEmailDone(true)
+  })
+
   return (
-    <AuthShell title="Reset your password" sub="We'll email you a link to choose a new one." footer={<Link className="font-bold text-ink underline" to="/login">Back to sign in</Link>}>
-      {done ? <p className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-900" role="status">If that email has an account, a reset link is on its way.</p> : (
-        <form onSubmit={submit} className="space-y-4">
+    <AuthShell
+      title="Reset your password"
+      sub="Choose your preferred way to reset your account password."
+      footer={<Link className="font-bold text-ink underline" to="/login">Back to sign in</Link>}
+    >
+      {/* Toggle between Phone and Email */}
+      <div className="mb-6 flex rounded-xl bg-slate-100 p-1 border border-line">
+        <button
+          type="button"
+          onClick={() => { setMethod('phone'); setClientError('') }}
+          className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+            method === 'phone'
+              ? 'bg-white text-ink shadow-sm'
+              : 'text-muted hover:text-ink'
+          }`}
+        >
+          <Phone className="size-3.5" />
+          <span>Reset via Phone (SMS)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => { setMethod('email'); setClientError('') }}
+          className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+            method === 'email'
+              ? 'bg-white text-ink shadow-sm'
+              : 'text-muted hover:text-ink'
+          }`}
+        >
+          <Mail className="size-3.5" />
+          <span>Reset via Email</span>
+        </button>
+      </div>
+
+      {method === 'phone' ? (
+        phoneSuccess ? (
+          <div className="rounded-xl bg-emerald-50 p-4 text-center border border-emerald-200">
+            <CheckCircle2 className="mx-auto size-8 text-emerald-600 mb-2" />
+            <h3 className="font-bold text-emerald-900">Password Reset Successfully!</h3>
+            <p className="mt-1 text-sm text-emerald-700">Signing you in and redirecting to your store dashboard...</p>
+          </div>
+        ) : phoneStep === 'request' ? (
+          <form onSubmit={sendPhoneCode.submit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-ink">Mobile phone number</label>
+              <Input
+                type="tel"
+                autoComplete="tel"
+                required
+                placeholder="0712 345 678"
+                value={phone}
+                onChange={(e) => { setPhone(e.target.value); setClientError('') }}
+              />
+              <p className="text-xs text-muted">We will send a 6-digit verification code to this phone number via SMS.</p>
+            </div>
+            {(clientError || sendPhoneCode.error) && (
+              <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">
+                {clientError || sendPhoneCode.error}
+              </p>
+            )}
+            <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={sendPhoneCode.busy}>
+              Send verification code
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={resetPhonePassword.submit} className="space-y-4">
+            <div className="rounded-xl bg-purple-50 p-3 text-xs text-purple-900 border border-purple-200 flex items-center justify-between">
+              <span>Code sent to <strong>{phone}</strong></span>
+              <button
+                type="button"
+                onClick={() => { setPhoneStep('request'); setClientError('') }}
+                className="font-bold text-[#5B21F5] hover:underline"
+              >
+                Change
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-ink">6-digit SMS code</label>
+              <Input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                required
+                placeholder="123456"
+                value={code}
+                onChange={(e) => { setCode(e.target.value.replace(/\D/g, '')); setClientError('') }}
+                className="text-center font-mono text-lg tracking-widest"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-ink">New password</label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  placeholder="At least 8 characters"
+                  value={newPassword}
+                  onChange={(e) => { setNewPassword(e.target.value); setClientError('') }}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-ink">Confirm new password</label>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  placeholder="Re-enter your new password"
+                  value={confirmPassword}
+                  onChange={(e) => { setConfirmPassword(e.target.value); setClientError('') }}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+                  tabIndex={-1}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </div>
+
+            {(clientError || resetPhonePassword.error) && (
+              <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">
+                {clientError || resetPhonePassword.error}
+              </p>
+            )}
+
+            <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={resetPhonePassword.busy}>
+              Reset password & sign in
+            </Button>
+
+            <div className="text-center text-xs text-muted pt-1">
+              Didn't receive the code?{' '}
+              {cooldown > 0 ? (
+                <span>Resend in {cooldown}s</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => void sendPhoneCode.submit(e as unknown as FormEvent)}
+                  disabled={sendPhoneCode.busy}
+                  className="font-bold text-[#5B21F5] hover:underline"
+                >
+                  Resend code
+                </button>
+              )}
+            </div>
+          </form>
+        )
+      ) : emailDone ? (
+        <div className="rounded-xl bg-emerald-50 p-4 text-center border border-emerald-200">
+          <CheckCircle2 className="mx-auto size-8 text-emerald-600 mb-2" />
+          <h3 className="font-bold text-emerald-900">Check Your Email</h3>
+          <p className="mt-1 text-sm text-emerald-700">If that email has an account, a password reset link is on its way.</p>
+        </div>
+      ) : (
+        <form onSubmit={sendEmailReset.submit} className="space-y-4">
           <TextField label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          {error && <p className="text-sm font-medium text-bad" role="alert">{error}</p>}
-          <Button type="submit" size="lg" className="w-full" loading={busy}>Send reset link</Button>
+          {sendEmailReset.error && <p className="text-sm font-medium text-bad" role="alert">{sendEmailReset.error}</p>}
+          <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={sendEmailReset.busy}>
+            Send reset link
+          </Button>
         </form>
       )}
     </AuthShell>
@@ -170,13 +495,82 @@ export function ResetPage() {
   const [params] = useSearchParams()
   const nav = useNavigate()
   const [pw, setPw] = useState('')
-  const { error, busy, submit } = useSubmit(async () => { await api.post('/auth/reset-password', { token: params.get('token') ?? '', new_password: pw }); nav('/login', { replace: true }) })
+  const [confirmPw, setConfirmPw] = useState('')
+  const [showPw, setShowPw] = useState(false)
+  const [showConfirmPw, setShowConfirmPw] = useState(false)
+  const [clientError, setClientError] = useState('')
+
+  const { error, busy, submit } = useSubmit(async () => {
+    if (pw.length < 8) {
+      setClientError('Password must be at least 8 characters long.')
+      return
+    }
+    if (pw !== confirmPw) {
+      setClientError('Passwords do not match.')
+      return
+    }
+    setClientError('')
+    await api.post('/auth/reset-password', { token: params.get('token') ?? '', new_password: pw })
+    nav('/login', { replace: true })
+  })
+
+  const displayError = clientError || error
+
   return (
     <AuthShell title="Choose a new password" sub="Use at least 8 characters." footer={<Link className="font-bold text-ink underline" to="/login">Back to sign in</Link>}>
       <form onSubmit={submit} className="space-y-4">
-        <TextField label="New password" type="password" minLength={8} required autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} />
-        {error && <p className="text-sm font-medium text-bad" role="alert">{error}</p>}
-        <Button type="submit" size="lg" className="w-full" loading={busy}>Update password</Button>
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-ink">New password</label>
+          <div className="relative">
+            <Input
+              type={showPw ? 'text' : 'password'}
+              minLength={8}
+              required
+              autoComplete="new-password"
+              placeholder="At least 8 characters"
+              value={pw}
+              onChange={(e) => { setPw(e.target.value); setClientError('') }}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw(!showPw)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+              tabIndex={-1}
+              aria-label={showPw ? 'Hide password' : 'Show password'}
+            >
+              {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-semibold text-ink">Confirm new password</label>
+          <div className="relative">
+            <Input
+              type={showConfirmPw ? 'text' : 'password'}
+              minLength={8}
+              required
+              autoComplete="new-password"
+              placeholder="Re-enter your new password"
+              value={confirmPw}
+              onChange={(e) => { setConfirmPw(e.target.value); setClientError('') }}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPw(!showConfirmPw)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+              tabIndex={-1}
+              aria-label={showConfirmPw ? 'Hide password' : 'Show password'}
+            >
+              {showConfirmPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
+        </div>
+
+        {displayError && <p className="text-sm font-medium text-bad" role="alert">{displayError}</p>}
+        <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy}>Update password</Button>
       </form>
     </AuthShell>
   )
