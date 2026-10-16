@@ -53,7 +53,7 @@
 
     .receipt-page-container {
       width: 100%;
-      max-width: 410px;
+      max-width: 420px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
@@ -73,18 +73,33 @@
     .slip-header {
       background: var(--header-bg);
       border-radius: 28px 28px 0 0;
-      padding: 28px 28px 22px;
+      padding: 24px 28px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       color: #FFFFFF;
+      gap: 16px;
     }
 
     .slip-header-left {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 6px;
+      gap: 4px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .slip-shop-badge {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #94A3B8;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .slip-title {
@@ -93,18 +108,20 @@
       letter-spacing: -0.2px;
       color: #FFFFFF;
       margin: 0;
+      line-height: 1.25;
     }
 
     .slip-status-pill {
       display: inline-flex;
       align-items: center;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 9999px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       background: var(--success-bg);
       color: var(--success-text);
       letter-spacing: 0.1px;
+      margin-top: 2px;
     }
 
     .slip-status-pill.pending {
@@ -117,28 +134,34 @@
       color: var(--danger-text);
     }
 
+    /* Shop Logo Container in Top Right */
     .slip-header-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
       background: #FFFFFF;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    .slip-header-logo svg {
-      width: 24px;
-      height: 24px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.15);
+      position: relative;
     }
 
     .slip-header-logo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
+    }
+
+    .slip-header-logo .logo-fallback {
+      font-size: 20px;
+      font-weight: 800;
+      color: #18191E;
+      text-transform: uppercase;
     }
 
     /* Middle White Slip Body with Watermark Texture */
@@ -154,7 +177,7 @@
 
     /* Amount Section */
     .slip-amount-section {
-      padding: 28px 28px 18px;
+      padding: 26px 28px 16px;
     }
 
     .slip-amount-label {
@@ -263,6 +286,80 @@
 
     .slip-bank-icon.cash {
       background: #0F172A;
+    }
+
+    /* Product Item Showcase with Image */
+    .slip-products-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .slip-product-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .slip-product-img-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slip-product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .slip-product-img-fallback {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .slip-product-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .slip-product-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .slip-product-meta {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .slip-product-total {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ink);
+      flex-shrink: 0;
+      text-align: right;
     }
 
     /* Dashed Perforated Divider */
@@ -452,19 +549,17 @@
     <!-- The Exact Digital Receipt Slip -->
     <article class="receipt-slip" id="printable-receipt">
 
-      <!-- Top Dark Header Card -->
+      <!-- Top Dark Header Card With Shop Logo -->
       <header class="slip-header">
         <div class="slip-header-left">
-          <h1 class="slip-title">Receipt</h1>
+          <div class="slip-shop-badge" id="r-shop-name">Lydia Shop</div>
+          <h1 class="slip-title">Order Receipt</h1>
           <span class="slip-status-pill" id="r-status-pill">Successful</span>
         </div>
         <div class="slip-header-logo" id="r-logo-box">
-          <!-- Stylized Square Brand Icon Matching User Image -->
-          <svg viewBox="0 0 32 32" fill="none">
-            <rect x="3" y="3" width="26" height="26" rx="6" fill="#18191E"/>
-            <path d="M16 8L24 16L16 24L8 16Z" fill="#FFFFFF"/>
-            <rect x="13" y="13" width="6" height="6" fill="#18191E"/>
-          </svg>
+          <!-- Shop Logo or Fallback -->
+          <span class="logo-fallback" id="r-logo-fallback">L</span>
+          <img id="r-logo-img" src="" alt="Shop Logo" style="display:none;" />
         </div>
       </header>
 
@@ -484,7 +579,7 @@
           <div class="notch-circle right"></div>
         </div>
 
-        <!-- Key-Value Transaction Details in Exact Order of Screenshot -->
+        <!-- Key-Value Transaction Details in Exact Order -->
         <section class="slip-details-section">
 
           <!-- Reference ID -->
@@ -526,10 +621,12 @@
             </div>
           </div>
 
-          <!-- Remark / Items -->
+          <!-- Products Ordered (With Product Images!) -->
           <div class="slip-row">
-            <span class="slip-row-label">Remark</span>
-            <span class="slip-row-value" id="r-remark">1× Leather Handbag</span>
+            <span class="slip-row-label">Remark / Items</span>
+            <div class="slip-products-container" id="r-products-container">
+              <!-- Dynamic product cards with thumbnails -->
+            </div>
           </div>
 
         </section>
@@ -680,7 +777,7 @@
         '👤 *Beneficiary:* ' + d.customerName,
         '📱 *Account:* ' + d.customerPhone,
         '💳 *Bank/Method:* ' + d.paymentMethod,
-        '📝 *Remark:* ' + d.remark,
+        '🛍️ *Items:* ' + d.remark,
         '',
         '🔗 *View Official Receipt:* ' + window.location.href
       ];
@@ -696,7 +793,32 @@
     function renderReceipt(data) {
       currentReceiptData = data;
 
-      // Status Pill
+      // 1. Shop Name & Shop Logo
+      var shopNameEl = document.getElementById('r-shop-name');
+      if (shopNameEl) {
+        shopNameEl.textContent = data.storeName || 'Aqivo Store';
+      }
+
+      var logoImg = document.getElementById('r-logo-img');
+      var logoFallback = document.getElementById('r-logo-fallback');
+      if (logoImg && logoFallback) {
+        if (data.storeLogo && data.storeLogo.trim().length > 0) {
+          logoImg.src = data.storeLogo;
+          logoImg.style.display = 'block';
+          logoFallback.style.display = 'none';
+          logoImg.onerror = function () {
+            this.style.display = 'none';
+            logoFallback.style.display = 'block';
+          };
+        } else {
+          logoImg.style.display = 'none';
+          logoFallback.style.display = 'block';
+          var initial = (data.storeName || 'S').trim().charAt(0).toUpperCase();
+          logoFallback.textContent = initial || 'S';
+        }
+      }
+
+      // 2. Status Pill
       var statusPill = document.getElementById('r-status-pill');
       if (statusPill) {
         if (data.status === 'CANCELLED') {
@@ -711,43 +833,43 @@
         }
       }
 
-      // Amount
+      // 3. Amount
       var amountEl = document.getElementById('r-amount-display');
       if (amountEl) {
         amountEl.textContent = data.currency + fmtMoney(data.amount);
       }
 
-      // Reference ID
+      // 4. Reference ID
       var refEl = document.getElementById('r-ref-id');
       if (refEl) {
         refEl.textContent = data.referenceId;
       }
 
-      // Date & Time
+      // 5. Date & Time
       var dtEl = document.getElementById('r-datetime');
       if (dtEl) {
         dtEl.textContent = data.dateFormatted;
       }
 
-      // Fee
+      // 6. Fee
       var feeEl = document.getElementById('r-fee');
       if (feeEl) {
         feeEl.textContent = data.currency + fmtMoney(data.fee || 0);
       }
 
-      // Beneficiary Name
+      // 7. Beneficiary Name
       var nameEl = document.getElementById('r-beneficiary-name');
       if (nameEl) {
         nameEl.textContent = data.customerName || 'Customer';
       }
 
-      // Account Number / Phone
+      // 8. Account Number / Phone
       var acctEl = document.getElementById('r-account-number');
       if (acctEl) {
         acctEl.textContent = data.customerPhone || '8134567890';
       }
 
-      // Bank / Payment Method
+      // 9. Bank / Payment Method
       var bankEl = document.getElementById('r-bank-name');
       var iconEl = document.getElementById('r-bank-icon');
       if (bankEl) {
@@ -767,10 +889,51 @@
         }
       }
 
-      // Remark
-      var remarkEl = document.getElementById('r-remark');
-      if (remarkEl) {
-        remarkEl.textContent = data.remark || 'Gift';
+      // 10. Product Items with Images!
+      var container = document.getElementById('r-products-container');
+      if (container) {
+        if (Array.isArray(data.items) && data.items.length) {
+          container.innerHTML = data.items.map(function (it) {
+            var itemQty = Number(it.qty || it.quantity || 1);
+            var itemPrice = Number(it.price || it.unit_price || 0);
+            var itemTotal = (it.total != null) ? Number(it.total) : (itemPrice * itemQty);
+            var imgSrc = it.image || it.image_url || it.img || '';
+
+            var imgHtml = imgSrc ? 
+              '<img src="' + esc(imgSrc) + '" alt="' + esc(it.name) + '" class="slip-product-img" onerror="this.onerror=null;this.parentElement.innerHTML=\\'🛍️\\';" />' :
+              '<span class="slip-product-img-fallback">🛍️</span>';
+
+            var metaText = 'Qty: ' + itemQty;
+            if (itemPrice > 0) {
+              metaText += ' × ' + data.currency + fmtMoney(itemPrice);
+            }
+            if (it.variant) {
+              metaText += ' • ' + esc(it.variant);
+            }
+
+            return [
+              '<div class="slip-product-card">',
+              '  <div class="slip-product-img-box">' + imgHtml + '</div>',
+              '  <div class="slip-product-info">',
+              '    <div class="slip-product-name">' + esc(it.name) + '</div>',
+              '    <div class="slip-product-meta">' + metaText + '</div>',
+              '  </div>',
+              '  <div class="slip-product-total">' + data.currency + fmtMoney(itemTotal) + '</div>',
+              '</div>'
+            ].join('');
+          }).join('');
+        } else {
+          container.innerHTML = [
+            '<div class="slip-product-card">',
+            '  <div class="slip-product-img-box"><span class="slip-product-img-fallback">🛍️</span></div>',
+            '  <div class="slip-product-info">',
+            '    <div class="slip-product-name">' + esc(data.remark || 'Ordered Items') + '</div>',
+            '    <div class="slip-product-meta">Confirmed</div>',
+            '  </div>',
+            '  <div class="slip-product-total">' + data.currency + fmtMoney(data.amount) + '</div>',
+            '</div>'
+          ].join('');
+        }
       }
     }
 
@@ -831,7 +994,7 @@
         return 'PR-20250214-' + s.slice(-4);
       }
 
-      // Base default matching screenshot
+      // Default receipt data
       var receiptObj = {
         amount: 12000.00,
         currency: curSymbol,
@@ -843,9 +1006,18 @@
         paymentMethod: 'MoniePoint Microfinance Bank',
         status: 'COMPLETED',
         paymentStatus: 'PAID',
-        remark: 'Gift',
-        storeName: B.name || 'Store',
-        storePhone: B.phone || B.whatsapp || ''
+        remark: 'Leather Handbag',
+        storeName: B.name || 'Lydia Shop',
+        storeLogo: B.logo || B.logo_url || '',
+        storePhone: B.phone || B.whatsapp || '',
+        items: [
+          {
+            name: 'Leather Handbag',
+            qty: 1,
+            price: 12000.00,
+            image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=150&auto=format&fit=crop&q=80'
+          }
+        ]
       };
 
       if (matched) {
@@ -855,6 +1027,8 @@
         }
         if (mTotal > 0) receiptObj.amount = mTotal;
         if (matched.currencySymbol) receiptObj.currency = matched.currencySymbol;
+        if (matched.store) receiptObj.storeName = matched.store;
+        if (matched.storeLogo) receiptObj.storeLogo = matched.storeLogo;
         if (matched.customerName || (matched.customer && matched.customer.name)) {
           receiptObj.customerName = matched.customerName || matched.customer.name;
         }
@@ -872,6 +1046,15 @@
           receiptObj.dateFormatted = formatDateTime(matched.createdAt || matched.date);
         }
         if (Array.isArray(matched.items) && matched.items.length) {
+          receiptObj.items = matched.items.map(function (it) {
+            return {
+              name: it.name || 'Store Item',
+              qty: Number(it.qty || it.quantity || 1),
+              price: Number(it.price || it.unit_price || 0),
+              image: it.image || it.image_url || it.img || '',
+              variant: it.variant || ''
+            };
+          });
           receiptObj.remark = matched.items.map(function (it) {
             return (it.qty ? (it.qty + '× ') : '') + (it.name || 'Item');
           }).join(', ');
@@ -912,6 +1095,11 @@
           if (bo.receipt_no || bo.number) {
             receiptObj.referenceId = makeRef(bo.number || bo.receipt_no);
           }
+          if (bo.store) {
+            if (bo.store.name) receiptObj.storeName = bo.store.name;
+            if (bo.store.logo || bo.store.logo_url) receiptObj.storeLogo = bo.store.logo || bo.store.logo_url;
+            if (bo.store.phone || bo.store.whatsapp) receiptObj.storePhone = bo.store.whatsapp || bo.store.phone;
+          }
           if (bo.customer && bo.customer.name) receiptObj.customerName = bo.customer.name;
           if (bo.customer && bo.customer.phone) {
             var rawCp = bo.customer.phone;
@@ -927,6 +1115,15 @@
             receiptObj.dateFormatted = formatDateTime(bo.created_at);
           }
           if (Array.isArray(bo.items) && bo.items.length) {
+            receiptObj.items = bo.items.map(function (it) {
+              return {
+                name: it.name,
+                qty: Number(it.qty || 1),
+                price: Number(it.unit_price || it.price || 0),
+                image: it.image || it.image_url || it.img || '',
+                variant: it.variant || ''
+              };
+            });
             receiptObj.remark = bo.items.map(function (it) {
               return (it.qty ? (it.qty + '× ') : '') + (it.name || 'Item');
             }).join(', ');

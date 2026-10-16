@@ -326,6 +326,8 @@ def _format_order_response(o: Order, b: Business, db: Session) -> dict:
         "store": {
             "name": b.name,
             "slug": b.slug,
+            "logo": getattr(b, "logo_url", None) or getattr(b, "logo", None) or "",
+            "logo_url": getattr(b, "logo_url", None) or getattr(b, "logo", None) or "",
             "phone": b.phone or b.whatsapp or "",
             "whatsapp": b.whatsapp or b.phone or "",
             "email": b.email or "",

@@ -3308,6 +3308,7 @@
           orderId: orderNum,
           token: orderRes.token || "",
           store: B.name,
+          storeLogo: B.logo || B.logo_url || "",
           businessSlug: B.slug,
           total: orderTotal,
           subtotal: totals ? totals.subtotal : orderTotal,
@@ -3317,7 +3318,8 @@
             return {
               name: ci.name + (ci.variant ? " (" + ci.variant + ")" : ""),
               qty: ci.qty,
-              price: ci.price
+              price: ci.price,
+              image: ci.image || ci.image_url || ci.img || ""
             };
           }),
           customer: {
