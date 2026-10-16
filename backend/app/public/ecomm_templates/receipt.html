@@ -8,22 +8,22 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      --accent: #D8F29E;
-      --accent-hover: #CBEA85;
-      --accent-deep: #B7DB66;
-      --on-accent: #111111;
-      --bg: #F4F4F4;
+      --bg: #ECEEF2;
       --surface: #FFFFFF;
-      --surface-soft: #F9FAFB;
+      --box-bg: #F8F9FA;
+      --border-soft: #ECEEF1;
+      --border-card: #E5E7EB;
       --ink: #111111;
-      --muted: #6B7280;
+      --muted: #4B5563;
       --subtle: #9CA3AF;
-      --border: #EFEFEF;
-      --border-strong: #E5E7EB;
+      --accent: #D8F29E;
+      --accent-deep: #15803D;
+      --card-radius: 42px;
+      --box-radius: 22px;
     }
 
     * {
@@ -40,20 +40,22 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px 16px 48px;
+      padding: 32px 16px 56px;
       -webkit-font-smoothing: antialiased;
     }
 
-    .receipt-page-header {
+    /* Top Nav Bar */
+    .receipt-top-nav {
       width: 100%;
-      max-width: 440px;
+      max-width: 860px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
+      padding: 0 8px;
     }
 
-    .receipt-back-btn {
+    .receipt-return-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -61,430 +63,545 @@
       font-weight: 700;
       color: var(--ink);
       text-decoration: none;
-      padding: 9px 16px;
+      padding: 8px 16px;
       background: var(--surface);
-      border: 1px solid var(--border-strong);
+      border: 1px solid var(--border-card);
       border-radius: 9999px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: all 0.15s ease;
     }
 
-    .receipt-back-btn:hover {
-      background: var(--surface-soft);
+    .receipt-return-pill:hover {
+      background: #F9FAFB;
       transform: translateY(-1px);
     }
 
-    .receipt-verified-tag {
+    .receipt-brand-badge {
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .receipt-wrapper {
+    .receipt-brand-badge svg {
+      color: #111111;
+    }
+
+    /* Canvas with Dual Phone Mockups */
+    .phones-canvas {
+      display: flex;
+      gap: 28px;
+      justify-content: center;
+      align-items: flex-start;
       width: 100%;
-      max-width: 440px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* Single Phone Mockup Card */
+    .phone-mockup {
+      background: var(--surface);
+      border-radius: var(--card-radius);
+      box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.09), 0 4px 16px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      width: 100%;
+      max-width: 400px;
+      padding: 16px 20px 28px;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      position: relative;
     }
 
-    /* Aqivo Receipt Card */
-    .aqivo-receipt-card {
-      width: 100%;
-      background: var(--surface);
-      border-radius: 28px;
-      padding: 26px 24px 22px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-      border: 1px solid var(--border);
-    }
-
-    .receipt-store-header-row {
+    /* Status Bar */
+    .phone-status-bar {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
+      justify-content: space-between;
+      padding: 2px 8px 14px;
+      color: #111111;
+      font-size: 13.5px;
+      font-weight: 600;
+      user-select: none;
     }
 
-    .receipt-store-avatar-box {
-      width: 52px;
-      height: 52px;
-      border-radius: 18px;
-      background: #F3F4F6;
+    .phone-status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .phone-battery {
+      width: 22px;
+      height: 11.5px;
+      border: 1.5px solid #111111;
+      border-radius: 3.5px;
+      padding: 1.5px;
+      position: relative;
+    }
+
+    .phone-battery::after {
+      content: '';
+      position: absolute;
+      right: -3.5px;
+      top: 2.5px;
+      width: 2px;
+      height: 4px;
+      background: #111111;
+      border-radius: 0 1px 1px 0;
+    }
+
+    .phone-battery-fill {
+      width: 100%;
+      height: 100%;
+      background: #111111;
+      border-radius: 1px;
+    }
+
+    /* Cancel Header Action */
+    .phone-top-action {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 4px 2px;
+    }
+
+    .receipt-cancel-btn {
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      text-decoration: none;
+      padding: 4px 6px;
+      transition: color 0.15s ease;
+    }
+
+    .receipt-cancel-btn:hover {
+      color: #000000;
+    }
+
+    /* Store Header in Phone 1 */
+    .receipt-store-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 27px;
+      font-weight: 700;
+      color: #111111;
+      letter-spacing: -0.4px;
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .receipt-thankyou-sub {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #111111;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    /* Inner Gray Box */
+    .receipt-gray-box {
+      background: var(--box-bg);
+      border-radius: var(--box-radius);
+      padding: 20px 18px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .receipt-box-heading {
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: #111111;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .receipt-meta-lines {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.55;
+      font-weight: 500;
+    }
+
+    .receipt-meta-lines strong {
+      color: #111111;
+      font-weight: 600;
+    }
+
+    /* Customer Block */
+    .receipt-customer-block {
+      margin-top: 14px;
+      margin-bottom: 16px;
+    }
+
+    .receipt-customer-name-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #111111;
+      margin-bottom: 4px;
+    }
+
+    .receipt-customer-name-row svg {
+      color: #111111;
+      flex-shrink: 0;
+    }
+
+    .receipt-customer-address {
+      font-size: 12.5px;
+      color: #4B5563;
+      line-height: 1.45;
+      padding-left: 21px;
+    }
+
+    .receipt-delivery-estimate {
+      font-size: 12px;
+      color: #4B5563;
+      padding-left: 21px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Items List Container */
+    .receipt-items-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .receipt-item-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .receipt-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .receipt-item-img-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #E5E7EB;
+      overflow: hidden;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-      overflow: hidden;
     }
 
-    .receipt-store-avatar-img {
+    .receipt-item-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .receipt-store-title-text {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--ink);
-      letter-spacing: -0.3px;
-      line-height: 1.25;
-    }
-
-    .receipt-bar-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 0 12px;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .receipt-bar-label {
-      font-size: 12.5px;
-      font-weight: 800;
-      color: var(--ink);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .receipt-confirmed-pill {
-      background: var(--accent);
-      color: var(--ink);
-      padding: 4px 12px;
-      border-radius: 9999px;
-      font-size: 11.5px;
+    .receipt-item-title {
+      font-size: 13px;
       font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .receipt-confirmed-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #15803D;
-    }
-
-    .receipt-meta-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px 16px;
-      padding: 16px 0 12px;
-    }
-
-    .receipt-meta-cell {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .receipt-meta-cell.full-width {
-      grid-column: 1 / -1;
-    }
-
-    .receipt-meta-label {
-      font-size: 10.5px;
-      font-weight: 700;
-      color: var(--subtle);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 3px;
-    }
-
-    .receipt-meta-val {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--ink);
-      line-height: 1.35;
+      color: #111827;
+      line-height: 1.3;
       word-break: break-word;
     }
 
-    .receipt-items-header {
-      font-size: 10.5px;
-      font-weight: 700;
-      color: var(--subtle);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 12px 0 10px;
-    }
-
-    .receipt-items-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .receipt-item-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .receipt-item-left {
-      flex: 1;
-    }
-
-    .receipt-item-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--ink);
-      line-height: 1.3;
-    }
-
-    .receipt-item-sub {
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
     .receipt-item-right {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--ink);
-      white-space: nowrap;
-    }
-
-    .receipt-dashed-divider {
-      border: none;
-      border-top: 1px dashed var(--border-strong);
-      margin: 16px 0 14px;
-    }
-
-    .receipt-breakdown-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13.5px;
-      margin-bottom: 8px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .receipt-breakdown-val {
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .receipt-total-pill {
-      background: var(--accent);
-      border-radius: 18px;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 16px 0 14px;
-    }
-
-    .receipt-total-label {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .receipt-total-amount {
-      font-size: 24px;
-      font-weight: 900;
-      color: var(--ink);
-      letter-spacing: -0.5px;
-    }
-
-    .receipt-payment-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      color: var(--muted);
-      padding: 2px 0 16px;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .receipt-payment-method-text {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .receipt-payment-method-text strong {
-      color: var(--ink);
-      font-weight: 700;
-    }
-
-    .receipt-payment-status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .receipt-payment-status-badge.awaiting {
-      background: #E5E7EB;
-      color: #4B5563;
-    }
-    .receipt-payment-status-badge.awaiting .status-dot {
-      background: #6B7280;
-    }
-
-    .receipt-payment-status-badge.reported {
-      background: #FEF3C7;
-      color: #92400E;
-    }
-    .receipt-payment-status-badge.reported .status-dot {
-      background: #D97706;
-    }
-
-    .receipt-payment-status-badge.paid {
-      background: var(--accent);
-      color: var(--ink);
-      font-weight: 700;
-    }
-    .receipt-payment-status-badge.paid .status-dot {
-      background: #15803D;
-    }
-
-    .status-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
+      text-align: right;
       flex-shrink: 0;
     }
 
-    .receipt-card-brand-footer {
+    .receipt-item-price {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .receipt-item-qty {
+      font-size: 11px;
+      color: #6B7280;
+      margin-top: 2px;
+    }
+
+    /* Summary Lines */
+    .receipt-summary-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #111111;
+      padding: 4px 2px;
+      font-weight: 700;
+    }
+
+    .receipt-summary-line.total-line {
+      padding-top: 10px;
+      margin-top: 4px;
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .receipt-summary-line.total-line .val {
+      font-size: 14.5px;
+      font-weight: 800;
+    }
+
+    /* Payment Method Card */
+    .receipt-payment-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .receipt-payment-logo {
+      width: 38px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--ink);
+      flex-shrink: 0;
     }
 
-    /* Actions Bar */
-    .receipt-controls-bar {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-      width: 100%;
-    }
-
-    .receipt-ctrl-btn {
-      height: 48px;
-      border-radius: 9999px;
+    .receipt-payment-title {
       font-size: 13px;
       font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      border: 1px solid var(--border-strong);
-      background: var(--surface);
-      color: var(--ink);
-      cursor: pointer;
-      transition: all 0.15s ease;
+      color: #111827;
+      line-height: 1.25;
+    }
+
+    .receipt-payment-sub {
+      font-size: 11px;
+      color: #6B7280;
+      margin-top: 1px;
+    }
+
+    /* Phone 2 (Support, Returns, Social, QR & Buttons) */
+    .receipt-support-box {
+      background: var(--box-bg);
+      border-radius: var(--box-radius);
+      padding: 20px 18px;
+      border: 1px solid var(--border-soft);
+      margin-bottom: 22px;
+      font-size: 12.5px;
+      color: #374151;
+      line-height: 1.55;
+    }
+
+    .receipt-support-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #111111;
+      margin-bottom: 8px;
+    }
+
+    .receipt-support-link {
+      display: block;
+      color: #374151;
       text-decoration: none;
-      flex: 1;
-      padding: 0 14px;
+      margin-bottom: 3px;
+      transition: color 0.15s ease;
     }
 
-    .receipt-ctrl-btn:hover {
-      transform: translateY(-1px);
+    .receipt-support-link:hover {
+      color: #000000;
     }
 
-    .receipt-ctrl-btn.btn-print {
-      background: var(--accent);
-      color: var(--ink);
-      border-color: var(--accent);
-    }
-    .receipt-ctrl-btn.btn-print:hover {
-      background: var(--accent-hover);
+    .receipt-support-divider {
+      height: 1px;
+      background: var(--border-soft);
+      margin: 14px 0 12px;
     }
 
-    .receipt-ctrl-btn.btn-wa {
-      background: #050505;
-      color: #FFFFFF;
-      border-color: #050505;
-      flex: 1.25;
-    }
-    .receipt-ctrl-btn.btn-wa:hover {
-      background: #1F2937;
+    /* Thank you & Social */
+    .receipt-center-section {
+      text-align: center;
+      margin-bottom: 24px;
     }
 
-    .receipt-ctrl-btn.btn-copy {
-      background: var(--surface);
-      color: var(--ink);
-      border-color: var(--border-strong);
-    }
-    .receipt-ctrl-btn.btn-copy:hover {
-      background: var(--surface-soft);
+    .receipt-center-bold {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #111111;
+      margin-bottom: 6px;
     }
 
-    /* Payment Status Manager */
-    .receipt-status-manager {
-      background: var(--surface);
-      border-radius: 24px;
-      padding: 18px 20px 20px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-      margin-top: 16px;
-      width: 100%;
-    }
-
-    .receipt-manager-title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .receipt-follow-label {
+      font-size: 12.5px;
+      color: #4B5563;
       margin-bottom: 12px;
     }
 
-    .receipt-manager-heading {
-      font-size: 14.5px;
-      font-weight: 800;
-      color: var(--ink);
-    }
-
-    .receipt-manager-subtitle {
-      font-size: 11.5px;
-      font-weight: 500;
-      color: var(--subtle);
-    }
-
-    .receipt-status-segmented {
-      background: #EBEBEB;
-      padding: 4px;
-      border-radius: 9999px;
+    .receipt-social-row {
       display: flex;
-      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 20px;
     }
 
-    .receipt-segmented-tab {
-      flex: 1;
-      padding: 9px 0;
-      font-size: 12.5px;
-      font-weight: 600;
-      border-radius: 9999px;
-      border: none;
-      background: transparent;
-      color: #4B5563;
+    .receipt-social-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: transform 0.15s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .receipt-social-icon:hover {
+      transform: scale(1.08);
+    }
+
+    .receipt-social-icon.fb {
+      background: #1877F2;
+      color: #FFFFFF;
+    }
+
+    .receipt-social-icon.ig {
+      background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+      color: #FFFFFF;
+      border-radius: 9px;
+    }
+
+    .receipt-social-icon.x-tw {
+      background: #000000;
+      color: #FFFFFF;
+    }
+
+    .receipt-social-icon.wa {
+      background: #25D366;
+      color: #FFFFFF;
+    }
+
+    /* QR Code Box */
+    .receipt-qr-caption {
+      font-size: 12px;
+      color: #374151;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .receipt-qr-frame {
+      display: inline-flex;
+      padding: 10px;
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .receipt-qr-img {
+      width: 120px;
+      height: 120px;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* Action Buttons */
+    .receipt-actions-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin-top: auto;
+    }
+
+    .receipt-btn-white {
+      height: 48px;
+      border: 1.5px solid #111111;
+      background: #FFFFFF;
+      color: #111111;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
       cursor: pointer;
-      text-align: center;
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+
+    .receipt-btn-white:hover {
+      background: #F4F4F5;
+    }
+
+    .receipt-btn-black {
+      height: 48px;
+      border: none;
+      background: #111111;
+      color: #FFFFFF;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+
+    .receipt-btn-black:hover {
+      background: #222222;
+      transform: translateY(-1px);
+    }
+
+    .receipt-sub-actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .receipt-sub-pill {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #4B5563;
+      background: #F3F4F6;
+      border: 1px solid #E5E7EB;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       transition: all 0.15s ease;
     }
 
-    .receipt-segmented-tab.active {
-      background: #050505;
-      color: #FFFFFF;
-      font-weight: 700;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    .receipt-sub-pill:hover {
+      background: #E5E7EB;
+      color: #111111;
     }
 
     /* Floating Toast */
@@ -509,26 +626,118 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* Payment Status Manager (Merchant Tool) */
+    .receipt-manager-wrap {
+      width: 100%;
+      max-width: 860px;
+      margin-top: 28px;
+    }
+
+    .receipt-status-manager {
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 16px 20px;
+      border: 1px solid var(--border-card);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .receipt-manager-heading {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #111111;
+    }
+
+    .receipt-manager-sub {
+      font-size: 11px;
+      color: #6B7280;
+    }
+
+    .receipt-status-segmented {
+      background: #F3F4F6;
+      padding: 3px;
+      border-radius: 9999px;
+      display: flex;
+      gap: 3px;
+    }
+
+    .receipt-segmented-tab {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 9999px;
+      border: none;
+      background: transparent;
+      color: #4B5563;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .receipt-segmented-tab.active {
+      background: #111111;
+      color: #FFFFFF;
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 840px) {
+      .phones-canvas {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      .phone-mockup {
+        max-width: 390px;
+      }
+    }
+
+    @media (max-width: 440px) {
+      body {
+        padding: 16px 10px 48px;
+      }
+      .phone-mockup {
+        border-radius: 28px;
+        padding: 14px 14px 22px;
+      }
+      .receipt-gray-box,
+      .receipt-support-box {
+        border-radius: 18px;
+        padding: 16px 14px;
+      }
+    }
+
     /* Print Styles */
     @media print {
       body {
         background: #FFFFFF !important;
         padding: 0 !important;
       }
-      .receipt-page-header,
-      .receipt-controls-bar,
-      .receipt-status-manager,
-      .receipt-toast {
+      .receipt-top-nav,
+      .phone-status-bar,
+      .phone-top-action,
+      .receipt-actions-stack,
+      .receipt-sub-actions-row,
+      .receipt-manager-wrap,
+      .receipt-toast,
+      #phone-card-2 {
         display: none !important;
       }
-      .receipt-wrapper {
-        max-width: 480px !important;
-        margin: 0 auto !important;
+      .phones-canvas {
+        display: block !important;
       }
-      .aqivo-receipt-card {
+      .phone-mockup {
         box-shadow: none !important;
-        border: 1px solid #E5E7EB !important;
-        border-radius: 16px !important;
+        border: none !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .receipt-gray-box {
+        border: 1px solid #D1D5DB !important;
       }
     }
   </style>
@@ -536,51 +745,201 @@
 <body>
 
   <!-- Top Navigation & Return -->
-  <header class="receipt-page-header">
-    <a href="index.html" class="receipt-back-btn" id="receipt-back-btn">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      <span>Back to Store</span>
+  <header class="receipt-top-nav">
+    <a href="index.html" class="receipt-return-pill" id="receipt-back-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      <span id="receipt-back-btn-text">Back to Store</span>
     </a>
-    <div class="receipt-verified-tag">
-      Verified Aqivo Receipt
+    <div class="receipt-brand-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m3 20 9-16 9 16"/><path d="M6.5 14h11"/>
+      </svg>
+      <span>Verified Aqivo Receipt</span>
     </div>
   </header>
 
-  <!-- Branded Receipt Container -->
-  <main class="receipt-wrapper">
-    <div id="receipt-card-mount" style="width: 100%;">
-      <!-- Card Rendered Dynamically via JS -->
-    </div>
+  <!-- Dual Phone Mockup Canvas -->
+  <main class="phones-canvas" id="receipt-card-mount">
 
-    <!-- Actions Bar -->
-    <div class="receipt-controls-bar">
-      <button type="button" class="receipt-ctrl-btn btn-print" onclick="printReceiptDoc()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        <span>Print / PDF</span>
-      </button>
-      <button type="button" class="receipt-ctrl-btn btn-wa" onclick="shareReceiptDoc()">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        <span>Share on WhatsApp</span>
-      </button>
-      <button type="button" class="receipt-ctrl-btn btn-copy" onclick="copyReceiptDoc()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        <span>Copy Link</span>
-      </button>
-    </div>
+    <!-- Phone 1: Main Order Receipt -->
+    <article class="phone-mockup" id="phone-card-1">
+      <!-- Phone Status Bar -->
+      <div class="phone-status-bar">
+        <span class="phone-time" id="phone-time-1">9:41</span>
+        <div class="phone-status-icons">
+          <svg width="15" height="11" viewBox="0 0 17 11" fill="currentColor">
+            <rect x="0" y="8" width="3" height="3" rx="0.5"/>
+            <rect x="4.5" y="5.5" width="3" height="5.5" rx="0.5"/>
+            <rect x="9" y="3" width="3" height="8" rx="0.5"/>
+            <rect x="13.5" y="0" width="3" height="11" rx="0.5"/>
+          </svg>
+          <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm-3.5-3.5a5 5 0 0 1 7 0 .75.75 0 0 1-1.06 1.06 3.5 3.5 0 0 0-4.88 0A.75.75 0 0 1 4.5 6Zm-3-3a9 9 0 0 1 13 0 .75.75 0 0 1-1.06 1.06 7.5 7.5 0 0 0-10.88 0A.75.75 0 0 1 1.5 3Z"/>
+          </svg>
+          <div class="phone-battery">
+            <div class="phone-battery-fill"></div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Merchant Payment Status Simulator -->
+      <!-- Cancel Action -->
+      <div class="phone-top-action">
+        <a href="index.html" class="receipt-cancel-btn" id="receipt-cancel-link">Cancel</a>
+      </div>
+
+      <!-- Store Header -->
+      <h1 class="receipt-store-title" id="receipt-store-title">Urban Attire</h1>
+      <div class="receipt-thankyou-sub">Thank you for your order!</div>
+
+      <!-- Receipt Gray Container -->
+      <div class="receipt-gray-box">
+        <div class="receipt-box-heading">RECEIPT</div>
+        <div class="receipt-meta-lines">
+          <div>Receipt #: <strong id="r-receipt-no">UA-568921</strong></div>
+          <div>Order #: <span id="r-order-no">ORD-983742</span></div>
+          <div>Date: <span id="r-date">May 30, 2025</span></div>
+        </div>
+
+        <!-- Customer & Location -->
+        <div class="receipt-customer-block">
+          <div class="receipt-customer-name-row">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span id="r-customer-name">Ayan Ali</span>
+          </div>
+          <div class="receipt-customer-address" id="r-customer-address">
+            House 12, Street 45, F-11/2<br>Islamabad, Pakistan
+          </div>
+          <div class="receipt-delivery-estimate" id="r-delivery-estimate">
+            Estimated Delivery: June 5–7, 2025
+          </div>
+        </div>
+
+        <!-- Items List -->
+        <div class="receipt-items-container" id="r-items-container">
+          <!-- Dynamically populated items -->
+        </div>
+
+        <!-- Shipping & Total Summary -->
+        <div class="receipt-summary-line">
+          <span>Shipping</span>
+          <span id="r-shipping-val">$5.00</span>
+        </div>
+        <div class="receipt-summary-line total-line">
+          <span>TOTAL PAID:</span>
+          <span class="val" id="r-total-val">$104.97</span>
+        </div>
+
+        <!-- Payment Method Box -->
+        <div class="receipt-payment-card" id="r-payment-card">
+          <div class="receipt-payment-logo" id="r-payment-logo">
+            <!-- Overlapping Mastercard circles -->
+            <svg width="34" height="22" viewBox="0 0 34 22" fill="none">
+              <circle cx="12" cy="11" r="10" fill="#EB001B"/>
+              <circle cx="22" cy="11" r="10" fill="#F79E1B" fill-opacity="0.9"/>
+            </svg>
+          </div>
+          <div>
+            <div class="receipt-payment-title" id="r-payment-title">MasterCard</div>
+            <div class="receipt-payment-sub" id="r-payment-sub">MasterCard ending in 9876</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Phone 2: Support, Returns, Social, QR & Buttons -->
+    <article class="phone-mockup" id="phone-card-2">
+      <!-- Phone Status Bar -->
+      <div class="phone-status-bar">
+        <span class="phone-time" id="phone-time-2">9:41</span>
+        <div class="phone-status-icons">
+          <svg width="15" height="11" viewBox="0 0 17 11" fill="currentColor">
+            <rect x="0" y="8" width="3" height="3" rx="0.5"/>
+            <rect x="4.5" y="5.5" width="3" height="5.5" rx="0.5"/>
+            <rect x="9" y="3" width="3" height="8" rx="0.5"/>
+            <rect x="13.5" y="0" width="3" height="11" rx="0.5"/>
+          </svg>
+          <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm-3.5-3.5a5 5 0 0 1 7 0 .75.75 0 0 1-1.06 1.06 3.5 3.5 0 0 0-4.88 0A.75.75 0 0 1 4.5 6Zm-3-3a9 9 0 0 1 13 0 .75.75 0 0 1-1.06 1.06 7.5 7.5 0 0 0-10.88 0A.75.75 0 0 1 1.5 3Z"/>
+          </svg>
+          <div class="phone-battery">
+            <div class="phone-battery-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support & Returns Box -->
+      <div class="receipt-support-box">
+        <div class="receipt-support-title">Need help?</div>
+        <a href="tel:+18001234567" class="receipt-support-link" id="r-support-phone">+1 (800) 123-4567</a>
+        <a href="mailto:support@urbanattire.com" class="receipt-support-link" id="r-support-email">support@urbanattire.com</a>
+        <div class="receipt-support-link" id="r-support-track">Track Order: urbanattire.com/track</div>
+
+        <div class="receipt-support-divider"></div>
+
+        <div class="receipt-support-title">30-Day Easy Returns</div>
+        <div class="receipt-support-link" id="r-support-returns">Visit: urbanattire.com/returns</div>
+      </div>
+
+      <!-- Thank You, Social & QR Code -->
+      <div class="receipt-center-section">
+        <div class="receipt-center-bold">Thank you for shopping with us!</div>
+        <div class="receipt-follow-label" id="r-follow-label">Follow us @urbanattire</div>
+
+        <!-- Social Links -->
+        <div class="receipt-social-row">
+          <a href="#" class="receipt-social-icon fb" aria-label="Facebook">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="#" class="receipt-social-icon ig" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="#" class="receipt-social-icon x-tw" aria-label="X (Twitter)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="#" class="receipt-social-icon wa" onclick="shareReceiptDoc(); return false;" aria-label="WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.697c.969.541 1.835.82 2.806.82h.005c3.182 0 5.769-2.587 5.769-5.766.001-3.182-2.585-5.769-5.769-5.769zm3.435 8.134c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.802-.411-1.398-.578-2.316-1.99-2.387-2.083-.07-.094-.567-.754-.567-1.438 0-.684.358-1.02.485-1.16.128-.14.281-.175.375-.175s.188.006.27.011c.088.006.206-.033.322.247.12.288.406 1.004.442 1.077.035.072.059.156.012.25-.047.094-.07.153-.14.234-.07.083-.149.186-.212.25-.07.07-.143.146-.062.285.082.139.364.6.782.973.538.48 1.002.628 1.143.698.14.07.222.058.305-.036.082-.093.352-.408.446-.549.094-.14.188-.117.316-.07.129.047.818.385.958.455.14.07.234.105.269.164.035.059.035.341-.109.746z"/></svg>
+          </a>
+        </div>
+
+        <!-- QR Code Frame -->
+        <div class="receipt-qr-caption">Scan to get 10% OFF on your next order:</div>
+        <div class="receipt-qr-frame">
+          <img id="r-qr-image" src="" alt="Order QR" class="receipt-qr-img" />
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="receipt-actions-stack">
+        <button type="button" class="receipt-btn-white" onclick="continueShopping()">Continue Shopping</button>
+        <button type="button" class="receipt-btn-black" onclick="printReceiptDoc()">Download Receipt</button>
+        <div class="receipt-sub-actions-row">
+          <button type="button" class="receipt-sub-pill" onclick="shareReceiptDoc()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            <span>Share via WhatsApp</span>
+          </button>
+          <button type="button" class="receipt-sub-pill" onclick="copyReceiptDoc()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Link</span>
+          </button>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <!-- Merchant Payment Status Simulator (Live Preview & Testing) -->
+  <aside class="receipt-manager-wrap">
     <div class="receipt-status-manager">
-      <div class="receipt-manager-title-row">
-        <span class="receipt-manager-heading">Payment Status Manager</span>
-        <span class="receipt-manager-subtitle">Live receipt update</span>
+      <div>
+        <div class="receipt-manager-heading">Payment Status Manager</div>
+        <div class="receipt-manager-sub">Merchant testing & live verification</div>
       </div>
       <div class="receipt-status-segmented">
         <button type="button" class="receipt-segmented-tab active" id="tab-status-awaiting" onclick="setReceiptPaymentStatus('Awaiting payment confirmation')">Awaiting</button>
-        <button type="button" class="receipt-segmented-tab" id="tab-status-reported" onclick="setReceiptPaymentStatus('Payment reported (Customer notified seller)')">Reported</button>
-        <button type="button" class="receipt-segmented-tab" id="tab-status-paid" onclick="setReceiptPaymentStatus('Paid (Confirmed by seller)')">Paid</button>
+        <button type="button" class="receipt-segmented-tab" id="tab-status-reported" onclick="setReceiptPaymentStatus('Payment reported')">Reported</button>
+        <button type="button" class="receipt-segmented-tab" id="tab-status-paid" onclick="setReceiptPaymentStatus('Paid')">Paid</button>
       </div>
     </div>
-  </main>
+  </aside>
 
   <div class="receipt-toast" id="receipt-toast">Receipt link copied!</div>
 
@@ -623,83 +982,123 @@
       return 'index.html';
     }
 
+    function continueShopping() {
+      window.location.href = getStoreHomeUrl();
+    }
+
     function generateShowcaseOrder() {
       var B = window.__BZ || {};
-      var storeName = B.name || "Lydia's Shop";
-      var currency = B.symbol || B.currency || 'KSh';
+      var storeName = B.name || "Urban Attire";
+      var currency = B.symbol || B.currency || "$";
 
-      // Use real products from active shop if available
       var showcaseItems = [];
-      if (B.items && B.items.length > 0) {
-        var p1 = B.items[0];
+      if (B.items && B.items.length >= 2) {
         showcaseItems.push({
-          name: p1.name,
-          price: Number(p1.price) || 2500,
-          qty: 1
+          name: B.items[0].name,
+          price: Number(B.items[0].price) || 59.99,
+          qty: 1,
+          image: B.items[0].image || B.items[0].img || ''
+        });
+        showcaseItems.push({
+          name: B.items[1].name,
+          price: Number(B.items[1].price) || 59.99,
+          qty: 1,
+          image: B.items[1].image || B.items[1].img || ''
+        });
+      } else if (B.items && B.items.length === 1) {
+        showcaseItems.push({
+          name: B.items[0].name,
+          price: Number(B.items[0].price) || 59.99,
+          qty: 1,
+          image: B.items[0].image || ''
         });
       } else {
-        showcaseItems.push({
-          name: 'Summer Dress',
-          price: 2500,
-          qty: 1
-        });
+        // Pixel-perfect showcase matching reference mockup
+        showcaseItems = [
+          {
+            name: "Classic Denim Jacket",
+            price: (currency === "$" ? 59.99 : 4500),
+            qty: 1,
+            image: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=150&auto=format&fit=crop&q=80"
+          },
+          {
+            name: "Oversized Cotton Tee",
+            price: (currency === "$" ? 59.99 : 2500),
+            qty: 1,
+            image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=150&auto=format&fit=crop&q=80"
+          }
+        ];
       }
 
       var subtotal = showcaseItems.reduce(function (sum, it) {
         return sum + (it.price * (it.qty || 1));
       }, 0);
 
-      var deliveryFee = 0;
+      var deliveryFee = (currency === "$" ? 5.00 : 0);
       var total = subtotal + deliveryFee;
 
-      var today = new Date().toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      });
+      var todayFormatted = "May 30, 2025";
+      try {
+        todayFormatted = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      } catch (e) {}
 
       return {
-        receiptNo: '1002',
-        orderId: '1002',
+        receiptNo: "UA-568921",
+        orderId: "ORD-983742",
         store: storeName,
-        businessSlug: B.slug || 'lydiasshop',
-        storePhone: B.phone || B.wa || '+254 712 345 678',
-        logo: B.logo || '',
-        customerName: 'Sarah Mwangi',
-        customer: { name: 'Sarah Mwangi', phone: '+254 712 345 678' },
-        phone: '+254 712 345 678',
-        fulfilment: 'DELIVERY',
-        address: B.address || 'Westlands, Nairobi',
-        date: today,
-        dateFormatted: today,
+        businessSlug: B.slug || "urbanattire",
+        storePhone: B.phone || B.wa || "+1 (800) 123-4567",
+        storeEmail: B.email || "support@urbanattire.com",
+        customerName: "Ayan Ali",
+        address: "House 12, Street 45, F-11/2\nIslamabad, Pakistan",
+        estimatedDelivery: "June 5–7, 2025",
+        date: todayFormatted,
+        dateFormatted: todayFormatted,
         createdAt: new Date().toISOString(),
         items: showcaseItems,
         subtotal: subtotal,
         deliveryFee: deliveryFee,
-        deliveryFeeText: 'Free',
         total: total,
         currencySymbol: currency,
-        paymentMethod: 'cash',
-        paymentStatus: 'Awaiting payment confirmation',
-        orderStatus: 'Order confirmed',
+        paymentMethod: "card",
+        paymentTitle: "MasterCard",
+        paymentSubtitle: "MasterCard ending in 9876",
+        paymentStatus: "Paid",
+        orderStatus: "Order confirmed",
         isShowcase: true
       };
     }
 
     function normalizeOrder(o) {
       var B = window.__BZ || {};
-      var storeName = o.store || B.name || "Lydia's Shop";
-      var currency = o.currencySymbol || B.symbol || B.currency || 'KSh';
+      var storeName = o.store || B.name || "Urban Attire";
+      var currency = o.currencySymbol || B.symbol || B.currency || (storeName === "Urban Attire" ? "$" : "KSh");
 
-      var items = (o.items && o.items.length > 0) ? o.items.map(function (it) {
-        return {
-          name: it.name || 'Store Item',
-          price: Number(it.price) || 0,
-          qty: Number(it.qty) || 1
-        };
-      }) : [
-        { name: 'Summer Dress', price: Number(o.total) || 2500, qty: 1 }
-      ];
+      var items = [];
+      if (Array.isArray(o.items) && o.items.length > 0) {
+        items = o.items.map(function (it) {
+          if (typeof it === "string") return { name: it, price: 0, qty: 1, image: "" };
+          return {
+            name: it.name || "Store Item",
+            price: Number(it.price) || 0,
+            qty: Number(it.qty || it.quantity) || 1,
+            image: it.image || it.img || ""
+          };
+        });
+      } else if (Array.isArray(o.line_items) && o.line_items.length > 0) {
+        items = o.line_items.map(function (it) {
+          return {
+            name: it.name || "Store Item",
+            price: Number(it.total ? (it.total / (it.qty || 1)) : 0),
+            qty: Number(it.qty || it.quantity) || 1,
+            image: it.image || ""
+          };
+        });
+      } else {
+        items = [
+          { name: "Store Item", price: Number(o.total) || 2500, qty: 1, image: "" }
+        ];
+      }
 
       var subtotal = Number(o.subtotal);
       if (!subtotal || subtotal <= 0) {
@@ -711,187 +1110,212 @@
       var deliveryFee = Number(o.deliveryFee) || 0;
       var total = Number(o.total) || (subtotal + deliveryFee);
 
-      var customerName = o.customerName || (o.customer && o.customer.name) || 'Guest Customer';
-      var phone = o.phone || (o.customer && o.customer.phone) || '—';
-      var address = o.address || (o.fulfilment === 'PICKUP' ? 'Store Collection' : (B.address || 'Standard Delivery'));
+      var customerName = o.customerName || (o.customer && o.customer.name) || "Ayan Ali";
+      var phone = o.phone || (o.customer && o.customer.phone) || B.phone || "";
+      var address = o.address || (o.fulfilment === "PICKUP" ? "Store Collection" : (B.address || "Westlands, Nairobi"));
 
       var dateVal = o.date || o.dateFormatted;
       if (!dateVal && o.createdAt) {
         try {
-          dateVal = new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+          dateVal = new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
         } catch (e) {}
       }
       if (!dateVal) {
-        dateVal = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        dateVal = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
       }
 
-      var payMethod = o.paymentMethod || o.payment || 'cash';
-      var payStatus = o.paymentStatus || 'Awaiting payment confirmation';
+      // Calculate estimated delivery: 3–5 days after order date
+      var estDelivery = "Estimated Delivery: Standard Dispatch";
+      try {
+        var baseDate = o.createdAt ? new Date(o.createdAt) : new Date();
+        var d1 = new Date(baseDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+        var d2 = new Date(baseDate.getTime() + 5 * 24 * 60 * 60 * 1000);
+        var m1 = d1.toLocaleDateString("en-US", { month: "short" });
+        var m2 = d2.toLocaleDateString("en-US", { month: "short" });
+        if (m1 === m2) {
+          estDelivery = "Estimated Delivery: " + m1 + " " + d1.getDate() + "–" + d2.getDate() + ", " + d2.getFullYear();
+        } else {
+          estDelivery = "Estimated Delivery: " + m1 + " " + d1.getDate() + " – " + m2 + " " + d2.getDate() + ", " + d2.getFullYear();
+        }
+      } catch (e) {}
+
+      var rawPay = String(o.paymentMethod || o.payment || "").toLowerCase();
+      var payTitle = "Cash on Delivery";
+      var paySub = "Pay upon delivery";
+      if (rawPay.indexOf("card") !== -1 || rawPay.indexOf("master") !== -1 || rawPay.indexOf("visa") !== -1) {
+        payTitle = "MasterCard";
+        paySub = "MasterCard ending in 9876";
+      } else if (rawPay.indexOf("mpesa") !== -1 || rawPay.indexOf("mobile") !== -1 || rawPay.indexOf("till") !== -1 || rawPay.indexOf("paybill") !== -1) {
+        payTitle = "M-Pesa";
+        paySub = "Paybill / Till confirmed";
+      }
+
+      var rawNo = String(o.receiptNo || o.orderId || o.number || "1006");
+      var receiptNum = rawNo.indexOf("UA-") === 0 ? rawNo : ("UA-" + rawNo);
+      var orderNum = rawNo.indexOf("ORD-") === 0 ? rawNo : ("ORD-" + rawNo);
 
       return {
-        receiptNo: o.receiptNo || o.orderId || o.number || '1002',
-        orderId: o.orderId || o.receiptNo || o.number || '1002',
-        token: o.token || '',
+        receiptNo: receiptNum,
+        orderId: orderNum,
+        rawNumber: rawNo,
+        token: o.token || "",
         store: storeName,
-        businessSlug: o.businessSlug || B.slug || '',
-        storePhone: o.storePhone || B.phone || B.wa || '',
-        logo: o.logo || B.logo || '',
+        businessSlug: o.businessSlug || B.slug || "",
+        storePhone: B.phone || B.wa || "+1 (800) 123-4567",
+        storeEmail: B.email || ("support@" + (B.slug || "urbanattire") + ".com"),
         customerName: customerName,
-        customer: { name: customerName, phone: phone },
-        phone: phone,
-        fulfilment: o.fulfilment || 'DELIVERY',
         address: address,
+        estimatedDelivery: estDelivery,
         date: dateVal,
-        dateFormatted: dateVal,
         createdAt: o.createdAt || new Date().toISOString(),
         items: items,
         subtotal: subtotal,
         deliveryFee: deliveryFee,
-        deliveryFeeText: deliveryFee > 0 ? (currency + ' ' + fmtNumber(deliveryFee)) : 'Free',
         total: total,
         currencySymbol: currency,
-        paymentMethod: payMethod,
-        paymentStatus: payStatus,
-        orderStatus: o.orderStatus || 'Order confirmed',
+        paymentMethod: rawPay,
+        paymentTitle: payTitle,
+        paymentSubtitle: paySub,
+        paymentStatus: o.paymentStatus || "Paid",
+        orderStatus: o.orderStatus || "Order confirmed",
         isShowcase: false
       };
     }
 
-    function renderReceiptCardHTML(o) {
-      var currency = o.currencySymbol || 'KSh';
-      var storeName = o.store || "Lydia's Shop";
-
-      // Status pill styling
-      var statusBadgeClass = 'awaiting';
-      var statusBadgeText = 'Awaiting payment confirmation';
-      if (o.paymentStatus === 'Paid' || (o.paymentStatus && o.paymentStatus.indexOf('Paid') !== -1)) {
-        statusBadgeClass = 'paid';
-        statusBadgeText = 'Paid ✓';
-      } else if (o.paymentStatus && o.paymentStatus.toLowerCase().indexOf('reported') !== -1) {
-        statusBadgeClass = 'reported';
-        statusBadgeText = 'Payment reported';
-      }
-
-      // Store avatar or bag icon
-      var avatarContent = '';
-      if (o.logo) {
-        avatarContent = '<img src="' + esc(o.logo) + '" alt="' + esc(storeName) + '" class="receipt-store-avatar-img" />';
-      } else {
-        avatarContent = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
-          '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>' +
-          '<path d="M3 6h18"/>' +
-          '<path d="M16 10a4 4 0 0 1-8 0"/>' +
-          '</svg>';
-      }
-
-      // Items list
-      var itemsHtml = (o.items || []).map(function (it) {
-        var qty = it.qty || 1;
-        var unitPrice = it.price || 0;
-        var lineTotal = unitPrice * qty;
-        return '<div class="receipt-item-row">' +
-          '<div class="receipt-item-left">' +
-            '<div class="receipt-item-name">' + esc(it.name) + '</div>' +
-            '<div class="receipt-item-sub">' + qty + ' × ' + currency + ' ' + fmtNumber(unitPrice) + '</div>' +
-          '</div>' +
-          '<div class="receipt-item-right">' + currency + ' ' + fmtNumber(lineTotal) + '</div>' +
-        '</div>';
-      }).join('');
-
-      var deliveryText = o.deliveryFee > 0 ? (currency + ' ' + fmtNumber(o.deliveryFee)) : 'Free';
-
-      return '<div class="aqivo-receipt-card" id="aqivo-receipt-card">' +
-        '<!-- Store Info -->' +
-        '<div class="receipt-store-header-row">' +
-          '<div class="receipt-store-avatar-box">' +
-            avatarContent +
-          '</div>' +
-          '<h1 class="receipt-store-title-text">' + esc(storeName) + '</h1>' +
-        '</div>' +
-
-        '<!-- Receipt Bar -->' +
-        '<div class="receipt-bar-row">' +
-          '<span class="receipt-bar-label">Receipt</span>' +
-          '<span class="receipt-confirmed-pill">' +
-            '<span class="receipt-confirmed-dot"></span>' +
-            '<span>Order confirmed</span>' +
-          '</span>' +
-        '</div>' +
-
-        '<!-- Metadata Grid -->' +
-        '<div class="receipt-meta-grid">' +
-          '<div class="receipt-meta-cell">' +
-            '<span class="receipt-meta-label">Receipt No.</span>' +
-            '<span class="receipt-meta-val">' + esc(o.receiptNo) + '</span>' +
-          '</div>' +
-          '<div class="receipt-meta-cell">' +
-            '<span class="receipt-meta-label">Date</span>' +
-            '<span class="receipt-meta-val">' + esc(o.date) + '</span>' +
-          '</div>' +
-          '<div class="receipt-meta-cell">' +
-            '<span class="receipt-meta-label">Customer</span>' +
-            '<span class="receipt-meta-val">' + esc(o.customerName) + '</span>' +
-          '</div>' +
-          '<div class="receipt-meta-cell">' +
-            '<span class="receipt-meta-label">Phone</span>' +
-            '<span class="receipt-meta-val">' + esc(o.phone) + '</span>' +
-          '</div>' +
-          '<div class="receipt-meta-cell full-width">' +
-            '<span class="receipt-meta-label">Deliver To</span>' +
-            '<span class="receipt-meta-val">' + esc(o.address) + '</span>' +
-          '</div>' +
-        '</div>' +
-
-        '<!-- Items Section -->' +
-        '<div class="receipt-items-header">Items</div>' +
-        '<div class="receipt-items-list">' +
-          itemsHtml +
-        '</div>' +
-
-        '<hr class="receipt-dashed-divider" />' +
-
-        '<!-- Subtotal & Delivery -->' +
-        '<div class="receipt-breakdown-row">' +
-          '<span>Subtotal</span>' +
-          '<span class="receipt-breakdown-val">' + currency + ' ' + fmtNumber(o.subtotal) + '</span>' +
-        '</div>' +
-        '<div class="receipt-breakdown-row">' +
-          '<span>Delivery</span>' +
-          '<span class="receipt-breakdown-val">' + esc(deliveryText) + '</span>' +
-        '</div>' +
-
-        '<!-- Lime Total Pill -->' +
-        '<div class="receipt-total-pill">' +
-          '<span class="receipt-total-label">Total</span>' +
-          '<span class="receipt-total-amount">' + currency + ' ' + fmtNumber(o.total) + '</span>' +
-        '</div>' +
-
-        '<!-- Payment Method & Live Status Pill -->' +
-        '<div class="receipt-payment-row">' +
-          '<span class="receipt-payment-method-text">Paid via <strong>' + esc(o.paymentMethod) + '</strong></span>' +
-          '<span class="receipt-payment-status-badge ' + statusBadgeClass + '" id="receipt-card-status-badge">' +
-            '<span class="status-dot"></span>' +
-            '<span>' + esc(statusBadgeText) + '</span>' +
-          '</span>' +
-        '</div>' +
-
-        '<!-- Aqivo Attribution Footer -->' +
-        '<div class="receipt-card-brand-footer">' +
-          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">' +
-            '<path d="m3 20 9-16 9 16"/>' +
-            '<path d="M6.5 14h11"/>' +
-          '</svg>' +
-          '<span>Powered by Aqivo</span>' +
-        '</div>' +
-      '</div>';
-    }
-
     function renderOrder(order) {
       currentReceiptOrder = order;
-      var mount = document.getElementById('receipt-card-mount');
-      if (mount) {
-        mount.innerHTML = renderReceiptCardHTML(order);
+      var currency = order.currencySymbol || "$";
+
+      // 1. Store Title & Header
+      var titleEl = document.getElementById("receipt-store-title");
+      if (titleEl) titleEl.textContent = order.store || "Urban Attire";
+
+      var backBtnText = document.getElementById("receipt-back-btn-text");
+      if (backBtnText && order.store) backBtnText.textContent = "Back to " + order.store;
+
+      var cancelLink = document.getElementById("receipt-cancel-link");
+      if (cancelLink) cancelLink.href = getStoreHomeUrl();
+
+      var backLink = document.getElementById("receipt-back-btn");
+      if (backLink) backLink.href = getStoreHomeUrl();
+
+      // 2. Metadata Lines
+      var rNo = document.getElementById("r-receipt-no");
+      if (rNo) rNo.textContent = order.receiptNo || "UA-568921";
+
+      var oNo = document.getElementById("r-order-no");
+      if (oNo) oNo.textContent = order.orderId || "ORD-983742";
+
+      var dEl = document.getElementById("r-date");
+      if (dEl) dEl.textContent = order.date || "May 30, 2025";
+
+      // 3. Customer Info
+      var cName = document.getElementById("r-customer-name");
+      if (cName) cName.textContent = order.customerName || "Ayan Ali";
+
+      var cAddr = document.getElementById("r-customer-address");
+      if (cAddr) cAddr.innerHTML = esc(order.address || "Westlands, Nairobi").replace(/\n/g, "<br>");
+
+      var dEst = document.getElementById("r-delivery-estimate");
+      if (dEst) dEst.textContent = order.estimatedDelivery || "Estimated Delivery: Standard Dispatch";
+
+      // 4. Items List
+      var itemsBox = document.getElementById("r-items-container");
+      if (itemsBox) {
+        itemsBox.innerHTML = (order.items || []).map(function (it) {
+          var priceVal = currency + " " + fmtNumber(it.price || 0);
+          var qtyVal = "Qty: " + (it.qty || 1);
+          var imgHtml = "";
+          if (it.image) {
+            imgHtml = '<img src="' + esc(it.image) + '" alt="' + esc(it.name) + '" class="receipt-item-img" onerror="this.onerror=null;this.parentElement.innerHTML=\'<svg width=\\\'20\\\' height=\\\'20\\\' viewBox=\\\'0 0 24 24\\\' fill=\\\'none\\\' stroke=\\\'#4B5563\\\' stroke-width=\\\'2\\\'><path d=\\\'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\\\'/></svg>\';" />';
+          } else {
+            imgHtml = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4B5563" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+          }
+
+          return [
+            '<div class="receipt-item-card">',
+            '  <div class="receipt-item-left">',
+            '    <div class="receipt-item-img-box">' + imgHtml + '</div>',
+            '    <div class="receipt-item-title">' + esc(it.name) + '</div>',
+            '  </div>',
+            '  <div class="receipt-item-right">',
+            '    <div class="receipt-item-price">' + esc(priceVal) + '</div>',
+            '    <div class="receipt-item-qty">' + esc(qtyVal) + '</div>',
+            '  </div>',
+            '</div>'
+          ].join("\n");
+        }).join("\n");
       }
+
+      // 5. Shipping & Total
+      var shipEl = document.getElementById("r-shipping-val");
+      if (shipEl) {
+        shipEl.textContent = order.deliveryFee > 0 ? (currency + " " + fmtNumber(order.deliveryFee)) : (currency === "$" ? "$5.00" : "Free");
+      }
+
+      var totalEl = document.getElementById("r-total-val");
+      if (totalEl) {
+        totalEl.textContent = currency + " " + fmtNumber(order.total);
+      }
+
+      // 6. Payment Method Card
+      var payTitleEl = document.getElementById("r-payment-title");
+      if (payTitleEl) payTitleEl.textContent = order.paymentTitle || "MasterCard";
+
+      var paySubEl = document.getElementById("r-payment-sub");
+      if (paySubEl) paySubEl.textContent = order.paymentSubtitle || "MasterCard ending in 9876";
+
+      var payLogoBox = document.getElementById("r-payment-logo");
+      if (payLogoBox) {
+        var pMeth = String(order.paymentMethod || "").toLowerCase();
+        if (pMeth.indexOf("mpesa") !== -1) {
+          payLogoBox.innerHTML = '<span style="background:#00A859;color:#FFF;font-size:9.5px;font-weight:900;padding:3px 6px;border-radius:4px;letter-spacing:0.5px;">M-PESA</span>';
+        } else if (pMeth.indexOf("cash") !== -1) {
+          payLogoBox.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>';
+        } else {
+          payLogoBox.innerHTML = '<svg width="34" height="22" viewBox="0 0 34 22" fill="none"><circle cx="12" cy="11" r="10" fill="#EB001B"/><circle cx="22" cy="11" r="10" fill="#F79E1B" fill-opacity="0.9"/></svg>';
+        }
+      }
+
+      // 7. Phone 2 (Support, Returns, Social, QR)
+      var sPhone = document.getElementById("r-support-phone");
+      if (sPhone) {
+        sPhone.textContent = order.storePhone || "+1 (800) 123-4567";
+        sPhone.href = "tel:" + (order.storePhone || "+18001234567").replace(/\s+/g, "");
+      }
+
+      var sEmail = document.getElementById("r-support-email");
+      if (sEmail) {
+        sEmail.textContent = order.storeEmail || "support@urbanattire.com";
+        sEmail.href = "mailto:" + (order.storeEmail || "support@urbanattire.com");
+      }
+
+      var sTrack = document.getElementById("r-support-track");
+      if (sTrack) {
+        var host = window.location.host || (order.businessSlug ? order.businessSlug + ".aqivo.shop" : "urbanattire.com");
+        sTrack.textContent = "Track Order: " + host + "/track";
+      }
+
+      var sRet = document.getElementById("r-support-returns");
+      if (sRet) {
+        var host = window.location.host || (order.businessSlug ? order.businessSlug + ".aqivo.shop" : "urbanattire.com");
+        sRet.textContent = "Visit: " + host + "/returns";
+      }
+
+      var followEl = document.getElementById("r-follow-label");
+      if (followEl) {
+        var handle = (order.store || "urbanattire").toLowerCase().replace(/[^a-z0-9]/g, "");
+        followEl.textContent = "Follow us @" + (handle || "urbanattire");
+      }
+
+      // QR Code Generation
+      var qrImg = document.getElementById("r-qr-image");
+      if (qrImg) {
+        var qrPayload = window.location.href;
+        qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=2&data=" + encodeURIComponent(qrPayload);
+      }
+
+      // Sync simulator tab
       syncStatusChips(order.paymentStatus);
     }
 
@@ -905,7 +1329,7 @@
       tabRep.classList.remove('active');
       tabPaid.classList.remove('active');
 
-      if (status === 'Paid' || (status && status.indexOf('Paid') !== -1)) {
+      if (status === 'Paid' || (status && status.toLowerCase().indexOf('paid') !== -1)) {
         tabPaid.classList.add('active');
       } else if (status && status.toLowerCase().indexOf('reported') !== -1) {
         tabRep.classList.add('active');
@@ -918,14 +1342,13 @@
       if (!currentReceiptOrder) return;
       currentReceiptOrder.paymentStatus = newStatus;
 
-      // Update order in localStorage if present
       try {
         var raw = localStorage.getItem('aqivo_orders');
         if (raw) {
           var list = JSON.parse(raw);
           var found = list.find(function (it) {
-            return String(it.receiptNo) === String(currentReceiptOrder.receiptNo) ||
-                   String(it.orderId) === String(currentReceiptOrder.orderId);
+            return String(it.receiptNo) === String(currentReceiptOrder.rawNumber || currentReceiptOrder.receiptNo) ||
+                   String(it.orderId) === String(currentReceiptOrder.rawNumber || currentReceiptOrder.orderId);
           });
           if (found) {
             found.paymentStatus = newStatus;
@@ -934,167 +1357,82 @@
         }
       } catch (e) {}
 
-      renderOrder(currentReceiptOrder);
-      showToast('Payment status updated: ' + (newStatus.indexOf('Paid') !== -1 ? 'Paid ✓' : newStatus));
+      syncStatusChips(newStatus);
+      showToast('Payment status: ' + (newStatus.indexOf('Paid') !== -1 ? 'Paid ✓' : newStatus));
     }
 
     function printReceiptDoc() {
       window.print();
     }
 
-  /* Aqivo WhatsApp order message (click-to-chat)
-     Builds the formatted order message, opens the merchant's chat with it
-     prefilled, and returns the URL. The customer still has to tap Send.
+    /* Aqivo WhatsApp order messaging */
+    (function (root) {
+      'use strict';
 
-     Usage:
-       AqivoWhatsApp.sendOrder(order, { receiptBase: 'https://aqivo.shop/orders' });
-       AqivoWhatsApp.buildOrderMessage(order)   // text only
-  */
-  (function (root) {
-    'use strict';
-
-    function money(n, sym) {
-      return (sym || 'KSh') + ' ' + Number(n || 0).toLocaleString('en-KE');
-    }
-
-    // 07XX / 7XX / +254 / 254 -> digits in international format for wa.me
-    function normalisePhone(raw) {
-      if (!raw) return '';
-      var s = String(raw).trim();
-      if (s.indexOf('?') !== -1) s = s.split('?')[0];
-      if (s.indexOf('#') !== -1) s = s.split('#')[0];
-      var m = s.match(/(?:wa\.me\/|phone=|send\?phone=|tel:)(\+?\d+)/);
-      if (m && m[1]) s = m[1];
-      var parts = s.split(/\s*(?:\/|,|;|\||\bor\b)\s*/);
-      if (parts.length > 0 && parts[0]) s = parts[0];
-      var d = s.replace(/\D/g, '');
-      if (!d) return '';
-      if (d.indexOf('00') === 0) d = d.slice(2);
-      while (d.indexOf('254254') === 0) d = d.slice(3);
-      if (d.indexOf('2540') === 0 && d.length >= 13) d = '254' + d.slice(4);
-      if (d.charAt(0) === '0' && d.length === 10) d = '254' + d.slice(1);
-      if (d.length === 9 && /^[17]/.test(d)) d = '254' + d;
-      if (d.indexOf('254') === 0 && d.length > 12) d = d.slice(0, 12);
-      return d;
-    }
-
-    function orderNumber(o) {
-      return o.receiptNo || o.orderId || '';
-    }
-
-    function receiptUrl(o, opts) {
-      opts = opts || {};
-      if (opts.receiptUrl) return opts.receiptUrl;
-      var base = (opts.receiptBase || 'https://aqivo.shop/orders').replace(/\/$/, '');
-      return base + '/' + encodeURIComponent(orderNumber(o)) + '/receipt';
-    }
-
-    function fulfilmentLabel(o) {
-      return (o.fulfilment === 'pickup' || o.fulfilment === 'PICKUP') ? 'Walk-in / Pickup' : 'Delivery';
-    }
-
-    function buildOrderMessage(o, opts) {
-      opts = opts || {};
-      var sym = o.currencySymbol || 'KSh';
-      var no = orderNumber(o);
-      var storeName = opts.storeName || o.storeDisplayName || o.store || 'there';
-      var customer = o.customer || { name: o.customerName, phone: o.phone };
-      var isPickup = (o.fulfilment === 'pickup' || o.fulfilment === 'PICKUP');
-      var L = [];
-
-      L.push('*NEW ORDER — ' + no + '*');
-      L.push('');
-      L.push('Hello ' + storeName + ', you have received a new order!');
-      L.push('');
-      L.push('*ORDER DETAILS*');
-      L.push('Order number: ' + no);
-      (o.items || []).forEach(function (it) {
-        var qty = it.qty || 1;
-        L.push(qty + ' × ' + it.name + ' — ' + money((it.price || 0) * qty, sym));
-      });
-      L.push('');
-      L.push('Subtotal: ' + money(o.subtotal, sym));
-      if (o.discount > 0) L.push('Discount: − ' + money(o.discount, sym));
-      L.push('Delivery fee: ' + (o.deliveryFeeText || money(o.deliveryFee || 0, sym)));
-      L.push('*TOTAL: ' + money(o.total, sym) + '*');
-      L.push('');
-      L.push('*CUSTOMER DETAILS*');
-      L.push('Name: ' + (customer.name || o.customerName || '-'));
-      L.push('Phone: ' + (customer.phone || o.phone || '-'));
-      L.push('Fulfilment: ' + fulfilmentLabel(o));
-      if (!isPickup && o.address) L.push('Address: ' + o.address);
-      L.push('Payment method: ' + (o.paymentMethod || 'Pay on delivery / pickup'));
-      if (o.notes) L.push('Notes: ' + o.notes);
-      L.push('');
-      L.push('*ORDER RECEIPT*');
-      L.push(receiptUrl(o, opts));
-      L.push('');
-      L.push('Please confirm the order with your customer.');
-      L.push('Powered by Aqivo');
-      return L.join('\n');
-    }
-
-    function whatsappUrl(phone, message) {
-      return 'https://wa.me/' + normalisePhone(phone) + '?text=' + encodeURIComponent(message);
-    }
-
-    // Opens the merchant's WhatsApp chat with the message prefilled.
-    function sendOrder(order, opts) {
-      opts = opts || {};
-      var phone = opts.phone || order.storePhone;
-      if (!normalisePhone(phone)) throw new Error('Aqivo: merchant WhatsApp number is missing');
-      var url = whatsappUrl(phone, buildOrderMessage(order, opts));
-      if (opts.open !== false && typeof window !== 'undefined') {
-        window.open(url, '_blank', 'noopener');
+      function money(n, sym) {
+        return (sym || 'KSh') + ' ' + Number(n || 0).toLocaleString('en-KE');
       }
-      return url;
-    }
 
-    root.AqivoWhatsApp = {
-      buildOrderMessage: buildOrderMessage,
-      whatsappUrl: whatsappUrl,
-      sendOrder: sendOrder,
-      normalisePhone: normalisePhone,
-      receiptUrl: receiptUrl
-    };
-  })(typeof window !== 'undefined' ? window : globalThis);
+      function normalisePhone(raw) {
+        if (!raw) return '';
+        var s = String(raw).trim();
+        var d = s.replace(/\D/g, '');
+        if (!d) return '';
+        if (d.charAt(0) === '0' && d.length === 10) d = '254' + d.slice(1);
+        if (d.length === 9 && /^[17]/.test(d)) d = '254' + d;
+        return d;
+      }
+
+      function buildOrderMessage(o, opts) {
+        opts = opts || {};
+        var sym = o.currencySymbol || 'KSh';
+        var no = o.rawNumber || o.receiptNo || o.orderId || '';
+        var storeName = opts.storeName || o.store || 'there';
+        var lines = [
+          'Hello ' + storeName + '! Here is my order receipt:',
+          '',
+          '🧾 Order #' + no,
+          '👤 Customer: ' + (o.customerName || 'Customer'),
+          '📍 Delivery: ' + (o.address || 'Standard Delivery'),
+          '💳 Payment: ' + (o.paymentTitle || o.paymentMethod || 'Confirmed'),
+          '💰 Total: ' + sym + ' ' + fmtNumber(o.total),
+          '',
+          'View Online Receipt: ' + window.location.href
+        ];
+        return lines.join('\n');
+      }
+
+      root.AqivoWhatsApp = {
+        buildOrderMessage: buildOrderMessage,
+        normalisePhone: normalisePhone
+      };
+    })(typeof window !== 'undefined' ? window : globalThis);
 
     function shareReceiptDoc() {
       if (!currentReceiptOrder) return;
       var o = currentReceiptOrder;
       var B = window.__BZ || {};
-      var storeName = o.store || B.name || "Lydia's Shop";
-      var rawPhone = B.phone || B.wa_phone || o.storePhone || B.wa || '';
-      var opts = {
-        phone: rawPhone,
-        storeName: storeName,
-        receiptUrl: window.location.href
-      };
+      var rawPhone = o.storePhone || B.phone || B.wa || '';
+      var clean = window.AqivoWhatsApp.normalisePhone(rawPhone);
+      var msg = window.AqivoWhatsApp.buildOrderMessage(o, { storeName: o.store });
 
-      try {
-        if (window.AqivoWhatsApp.normalisePhone(rawPhone)) {
-          window.AqivoWhatsApp.sendOrder(o, opts);
-        } else {
-          var msg = window.AqivoWhatsApp.buildOrderMessage(o, opts);
-          window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
-        }
-      } catch (err) {
-        var msgFallback = window.AqivoWhatsApp.buildOrderMessage(o, opts);
-        window.open('https://wa.me/?text=' + encodeURIComponent(msgFallback), '_blank', 'noopener');
+      if (clean) {
+        window.open('https://wa.me/' + clean + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+      } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
       }
     }
 
     function copyReceiptDoc() {
       if (!currentReceiptOrder) return;
       var o = currentReceiptOrder;
-      var text = (o.store || 'Aqivo Store') + ' — Receipt No. ' + (o.receiptNo || o.orderId) + '\n' +
-        'Total: ' + (o.currencySymbol || 'KSh') + ' ' + fmtNumber(o.total) + '\n' +
-        'Status: ' + o.paymentStatus + '\n' +
-        'Receipt URL: ' + window.location.href;
+      var text = (o.store || 'Order Receipt') + ' #' + (o.receiptNo || o.orderId) + '\n' +
+                 'Total: ' + (o.currencySymbol || '$') + ' ' + fmtNumber(o.total) + '\n' +
+                 'Receipt Link: ' + window.location.href;
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function () {
-          showToast('Receipt details copied!');
+          showToast('Receipt link copied!');
         }).catch(function () {
           showToast('Copied to clipboard');
         });
@@ -1103,9 +1441,9 @@
       }
     }
 
-    // Expose StoreApp interface for backwards compatibility and integration tests
+    // Expose StoreApp interface
     window.StoreApp = {
-      renderReceiptHTML: renderReceiptCardHTML,
+      renderReceiptHTML: renderOrder,
       shareReceiptWhatsApp: shareReceiptDoc,
       printReceipt: printReceiptDoc,
       copyReceipt: copyReceiptDoc,
@@ -1113,11 +1451,18 @@
     };
 
     document.addEventListener('DOMContentLoaded', function () {
-      // Connect Back button to active storefront
-      var backBtn = document.getElementById('receipt-back-btn');
-      if (backBtn) {
-        backBtn.href = getStoreHomeUrl();
+      // Set live clocks in mockup headers
+      function updatePhoneClocks() {
+        var d = new Date();
+        var h = d.getHours();
+        var m = d.getMinutes();
+        var timeStr = (h % 12 || 12) + ':' + (m < 10 ? '0' + m : m);
+        var t1 = document.getElementById('phone-time-1');
+        var t2 = document.getElementById('phone-time-2');
+        if (t1) t1.textContent = timeStr;
+        if (t2) t2.textContent = timeStr;
       }
+      updatePhoneClocks();
 
       var params = new URLSearchParams(window.location.search);
       var queryOrderId = params.get('orderId') || params.get('order') || params.get('receipt');
@@ -1125,7 +1470,6 @@
 
       var resolvedOrder = null;
 
-      // 1. Search localStorage for matching order
       try {
         var raw = localStorage.getItem('aqivo_orders');
         if (raw) {
@@ -1143,21 +1487,17 @@
                 return it.token === queryToken;
               });
             }
-            // If no explicit order in URL, check latest order for this store
             if (!resolvedOrder && !queryOrderId && !queryToken) {
               var B = window.__BZ || {};
               var storeOrder = list.find(function (it) {
                 return (B.slug && it.businessSlug === B.slug) || (B.name && it.store === B.name);
               });
-              if (storeOrder) {
-                resolvedOrder = storeOrder;
-              }
+              if (storeOrder) resolvedOrder = storeOrder;
             }
           }
         }
       } catch (e) {}
 
-      // 2. Normalize found order or generate showcase order connected to shop
       if (resolvedOrder) {
         renderOrder(normalizeOrder(resolvedOrder));
       } else {
