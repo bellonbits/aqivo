@@ -484,7 +484,7 @@
       veil.innerHTML = [
         '<div class="aqivo-entry-card" role="dialog" aria-modal="true" aria-labelledby="aqivo-entry-title">',
         '  <div class="aqivo-entry-badge">',
-        '    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+        '    <img src="/brand/aqivo-mark.png" alt="Aqivo" style="width:16px;height:16px;object-fit:contain;border-radius:3px;" onerror="this.onerror=null;this.src=\'aqivo-mark.png\';" />',
         '    <span>Customer Identification</span>',
         '  </div>',
         '  <h2 id="aqivo-entry-title" class="aqivo-entry-title">Welcome! Let\'s Get You Started</h2>',
@@ -742,8 +742,13 @@
       '      <div class="text-center py-6 text-xs text-slate-400">Loading your orders...</div>',
       '    </div>',
       '  </div>',
-      '  <div class="mt-auto pt-4 border-t border-slate-100 text-center">',
+      '  <div class="mt-auto pt-4 border-t border-slate-100 flex flex-col items-center gap-2">',
       '    <button type="button" id="btn-switch-account" class="text-xs font-bold text-rose-600 hover:text-rose-800 underline">Switch Account / Sign Out</button>',
+      '    <div class="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 font-semibold mt-1">',
+      '      <span>Powered by</span>',
+      '      <img src="/brand/aqivo-mark.png" alt="Aqivo" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;" onerror="this.onerror=null;this.src=\'aqivo-mark.png\';" />',
+      '      <strong class="text-slate-600 font-bold">Aqivo.shop</strong>',
+      '    </div>',
       '  </div>',
       '</div>'
     ].join("\n");

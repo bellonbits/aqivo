@@ -16,14 +16,6 @@ export function AqivoLogo({
   className,
   showDomain = false,
 }: AqivoLogoProps) {
-  // Size classes
-  const heights = {
-    sm: 'h-6',
-    md: 'h-8',
-    lg: 'h-10',
-    xl: 'h-12',
-  }
-
   const markHeights = {
     sm: 'h-6 w-6',
     md: 'h-8 w-8',
@@ -51,13 +43,20 @@ export function AqivoLogo({
   }
 
   if (variant === 'full') {
-    const logoSrc = isDark ? brand.assets.logoWhite : brand.assets.logo
     return (
-      <img
-        src={logoSrc}
-        alt={brand.fullName}
-        className={cn('inline-block object-contain select-none w-auto', heights[size], className)}
-      />
+      <span className={cn('inline-flex items-center gap-2 select-none', className)}>
+        <img
+          src={brand.assets.mark}
+          alt={brand.name}
+          className={cn('inline-block object-contain select-none', markHeights[size])}
+        />
+        <span className={cn('font-bold tracking-tight', textSizes[size])}>
+          <span className={isDark ? 'text-white' : 'text-[#0B1736]'}>Aqivo</span>
+          {showDomain && (
+            <span className="text-[#5B21F5] font-extrabold text-[0.85em]">.shop</span>
+          )}
+        </span>
+      </span>
     )
   }
 

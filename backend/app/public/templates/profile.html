@@ -21,7 +21,6 @@
   {% if reviews %}<h2 style="font-size:24px;margin-top:36px">Reviews</h2><div class="reviews" style="margin-top:12px">{% for r in reviews %}<figure class="card" style="margin:0"><div class="stars">{{ r.rating|stars }}</div><blockquote style="margin:8px 0 0">{{ r.comment }}</blockquote><figcaption class="who">{{ r.author_name }}{% if r.verified %} <span class="ver">· Verified</span>{% endif %}</figcaption></figure>{% endfor %}</div>{% endif %}
   <h2 style="font-size:24px;margin-top:36px">Opening hours</h2><div class="hrs" style="margin-top:12px">{% for h in hours %}<div><span>{{ h.day }}</span><span>{{ h.text }}</span></div>{% endfor %}</div>
   {% if business.address %}<h2 style="font-size:24px;margin-top:36px">Location</h2><p class="sub">{{ business.address }}{{ ', ' if business.city }}{{ business.city }}</p>{% endif %}
-  <p style="margin-top:40px;text-align:center"><a href="{{ urls.review }}">Leave a review</a></p>
-  {% if show_branding %}<p style="text-align:center;color:var(--muted);font-size:13px">Powered by <a href="https://aqivo.shop">Aqivo.shop</a></p>{% endif %}
+  {% if show_branding %}<p style="text-align:center;color:var(--muted);font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:16px;"><span>Powered by</span><img src="/static/brand/aqivo-mark.png" alt="Aqivo" style="width:14px;height:14px;object-fit:contain;vertical-align:middle;"><a href="https://aqivo.shop" style="font-weight:700;color:inherit;text-decoration:none;">Aqivo.shop</a></p>{% endif %}
 </div></main>
 {% endblock %}
