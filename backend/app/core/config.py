@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_password: str = ""
     resend_api_key: str = ""
-    email_from: str = "Aqivo <hello@aqivo.shop>"
+    email_from: str = "Aqivo <info@aqivo.shop>"
 
     opensms_api_token: str = ""
     opensms_api_url: str = "https://www.opensms.co.ke/api/v3"

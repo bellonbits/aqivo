@@ -9,7 +9,7 @@ export const brand = {
   url: 'https://aqivo.shop',
   tagline: 'The Booking & Appointment Platform for Modern Service Businesses',
   description: 'A modern booking and appointment scheduling platform allowing salons, spas, barbershops, and service pros to take 24/7 bookings, automate WhatsApp reminders, manage specialists, and collect upfront deposits.',
-  supportEmail: 'support@aqivo.shop',
+  supportEmail: 'info@aqivo.shop',
   supportName: 'Aqivo Support',
   copyright: '© 2026 Aqivo.shop',
   assets: {

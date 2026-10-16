@@ -76,6 +76,7 @@ app.add_middleware(
 app.include_router(api_router)
 app.mount("/media", StaticFiles(directory=settings.media_dir, check_dir=False), name="media")
 app.mount("/static", StaticFiles(directory=BASE / "public" / "static"), name="static")
+app.mount("/brand", StaticFiles(directory=BASE / "public" / "static" / "brand"), name="brand")
 
 NOSTORE = {"Cache-Control": "no-store"}
 

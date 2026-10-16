@@ -100,8 +100,36 @@ def place(db: Session, business: Business, *, raw_lines: list[dict], name: str, 
     _event(order, "PLACED", f"Order placed ({'WhatsApp' if channel == 'WHATSAPP' else 'online'}).")
     db.flush()
     summary = ", ".join(f"{i.quantity}× {i.name}" for i in order.items)[:200]
+    first_item_img = order.items[0].image_url if (order.items and order.items[0].image_url) else ""
+    order_items_list = [
+        {
+            "name": i.name,
+            "variant": i.variant_title or "",
+            "qty": i.quantity,
+            "price": f"{business.currency} {float(i.unit_price or 0):,.2f}",
+            "total": f"{business.currency} {float(i.line_total or 0):,.2f}",
+            "image": i.image_url or "",
+        }
+        for i in order.items
+    ]
+    b_urls = business_urls(business)
+    track_url = f"{b_urls.get('profile', '')}/receipt.html?orderId={order.number}&token={order.token}"
+
     notify(db, "new_order", business.email, business_id=business.id, number=number, customer=name, total=f"{business.currency} {qt.total:,.0f}", items=summary,
-           payment=methods[payment_key]["label"], phone=phone or email)
+           payment=methods[payment_key]["label"], phone=phone or email, url=track_url,
+           order_number=number, order_items=order_items_list, product_image=first_item_img,
+           subtotal=f"{business.currency} {qt.subtotal:,.2f}", tax=f"{business.currency} {qt.tax:,.2f}",
+           delivery_fee=f"{business.currency} {qt.delivery_fee:,.2f}", address=order.address or "Store Collection",
+           store_name=business.name, store_logo=business.logo_url or "")
+
+    if order.customer_email:
+        notify(db, "order_receipt", order.customer_email, business_id=business.id, number=number, customer=name,
+               business=business.name, total=f"{business.currency} {qt.total:,.2f}", items=summary,
+               payment=methods[payment_key]["label"], phone=phone or email, url=track_url,
+               order_number=number, order_items=order_items_list, product_image=first_item_img,
+               subtotal=f"{business.currency} {qt.subtotal:,.2f}", tax=f"{business.currency} {qt.tax:,.2f}",
+               delivery_fee=f"{business.currency} {qt.delivery_fee:,.2f}", address=order.address or "Store Collection",
+               store_name=business.name, store_logo=business.logo_url or "")
     return order
 
 
@@ -216,5 +244,27 @@ def _tell_customer(db: Session, order: Order, status: str) -> None:
             whatsapp.notify_order(db, order, STATUS_TEXT[status], f"{business_urls(b0)['profile']}/order/{order.token}")
     if order.customer_email and status in ("CONFIRMED", "READY", "COMPLETED", "CANCELLED"):
         b = db.get(Business, order.business_id)
+        b_urls = business_urls(b) if b else {}
+        track_url = f"{b_urls.get('profile', '')}/receipt.html?orderId={order.number}&token={order.token}" if b else ""
+        first_item_img = order.items[0].image_url if (order.items and order.items[0].image_url) else ""
+        order_items_list = [
+            {
+                "name": i.name,
+                "variant": i.variant_title or "",
+                "qty": i.quantity,
+                "price": f"{order.currency} {float(i.unit_price or 0):,.2f}",
+                "total": f"{order.currency} {float(i.line_total or 0):,.2f}",
+                "image": i.image_url or "",
+            }
+            for i in order.items
+        ]
         notify(db, "order_update", order.customer_email, business_id=order.business_id, number=order.number, customer=order.customer_name, status=STATUS_TEXT[status],
-               business=b.name if b else "", url=f"{business_urls(b)['profile']}/order/{order.token}" if b else "")
+               business=b.name if b else "", url=track_url,
+               order_number=order.number, order_items=order_items_list, product_image=first_item_img,
+               total=f"{order.currency} {float(order.total or 0):,.2f}",
+               subtotal=f"{order.currency} {float(order.subtotal or 0):,.2f}",
+               tax=f"{order.currency} {float(order.tax or 0):,.2f}",
+               delivery_fee=f"{order.currency} {float(order.delivery_fee or 0):,.2f}",
+               payment=order.payment_method or "Cash / Transfer",
+               address=order.address or "Store Collection",
+               store_name=b.name if b else "", store_logo=b.logo_url if b else "")

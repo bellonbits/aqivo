@@ -23,6 +23,7 @@ TEMPLATES = {
     "new_lead": ("New lead: {customer}", "{customer} enquired about {service} via {source}.\nPhone: {phone}\n\n{message}"),
     "review_received": ("New {rating}★ review", "{author} left a {rating}-star review for {business}:\n\n{comment}"),
     "new_order": ("New order #{number}: {total}", "{customer} placed order #{number} for {total} ({items}).\nPayment: {payment}\nPhone: {phone}\n\nOpen it: {app_url}/dashboard/orders"),
+    "order_receipt": ("Thanks for your purchase! Order #{number}", "Hi {customer},\n\nHere is your receipt for order #{number} with {business}.\nTotal: {total}\nItems: {items}\n\nTrack it: {url}"),
     "order_update": ("Order #{number} — {status}", "Hi {customer},\n\nYour order #{number} with {business} is now: {status}.\n\nTrack it: {url}"),
     "growth_ready": ("{title}", "{body}\n\nOpen it: {app_url}{href}\n\nNothing has been sent to your customers. You review and send it yourself."),
     "login_code": ("Your {business} login code", "Your login code is {code}. It expires in {minutes} minutes.\n\nIf you didn't ask for it, ignore this email."),
@@ -37,12 +38,14 @@ class _SafeDict(dict):
 
 def _build_html_email(subject: str, body: str, kind: str, ctx: dict) -> str:
     import html as _html
+    from datetime import datetime
     escaped_subject = _html.escape(subject)
 
     s = get_settings()
-    app_base = str(ctx.get('app_url') or s.app_base_url or 'https://www.aqivo.shop').rstrip('/')
+    app_base = str(ctx.get('app_url') or s.app_base_url or 'https://aqivo.shop').rstrip('/')
     action_url = None
     action_label = "Open Aqivo"
+
     if kind == "verify_email":
         action_label = "Verify My Email"
         action_url = f"{app_base}/verify-email?token={ctx.get('token', '')}"
@@ -53,64 +56,255 @@ def _build_html_email(subject: str, body: str, kind: str, ctx: dict) -> str:
         action_label = "Sign In to Your Dashboard"
         action_url = f"{app_base}/login"
     elif kind in ("website_published", "order_update") and ctx.get("url"):
-        action_label = "View Website" if kind == "website_published" else "Track Order"
+        action_label = "View Website" if kind == "website_published" else "Track your order"
+        action_url = ctx.get("url")
+    elif kind in ("new_order", "order_receipt") and ctx.get("url"):
+        action_label = "Track your order"
         action_url = ctx.get("url")
     elif kind == "new_order":
         action_label = "View Order Details"
         action_url = f"{app_base}/dashboard/orders"
 
-    paragraphs = []
-    for line in body.split("\n\n"):
-        clean_line = line.strip()
-        if clean_line:
-            if action_url and clean_line.startswith("http") and action_url in clean_line:
-                continue
-            line_html = "<br>".join(_html.escape(part) for part in clean_line.split("\n"))
-            paragraphs.append(f'<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#334155;">{line_html}</p>')
+    is_order = kind in ("order_receipt", "new_order", "order_update") or bool(ctx.get("order_items") or ctx.get("order_number") or ctx.get("number"))
 
-    content_html = "".join(paragraphs)
+    # Top Brand / Store Logo
+    store_logo = ctx.get("store_logo")
+    logo_src = "https://aqivo.shop/brand/logo-full.png"
+    if store_logo and str(store_logo).strip():
+        logo_html = f'''<img src="{_html.escape(str(store_logo))}" alt="Store Logo" height="38" style="max-height:42px;height:auto;max-width:180px;display:block;border:0;" onerror="this.onerror=null;this.src='https://aqivo.shop/brand/logo-full.png';" />'''
+    else:
+        logo_html = f'''<img src="{logo_src}" alt="Aqivo" width="132" style="width:132px;max-width:150px;height:auto;display:block;border:0;" onerror="this.onerror=null;this.src='https://aqivo.shop/brand/aqivo-logo.png';" />'''
 
-    button_html = ""
-    if action_url:
-        button_html = f'''
-        <div style="margin:28px 0;text-align:center;">
-            <a href="{_html.escape(action_url)}" style="display:inline-block;background-color:#0F172A;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:12px 28px;border-radius:8px;">
-                {action_label} &rarr;
+    if is_order:
+        order_num = str(ctx.get("order_number") or ctx.get("number") or "").strip()
+        customer_name = str(ctx.get("customer") or ctx.get("customer_name") or ctx.get("name") or "there").strip()
+        order_total = str(ctx.get("total") or "").strip()
+        subtotal = str(ctx.get("subtotal") or "").strip()
+        tax = str(ctx.get("tax") or "").strip()
+        delivery_fee = str(ctx.get("delivery_fee") or ctx.get("shipping") or "").strip()
+        payment_method = str(ctx.get("payment") or ctx.get("payment_method") or "Credit Card").strip()
+        date_str = str(ctx.get("date") or ctx.get("eta") or datetime.now().strftime("%B %d, %Y")).strip()
+        raw_address = str(ctx.get("address") or "Store Collection / Delivery").strip()
+        address_html = "<br>".join(_html.escape(line) for line in raw_address.split("\n") if line.strip())
+
+        order_heading = "Thanks for your purchase!"
+        order_subtitle = f"Hi {customer_name}, here's your receipt"
+        if kind == "order_update":
+            status_txt = str(ctx.get("status") or "Updated").strip()
+            order_heading = f"Order #{order_num} Update"
+            order_subtitle = f"Hi {customer_name}, your order status is now: {status_txt}"
+        elif kind == "new_order":
+            order_heading = f"New Order Received! #{order_num}"
+            order_subtitle = f"Hi {customer_name}, a new order has been placed"
+
+        # Line items
+        order_items = ctx.get("order_items")
+        items_rows_html = []
+        product_image = str(ctx.get("product_image") or "").strip()
+
+        if isinstance(order_items, list) and order_items:
+            for it in order_items:
+                if not isinstance(it, dict):
+                    continue
+                name_clean = _html.escape(str(it.get("name") or "Item"))
+                variant_txt = str(it.get("variant") or "").strip()
+                if variant_txt:
+                    name_clean += f' <span style="color:#6B7280;font-weight:400;">({_html.escape(variant_txt)})</span>'
+                qty_val = int(it.get("qty") or it.get("quantity") or 1)
+                if qty_val > 1:
+                    name_clean = f'{qty_val}× ' + name_clean
+                price_clean = _html.escape(str(it.get("total") or it.get("price") or ""))
+                if not product_image and it.get("image"):
+                    product_image = str(it.get("image")).strip()
+                items_rows_html.append(f'''
+                <tr>
+                    <td style="font-size:13.5px;color:#1F2937;font-weight:500;padding:5px 0;">{name_clean}</td>
+                    <td align="right" style="font-size:13.5px;color:#111827;font-weight:700;padding:5px 0;white-space:nowrap;">{price_clean}</td>
+                </tr>''')
+        elif ctx.get("items"):
+            items_str = str(ctx.get("items"))
+            items_rows_html.append(f'''
+            <tr>
+                <td style="font-size:13.5px;color:#1F2937;font-weight:500;padding:5px 0;">{_html.escape(items_str)}</td>
+                <td align="right" style="font-size:13.5px;color:#111827;font-weight:700;padding:5px 0;white-space:nowrap;">{_html.escape(order_total)}</td>
+            </tr>''')
+
+        if not items_rows_html:
+            items_rows_html.append(f'''
+            <tr>
+                <td style="font-size:13.5px;color:#1F2937;font-weight:500;padding:5px 0;">Order #{_html.escape(order_num)} Items</td>
+                <td align="right" style="font-size:13.5px;color:#111827;font-weight:700;padding:5px 0;white-space:nowrap;">{_html.escape(order_total)}</td>
+            </tr>''')
+
+        # Additional financial lines (tax / delivery)
+        extra_rows_html = []
+        if tax and tax not in ("0", "$ 0.00", "0.00", "KSh 0"):
+            extra_rows_html.append(f'''
+            <tr>
+                <td style="font-size:13px;color:#6B7280;padding:3px 0;">Tax</td>
+                <td align="right" style="font-size:13px;color:#374151;font-weight:600;padding:3px 0;">{_html.escape(tax)}</td>
+            </tr>''')
+        if delivery_fee:
+            extra_rows_html.append(f'''
+            <tr>
+                <td style="font-size:13px;color:#6B7280;padding:3px 0;">Shipping</td>
+                <td align="right" style="font-size:13px;color:#374151;font-weight:600;padding:3px 0;">{_html.escape(delivery_fee)}</td>
+            </tr>''')
+
+        items_table_html = "".join(items_rows_html) + "".join(extra_rows_html)
+
+        # Right-side Product Image or Clean Fallback
+        if product_image:
+            product_img_html = f'''<img src="{_html.escape(product_image)}" alt="Purchased Product" width="220" style="width:100%;max-width:220px;height:auto;border-radius:18px;display:block;margin:0 auto;box-shadow:0 6px 18px rgba(0,0,0,0.06);object-fit:cover;" onerror="this.style.display='none';" />'''
+        else:
+            product_img_html = '''
+            <div style="width:100%;max-width:220px;margin:0 auto;height:180px;background-color:#E2E6EA;border-radius:18px;display:flex;align-items:center;justify-content:center;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.04);">
+                <div style="padding:20px;">
+                    <div style="font-size:40px;line-height:1;margin-bottom:8px;">🛍️</div>
+                    <div style="font-size:12px;font-weight:700;color:#64748B;letter-spacing:0.5px;text-transform:uppercase;">Confirmed Order</div>
+                </div>
+            </div>'''
+
+        track_url = action_url or f"{app_base}/receipt.html?orderId={order_num}"
+        track_btn_html = f'''
+        <div style="margin-top:20px;text-align:center;">
+            <a href="{_html.escape(track_url)}" style="display:inline-block;background-color:#FFFFFF;color:#111827;border-radius:9999px;padding:12px 28px;font-size:13.5px;font-weight:700;text-decoration:none;border:1px solid #D1D5DB;box-shadow:0 2px 5px rgba(0,0,0,0.05);text-align:center;">
+                Track your order
             </a>
+        </div>'''
+
+        card_content = f'''
+        <h1 style="margin:20px 0 6px;font-size:25px;font-weight:800;color:#111827;letter-spacing:-0.5px;line-height:1.2;">
+            {_html.escape(order_heading)}
+        </h1>
+        <div style="margin:0 0 20px;font-size:15px;font-weight:500;color:#4B5563;">
+            {_html.escape(order_subtitle)}
         </div>
-        <p style="margin:16px 0 0;font-size:12px;color:#94A3B8;word-break:break-all;">
-            If the button doesn't work, copy and paste this link into your browser:<br>
-            <a href="{_html.escape(action_url)}" style="color:#2563EB;">{_html.escape(action_url)}</a>
-        </p>
+
+        <div style="border-top:1px solid #D5D9DF;margin-bottom:24px;"></div>
+
+        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <!-- Left Column: Order Items & Metadata -->
+                <td width="57%" valign="top" style="padding-right:24px;">
+                    <div style="font-size:15px;font-weight:800;color:#111827;margin-bottom:14px;">
+                        Order #{_html.escape(order_num)}
+                    </div>
+
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        {items_table_html}
+                    </table>
+
+                    <div style="border-top:1px solid #D5D9DF;margin:14px 0;"></div>
+
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td style="font-size:14.5px;font-weight:900;color:#111827;letter-spacing:0.5px;">TOTAL</td>
+                            <td align="right" style="font-size:15.5px;font-weight:900;color:#111827;">{_html.escape(order_total)}</td>
+                        </tr>
+                    </table>
+
+                    <div style="height:26px;"></div>
+
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td width="50%" valign="top" style="padding-right:12px;">
+                                <div style="font-size:12.5px;font-weight:700;color:#111827;margin-bottom:3px;">Payment Method</div>
+                                <div style="font-size:12.5px;color:#4B5563;margin-bottom:14px;">{_html.escape(payment_method)}</div>
+
+                                <div style="font-size:12.5px;font-weight:700;color:#111827;margin-bottom:3px;">ETA / Date</div>
+                                <div style="font-size:12.5px;color:#4B5563;">{_html.escape(date_str)}</div>
+                            </td>
+                            <td width="50%" valign="top">
+                                <div style="font-size:12.5px;font-weight:700;color:#111827;margin-bottom:3px;">Ship to</div>
+                                <div style="font-size:12.5px;color:#4B5563;line-height:1.45;">{address_html}</div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+                <!-- Right Column: Product Image & Track Button -->
+                <td width="43%" valign="top" align="center" style="padding-left:8px;">
+                    {product_img_html}
+                    {track_btn_html}
+                </td>
+            </tr>
+        </table>
+        '''
+    else:
+        # Standard Transactional / Account Emails
+        paragraphs = []
+        for line in body.split("\n\n"):
+            clean_line = line.strip()
+            if clean_line:
+                if action_url and clean_line.startswith("http") and action_url in clean_line:
+                    continue
+                line_html = "<br>".join(_html.escape(part) for part in clean_line.split("\n"))
+                paragraphs.append(f'<p style="margin:0 0 16px;font-size:14.5px;line-height:1.65;color:#374151;">{line_html}</p>')
+
+        content_html = "".join(paragraphs)
+
+        button_html = ""
+        if action_url:
+            button_html = f'''
+            <div style="margin:28px 0;text-align:center;">
+                <a href="{_html.escape(action_url)}" style="display:inline-block;background-color:#111827;color:#FFFFFF;text-decoration:none;font-size:14px;font-weight:700;padding:13px 34px;border-radius:9999px;box-shadow:0 3px 8px rgba(0,0,0,0.12);">
+                    {action_label} &rarr;
+                </a>
+            </div>
+            <p style="margin:18px 0 0;font-size:12px;color:#6B7280;word-break:break-all;text-align:center;">
+                If the button doesn't work, copy and paste this link into your browser:<br>
+                <a href="{_html.escape(action_url)}" style="color:#2563EB;">{_html.escape(action_url)}</a>
+            </p>
+            '''
+
+        card_content = f'''
+        <h1 style="margin:20px 0 8px;font-size:24px;font-weight:800;color:#111827;letter-spacing:-0.4px;line-height:1.25;">
+            {escaped_subject}
+        </h1>
+        <div style="border-top:1px solid #D5D9DF;margin-bottom:24px;"></div>
+        {content_html}
+        {button_html}
         '''
 
+    # Exact Contact Info Requested: info@aqivo.shop, 0793046776
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{escaped_subject}</title>
 </head>
-<body style="margin:0;padding:0;background-color:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#F8FAFC;padding:32px 16px;">
+<body style="margin:0;padding:0;background-color:#E5E7EB;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#E5E7EB;padding:36px 14px 48px;">
         <tr>
             <td align="center">
-                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:560px;background-color:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">
+                <!-- The Modern Rounded Card -->
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:620px;background-color:#ECEEF0;border:1px solid #DCE0E5;border-radius:28px;overflow:hidden;box-shadow:0 12px 32px rgba(15,23,42,0.06);">
                     <tr>
-                        <td style="padding:24px 32px 18px;border-bottom:1px solid #F1F5F9;">
-                            <span style="font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#0F172A;">Aqivo</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:32px;">
-                            <h1 style="margin:0 0 20px;font-size:20px;font-weight:700;color:#0F172A;line-height:1.3;">{escaped_subject}</h1>
-                            {content_html}
-                            {button_html}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:20px 32px;background-color:#F8FAFC;border-top:1px solid #F1F5F9;font-size:12px;color:#64748B;text-align:center;">
-                            <div>&copy; 2026 Aqivo &middot; Modern commerce for Africa</div>
+                        <td style="padding:36px 40px 32px;">
+                            <!-- Real Top Logo -->
+                            <table border="0" cellspacing="0" cellpadding="0" style="margin-bottom:4px;">
+                                <tr>
+                                    <td valign="middle">
+                                        {logo_html}
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {card_content}
+
+                            <!-- Official Footer with info@aqivo.shop and 0793046776 -->
+                            <div style="margin-top:36px;padding-top:22px;border-top:1px solid #D5D9DF;font-size:12.5px;color:#6B7280;line-height:1.6;text-align:center;">
+                                <p style="margin:0 0 5px;font-size:13px;color:#4B5563;">Questions or need help with your order?</p>
+                                <p style="margin:0 0 12px;font-weight:600;color:#1F2937;">
+                                    Email: <a href="mailto:info@aqivo.shop" style="color:#111827;text-decoration:underline;">info@aqivo.shop</a> &nbsp;&middot;&nbsp; 
+                                    Phone: <a href="tel:0793046776" style="color:#111827;text-decoration:underline;">0793046776</a>
+                                </p>
+                                <p style="margin:0;font-size:11.5px;color:#9CA3AF;">
+                                    &copy; 2026 Aqivo &middot; Modern commerce for Africa
+                                </p>
+                            </div>
                         </td>
                     </tr>
                 </table>
