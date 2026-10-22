@@ -127,7 +127,11 @@ class Discount(Base, IdMixin, TimestampMixin, TenantMixin):
 class WebsitePage(Base, IdMixin, TimestampMixin, TenantMixin):
     """A page of the storefront. Each page is its own ordered list of sections."""
     __tablename__ = "website_pages"
-    __table_args__ = (UniqueConstraint("website_id", "slug", name="uq_page_slug"),)
+    __table_args__ = (
+        UniqueConstraint("website_id", "slug", name="uq_page_slug"),
+        Index("ix_website_pages_site_home", "website_id", "is_home"),
+        Index("ix_website_pages_site_pos", "website_id", "position"),
+    )
     website_id: Mapped[uuid.UUID] = fk("websites.id")
     slug: Mapped[str] = mapped_column(String(60))
     title: Mapped[str] = mapped_column(String(120))

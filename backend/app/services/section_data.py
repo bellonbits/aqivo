@@ -74,7 +74,7 @@ def resolve_sections(raw: list[dict], *, db, business, products: list, services:
             wanted = uuid.UUID(raw_cat[0])
         except (ValueError, TypeError):
             return False
-        return item["category_id"] in {str(x) for x in cat.descendant_ids(db, business.id, wanted)}
+        return item["category_id"] in {str(x) for x in cat.descendant_ids(db, business.id, wanted, categories=categories)}
 
     raw_cat = [None]
     has_coords = business.latitude is not None and business.longitude is not None
@@ -130,7 +130,7 @@ def resolve_sections(raw: list[dict], *, db, business, products: list, services:
             tops = [x for x in categories if x.is_visible and (x.parent_id is None or str(x.parent_id) not in cats_by_id)]
             tiles = []
             for x in tops[: int(c.get("limit") or 6)]:
-                ids = {str(i) for i in cat.descendant_ids(db, business.id, x.id)}
+                ids = {str(i) for i in cat.descendant_ids(db, business.id, x.id, categories=categories)}
                 n = sum(1 for i in pcards + scards if i["category_id"] in ids)
                 img = x.image_url or next((i["image"] for i in pcards if i["category_id"] in ids and i["image"]), None)
                 tiles.append({"id": str(x.id), "name": x.name, "image": img, "count": n, "desc": x.description})

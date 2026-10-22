@@ -88,13 +88,15 @@ def health_score(db: Session, b: Business) -> dict:
             "note": "Score covers only components with data. Weights: " + ", ".join(f"{k.replace('_', ' ')} {int(w * 100)}%" for k, w in WEIGHTS.items())}
 
 
-def next_actions(db: Session, b: Business) -> list[dict]:
+def next_actions(db: Session, b: Business, *, checklist: dict | None = None, new_leads: int | None = None, inactive: int | None = None) -> list[dict]:
     """Prioritised recommendations from real counts."""
     actions: list[dict] = []
-    new_leads = db.scalar(select(func.count()).select_from(Lead).where(Lead.business_id == b.id, Lead.deleted_at.is_(None), Lead.status == LeadStatus.NEW)) or 0
+    if new_leads is None:
+        new_leads = db.scalar(select(func.count()).select_from(Lead).where(Lead.business_id == b.id, Lead.deleted_at.is_(None), Lead.status == LeadStatus.NEW)) or 0
     if new_leads:
         actions.append({"key": "leads", "text": f"Respond to {new_leads} unanswered lead{'s' if new_leads != 1 else ''}", "href": "/dashboard/leads", "count": new_leads})
-    inactive = len(inactive_customers(db, b.id, 45))
+    if inactive is None:
+        inactive = len(inactive_customers(db, b.id, 45))
     if inactive and has_feature(db, b, "marketing"):
         actions.append({"key": "retention", "text": f"Follow up with {inactive} customer{'s' if inactive != 1 else ''} who haven't visited in 45+ days", "href": "/dashboard/marketing", "count": inactive})
     elif inactive:
@@ -109,7 +111,8 @@ def next_actions(db: Session, b: Business) -> list[dict]:
                                                                         Booking.starts_at >= datetime.now(timezone.utc))) or 0
     if pending:
         actions.append({"key": "pending_bookings", "text": f"Confirm {pending} pending booking{'s' if pending != 1 else ''}", "href": "/dashboard/bookings", "count": pending})
-    checklist = get_found_checklist(db, b)
+    if checklist is None:
+        checklist = get_found_checklist(db, b)
     for it in checklist["items"]:
         if not it["done"] and not it.get("locked"):
             actions.append({"key": f"setup_{it['key']}", "text": f"Add: {it['label']}", "href": it["fix"]})

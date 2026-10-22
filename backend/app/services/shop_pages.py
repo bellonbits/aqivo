@@ -21,7 +21,7 @@ SORTS = {"newest": "Newest", "price_asc": "Price: low to high", "price_desc": "P
 
 
 def _base(db: Session, business: Business, root: str, title: str, *, description: str | None = None, canonical_path: str = "", noindex: bool = False, draft: bool = False) -> dict:
-    ctx = build_context(db, business, draft=draft, root=root)
+    ctx = build_context(db, business, draft=draft, root=root, chrome_only=True)
     seo = dict(ctx["seo"])
     seo["title"] = f"{title} — {business.name}"[:70]
     if description:
@@ -34,16 +34,25 @@ def _base(db: Session, business: Business, root: str, title: str, *, description
 
 
 def _cats(db: Session, business: Business) -> list[ServiceCategory]:
-    return list(db.scalars(select(ServiceCategory).where(ServiceCategory.business_id == business.id, ServiceCategory.is_visible.is_(True)).order_by(ServiceCategory.position)))
+    cache = db.info.setdefault("_cats_cache", {})
+    if business.id in cache:
+        return cache[business.id]
+    cats = list(db.scalars(select(ServiceCategory).where(ServiceCategory.business_id == business.id, ServiceCategory.is_visible.is_(True)).order_by(ServiceCategory.position)))
+    cache[business.id] = cats
+    return cats
 
 
-def _variant_stock(db: Session, business: Business) -> dict:
-    return {pid: int(t or 0) for pid, t in db.execute(select(ProductVariant.product_id, func.sum(ProductVariant.stock_qty)).where(
-        ProductVariant.business_id == business.id, ProductVariant.is_active.is_(True)).group_by(ProductVariant.product_id))}
+def _variant_stock(db: Session, business: Business, product_ids: list | None = None) -> dict:
+    q = select(ProductVariant.product_id, func.sum(ProductVariant.stock_qty)).where(
+        ProductVariant.business_id == business.id, ProductVariant.is_active.is_(True))
+    if product_ids:
+        q = q.where(ProductVariant.product_id.in_(product_ids))
+    return {pid: int(t or 0) for pid, t in db.execute(q.group_by(ProductVariant.product_id))}
 
 
 def _cards(db: Session, business: Business, root: str, products: list[Product]) -> list[dict]:
-    vs = _variant_stock(db, business)
+    pids = [p.id for p in products] if products else []
+    vs = _variant_stock(db, business, pids)
     return [with_variants(product_card(p, business.currency), p, vs, root) for p in products]
 
 
@@ -62,7 +71,7 @@ def listing(db: Session, business: Business, root: str, *, q: str = "", category
         return {}
     where = [Product.business_id == business.id, Product.deleted_at.is_(None), Product.status == "ACTIVE"]
     if current is not None:
-        where.append(Product.category_id.in_(cat.descendant_ids(db, business.id, current.id)))
+        where.append(Product.category_id.in_(cat.descendant_ids(db, business.id, current.id, categories=cats)))
     if q:
         like = f"%{q.strip()}%"
         where.append(or_(Product.name.ilike(like), Product.short_description.ilike(like), Product.sku.ilike(like)))
@@ -99,8 +108,11 @@ def collection_page(db: Session, business: Business, root: str, slug: str, page:
 
 def services_listing(db: Session, business: Business, root: str) -> dict:
     ctx = _base(db, business, root, "Services", description=f"Services offered by {business.name}", canonical_path="/services")
-    cards = [{**service_card(sv, ctx["product_images"].get(str(sv.id)), ctx["wa_services"].get(str(sv.id))), "url": f"{root}/services/{sv.slug}" if sv.slug else None} for sv in ctx["services"]]
-    ctx.update(kind="services", cards=cards, q="", current=None, crumbs=[], children=[], cat_chips=[], has_next=False, has_prev=False, page_no=1, base_path="/services", sort="newest", sorts=SORTS)
+    services = list(db.scalars(select(Service).where(Service.business_id == business.id, Service.deleted_at.is_(None), Service.is_active.is_(True)).order_by(Service.position, Service.created_at)))
+    from app.services.business import whatsapp_link
+    wa_services = {str(s.id): whatsapp_link(business, s.name) for s in services}
+    cards = [{**service_card(sv, sv.image_url, wa_services.get(str(sv.id))), "url": f"{root}/services/{sv.slug}" if sv.slug else None} for sv in services]
+    ctx.update(kind="services", cards=cards, services=services, q="", current=None, crumbs=[], children=[], cat_chips=[], has_next=False, has_prev=False, page_no=1, base_path="/services", sort="newest", sorts=SORTS)
     return ctx
 
 

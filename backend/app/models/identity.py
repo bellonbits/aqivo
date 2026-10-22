@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Index, JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, IdMixin, SoftDeleteMixin, TimestampMixin, TenantMixin, fk
@@ -39,7 +39,10 @@ class Role(Base, IdMixin, TimestampMixin):
 
 class BusinessMember(Base, IdMixin, TimestampMixin):
     __tablename__ = "business_members"
-    __table_args__ = (UniqueConstraint("business_id", "user_id", name="uq_member_business_user"),)
+    __table_args__ = (
+        UniqueConstraint("business_id", "user_id", name="uq_member_business_user"),
+        Index("ix_business_members_user_active", "user_id", "is_active"),
+    )
 
     business_id: Mapped[uuid.UUID] = fk("businesses.id")
     user_id: Mapped[uuid.UUID] = fk("users.id")

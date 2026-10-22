@@ -3,6 +3,8 @@ import os
 os.environ["DATABASE_URL"] = "postgresql+psycopg://mac@localhost:5432/bizora_test"
 os.environ["ENVIRONMENT"] = "test"
 os.environ["MEDIA_DIR"] = "/tmp/bizora_test_media"
+os.environ["GROQ_API_KEY"] = ""
+os.environ["ANTHROPIC_API_KEY"] = ""
 
 import pytest
 from fastapi.testclient import TestClient

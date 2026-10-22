@@ -80,6 +80,9 @@ class BookingService(Base, IdMixin, TenantMixin):
 
 class Review(Base, IdMixin, TimestampMixin, SoftDeleteMixin, TenantMixin):
     __tablename__ = "reviews"
+    __table_args__ = (
+        Index("ix_reviews_biz_published_deleted", "business_id", "is_published", "deleted_at"),
+    )
     customer_id: Mapped[uuid.UUID | None] = fk("customers.id", nullable=True, ondelete="SET NULL")
     booking_id: Mapped[uuid.UUID | None] = fk("bookings.id", nullable=True, ondelete="SET NULL")
     product_id: Mapped[uuid.UUID | None] = fk("products.id", nullable=True, ondelete="SET NULL")

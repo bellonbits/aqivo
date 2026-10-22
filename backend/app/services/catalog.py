@@ -61,8 +61,14 @@ def check_parent(db: Session, business_id: uuid.UUID, category_id: uuid.UUID | N
         raise bad_request("Categories can be nested up to three levels")
 
 
-def descendant_ids(db: Session, business_id: uuid.UUID, category_id: uuid.UUID) -> list[uuid.UUID]:
-    rows = db.scalars(select(ServiceCategory).where(ServiceCategory.business_id == business_id)).all()
+def descendant_ids(db: Session, business_id: uuid.UUID, category_id: uuid.UUID, categories: list[ServiceCategory] | None = None) -> list[uuid.UUID]:
+    if categories is not None:
+        rows = categories
+    else:
+        cache = db.info.setdefault("_category_tree_cache", {})
+        if business_id not in cache:
+            cache[business_id] = list(db.scalars(select(ServiceCategory).where(ServiceCategory.business_id == business_id)))
+        rows = cache[business_id]
     kids: dict = {}
     for c in rows:
         kids.setdefault(c.parent_id, []).append(c.id)

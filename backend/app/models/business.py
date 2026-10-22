@@ -72,7 +72,10 @@ class ServiceCategory(Base, IdMixin, TimestampMixin, TenantMixin):
 
 class Product(Base, IdMixin, TimestampMixin, SoftDeleteMixin, TenantMixin):
     __tablename__ = "products"
-    __table_args__ = (UniqueConstraint("business_id", "slug", name="uq_product_slug"),)
+    __table_args__ = (
+        UniqueConstraint("business_id", "slug", name="uq_product_slug"),
+        Index("ix_products_biz_status_deleted", "business_id", "status", "deleted_at"),
+    )
     category_id: Mapped[uuid.UUID | None] = fk("service_categories.id", nullable=True, ondelete="SET NULL")
     name: Mapped[str] = mapped_column(String(160))
     slug: Mapped[str] = mapped_column(String(180))
@@ -102,6 +105,9 @@ class Product(Base, IdMixin, TimestampMixin, SoftDeleteMixin, TenantMixin):
 
 class Service(Base, IdMixin, TimestampMixin, SoftDeleteMixin, TenantMixin):
     __tablename__ = "services"
+    __table_args__ = (
+        Index("ix_services_biz_active_deleted_pos", "business_id", "is_active", "deleted_at", "position"),
+    )
     category_id: Mapped[uuid.UUID | None] = fk("service_categories.id", nullable=True, ondelete="SET NULL")
     name: Mapped[str] = mapped_column(String(160))
     slug: Mapped[str | None] = mapped_column(String(180))
@@ -116,6 +122,9 @@ class Service(Base, IdMixin, TimestampMixin, SoftDeleteMixin, TenantMixin):
 
 class GalleryImage(Base, IdMixin, TimestampMixin, TenantMixin):
     __tablename__ = "gallery_images"
+    __table_args__ = (
+        Index("ix_gallery_images_biz_pos", "business_id", "position"),
+    )
     url: Mapped[str] = mapped_column(String(500))
     thumb_url: Mapped[str | None] = mapped_column(String(500))
     caption: Mapped[str] = mapped_column(String(200), default="")
@@ -198,6 +207,10 @@ class Website(Base, IdMixin, TimestampMixin, TenantMixin):
 
 class WebsiteSection(Base, IdMixin, TimestampMixin, TenantMixin):
     __tablename__ = "website_sections"
+    __table_args__ = (
+        Index("ix_website_sections_page_pos", "page_id", "position"),
+        Index("ix_website_sections_site_page", "website_id", "page_id"),
+    )
     website_id: Mapped[uuid.UUID] = fk("websites.id")
     page_id: Mapped[uuid.UUID | None] = fk("website_pages.id", nullable=True)
     type: Mapped[str] = mapped_column(String(32))  # a key of services.sections.REGISTRY; a page can hold several of one type

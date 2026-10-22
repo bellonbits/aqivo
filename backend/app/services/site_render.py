@@ -162,27 +162,41 @@ def resolve_nav(site, pages: list, categories: list, *, root: str, collections: 
     return out
 
 
-def build_context(db: Session, business: Business, *, draft: bool = False, force_profile: bool = False, editing: bool = False, page=None, root: str | None = None) -> dict:
+def build_context(db: Session, business: Business, *, draft: bool = False, force_profile: bool = False, editing: bool = False, page=None, root: str | None = None, chrome_only: bool = False) -> dict:
     site: Website | None = business.website
     root = f"/{business.slug}" if root is None else root
     can_site = has_feature(db, business, "website") and site is not None
     published = bool(site and site.status == "PUBLISHED")
     use_site = can_site and not force_profile and (published or draft)
+    ind = get_industry(business.industry)
 
-    services = list(db.scalars(select(Service).where(Service.business_id == business.id, Service.deleted_at.is_(None),
-                                                      Service.is_active.is_(True)).order_by(Service.position, Service.created_at)))
-    gallery = list(db.scalars(select(GalleryImage).where(GalleryImage.business_id == business.id).order_by(GalleryImage.position, GalleryImage.created_at)))
-    reviews = list(db.scalars(select(Review).where(Review.business_id == business.id, Review.deleted_at.is_(None), Review.is_published.is_(True))
-                              .order_by(Review.created_at.desc()).limit(6)))
-    testimonials = list(db.scalars(select(Testimonial).where(Testimonial.business_id == business.id).order_by(Testimonial.position)))
-    summary = rating_summary(db, business.id)
+    if chrome_only:
+        services = []
+        gallery = []
+        reviews = []
+        testimonials = []
+        summary = {"count": 0, "average": 0.0}
+        products = []
+        has_products = db.scalar(select(Product.id).where(Product.business_id == business.id, Product.deleted_at.is_(None), Product.status == "ACTIVE").limit(1)) is not None
+        has_services = db.scalar(select(Service.id).where(Service.business_id == business.id, Service.deleted_at.is_(None), Service.is_active.is_(True)).limit(1)) is not None
+        sells_products = ind.key in ("retail", "restaurant") or has_products
+    else:
+        services = list(db.scalars(select(Service).where(Service.business_id == business.id, Service.deleted_at.is_(None),
+                                                          Service.is_active.is_(True)).order_by(Service.position, Service.created_at)))
+        gallery = list(db.scalars(select(GalleryImage).where(GalleryImage.business_id == business.id).order_by(GalleryImage.position, GalleryImage.created_at)))
+        reviews = list(db.scalars(select(Review).where(Review.business_id == business.id, Review.deleted_at.is_(None), Review.is_published.is_(True))
+                                  .order_by(Review.created_at.desc()).limit(6)))
+        testimonials = list(db.scalars(select(Testimonial).where(Testimonial.business_id == business.id).order_by(Testimonial.position)))
+        summary = rating_summary(db, business.id)
+        products = list(db.scalars(select(Product).where(Product.business_id == business.id, Product.deleted_at.is_(None), Product.status == "ACTIVE")
+                                   .order_by(Product.position, Product.created_at.desc())))
+        sells_products = ind.key in ("retail", "restaurant") or bool(products)
+        has_products = bool(products)
+        has_services = bool(services)
+
     urls = business_urls(business)
     bookings_on = has_feature(db, business, "bookings")
 
-    products = list(db.scalars(select(Product).where(Product.business_id == business.id, Product.deleted_at.is_(None), Product.status == "ACTIVE")
-                               .order_by(Product.position, Product.created_at.desc())))
-    ind = get_industry(business.industry)
-    sells_products = ind.key in ("retail", "restaurant") or bool(products)
     raw_sections: list[dict] = []
     theme: dict = {}
     pages: list = []
@@ -192,36 +206,40 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
         pages = pages_of(db, site)
         cur_page = page or home_page(db, site)
         theme = dict(site.template.theme or {})
-        all_psecs = list(page_sections(site, cur_page.id))
-        has_catalog_sec = any(sec.type in ("product_grid", "category_grid", "product_carousel") for sec in all_psecs)
-        for s in all_psecs:
-            if not draft and s.published_enabled is None:
-                continue  # added after the last publish: not live yet
-            if sells_products and s.type in ("booking", "booking_cta"):
-                continue  # Suppress table reservations from quick-ordering storefronts
-            if sells_products and s.type == "services" and has_catalog_sec:
-                continue  # Don't show duplicate service row when product grid is active
-            enabled = s.enabled if draft else s.published_enabled
-            content = s.content if draft else (s.published_content if s.published_content is not None else s.content)
-            styles = s.styles if draft else (s.published_styles if s.published_styles is not None else s.styles)
-            if enabled:
-                if sells_products and s.type == "hero" and content:
-                    content = dict(content)
-                    cta = (content.get("cta_text") or "").strip()
-                    if not cta or any(w in cta.lower() for w in ("reserve", "table", "book", "appointment")):
-                        content["cta_text"] = "Order now" if ind.key == "restaurant" else "Shop now"
-                    if content.get("cta_url") in ("#booking", None, ""):
-                        content["cta_url"] = "#services" if ind.key == "restaurant" else "#shop"
-                    sub = (content.get("subheadline") or "").strip()
-                    if not sub or any(w in sub.lower() for w in ("party", "date and time", "pick a date", "book an appointment")):
-                        content["subheadline"] = "Freshly prepared meals, coffee & drinks made for your everyday moments." if ind.key == "restaurant" else "Browse our curated selection and order online with fast doorstep delivery."
-                raw_sections.append({"id": str(s.id), "type": s.type, "content": content or {}, "styles": styles or {}})
+        if not chrome_only:
+            all_psecs = list(page_sections(site, cur_page.id))
+            has_catalog_sec = any(sec.type in ("product_grid", "category_grid", "product_carousel") for sec in all_psecs)
+            for s in all_psecs:
+                if not draft and s.published_enabled is None:
+                    continue  # added after the last publish: not live yet
+                if sells_products and s.type in ("booking", "booking_cta"):
+                    continue  # Suppress table reservations from quick-ordering storefronts
+                if sells_products and s.type == "services" and has_catalog_sec:
+                    continue  # Don't show duplicate service row when product grid is active
+                enabled = s.enabled if draft else s.published_enabled
+                content = s.content if draft else (s.published_content if s.published_content is not None else s.content)
+                styles = s.styles if draft else (s.published_styles if s.published_styles is not None else s.styles)
+                if enabled:
+                    if sells_products and s.type == "hero" and content:
+                        content = dict(content)
+                        cta = (content.get("cta_text") or "").strip()
+                        if not cta or any(w in cta.lower() for w in ("reserve", "table", "book", "appointment")):
+                            content["cta_text"] = "Order now" if ind.key == "restaurant" else "Shop now"
+                        if content.get("cta_url") in ("#booking", None, ""):
+                            content["cta_url"] = "#services" if ind.key == "restaurant" else "#shop"
+                        sub = (content.get("subheadline") or "").strip()
+                        if not sub or any(w in sub.lower() for w in ("party", "date and time", "pick a date", "book an appointment")):
+                            content["subheadline"] = "Freshly prepared meals, coffee & drinks made for your everyday moments." if ind.key == "restaurant" else "Browse our curated selection and order online with fast doorstep delivery."
+                    raw_sections.append({"id": str(s.id), "type": s.type, "content": content or {}, "styles": styles or {}})
     hero_image = None
-    for s in raw_sections:
-        if s["type"] == "hero":
-            hero_image = s["content"].get("image_url")
-    if not hero_image:
-        hero_image = "/static/img/restaurant/restaurant-3.webp" if ind.key == "restaurant" else (gallery[0].url if gallery else None)
+    if not chrome_only:
+        for s in raw_sections:
+            if s["type"] == "hero":
+                hero_image = s["content"].get("image_url")
+        if not hero_image:
+            hero_image = "/static/img/restaurant/restaurant-3.webp" if ind.key == "restaurant" else (gallery[0].url if gallery else None)
+    else:
+        hero_image = business.logo_url
     style = (site.theme_overrides if draft else (site.published_style or {}).get("theme_overrides", site.theme_overrides)) if site else {}
     settings = (site.settings if draft else (site.published_style or {}).get("settings", site.settings)) if site else {}
     style, settings = style or {}, settings or {}
@@ -262,44 +280,53 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
         theme.setdefault("hero", "split" if sells_products else "centered")
         theme.setdefault("font_display", "'Manrope', system-ui, sans-serif"); theme.setdefault("font_body", "'Manrope', system-ui, sans-serif")
 
-    staff = list(db.scalars(select(Staff).where(Staff.business_id == business.id, Staff.deleted_at.is_(None), Staff.is_active.is_(True)).order_by(Staff.created_at)))
     categories = list(db.scalars(select(ServiceCategory).where(ServiceCategory.business_id == business.id).order_by(ServiceCategory.position)))
-    cat_names = {c.id: c.name for c in categories}
-    for sv in services:  # per-product display helpers
-        sv.category_name = cat_names.get(sv.category_id, "")
-    photos = [g.thumb_url or g.url for g in gallery]
-    _rest_photos = [f"/static/img/restaurant/restaurant-{i}.webp" for i in range(1, 7)]
-    product_images = {}
-    for i, sv in enumerate(services):
-        if sv.image_url:
-            product_images[str(sv.id)] = sv.image_url
-        elif ind.key == "restaurant":
-            product_images[str(sv.id)] = _rest_photos[i % len(_rest_photos)]
-        else:
-            product_images[str(sv.id)] = (photos[i % len(photos)] if photos else None)
-    cart_default = get_industry(business.industry).key in ("retail", "restaurant") or layout in ("boutique", "nova", "catalog", "shopapp") or bool(products)
+    if not chrome_only:
+        staff = list(db.scalars(select(Staff).where(Staff.business_id == business.id, Staff.deleted_at.is_(None), Staff.is_active.is_(True)).order_by(Staff.created_at)))
+        cat_names = {c.id: c.name for c in categories}
+        for sv in services:  # per-product display helpers
+            sv.category_name = cat_names.get(sv.category_id, "")
+        photos = [g.thumb_url or g.url for g in gallery]
+        _rest_photos = [f"/static/img/restaurant/restaurant-{i}.webp" for i in range(1, 7)]
+        product_images = {}
+        for i, sv in enumerate(services):
+            if sv.image_url:
+                product_images[str(sv.id)] = sv.image_url
+            elif ind.key == "restaurant":
+                product_images[str(sv.id)] = _rest_photos[i % len(_rest_photos)]
+            else:
+                product_images[str(sv.id)] = (photos[i % len(photos)] if photos else None)
+        wa_services = {str(s.id): whatsapp_link(business, s.name) for s in services}
+        from app.services.section_data import resolve_sections
+        from app.models import ProductVariant
+        from sqlalchemy import func as _f
+        variant_pids = {pid: int(tot or 0) for pid, tot in db.execute(select(ProductVariant.product_id, _f.sum(ProductVariant.stock_qty)).where(ProductVariant.business_id == business.id, ProductVariant.is_active.is_(True)).group_by(ProductVariant.product_id))}
+
+        hours = hours_display(business.opening_hours or {})
+
+        def resolve(raw, as_draft=draft):
+            return resolve_sections(raw, db=db, business=business, products=products, services=services, product_images=product_images, categories=categories,
+                                    gallery=gallery, reviews=reviews, testimonials=testimonials, staff=staff, hours=hours, bookings_on=bookings_on,
+                                    leads_on=has_feature(db, business, "leads"), wa=whatsapp_link(business), wa_services=wa_services, draft=as_draft, summary=summary, root=root, variant_pids=variant_pids)
+        sections = resolve(raw_sections)
+    else:
+        staff = []
+        product_images = {}
+        wa_services = {}
+        resolve = lambda raw, as_draft=draft: []
+        sections = []
+        hours = hours_display(business.opening_hours or {})
+
+    cart_default = get_industry(business.industry).key in ("retail", "restaurant") or layout in ("boutique", "nova", "catalog", "shopapp") or has_products
     settings.setdefault("cart_enabled", cart_default)
     settings.setdefault("whatsapp_float", True)
     settings.setdefault("show_prices", True)
-    wa_services = {str(s.id): whatsapp_link(business, s.name) for s in services}
     map_q = f"{business.name} {business.address} {business.city}".strip()
     from urllib.parse import quote
     if business.latitude is not None and business.longitude is not None:
         directions = f"https://www.google.com/maps/dir/?api=1&destination={business.latitude},{business.longitude}"
     else:
         directions = f"https://www.google.com/maps/search/?api=1&query={quote(map_q)}"
-
-    hours = hours_display(business.opening_hours or {})
-    from app.services.section_data import resolve_sections
-    from app.models import ProductVariant
-    from sqlalchemy import func as _f
-    variant_pids = {pid: int(tot or 0) for pid, tot in db.execute(select(ProductVariant.product_id, _f.sum(ProductVariant.stock_qty)).where(ProductVariant.business_id == business.id, ProductVariant.is_active.is_(True)).group_by(ProductVariant.product_id))}
-
-    def resolve(raw, as_draft=draft):
-        return resolve_sections(raw, db=db, business=business, products=products, services=services, product_images=product_images, categories=categories,
-                                gallery=gallery, reviews=reviews, testimonials=testimonials, staff=staff, hours=hours, bookings_on=bookings_on,
-                                leads_on=has_feature(db, business, "leads"), wa=whatsapp_link(business), wa_services=wa_services, draft=as_draft, summary=summary, root=root, variant_pids=variant_pids)
-    sections = resolve(raw_sections)
 
     def act(action: str | None = "auto", url: str | None = None) -> dict:
         """Where a button goes. 'auto' picks the best action this business actually has."""
@@ -322,17 +349,17 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
     live = not draft and not editing
     tracking = {"ga4": st.get("ga4_id"), "meta": st.get("meta_pixel_id")} if (live and use_site and _hf(db, business, "tracking") and (st.get("ga4_id") or st.get("meta_pixel_id"))) else None
     show_branding = not (st.get("hide_branding") and _hf(db, business, "remove_branding"))
-    faq = [{"@type": "Question", "name": i["q"], "acceptedAnswer": {"@type": "Answer", "text": i["a"]}} for sc in sections if sc["type"] == "faq" and not sc["empty"] for i in (sc["content"].get("items") or []) if i.get("q") and i.get("a")]
+    faq = [{"@type": "Question", "name": i["q"], "acceptedAnswer": {"@type": "Answer", "text": i["a"]}} for sc in sections if sc["type"] == "faq" and not sc["empty"] for i in (sc["content"].get("items") or []) if i.get("q") and i.get("a")] if not chrome_only else []
     from app.models import Collection as _Col
     nav = resolve_nav(
         site if use_site else None,
         pages,
         categories,
-        collections=list(db.scalars(select(_Col).where(_Col.business_id == business.id))),
+        collections=list(db.scalars(select(_Col).where(_Col.business_id == business.id))) if use_site else [],
         root=root,
         draft=draft,
-        has_products=bool(products),
-        has_services=bool(services),
+        has_products=has_products,
+        has_services=has_services,
         bookings_on=bookings_on and not sells_products,
         sells_products=sells_products,
         industry=ind.key,
@@ -355,14 +382,53 @@ def build_context(db: Session, business: Business, *, draft: bool = False, force
     )
 
 
+_RENDER_CACHE: dict[tuple, tuple[float, str]] = {}
+_RENDER_CACHE_MAX = 256
+_RENDER_CACHE_TTL = 60.0  # seconds
+
+
+def clear_render_cache(business_id=None):
+    global _RENDER_CACHE
+    if business_id is None:
+        _RENDER_CACHE.clear()
+    else:
+        bid_str = str(business_id)
+        _RENDER_CACHE = {k: v for k, v in _RENDER_CACHE.items() if k[0] != bid_str}
+
+
 def render_business(db: Session, business: Business, *, draft: bool = False, force_profile: bool = False, editing: bool = False, page=None, root: str | None = None) -> str:
+    can_cache = not draft and not editing and not force_profile and page is None
+    if can_cache:
+        import time
+        site = business.website
+        pub_ts = site.published_at.isoformat() if (site and site.published_at) else ""
+        upd_ts = business.updated_at.isoformat() if business.updated_at else ""
+        cache_key = (str(business.id), upd_ts, pub_ts, root or "")
+        now = time.monotonic()
+        if cache_key in _RENDER_CACHE:
+            ts, cached_html = _RENDER_CACHE[cache_key]
+            if now - ts < _RENDER_CACHE_TTL:
+                return cached_html
+
     ctx = build_context(db, business, draft=draft, force_profile=force_profile, editing=editing, page=page, root=root)
     if ctx["use_site"] and page is None and business.website is not None:
         from app.services import ecomm_site
         key = business.website.template.key if business.website.template else None
         if ecomm_site.is_ecomm(key):
-            return ecomm_site.render_ecomm(db, ctx, business, key)
-    return render("site.html" if ctx["use_site"] else "profile.html", **ctx)
+            html = ecomm_site.render_ecomm(db, ctx, business, key)
+        else:
+            html = render("site.html", **ctx)
+    else:
+        html = render("site.html" if ctx["use_site"] else "profile.html", **ctx)
+
+    if can_cache:
+        if len(_RENDER_CACHE) >= _RENDER_CACHE_MAX:
+            oldest = sorted(_RENDER_CACHE.keys(), key=lambda k: _RENDER_CACHE[k][0])[:_RENDER_CACHE_MAX // 4]
+            for k in oldest:
+                _RENDER_CACHE.pop(k, None)
+        _RENDER_CACHE[cache_key] = (now, html)
+
+    return html
 
 
 def template_preview_context(db: Session, business: Business, tpl) -> dict:

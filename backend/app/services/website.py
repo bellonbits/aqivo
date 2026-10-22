@@ -71,6 +71,9 @@ def touch_draft(site: Website) -> None:
 
 
 def home_page(db: Session, site: Website) -> WebsitePage:
+    cached = getattr(site, "_cached_home_page", None)
+    if cached is not None:
+        return cached
     pg = db.scalars(select(WebsitePage).where(WebsitePage.website_id == site.id, WebsitePage.is_home.is_(True))).first()
     if pg is None:  # sites created before pages existed
         pg = WebsitePage(business_id=site.business_id, website_id=site.id, slug="home", title="Home", is_home=True, position=0)
@@ -79,12 +82,18 @@ def home_page(db: Session, site: Website) -> WebsitePage:
         for s in site.sections:
             if s.page_id is None:
                 s.page_id = pg.id
+    site._cached_home_page = pg
     return pg
 
 
 def pages_of(db: Session, site: Website) -> list[WebsitePage]:
-    home_page(db, site)
-    return list(db.scalars(select(WebsitePage).where(WebsitePage.website_id == site.id).order_by(WebsitePage.is_home.desc(), WebsitePage.position, WebsitePage.created_at)))
+    pages = list(db.scalars(select(WebsitePage).where(WebsitePage.website_id == site.id).order_by(WebsitePage.is_home.desc(), WebsitePage.position, WebsitePage.created_at)))
+    home = next((p for p in pages if p.is_home), None)
+    if home is None:
+        home = home_page(db, site)
+        pages.insert(0, home)
+    site._cached_home_page = home
+    return pages
 
 
 def get_page(db: Session, site: Website, page_id=None) -> WebsitePage:

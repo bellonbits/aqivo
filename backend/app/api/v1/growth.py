@@ -40,10 +40,13 @@ def overview(ctx: TenantContext = Depends(get_tenant), db: Session = Depends(get
     """Dashboard home: real numbers only; fields the plan doesn't include are omitted, never faked."""
     b = ctx.business
     s = an.summary(db, b, "30d")
-    out = {"period": "30d", "summary": s, "checklist": get_found_checklist(db, b), "actions": next_actions(db, b),
-           "leads_new": db.scalar(select(func.count()).select_from(Lead).where(Lead.business_id == b.id, Lead.deleted_at.is_(None), Lead.status == LeadStatus.NEW)) or 0}
+    chk = get_found_checklist(db, b)
+    new_leads = db.scalar(select(func.count()).select_from(Lead).where(Lead.business_id == b.id, Lead.deleted_at.is_(None), Lead.status == LeadStatus.NEW)) or 0
+    inact = len(inactive_customers(db, b.id, 45)) if has_feature(db, b, "customers") else 0
+    acts = next_actions(db, b, checklist=chk, new_leads=new_leads, inactive=inact)
+    out = {"period": "30d", "summary": s, "checklist": chk, "actions": acts, "leads_new": new_leads}
     if has_feature(db, b, "customers"):
-        out["inactive_45"] = len(inactive_customers(db, b.id, 45))
+        out["inactive_45"] = inact
     return out
 
 
