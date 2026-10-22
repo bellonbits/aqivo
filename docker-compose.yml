@@ -46,8 +46,19 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on:
       - backend
+
+  # Optional build container to compile frontend assets on host without needing local node/npm:
+  # Run: docker compose --profile build-frontend run --rm frontend-build
+  frontend-build:
+    image: node:20-alpine
+    restart: "no"
+    profiles:
+      - build-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run build"
 
   # Optional local postgres container (only starts if running with: docker compose --profile local-db up)
   postgres:

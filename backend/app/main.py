@@ -344,6 +344,9 @@ app.mount("/ecomm-templates", StaticFiles(directory=BASE / "public" / "ecomm_tem
 def root(request: Request):
     accept = request.headers.get("accept", "")
     if "text/html" in accept:
+        spa = _spa("")
+        if spa is not None:
+            return spa
         return RedirectResponse(url="/docs", status_code=302)
     return {
         "app": "Aqivo API",
