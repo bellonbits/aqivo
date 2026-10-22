@@ -44,13 +44,13 @@ export function AqivoLogo({
 
   if (variant === 'full') {
     return (
-      <span className={cn('inline-flex items-center gap-2 select-none', className)}>
+      <span className={cn('inline-flex items-center gap-2 select-none shrink-0 whitespace-nowrap', className)}>
         <img
           src={brand.assets.mark}
           alt={brand.name}
-          className={cn('inline-block object-contain select-none', markHeights[size])}
+          className={cn('inline-block object-contain select-none shrink-0', markHeights[size])}
         />
-        <span className={cn('font-bold tracking-tight', textSizes[size])}>
+        <span className={cn('font-bold tracking-tight shrink-0 whitespace-nowrap', textSizes[size])}>
           <span className={isDark ? 'text-white' : 'text-[#0B1736]'}>Aqivo</span>
           {showDomain && (
             <span className="text-[#5B21F5] font-extrabold text-[0.85em]">.shop</span>

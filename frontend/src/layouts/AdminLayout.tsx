@@ -119,15 +119,18 @@ export default function AdminLayout() {
       >
         {/* Brand header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
-          <Link to="/admin" className="flex items-center gap-2.5">
-            <Logo />
-            <div className="leading-tight">
-              <span className="block text-[11px] font-extrabold uppercase tracking-widest text-[#5B21F5]">
+          <Link to="/admin" className="flex items-center gap-3 shrink-0 group">
+            <Logo variant="mark" size="md" className="shrink-0 transition-transform group-hover:scale-105" />
+            <div className="flex flex-col min-w-0">
+              <span className="text-[17px] font-extrabold tracking-tight text-[#0B1736] leading-tight">
+                Aqivo
+              </span>
+              <span className="mt-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#5B21F5] leading-none">
                 Platform Admin
               </span>
             </div>
           </Link>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 shrink-0 border border-emerald-200/60">
             <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Live
           </span>

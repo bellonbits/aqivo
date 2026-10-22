@@ -323,7 +323,211 @@ def _render_store_footer(business: Business, ctx: dict, data: dict) -> str:
     )
 
 
-def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name: str = "index.html", item_id: str | None = None, draft: bool = False, precomputed_data: dict | None = None) -> str:
+def _render_receipt_page(
+    db: Session,
+    ctx: dict,
+    business: Business,
+    page: str,
+    order_id: str | None = None,
+    token: str | None = None,
+    phone: str | None = None,
+) -> str:
+    matched_order = None
+    if (order_id or token) and business and getattr(business, "id", None):
+        from app.models.commerce import Order
+        from sqlalchemy import or_
+        clean_id = (order_id or "").strip()
+        if clean_id.startswith("AQ-"):
+            clean_id = clean_id[3:]
+        conds = []
+        if token:
+            conds.append(Order.token == token)
+        if clean_id:
+            conds.append(Order.number == clean_id)
+            if clean_id.isdigit():
+                conds.append(Order.number == str(int(clean_id)))
+        if conds:
+            try:
+                matched_order = db.scalars(
+                    select(Order).where(Order.business_id == business.id, or_(*conds))
+                ).first()
+            except Exception:
+                pass
+
+    cur = (matched_order.currency if matched_order else None) or getattr(business, "currency", "KSh") or "KSh"
+    CURRENCY_SYMBOLS = {"KES": "KSh", "USD": "$", "ZAR": "R", "NGN": "₦", "TZS": "TSh", "UGX": "USh", "RWF": "RF", "ETB": "Br", "EUR": "€", "GBP": "£"}
+    sym = CURRENCY_SYMBOLS.get(cur, cur)
+    sym_disp = (sym + " ") if not sym.endswith(" ") and len(sym) > 1 else sym
+
+    if matched_order:
+        p_meth = matched_order.payment_method or ""
+        p_upper = p_meth.upper()
+        if "MPESA" in p_upper or "M-PESA" in p_upper:
+            clean_pm = "M-Pesa (Till / Paybill)"
+            bank_icon_cls = "slip-bank-icon mpesa"
+            bank_icon_txt = "M"
+        elif "CASH" in p_upper:
+            clean_pm = "Cash on Delivery"
+            bank_icon_cls = "slip-bank-icon cash"
+            bank_icon_txt = "💵"
+        elif "CARD" in p_upper or "CREDIT" in p_upper or "DEBIT" in p_upper:
+            clean_pm = "Credit / Debit Card"
+            bank_icon_cls = "slip-bank-icon"
+            bank_icon_txt = "💳"
+        elif "BANK" in p_upper:
+            clean_pm = "Bank Transfer"
+            bank_icon_cls = "slip-bank-icon"
+            bank_icon_txt = "🏦"
+        else:
+            clean_pm = p_meth or "M-Pesa (Till / Paybill)"
+            bank_icon_cls = "slip-bank-icon mpesa"
+            bank_icon_txt = "M"
+
+        dt_str = matched_order.created_at.strftime("%d %b %Y, %I:%M %p") if matched_order.created_at else "Today"
+        ref_id = matched_order.payment_reference or (matched_order.number if str(matched_order.number).startswith("AQ-") else f"AQ-{matched_order.number}")
+        amount_val = float(matched_order.total or 0)
+        fee_val = float(matched_order.delivery_fee or 0)
+        customer_phone = matched_order.customer_phone or ""
+        customer_name = matched_order.customer_name or "Customer"
+        items_list = [
+            {
+                "name": it.name,
+                "variant": it.variant_title or "",
+                "qty": it.quantity,
+                "price": float(it.unit_price or 0),
+                "total": float(it.line_total or (float(it.unit_price or 0) * it.quantity)),
+                "image": it.image_url or "",
+            }
+            for it in matched_order.items
+        ]
+        status = matched_order.status
+        payment_status = matched_order.payment_status
+    else:
+        clean_pm = "M-Pesa (Till / Paybill)"
+        bank_icon_cls = "slip-bank-icon mpesa"
+        bank_icon_txt = "M"
+        import datetime
+        dt_str = datetime.datetime.now().strftime("%d %b %Y, %I:%M %p")
+        clean_ref = order_id or "AQ-20261011-001"
+        if not clean_ref.startswith("AQ-") and not clean_ref.startswith("PR-"):
+            clean_ref = f"AQ-{clean_ref}"
+        ref_id = clean_ref
+
+        catalogue_items = ctx.get("products") or ctx.get("services") or []
+        sample_item = catalogue_items[0] if catalogue_items else None
+        if isinstance(sample_item, dict):
+            sample_name = sample_item.get("name") or f"{business.name} Service"
+            sample_price = float(sample_item.get("price") or 1500)
+            sample_img = sample_item.get("image") or sample_item.get("image_url") or ""
+        elif sample_item is not None:
+            sample_name = getattr(sample_item, "name", None) or f"{business.name} Service"
+            sample_price = float(getattr(sample_item, "price", None) or 1500)
+            sample_img = getattr(sample_item, "image_url", None) or getattr(sample_item, "image", None) or ""
+        else:
+            sample_name = f"{business.name} Service"
+            sample_price = 1500.0
+            sample_img = ""
+        amount_val = sample_price
+        fee_val = 0.0
+        customer_phone = business.phone or business.whatsapp or ""
+        customer_name = "Customer"
+        items_list = [
+            {
+                "name": sample_name,
+                "variant": "",
+                "qty": 1,
+                "price": sample_price,
+                "total": sample_price,
+                "image": sample_img,
+            }
+        ]
+        status = "COMPLETED"
+        payment_status = "PAID"
+
+    receipt_data = {
+        "amount": amount_val,
+        "currency": sym_disp,
+        "referenceId": ref_id,
+        "dateFormatted": dt_str,
+        "fee": fee_val,
+        "beneficiaryName": business.name,
+        "customerName": customer_name,
+        "customerPhone": customer_phone,
+        "paymentMethod": clean_pm,
+        "status": status,
+        "paymentStatus": payment_status,
+        "remark": ", ".join(f"{it['qty']}× {it['name']}" for it in items_list) if items_list else "Confirmed Order",
+        "storeName": business.name,
+        "storeLogo": business.logo_url or "",
+        "storePhone": business.phone or business.whatsapp or "",
+        "items": items_list,
+    }
+
+    # Pre-render into HTML template directly
+    page = re.sub(r'(<div class="slip-shop-badge" id="r-shop-name">).*?(</div>)', rf'\g<1>{_html.escape(business.name)}\g<2>', page, count=1)
+    initial = (business.name[:1] if business.name else "A").upper()
+    page = re.sub(r'(<span class="logo-fallback" id="r-logo-fallback"[^>]*>).*?(</span>)', rf'\g<1>{_html.escape(initial)}\g<2>', page, count=1)
+    if business.logo_url:
+        page = page.replace('id="r-logo-fallback"', 'id="r-logo-fallback" style="display:none;"')
+        page = page.replace('id="r-logo-img" src="" alt="Shop Logo" style="display:none;"', f'id="r-logo-img" src="{_html.escape(business.logo_url)}" alt="Shop Logo" style="display:block;"')
+
+    page = re.sub(r'(<div class="slip-amount-value" id="r-amount-display">).*?(</div>)', rf'\g<1>{sym_disp}{amount_val:,.2f}\g<2>', page, count=1)
+    page = re.sub(r'(<span class="slip-row-value" id="r-ref-id">).*?(</span>)', rf'\g<1>{_html.escape(ref_id)}\g<2>', page, count=1)
+    page = re.sub(r'(<span class="slip-row-value" id="r-datetime">).*?(</span>)', rf'\g<1>{_html.escape(dt_str)}\g<2>', page, count=1)
+    page = re.sub(r'(<span class="slip-row-value" id="r-fee">).*?(</span>)', rf'\g<1>{sym_disp}{fee_val:,.2f}\g<2>', page, count=1)
+    page = re.sub(r'(<span class="slip-row-value" id="r-beneficiary-name">).*?(</span>)', rf'\g<1>{_html.escape(business.name)}\g<2>', page, count=1)
+    page = re.sub(r'(<span class="slip-row-value" id="r-account-number">).*?(</span>)', rf'\g<1>{_html.escape(customer_phone or "Verified Contact")}\g<2>', page, count=1)
+    page = re.sub(r'(<span id="r-bank-name">).*?(</span>)', rf'\g<1>{_html.escape(clean_pm)}\g<2>', page, count=1)
+
+    cards_html = []
+    for it in items_list:
+        img_html = f'<img src="{_html.escape(it["image"])}" alt="{_html.escape(it["name"])}" class="slip-product-img" onerror="this.onerror=null;this.parentElement.innerHTML=\'🛍️\';" />' if it.get("image") else '<span class="slip-product-img-fallback">🛍️</span>'
+        meta = f"Qty: {it['qty']}"
+        if it.get("price"):
+            meta += f" × {sym_disp}{it['price']:,.2f}"
+        if it.get("variant"):
+            meta += f" • {_html.escape(it['variant'])}"
+        cards_html.append(
+            f'<div class="slip-product-card">'
+            f'<div class="slip-product-img-box">{img_html}</div>'
+            f'<div class="slip-product-info">'
+            f'<div class="slip-product-name">{_html.escape(it["name"])}</div>'
+            f'<div class="slip-product-meta">{meta}</div>'
+            f'</div>'
+            f'<div class="slip-product-total">{sym_disp}{it["total"]:,.2f}</div>'
+            f'</div>'
+        )
+    rendered_items_html = "".join(cards_html)
+    page = re.sub(
+        r'(<div class="slip-products-container" id="r-products-container">).*?(</div>)',
+        rf'\g<1>{rendered_items_html}\g<2>',
+        page,
+        count=1,
+        flags=re.S
+    )
+
+    receipt_json = _safe_json(receipt_data)
+    page = page.replace(
+        "</head>",
+        f'<script>window.__RECEIPT_ORDER = {receipt_json};</script>\n</head>',
+        1
+    )
+    return page
+
+
+def render_ecomm(
+    db: Session,
+    ctx: dict,
+    business: Business,
+    key: str,
+    page_name: str = "index.html",
+    item_id: str | None = None,
+    draft: bool = False,
+    precomputed_data: dict | None = None,
+    order_id: str | None = None,
+    token: str | None = None,
+    phone: str | None = None,
+) -> str:
     from app.services.theme_studio import DRAFTS_ROOT
     target_file = None
     if draft:
@@ -443,7 +647,7 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
 
     # If business has a custom hero headline in website sections, update the main heading
     hero_sec = next((s for s in ctx.get("sections", []) if s.get("type") == "hero"), None)
-    if hero_sec:
+    if hero_sec and page_name not in ("product.html", "service.html", "receipt.html"):
         hero_content = hero_sec.get("content") or {}
         headline = hero_content.get("headline")
         if headline:
@@ -674,6 +878,10 @@ def render_ecomm(db: Session, ctx: dict, business: Business, key: str, page_name
     page = re.sub(r'(href|src)=["\']\.\./_bridge\.js["\']', rf'\1="{URL_BASE}/_bridge.js"', page)
     page = re.sub(r'(href|src)=["\']aqivo-booking\.js["\']', rf'\1="{URL_BASE}/aqivo-booking.js"', page)
     page = re.sub(r'(href|src)=["\']aqivo-booking-bridge\.js["\']', rf'\1="{URL_BASE}/aqivo-booking-bridge.js"', page)
+
+    if page_name in ("receipt.html", "receipt"):
+        page = _render_receipt_page(db, ctx, business, page, order_id=order_id, token=token, phone=phone)
+
     return page
 
 

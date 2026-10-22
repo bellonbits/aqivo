@@ -323,6 +323,9 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
             item_id=request.query_params.get("id"),
             draft=is_draft,
             precomputed_data=precomputed_data,
+            order_id=request.query_params.get("orderId") or request.query_params.get("order") or request.query_params.get("receipt") or request.query_params.get("id"),
+            token=request.query_params.get("token"),
+            phone=request.query_params.get("phone"),
         )
         return HTMLResponse(html_out, headers=NOSTORE)
     except Exception as exc:
@@ -478,7 +481,19 @@ def _shop_page(db: Session, b: Business, rest: list[str], request: Request, root
         if head in ("checkout", "checkout.html"):
             return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "checkout.html"), headers=NOSTORE)
         if head in ("receipt", "receipt.html"):
-            return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "receipt.html"), headers=NOSTORE)
+            return HTMLResponse(
+                ecomm_site.render_ecomm(
+                    db,
+                    ecomm_ctx,
+                    b,
+                    ecomm_key,
+                    "receipt.html",
+                    order_id=request.query_params.get("orderId") or request.query_params.get("order") or request.query_params.get("receipt") or request.query_params.get("id"),
+                    token=request.query_params.get("token"),
+                    phone=request.query_params.get("phone"),
+                ),
+                headers=NOSTORE,
+            )
         if head in ("product", "product.html"):
             return HTMLResponse(ecomm_site.render_ecomm(db, ecomm_ctx, b, ecomm_key, "product.html", item_id=request.query_params.get("id")), headers=NOSTORE)
         if head in ("service", "service.html"):

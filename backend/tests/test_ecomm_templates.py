@@ -218,3 +218,30 @@ def test_ecomm_wa_injected_clean_without_extra_digits(make_owner, client):
     assert not bz["wa"].startswith("https://")
     assert len(bz["wa"]) == 12
     assert bz["wa_phone"] == bz["wa"]
+
+
+def test_receipt_renders_real_order_details_and_cleans_mock_data(make_owner, client):
+    o = make_owner("receipt_owner@example.com", "Barber Joe", "Joes Kinyozi", industry="beauty")
+    add_service(o, "Executive Cut & Wash", "2500")
+    assert o.post("/api/v1/websites/me/template", json={"template_key": "aqivo"}).status_code == 200
+    o.post("/api/v1/websites/me/publish")
+
+    r = client.get(f"/{o.slug}/receipt.html?orderId=AQ-20261011-001")
+    assert r.status_code == 200
+    html = r.text
+
+    # Real merchant & reference details
+    assert "Joes Kinyozi" in html
+    assert "AQ-20261011-001" in html
+    assert "Executive Cut" in html
+    assert "Order Receipt" in html
+    assert "window.__RECEIPT_ORDER" in html
+
+
+    # Hardcoded mock Nigerian dummy data must be purged
+    assert "Taiwo Ibrahim" not in html
+    assert "MoniePoint" not in html
+    assert "PR-20250214-4492" not in html
+    assert "8134567890" not in html
+
+

@@ -523,21 +523,42 @@
 
     /* Print Styles */
     @media print {
+      @page {
+        size: auto;
+        margin: 10mm;
+      }
       body {
         background: #FFFFFF !important;
         padding: 0 !important;
+        color: #000000 !important;
       }
       .receipt-actions,
       .receipt-page-footer,
       .store-support-link,
-      .receipt-toast {
+      .receipt-toast,
+      .aqivo-attribution,
+      .site-storefront-footer {
         display: none !important;
+      }
+      .receipt-page-container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
       }
       .receipt-slip {
         filter: none !important;
         max-width: 440px !important;
         margin: 0 auto !important;
         border: 1px solid #CBD5E1 !important;
+        box-shadow: none !important;
+      }
+      .notch-circle {
+        background: #FFFFFF !important;
+      }
+      .slip-bottom-scallops {
+        background-color: #FFFFFF !important;
+        background-image: none !important;
+        border-bottom: 2px dashed #CBD5E1 !important;
       }
     }
   </style>
@@ -552,13 +573,13 @@
       <!-- Top Dark Header Card With Shop Logo -->
       <header class="slip-header">
         <div class="slip-header-left">
-          <div class="slip-shop-badge" id="r-shop-name">Lydia Shop</div>
+          <div class="slip-shop-badge" id="r-shop-name">Aqivo Store</div>
           <h1 class="slip-title">Order Receipt</h1>
           <span class="slip-status-pill" id="r-status-pill">Successful</span>
         </div>
         <div class="slip-header-logo" id="r-logo-box">
           <!-- Shop Logo or Fallback -->
-          <span class="logo-fallback" id="r-logo-fallback">L</span>
+          <span class="logo-fallback" id="r-logo-fallback">A</span>
           <img id="r-logo-img" src="" alt="Shop Logo" style="display:none;" />
         </div>
       </header>
@@ -569,7 +590,7 @@
         <!-- Amount Section -->
         <section class="slip-amount-section">
           <div class="slip-amount-label">Amount</div>
-          <div class="slip-amount-value" id="r-amount-display">KSh 4,500.00</div>
+          <div class="slip-amount-value" id="r-amount-display">KSh 0.00</div>
         </section>
 
         <!-- Ticket Notches Row (Cutout Circles) -->
@@ -585,13 +606,13 @@
           <!-- Reference ID -->
           <div class="slip-row">
             <span class="slip-row-label">Reference ID</span>
-            <span class="slip-row-value" id="r-ref-id">PR-20250214-4492</span>
+            <span class="slip-row-value" id="r-ref-id">AQ-20261011-001</span>
           </div>
 
           <!-- Date & Time -->
           <div class="slip-row">
             <span class="slip-row-label">Date &amp; Time</span>
-            <span class="slip-row-value" id="r-datetime">14 Feb 2025, 10:42 AM</span>
+            <span class="slip-row-value" id="r-datetime">Today</span>
           </div>
 
           <!-- Fee -->
@@ -603,21 +624,21 @@
           <!-- Beneficiary Name -->
           <div class="slip-row">
             <span class="slip-row-label">Beneficiary Name</span>
-            <span class="slip-row-value" id="r-beneficiary-name">Taiwo Ibrahim</span>
+            <span class="slip-row-value" id="r-beneficiary-name">Aqivo Store</span>
           </div>
 
-          <!-- Account Number / Phone -->
+          <!-- Customer Phone / Contact -->
           <div class="slip-row">
-            <span class="slip-row-label">Account Number</span>
-            <span class="slip-row-value" id="r-account-number">8134567890</span>
+            <span class="slip-row-label">Customer Contact</span>
+            <span class="slip-row-value" id="r-account-number">—</span>
           </div>
 
-          <!-- Bank / Payment Method -->
+          <!-- Payment Method -->
           <div class="slip-row">
-            <span class="slip-row-label">Bank</span>
+            <span class="slip-row-label">Payment Method</span>
             <div class="slip-bank-pill">
-              <div class="slip-bank-icon" id="r-bank-icon">M</div>
-              <span id="r-bank-name">MoniePoint Microfinance Bank</span>
+              <div class="slip-bank-icon mpesa" id="r-bank-icon">M</div>
+              <span id="r-bank-name">M-Pesa (Till / Paybill)</span>
             </div>
           </div>
 
@@ -714,11 +735,9 @@
       if (B.root) return B.root.replace(/\/+$/, '') || '/';
       if (B.slug) return '/' + B.slug;
       var path = window.location.pathname || '';
-      if (path.indexOf('receipt.html') !== -1 || path.indexOf('receipt') !== -1) {
-        var prefix = path.replace(/receipt(\.html)?.*$/, '');
-        if (prefix && prefix !== '/') return prefix;
-      }
-      return 'index.html';
+      var m = path.match(/^\/([^\/]+)\/receipt/);
+      if (m && m[1] && m[1] !== 'ecomm-templates') return '/' + m[1];
+      return '/';
     }
 
     function continueShopping() {
@@ -726,7 +745,29 @@
     }
 
     function printReceipt() {
+      if (currentReceiptData) {
+        var store = currentReceiptData.storeName || 'Store';
+        var ref = currentReceiptData.referenceId || 'Receipt';
+        document.title = 'Receipt - ' + store + ' - ' + ref;
+      }
       window.print();
+    }
+
+    function fallbackCopy(text) {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Receipt link copied!');
+      } catch (e) {
+        showToast('Receipt link copied!');
+      }
     }
 
     function copyReceiptLink() {
@@ -735,10 +776,10 @@
         navigator.clipboard.writeText(url).then(function () {
           showToast('Receipt link copied!');
         }).catch(function () {
-          showToast('Copied to clipboard');
+          fallbackCopy(url);
         });
       } else {
-        showToast('Receipt link copied!');
+        fallbackCopy(url);
       }
     }
 
@@ -756,8 +797,9 @@
       var B = window.__BZ || {};
       var phone = (currentReceiptData && currentReceiptData.storePhone) || B.phone || B.wa_phone || B.whatsapp || '';
       var clean = normalisePhone(phone);
-      var orderRef = currentReceiptData ? currentReceiptData.referenceId : '';
-      var msg = 'Hello! I am inquiring about my Order #' + orderRef;
+      var orderRef = (currentReceiptData && currentReceiptData.referenceId) ? currentReceiptData.referenceId : '';
+      var store = (currentReceiptData && currentReceiptData.storeName) || B.name || 'Store';
+      var msg = 'Hello ' + store + '! I am inquiring about my Order #' + orderRef;
       if (clean) {
         window.open('https://wa.me/' + clean + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
       } else {
@@ -768,26 +810,24 @@
     function shareReceiptWhatsApp() {
       if (!currentReceiptData) return;
       var d = currentReceiptData;
+      var cur = d.currency || 'KSh ';
+      if (cur && cur.slice(-1) !== ' ' && cur.length > 1) cur += ' ';
       var lines = [
-        '*TRANSACTION RECEIPT — ' + (d.storeName || 'AQIVO STORE').toUpperCase() + '*',
+        '🧾 *TRANSACTION RECEIPT — ' + (d.storeName || 'AQIVO STORE').toUpperCase() + '*',
         '',
-        '💵 *Amount:* ' + d.currency + ' ' + fmtMoney(d.amount),
+        '💵 *Amount:* ' + cur + fmtMoney(d.amount),
         '🔖 *Reference ID:* ' + d.referenceId,
         '📅 *Date:* ' + d.dateFormatted,
-        '👤 *Beneficiary:* ' + d.customerName,
-        '📱 *Account:* ' + d.customerPhone,
-        '💳 *Bank/Method:* ' + d.paymentMethod,
+        '🏢 *Beneficiary:* ' + (d.beneficiaryName || d.storeName),
+        '👤 *Customer:* ' + d.customerName,
+        (d.customerPhone ? ('📱 *Contact:* ' + d.customerPhone) : ''),
+        '💳 *Payment Method:* ' + d.paymentMethod,
         '🛍️ *Items:* ' + d.remark,
         '',
         '🔗 *View Official Receipt:* ' + window.location.href
-      ];
+      ].filter(Boolean);
       var text = lines.join('\n');
-      var clean = normalisePhone(d.storePhone);
-      if (clean) {
-        window.open('https://wa.me/' + clean + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
-      } else {
-        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
-      }
+      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank', 'noopener');
     }
 
     function renderReceipt(data) {
@@ -813,19 +853,21 @@
         } else {
           logoImg.style.display = 'none';
           logoFallback.style.display = 'block';
-          var initial = (data.storeName || 'S').trim().charAt(0).toUpperCase();
-          logoFallback.textContent = initial || 'S';
+          var initial = (data.storeName || 'A').trim().charAt(0).toUpperCase();
+          logoFallback.textContent = initial || 'A';
         }
       }
 
       // 2. Status Pill
       var statusPill = document.getElementById('r-status-pill');
       if (statusPill) {
-        if (data.status === 'CANCELLED') {
+        var stUpper = String(data.status || '').toUpperCase();
+        var pUpper = String(data.paymentStatus || '').toUpperCase();
+        if (stUpper === 'CANCELLED' || pUpper === 'CANCELLED' || pUpper === 'FAILED') {
           statusPill.textContent = 'Cancelled';
           statusPill.className = 'slip-status-pill cancelled';
-        } else if (data.status === 'PENDING' && data.paymentStatus === 'PENDING') {
-          statusPill.textContent = 'Pending';
+        } else if (stUpper === 'PENDING' && pUpper !== 'PAID') {
+          statusPill.textContent = 'Pending Confirmation';
           statusPill.className = 'slip-status-pill pending';
         } else {
           statusPill.textContent = 'Successful';
@@ -833,47 +875,50 @@
         }
       }
 
+      var cur = data.currency || 'KSh ';
+      if (cur && cur.slice(-1) !== ' ' && cur.length > 1) cur += ' ';
+
       // 3. Amount
       var amountEl = document.getElementById('r-amount-display');
       if (amountEl) {
-        amountEl.textContent = data.currency + fmtMoney(data.amount);
+        amountEl.textContent = cur + fmtMoney(data.amount);
       }
 
       // 4. Reference ID
       var refEl = document.getElementById('r-ref-id');
       if (refEl) {
-        refEl.textContent = data.referenceId;
+        refEl.textContent = data.referenceId || 'AQ-20261011-001';
       }
 
       // 5. Date & Time
       var dtEl = document.getElementById('r-datetime');
       if (dtEl) {
-        dtEl.textContent = data.dateFormatted;
+        dtEl.textContent = data.dateFormatted || 'Today';
       }
 
       // 6. Fee
       var feeEl = document.getElementById('r-fee');
       if (feeEl) {
-        feeEl.textContent = data.currency + fmtMoney(data.fee || 0);
+        feeEl.textContent = cur + fmtMoney(data.fee || 0);
       }
 
-      // 7. Beneficiary Name
+      // 7. Beneficiary Name (Merchant Store)
       var nameEl = document.getElementById('r-beneficiary-name');
       if (nameEl) {
-        nameEl.textContent = data.customerName || 'Customer';
+        nameEl.textContent = data.beneficiaryName || data.storeName || 'Aqivo Store';
       }
 
-      // 8. Account Number / Phone
+      // 8. Customer Phone / Contact
       var acctEl = document.getElementById('r-account-number');
       if (acctEl) {
-        acctEl.textContent = data.customerPhone || '8134567890';
+        acctEl.textContent = data.customerPhone || data.customerName || 'Verified Store Customer';
       }
 
       // 9. Bank / Payment Method
       var bankEl = document.getElementById('r-bank-name');
       var iconEl = document.getElementById('r-bank-icon');
       if (bankEl) {
-        bankEl.textContent = data.paymentMethod || 'MoniePoint Microfinance Bank';
+        bankEl.textContent = data.paymentMethod || 'M-Pesa (Till / Paybill)';
       }
       if (iconEl) {
         var mUpper = (data.paymentMethod || '').toUpperCase();
@@ -883,8 +928,14 @@
         } else if (mUpper.indexOf('CASH') !== -1) {
           iconEl.className = 'slip-bank-icon cash';
           iconEl.textContent = '💵';
-        } else {
+        } else if (mUpper.indexOf('CARD') !== -1 || mUpper.indexOf('CREDIT') !== -1 || mUpper.indexOf('DEBIT') !== -1) {
           iconEl.className = 'slip-bank-icon';
+          iconEl.textContent = '💳';
+        } else if (mUpper.indexOf('BANK') !== -1) {
+          iconEl.className = 'slip-bank-icon';
+          iconEl.textContent = '🏦';
+        } else {
+          iconEl.className = 'slip-bank-icon mpesa';
           iconEl.textContent = 'M';
         }
       }
@@ -900,12 +951,12 @@
             var imgSrc = it.image || it.image_url || it.img || '';
 
             var imgHtml = imgSrc ? 
-              '<img src="' + esc(imgSrc) + '" alt="' + esc(it.name) + '" class="slip-product-img" onerror="this.onerror=null;this.parentElement.innerHTML=\\'🛍️\\';" />' :
+              '<img src="' + esc(imgSrc) + '" alt="' + esc(it.name) + '" class="slip-product-img" onerror="this.onerror=null;this.parentElement.innerHTML=\'🛍️\';" />' :
               '<span class="slip-product-img-fallback">🛍️</span>';
 
             var metaText = 'Qty: ' + itemQty;
             if (itemPrice > 0) {
-              metaText += ' × ' + data.currency + fmtMoney(itemPrice);
+              metaText += ' × ' + cur + fmtMoney(itemPrice);
             }
             if (it.variant) {
               metaText += ' • ' + esc(it.variant);
@@ -918,7 +969,7 @@
               '    <div class="slip-product-name">' + esc(it.name) + '</div>',
               '    <div class="slip-product-meta">' + metaText + '</div>',
               '  </div>',
-              '  <div class="slip-product-total">' + data.currency + fmtMoney(itemTotal) + '</div>',
+              '  <div class="slip-product-total">' + cur + fmtMoney(itemTotal) + '</div>',
               '</div>'
             ].join('');
           }).join('');
@@ -927,10 +978,10 @@
             '<div class="slip-product-card">',
             '  <div class="slip-product-img-box"><span class="slip-product-img-fallback">🛍️</span></div>',
             '  <div class="slip-product-info">',
-            '    <div class="slip-product-name">' + esc(data.remark || 'Ordered Items') + '</div>',
-            '    <div class="slip-product-meta">Confirmed</div>',
+            '    <div class="slip-product-name">' + esc(data.remark || 'Confirmed Order') + '</div>',
+            '    <div class="slip-product-meta">Completed</div>',
             '  </div>',
-            '  <div class="slip-product-total">' + data.currency + fmtMoney(data.amount) + '</div>',
+            '  <div class="slip-product-total">' + cur + fmtMoney(data.amount) + '</div>',
             '</div>'
           ].join('');
         }
@@ -939,13 +990,21 @@
 
     function initReceipt() {
       var params = new URLSearchParams(window.location.search);
-      var qOrder = params.get('orderId') || params.get('order') || params.get('receipt') || '';
+      var qOrder = params.get('orderId') || params.get('order') || params.get('receipt') || params.get('id') || '';
       var qToken = params.get('token') || '';
+      var qPhone = params.get('phone') || '';
 
       var B = window.__BZ || {};
-      var curSymbol = B.symbol || B.currency || '₦';
+      var curSymbol = B.symbol || B.currency || 'KSh ';
+      if (curSymbol && curSymbol.slice(-1) !== ' ' && curSymbol.length > 1) curSymbol += ' ';
 
-      // 1. Look up cached order in localStorage
+      // 1. Backend Server-Rendered Order (Top Priority)
+      if (window.__RECEIPT_ORDER && typeof window.__RECEIPT_ORDER === 'object') {
+        renderReceipt(window.__RECEIPT_ORDER);
+        return;
+      }
+
+      // 2. Check localStorage
       var matched = null;
       try {
         var raw = localStorage.getItem('aqivo_orders');
@@ -962,7 +1021,10 @@
               });
             }
             if (!matched && !qOrder && !qToken) {
-              matched = list[0];
+              var storeOrder = list.find(function (it) {
+                return (B.slug && it.businessSlug === B.slug) || (B.name && it.store === B.name);
+              });
+              matched = storeOrder || list[0];
             }
           }
         }
@@ -984,38 +1046,37 @@
         return day + ' ' + mon + ' ' + yr + ', ' + h12 + ':' + minsStr + ' ' + ampm;
       }
 
-      // Reference format helper
-      function makeRef(raw) {
-        if (!raw) return 'PR-20250214-4492';
-        var s = String(raw).trim();
-        if (s.indexOf('PR-') === 0) return s;
-        if (s.indexOf('AQ-') === 0) return 'PR-20250214-' + s.replace('AQ-', '');
-        if (/^\d+$/.test(s)) return 'PR-20250214-' + s;
-        return 'PR-20250214-' + s.slice(-4);
-      }
+      var storeItems = Array.isArray(B.items) && B.items.length ? B.items : [];
+      var fallbackItem = storeItems[0] || {
+        name: (B.name ? (B.name + ' Service') : 'Store Service'),
+        price: 1500,
+        qty: 1
+      };
 
-      // Default receipt data
+      var cleanRef = qOrder ? (String(qOrder).indexOf('AQ-') === 0 ? qOrder : ('AQ-' + qOrder)) : ('AQ-' + new Date().getFullYear() + '1011-001');
+
       var receiptObj = {
-        amount: 12000.00,
+        amount: Number(fallbackItem.price || 1500),
         currency: curSymbol,
-        referenceId: makeRef(qOrder || (matched && (matched.receiptNo || matched.orderId || matched.number))),
+        referenceId: cleanRef,
         dateFormatted: formatDateTime(),
         fee: 0,
-        customerName: 'Taiwo Ibrahim',
-        customerPhone: '8134567890',
-        paymentMethod: 'MoniePoint Microfinance Bank',
+        beneficiaryName: B.name || 'Aqivo Store',
+        customerName: 'Customer',
+        customerPhone: B.phone || B.whatsapp || '',
+        paymentMethod: 'M-Pesa (Till / Paybill)',
         status: 'COMPLETED',
         paymentStatus: 'PAID',
-        remark: 'Leather Handbag',
-        storeName: B.name || 'Lydia Shop',
+        remark: fallbackItem.name,
+        storeName: B.name || 'Aqivo Store',
         storeLogo: B.logo || B.logo_url || '',
         storePhone: B.phone || B.whatsapp || '',
         items: [
           {
-            name: 'Leather Handbag',
+            name: fallbackItem.name,
             qty: 1,
-            price: 12000.00,
-            image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=150&auto=format&fit=crop&q=80'
+            price: Number(fallbackItem.price || 1500),
+            image: fallbackItem.image || fallbackItem.image_url || fallbackItem.img || ''
           }
         ]
       };
@@ -1026,21 +1087,24 @@
           mTotal = matched.items.reduce(function (acc, i) { return acc + (Number(i.price || 0) * Number(i.qty || 1)); }, 0);
         }
         if (mTotal > 0) receiptObj.amount = mTotal;
-        if (matched.currencySymbol) receiptObj.currency = matched.currencySymbol;
-        if (matched.store) receiptObj.storeName = matched.store;
+        if (matched.currencySymbol) receiptObj.currency = matched.currencySymbol + (matched.currencySymbol.slice(-1) !== ' ' ? ' ' : '');
+        if (matched.store || matched.storeName) {
+          receiptObj.storeName = matched.store || matched.storeName;
+          receiptObj.beneficiaryName = receiptObj.storeName;
+        }
         if (matched.storeLogo) receiptObj.storeLogo = matched.storeLogo;
         if (matched.customerName || (matched.customer && matched.customer.name)) {
           receiptObj.customerName = matched.customerName || matched.customer.name;
         }
         if (matched.phone || matched.customerPhone || (matched.customer && matched.customer.phone)) {
-          var rawP = matched.phone || matched.customerPhone || matched.customer.phone;
-          receiptObj.customerPhone = rawP.replace(/\D/g, '').slice(-10) || rawP;
+          receiptObj.customerPhone = matched.phone || matched.customerPhone || matched.customer.phone;
         }
         if (matched.paymentMethod) {
           var pMeth = String(matched.paymentMethod).toUpperCase();
-          receiptObj.paymentMethod = (pMeth.indexOf('MPESA') !== -1) ? 'M-Pesa Mobile Payment' :
+          receiptObj.paymentMethod = (pMeth.indexOf('MPESA') !== -1 || pMeth.indexOf('M-PESA') !== -1) ? 'M-Pesa (Till / Paybill)' :
                                     (pMeth.indexOf('CASH') !== -1) ? 'Cash on Delivery' :
-                                    (pMeth.indexOf('MONIEPOINT') !== -1) ? 'MoniePoint Microfinance Bank' : matched.paymentMethod;
+                                    (pMeth.indexOf('CARD') !== -1) ? 'Credit / Debit Card' :
+                                    (pMeth.indexOf('BANK') !== -1) ? 'Bank Transfer' : matched.paymentMethod;
         }
         if (matched.dateFormatted || matched.date || matched.createdAt) {
           receiptObj.dateFormatted = formatDateTime(matched.createdAt || matched.date);
@@ -1065,77 +1129,79 @@
       // Initial render
       renderReceipt(receiptObj);
 
-      // 2. Fetch fresh backend order data
+      // Fetch fresh backend order data
       var lookupToken = qToken || (matched && matched.token);
       var lookupNum = qOrder || (matched && (matched.number || matched.orderId || matched.receiptNo));
       var targetRef = lookupToken || lookupNum;
 
       if (targetRef) {
-        var slug = (matched && matched.businessSlug) || B.slug || (window.location.pathname.split('/')[1] || 'urbanattire');
-        if (!slug || slug.indexOf('receipt') !== -1) slug = 'urbanattire';
+        var slug = (matched && matched.businessSlug) || B.slug || (window.location.pathname.split('/')[1] || '');
+        if (!slug || slug.indexOf('receipt') !== -1) slug = (B.slug || '');
+        if (slug) {
+          var url = '/api/v1/public/' + encodeURIComponent(slug) + '/orders/' + encodeURIComponent(targetRef);
+          var q = [];
+          if (lookupToken && lookupToken !== targetRef) q.push('token=' + encodeURIComponent(lookupToken));
+          if (qPhone) q.push('phone=' + encodeURIComponent(qPhone));
+          if (q.length) url += '?' + q.join('&');
 
-        var url = '/api/v1/public/' + encodeURIComponent(slug) + '/orders/' + encodeURIComponent(targetRef);
-        var q = [];
-        if (lookupToken && lookupToken !== targetRef) q.push('token=' + encodeURIComponent(lookupToken));
-        if (receiptObj.customerPhone) q.push('phone=' + encodeURIComponent(receiptObj.customerPhone));
-        if (q.length) url += '?' + q.join('&');
+          fetch(url, { headers: { 'Accept': 'application/json' } })
+            .then(function (res) {
+              if (!res.ok) throw new Error('Order not found');
+              return res.json();
+            })
+            .then(function (bo) {
+              var boTotal = Number(bo.total || 0);
+              if (boTotal <= 0 && Array.isArray(bo.items) && bo.items.length) {
+                boTotal = bo.items.reduce(function (acc, i) { return acc + (Number(i.unit_price || i.price || 0) * Number(i.qty || 1)); }, 0);
+              }
+              if (boTotal > 0) receiptObj.amount = boTotal;
+              if (bo.currency_symbol) receiptObj.currency = bo.currency_symbol + (bo.currency_symbol.slice(-1) !== ' ' ? ' ' : '');
+              if (bo.receipt_no || bo.number) {
+                receiptObj.referenceId = String(bo.receipt_no || ('AQ-' + bo.number));
+              }
+              if (bo.store) {
+                if (bo.store.name) {
+                  receiptObj.storeName = bo.store.name;
+                  receiptObj.beneficiaryName = bo.store.name;
+                }
+                if (bo.store.logo || bo.store.logo_url) receiptObj.storeLogo = bo.store.logo || bo.store.logo_url;
+                if (bo.store.phone || bo.store.whatsapp) receiptObj.storePhone = bo.store.whatsapp || bo.store.phone;
+              }
+              if (bo.customer && bo.customer.name) receiptObj.customerName = bo.customer.name;
+              if (bo.customer && bo.customer.phone) receiptObj.customerPhone = bo.customer.phone;
+              if (bo.payment_method) {
+                var pm = String(bo.payment_method).toUpperCase();
+                receiptObj.paymentMethod = (pm.indexOf('MPESA') !== -1 || pm.indexOf('M-PESA') !== -1) ? 'M-Pesa (Till / Paybill)' :
+                                          (pm.indexOf('CASH') !== -1) ? 'Cash on Delivery' :
+                                          (pm.indexOf('CARD') !== -1) ? 'Credit / Debit Card' :
+                                          (pm.indexOf('BANK') !== -1) ? 'Bank Transfer' : bo.payment_method;
+              }
+              if (bo.created_at) receiptObj.dateFormatted = formatDateTime(bo.created_at);
+              if (Array.isArray(bo.items) && bo.items.length) {
+                receiptObj.items = bo.items.map(function (it) {
+                  return {
+                    name: it.name,
+                    qty: Number(it.qty || 1),
+                    price: Number(it.unit_price || it.price || 0),
+                    total: Number(it.total || 0),
+                    image: it.image || it.image_url || it.img || '',
+                    variant: it.variant || ''
+                  };
+                });
+                receiptObj.remark = bo.items.map(function (it) {
+                  return (it.qty ? (it.qty + '× ') : '') + (it.name || 'Item');
+                }).join(', ');
+              }
+              if (bo.delivery_fee) receiptObj.fee = Number(bo.delivery_fee);
+              if (bo.status) receiptObj.status = bo.status;
+              if (bo.payment_status) receiptObj.paymentStatus = bo.payment_status;
 
-        fetch(url, {
-          headers: { 'Accept': 'application/json' }
-        }).then(function (res) {
-          if (!res.ok) throw new Error('Order not found');
-          return res.json();
-        }).then(function (bo) {
-          var boTotal = Number(bo.total || 0);
-          if (boTotal <= 0 && Array.isArray(bo.items) && bo.items.length) {
-            boTotal = bo.items.reduce(function (acc, i) { return acc + (Number(i.unit_price || i.price || 0) * Number(i.qty || 1)); }, 0);
-          }
-          if (boTotal > 0) receiptObj.amount = boTotal;
-          if (bo.currency_symbol) receiptObj.currency = bo.currency_symbol;
-          if (bo.receipt_no || bo.number) {
-            receiptObj.referenceId = makeRef(bo.number || bo.receipt_no);
-          }
-          if (bo.store) {
-            if (bo.store.name) receiptObj.storeName = bo.store.name;
-            if (bo.store.logo || bo.store.logo_url) receiptObj.storeLogo = bo.store.logo || bo.store.logo_url;
-            if (bo.store.phone || bo.store.whatsapp) receiptObj.storePhone = bo.store.whatsapp || bo.store.phone;
-          }
-          if (bo.customer && bo.customer.name) receiptObj.customerName = bo.customer.name;
-          if (bo.customer && bo.customer.phone) {
-            var rawCp = bo.customer.phone;
-            receiptObj.customerPhone = rawCp.replace(/\D/g, '').slice(-10) || rawCp;
-          }
-          if (bo.payment_method) {
-            var pm = String(bo.payment_method).toUpperCase();
-            receiptObj.paymentMethod = (pm.indexOf('MPESA') !== -1) ? 'M-Pesa Mobile Payment' :
-                                      (pm.indexOf('CASH') !== -1) ? 'Cash on Delivery' :
-                                      (pm.indexOf('MONIEPOINT') !== -1) ? 'MoniePoint Microfinance Bank' : bo.payment_method;
-          }
-          if (bo.created_at) {
-            receiptObj.dateFormatted = formatDateTime(bo.created_at);
-          }
-          if (Array.isArray(bo.items) && bo.items.length) {
-            receiptObj.items = bo.items.map(function (it) {
-              return {
-                name: it.name,
-                qty: Number(it.qty || 1),
-                price: Number(it.unit_price || it.price || 0),
-                image: it.image || it.image_url || it.img || '',
-                variant: it.variant || ''
-              };
+              renderReceipt(receiptObj);
+            })
+            .catch(function (err) {
+              console.warn('Backend fetch note:', err);
             });
-            receiptObj.remark = bo.items.map(function (it) {
-              return (it.qty ? (it.qty + '× ') : '') + (it.name || 'Item');
-            }).join(', ');
-          }
-          if (bo.delivery_fee) receiptObj.fee = Number(bo.delivery_fee);
-          if (bo.status) receiptObj.status = bo.status;
-          if (bo.payment_status) receiptObj.paymentStatus = bo.payment_status;
-
-          renderReceipt(receiptObj);
-        }).catch(function (err) {
-          console.warn('Backend fetch note:', err);
-        });
+        }
       }
     }
 
