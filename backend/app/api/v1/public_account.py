@@ -37,23 +37,6 @@ def current(request: Request, b: Business = Depends(get_public_business), db: Se
     return c
 
 
-def current_or_phone(request: Request, b: Business = Depends(get_public_business), db: Session = Depends(get_db)) -> Customer:
-    tok = request.cookies.get(_cookie_name(b))
-    if not tok and request.headers.get("authorization", "").startswith("Bearer "):
-        tok = request.headers.get("authorization")[7:].strip()
-    c = ca.read_session(db, b, tok) if tok else None
-    if c is None:
-        raw_phone = request.headers.get("x-customer-phone") or request.query_params.get("phone")
-        if raw_phone:
-            try:
-                norm = normalize_phone(raw_phone, b.country_code)
-                c = db.scalars(select(Customer).where(Customer.business_id == b.id, Customer.phone == norm, Customer.deleted_at.is_(None))).first()
-            except Exception:
-                c = None
-    if c is None:
-        from fastapi import HTTPException
-        raise HTTPException(401, "Please sign in")
-    return c
 
 
 def csrf(request: Request) -> None:
@@ -130,23 +113,21 @@ def customer_identify(body: CustomerIdentifyIn, response: Response, b: Business 
 
     db.commit()
 
-    token = ca.issue_session(cust)
-    response.set_cookie(_cookie_name(b), token, max_age=ca.SESSION_DAYS * 86400, httponly=True, samesite="lax", secure=get_settings().is_production, path="/")
-
-    orders_count = db.scalar(select(func.count(Order.id)).where(Order.business_id == b.id, Order.customer_id == cust.id)) or 0
+    if is_returning:
+        return {
+            "ok": True,
+            "requires_otp": True,
+            "message": "Existing account found. Please sign in with OTP verification.",
+        }
 
     return {
         "ok": True,
+        "requires_otp": True,
         "customer": {
             "id": str(cust.id),
             "name": cust.name,
-            "phone": cust.phone,
-            "email": cust.email,
             "location": clean_loc,
-            "is_returning": is_returning,
-            "orders_count": orders_count,
         },
-        "token": token
     }
 
 
@@ -168,19 +149,28 @@ def otp_request(body: CodeReq, b: Business = Depends(get_public_business), db: S
 
 
 @router.post("/otp/verify", dependencies=[Depends(csrf), Depends(rate_limit("otp-verify", 20, 600))])
-def otp_verify(body: CodeVerify, response: Response, b: Business = Depends(get_public_business), db: Session = Depends(get_db)):
+def otp_verify(body: CodeVerify, request: Request, response: Response, b: Business = Depends(get_public_business), db: Session = Depends(get_db)):
     try:
         cust = ca.verify_code(db, b, body.identifier, body.code, body.name)
     except Exception:
         db.commit()  # keep the attempt count
         raise
     db.commit()
-    response.set_cookie(_cookie_name(b), ca.issue_session(cust), max_age=ca.SESSION_DAYS * 86400, httponly=True, samesite="lax", secure=get_settings().is_production, path="/")
+    is_secure = get_settings().is_production or request.url.scheme == "https"
+    response.set_cookie(_cookie_name(b), ca.issue_session(cust), max_age=ca.SESSION_DAYS * 86400, httponly=True, samesite="lax", secure=is_secure, path="/")
     return _me(db, cust)
 
 
 @router.post("/logout", dependencies=[Depends(csrf)])
-def logout(response: Response, b: Business = Depends(get_public_business)):
+def logout(request: Request, response: Response, b: Business = Depends(get_public_business), db: Session = Depends(get_db)):
+    tok = request.cookies.get(_cookie_name(b))
+    if not tok and request.headers.get("authorization", "").startswith("Bearer "):
+        tok = request.headers.get("authorization")[7:].strip()
+    if tok:
+        c = ca.read_session(db, b, tok)
+        if c:
+            c.token_version = getattr(c, "token_version", 0) + 1
+            db.commit()
     response.delete_cookie(_cookie_name(b), path="/")
     return {"ok": True}
 
@@ -222,7 +212,7 @@ def update_me(body: ProfileIn, c: Customer = Depends(current), db: Session = Dep
 
 
 @router.get("/orders")
-def my_orders(c: Customer = Depends(current_or_phone), db: Session = Depends(get_db)):
+def my_orders(c: Customer = Depends(current), db: Session = Depends(get_db)):
     rows = db.scalars(select(Order).where(Order.business_id == c.business_id, or_(Order.customer_id == c.id, Order.customer_phone == c.phone)).order_by(Order.created_at.desc()).limit(50))
     return [{"number": o.number, "token": o.token, "status": o.status, "status_text": order_svc.STATUS_TEXT.get(o.status, o.status), "payment_status": o.payment_status, "total": float(o.total), "currency": o.currency,
              "created_at": o.created_at.isoformat() if o.created_at else None,

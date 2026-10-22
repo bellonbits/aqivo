@@ -34,19 +34,39 @@ def _set_refresh(response: Response, user: User) -> None:
 
 @router.post("/register", response_model=TokenOut, status_code=201, dependencies=[Depends(rate_limit("register", 10, 3600))])
 def register(body: RegisterIn, request: Request, response: Response, db: Session = Depends(get_db)):
-    email = body.email.lower()
-    if db.scalar(select(User.id).where(User.email == email)):
-        raise conflict("An account with this email already exists. Try signing in.")
-    norm_phone = clean_phone(body.phone) if body.phone and body.phone.strip() else None
+    email = body.email.strip().lower() if body.email and body.email.strip() else None
+    raw_phone = body.phone.strip() if body.phone and body.phone.strip() else None
+    norm_phone = clean_phone(raw_phone) if raw_phone else None
+
+    if email:
+        if db.scalar(select(User.id).where(User.email == email, User.deleted_at.is_(None))):
+            raise conflict("An account with this email already exists. Try signing in.")
+
+    if norm_phone:
+        phone_variants = {raw_phone, norm_phone, f"+{norm_phone}"}
+        if norm_phone.startswith("254") and len(norm_phone) == 12:
+            phone_variants.add("0" + norm_phone[3:])
+            phone_variants.add(norm_phone[3:])
+        if db.scalar(select(User.id).where(User.phone.in_(phone_variants), User.deleted_at.is_(None))):
+            raise conflict("An account with this phone number already exists. Try signing in.")
+
     user = User(email=email, password_hash=hash_password(body.password), full_name=body.full_name, phone=norm_phone)
     db.add(user)
     db.flush()
     audit(db, "auth.register", user_id=user.id, resource_type="user", resource_id=user.id, request=request)
-    v_token = create_verification_token(str(user.id), user.email)
-    notify(db, "verify_email", user.email, user_id=user.id, name=user.full_name, token=v_token)
+
+    if user.email:
+        v_token = create_verification_token(str(user.id), user.email)
+        notify(db, "verify_email", user.email, user_id=user.id, name=user.full_name, token=v_token)
+    elif user.phone:
+        send_sms(
+            recipient=user.phone,
+            message=f"Welcome to Aqivo, {user.full_name}! Your store account has been created. Start building your store at aqivo.shop",
+        )
+
     db.commit()
     _set_refresh(response, user)
-    return TokenOut(access_token=create_access_token(str(user.id)))
+    return TokenOut(access_token=create_access_token(str(user.id), user.token_version))
 
 
 class GuestIn(BaseModel):
@@ -70,7 +90,7 @@ def guest(body: GuestIn, request: Request, response: Response, db: Session = Dep
     audit(db, "auth.guest", user_id=user.id, business_id=b.id, resource_type="user", resource_id=user.id, request=request)
     db.commit()
     _set_refresh(response, user)
-    return TokenOut(access_token=create_access_token(str(user.id)))
+    return TokenOut(access_token=create_access_token(str(user.id), user.token_version))
 
 
 @router.post("/login", response_model=TokenOut, dependencies=[Depends(rate_limit("login", 20, 300))])
@@ -112,7 +132,7 @@ def login(body: LoginIn, request: Request, response: Response, db: Session = Dep
     audit(db, "auth.login", user_id=user.id, request=request)
     db.commit()
     _set_refresh(response, user)
-    return TokenOut(access_token=create_access_token(str(user.id)))
+    return TokenOut(access_token=create_access_token(str(user.id), user.token_version))
 
 
 @router.post("/refresh", response_model=TokenOut, dependencies=[Depends(rate_limit("refresh", 60, 300))])
@@ -126,12 +146,37 @@ def refresh(response: Response, bz_refresh: str | None = Cookie(default=None), d
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Session expired")
     if not user or user.deleted_at or not user.is_active or claims.get("tv") != user.token_version:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Session expired")
-    return TokenOut(access_token=create_access_token(str(user.id)))
+    return TokenOut(access_token=create_access_token(str(user.id), user.token_version))
 
 
 @router.post("/logout", status_code=204)
-def logout(response: Response):
+def logout(request: Request, response: Response, db: Session = Depends(get_db)):
+    auth_h = request.headers.get("authorization", "")
+    if auth_h.lower().startswith("bearer "):
+        try:
+            claims = decode_token(auth_h.split(" ", 1)[1], "access")
+            uid = uuid.UUID(claims["sub"])
+            user = db.get(User, uid)
+            if user and not user.deleted_at:
+                user.token_version += 1
+                db.commit()
+        except Exception:
+            pass
+
+    refresh_tok = request.cookies.get(COOKIE)
+    if refresh_tok:
+        try:
+            claims = decode_token(refresh_tok, "refresh")
+            uid = uuid.UUID(claims["sub"])
+            user = db.get(User, uid)
+            if user and not user.deleted_at:
+                user.token_version += 1
+                db.commit()
+        except Exception:
+            pass
+
     response.delete_cookie(COOKIE, path="/api/v1/auth")
+    response.delete_cookie(COOKIE, path="/")
 
 
 @router.get("/me", response_model=MeOut)
@@ -268,7 +313,7 @@ def reset_password_phone(body: ResetPhoneIn, response: Response, db: Session = D
     audit(db, "auth.password_reset_phone", user_id=user.id)
     db.commit()
 
-    acc = create_access_token(str(user.id))
+    acc = create_access_token(str(user.id), user.token_version)
     _set_refresh(response, user)
     return {
         "message": "Password reset successfully",
@@ -299,7 +344,7 @@ def verify_email(body: VerifyEmailIn, response: Response, db: Session = Depends(
         db.commit()
 
     # Automatically issue access token & refresh cookie so user is logged in
-    acc = create_access_token(str(user.id))
+    acc = create_access_token(str(user.id), user.token_version)
     _set_refresh(response, user)
     return {
         "message": "Email verified successfully",
@@ -369,7 +414,8 @@ def _resolve_user_for_phone_flow(
             uid = uuid.UUID(claims["sub"])
             user = db.get(User, uid)
             if user and not user.deleted_at and user.is_active:
-                return user
+                if claims.get("tv") is not None and claims.get("tv") == user.token_version:
+                    return user
         except Exception:
             pass
     if email:

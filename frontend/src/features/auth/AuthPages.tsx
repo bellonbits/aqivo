@@ -126,8 +126,10 @@ export function RegisterPage() {
   const nav = useNavigate()
   const [params] = useSearchParams()
   const [name, setName] = useState('')
+  const [method, setMethod] = useState<'phone' | 'email'>('phone')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [showSecondary, setShowSecondary] = useState(false)
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -135,6 +137,13 @@ export function RegisterPage() {
   const [clientError, setClientError] = useState('')
 
   const { error, busy, submit } = useSubmit(async () => {
+    const cleanPhone = phone.trim()
+    const cleanEmail = email.trim()
+
+    if (!cleanPhone && !cleanEmail) {
+      setClientError('Please enter either your mobile phone number or your email address.')
+      return
+    }
     if (password.length < 8) {
       setClientError('Password must be at least 8 characters long.')
       return
@@ -144,7 +153,7 @@ export function RegisterPage() {
       return
     }
     setClientError('')
-    await register(email, password, name, phone.trim() || undefined)
+    await register(cleanEmail || undefined, password, name, cleanPhone || undefined)
     nav('/onboarding' + (params.get('ref') ? `?ref=${params.get('ref')}` : '') + (params.get('template') ? `${params.get('ref') ? '&' : '?'}template=${params.get('template')}` : '') + (params.get('industry') ? `${nav_q(params)}industry=${params.get('industry')}` : ''), { replace: true })
   })
 
@@ -157,17 +166,136 @@ export function RegisterPage() {
       footer={<>Already have an account? <Link className="font-bold text-[#5B21F5] hover:underline" to="/login">Sign in</Link></>}
     >
       <form onSubmit={submit} className="space-y-4">
-        <TextField label="Your name" autoComplete="name" required value={name} onChange={(e) => setName(e.target.value)} />
-        <TextField label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         <TextField
-          label="Mobile phone number"
-          type="tel"
-          autoComplete="tel"
-          placeholder="0712 345 678"
-          hint="For SMS order notifications & verification."
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          label="Your name"
+          autoComplete="name"
+          required
+          placeholder="e.g. Joe Mwai"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
+
+        {/* Contact Method Switcher: Phone or Email */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-ink">Sign up using</span>
+          </div>
+
+          <div className="flex rounded-xl bg-slate-100 p-1 border border-line">
+            <button
+              type="button"
+              onClick={() => { setMethod('phone'); setClientError('') }}
+              className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                method === 'phone'
+                  ? 'bg-white text-ink shadow-sm'
+                  : 'text-muted hover:text-ink'
+              }`}
+            >
+              <Phone className="size-3.5" />
+              <span>Phone number</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMethod('email'); setClientError('') }}
+              className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                method === 'email'
+                  ? 'bg-white text-ink shadow-sm'
+                  : 'text-muted hover:text-ink'
+              }`}
+            >
+              <Mail className="size-3.5" />
+              <span>Email address</span>
+            </button>
+          </div>
+
+          {method === 'phone' ? (
+            <div className="space-y-2.5 pt-1">
+              <TextField
+                label="Mobile phone number"
+                type="tel"
+                autoComplete="tel"
+                required
+                placeholder="0712 345 678"
+                hint="Used to sign in, receive instant M-Pesa order alerts & SMS notifications."
+                value={phone}
+                onChange={(e) => { setPhone(e.target.value); setClientError('') }}
+              />
+
+              {!showSecondary && !email ? (
+                <button
+                  type="button"
+                  onClick={() => setShowSecondary(true)}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#5B21F5] hover:underline"
+                >
+                  + Add email address (optional)
+                </button>
+              ) : (
+                <div className="space-y-1.5 rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-ink">Email address <span className="font-normal text-muted">(optional)</span></label>
+                    <button
+                      type="button"
+                      onClick={() => { setShowSecondary(false); setEmail('') }}
+                      className="text-[11px] font-medium text-muted hover:text-ink"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <Input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="e.g. you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2.5 pt-1">
+              <TextField
+                label="Email address"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="e.g. you@example.com"
+                hint="Used to sign in and receive order updates."
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setClientError('') }}
+              />
+
+              {!showSecondary && !phone ? (
+                <button
+                  type="button"
+                  onClick={() => setShowSecondary(true)}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#5B21F5] hover:underline"
+                >
+                  + Add mobile phone number (optional)
+                </button>
+              ) : (
+                <div className="space-y-1.5 rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-ink">Mobile phone number <span className="font-normal text-muted">(optional)</span></label>
+                    <button
+                      type="button"
+                      onClick={() => { setShowSecondary(false); setPhone('') }}
+                      className="text-[11px] font-medium text-muted hover:text-ink"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <Input
+                    type="tel"
+                    autoComplete="tel"
+                    placeholder="0712 345 678"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="space-y-1.5">
           <label className="text-sm font-semibold text-ink">Password</label>

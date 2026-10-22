@@ -124,19 +124,24 @@ function ProfileCard() {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-sm font-semibold text-ink">Email address</label>
-              {u.email_verified ? (
-                <Badge tone="ok" className="text-[10px]">Verified</Badge>
+              {u.email ? (
+                u.email_verified ? (
+                  <Badge tone="ok" className="text-[10px]">Verified</Badge>
+                ) : (
+                  <Badge tone="warn" className="text-[10px]">Unverified</Badge>
+                )
               ) : (
-                <Badge tone="warn" className="text-[10px]">Unverified</Badge>
+                <span className="text-[11px] text-muted font-medium">None added</span>
               )}
             </div>
             <Input
               type="email"
               disabled
-              value={u.email}
+              value={u.email || ''}
+              placeholder="No email registered (phone account)"
               className="bg-paper/60 text-muted cursor-not-allowed"
             />
-            <p className="text-xs text-muted">Primary account email. To change, contact support.</p>
+            <p className="text-xs text-muted">Primary account email. To change or add, contact support.</p>
           </div>
 
           <div className="space-y-1.5">

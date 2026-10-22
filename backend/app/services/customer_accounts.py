@@ -112,18 +112,33 @@ def verify_code(db: Session, b: Business, raw: str, code: str, name: str | None 
 
 def issue_session(cust: Customer) -> str:
     now = datetime.now(timezone.utc)
-    return jwt.encode({"typ": "cust", "sub": str(cust.id), "bid": str(cust.business_id), "iat": now, "exp": now + timedelta(days=SESSION_DAYS)}, get_settings().secret_key, algorithm="HS256")
+    s = get_settings()
+    tv = getattr(cust, "token_version", 0)
+    return jwt.encode(
+        {"typ": "cust", "sub": str(cust.id), "bid": str(cust.business_id), "tv": tv, "iat": now, "exp": now + timedelta(days=SESSION_DAYS)},
+        s.customer_jwt_secret,
+        algorithm="HS256"
+    )
 
 
 def read_session(db: Session, b: Business, token: str | None) -> Customer | None:
     if not token:
         return None
+    s = get_settings()
     try:
-        claims = jwt.decode(token, get_settings().secret_key, algorithms=["HS256"])
+        claims = jwt.decode(token, s.customer_jwt_secret, algorithms=["HS256"])
     except jwt.PyJWTError:
         return None
     if claims.get("typ") != "cust" or claims.get("bid") != str(b.id):
         return None
     import uuid
-    c = db.get(Customer, uuid.UUID(claims["sub"]))
-    return c if c and c.business_id == b.id and not c.deleted_at else None
+    try:
+        cid = uuid.UUID(claims["sub"])
+    except (ValueError, KeyError):
+        return None
+    c = db.get(Customer, cid)
+    if not c or c.business_id != b.id or c.deleted_at:
+        return None
+    if claims.get("tv") is None or claims.get("tv") != getattr(c, "token_version", 0):
+        return None
+    return c

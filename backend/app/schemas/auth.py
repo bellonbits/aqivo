@@ -1,16 +1,47 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from app.schemas.common import ORM, Name
 
 
 class RegisterIn(BaseModel):
-    email: EmailStr
+    email: str | None = Field(default=None, max_length=255)
+    phone: str | None = Field(default=None, max_length=32)
+    identifier: str | None = Field(default=None, max_length=255)
     password: str = Field(min_length=8, max_length=128)
     full_name: Name
-    phone: str | None = Field(default=None, max_length=32)
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def clean_email(cls, v):
+        if not v or not str(v).strip():
+            return None
+        return str(v).strip().lower()
+
+    @field_validator("phone", mode="before")
+    @classmethod
+    def clean_phone_val(cls, v):
+        if not v or not str(v).strip():
+            return None
+        return str(v).strip()
+
+    @model_validator(mode="after")
+    def validate_contact(self):
+        if self.identifier and self.identifier.strip():
+            raw = self.identifier.strip()
+            if "@" in raw:
+                if not self.email:
+                    self.email = raw.lower()
+            else:
+                if not self.phone:
+                    self.phone = raw
+        if not self.email and not self.phone:
+            raise ValueError("Please provide either an email address or a phone number.")
+        if self.email and ("@" not in self.email or "." not in self.email):
+            raise ValueError("Invalid email address format.")
+        return self
 
 
 class LoginIn(BaseModel):
@@ -32,11 +63,11 @@ class MembershipOut(ORM):
 
 class UserOut(ORM):
     id: uuid.UUID
-    email: EmailStr
+    email: str | None = None
     full_name: str
-    phone: str | None
-    platform_role: str | None
-    locale: str
+    phone: str | None = None
+    platform_role: str | None = None
+    locale: str = "en"
     email_verified: bool = False
     phone_verified: bool = False
 

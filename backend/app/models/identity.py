@@ -10,10 +10,10 @@ from app.models.base import Base, IdMixin, SoftDeleteMixin, TimestampMixin, Tena
 class User(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "users"
 
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    email: Mapped[str | None] = mapped_column(String(255), unique=True, index=True, nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str] = mapped_column(String(160))
-    phone: Mapped[str | None] = mapped_column(String(32))
+    phone: Mapped[str | None] = mapped_column(String(32), index=True, nullable=True)
     platform_role: Mapped[str | None] = mapped_column(String(32))  # SUPER_ADMIN | ADMIN | None
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     email_verified: Mapped[bool] = mapped_column(Boolean, default=False)

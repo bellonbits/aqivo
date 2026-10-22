@@ -183,7 +183,7 @@ function EmailVerificationPromptBanner() {
 
   // 2. Auto-refresh auth status on window focus/visibility if email is not yet verified
   useEffect(() => {
-    if (!me?.user || me.user.email_verified) return
+    if (!me?.user || !me.user.email || me.user.email_verified) return
 
     const handleFocus = () => {
       void reload()
@@ -198,7 +198,7 @@ function EmailVerificationPromptBanner() {
     }
   }, [me?.user, reload])
 
-  if (!me?.user || me.user.email_verified || dismissed) return null
+  if (!me?.user || !me.user.email || me.user.email_verified || dismissed) return null
 
   const handleResend = async () => {
     setSending(true)

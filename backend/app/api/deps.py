@@ -62,6 +62,8 @@ def get_auth(request: Request, authorization: str | None = Header(default=None),
     user = db.get(User, user_id)
     if not user or user.deleted_at or not user.is_active:
         raise _unauthorized("Account disabled")
+    if claims.get("tv") is None or claims.get("tv") != user.token_version:
+        raise _unauthorized("Token has been revoked or session expired")
     request.state.user_id = str(user.id)
     return AuthState(user=user, claims=claims)
 

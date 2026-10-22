@@ -483,7 +483,7 @@ def impersonate(bid: uuid.UUID, request: Request, admin: User = Depends(require_
         raise bad_request("This business has no owner account")
     audit(db, "admin.impersonation_started", user_id=owner.id, impersonator_id=admin.id, business_id=b.id, resource_type="business", resource_id=b.id, request=request)
     db.commit()
-    token = create_access_token(str(owner.id), extra={"imp": {"by": str(admin.id), "business_id": str(b.id)}}, minutes=60)
+    token = create_access_token(str(owner.id), token_version=owner.token_version, extra={"imp": {"by": str(admin.id), "business_id": str(b.id)}}, minutes=60)
     return {"access_token": token, "business_name": b.name, "expires_in_minutes": 60}
 
 

@@ -243,10 +243,12 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
                     from app.core.security import decode_token
                     claims = decode_token(token, "access")
                     uid = uuid.UUID(claims["sub"])
-                    from app.models import BusinessMember
-                    mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
-                    if mem:
-                        business = db.scalar(select(Business).where(Business.id == mem.business_id))
+                    u = db.get(User, uid)
+                    if u and not u.deleted_at and u.is_active and claims.get("tv") == u.token_version:
+                        from app.models import BusinessMember
+                        mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
+                        if mem:
+                            business = db.scalar(select(Business).where(Business.id == mem.business_id))
                 except Exception:
                     pass
 
@@ -257,10 +259,12 @@ def ecomm_template_preview_page(key: str, request: Request, page_name: str = "in
                     from app.core.security import decode_token
                     claims = decode_token(refresh_tok, "refresh")
                     uid = uuid.UUID(claims["sub"])
-                    from app.models import BusinessMember
-                    mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
-                    if mem:
-                        business = db.scalar(select(Business).where(Business.id == mem.business_id))
+                    u = db.get(User, uid)
+                    if u and not u.deleted_at and u.is_active and claims.get("tv") == u.token_version:
+                        from app.models import BusinessMember
+                        mem = db.scalar(select(BusinessMember).where(BusinessMember.user_id == uid).order_by(BusinessMember.created_at.desc()))
+                        if mem:
+                            business = db.scalar(select(Business).where(Business.id == mem.business_id))
                 except Exception:
                     pass
 

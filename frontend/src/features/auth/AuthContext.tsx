@@ -8,7 +8,7 @@ interface AuthState {
   me: Me | null
   loading: boolean
   login: (identifier: string, password: string) => Promise<void>
-  register: (email: string, password: string, fullName: string, phone?: string) => Promise<void>
+  register: (email: string | undefined, password: string, fullName: string, phone?: string) => Promise<void>
   guest: () => Promise<void>
   logout: () => Promise<void>
   reload: () => Promise<Me | null>
@@ -64,7 +64,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await reload()
     },
     register: async (email, password, fullName, phone) => {
-      const r = await api.post<{ access_token: string }>('/auth/register', { email, password, full_name: fullName, phone: phone || null })
+      const payload: Record<string, unknown> = {
+        password,
+        full_name: fullName,
+      }
+      const rawEmail = (email || '').trim()
+      const rawPhone = (phone || '').trim()
+
+      if (rawEmail) {
+        if (rawEmail.includes('@')) {
+          payload.email = rawEmail
+        } else if (!rawPhone) {
+          payload.phone = rawEmail
+        }
+      }
+      if (rawPhone) {
+        payload.phone = rawPhone
+      }
+
+      const r = await api.post<{ access_token: string }>('/auth/register', payload)
       setAccessToken(r.access_token)
       qc.clear()
       await reload()
@@ -83,7 +101,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return r
     },
     resendEmailVerification: async () => {
-      await api.post('/auth/resend-verification', { email: me?.user.email })
+      if (me?.user?.email) {
+        await api.post('/auth/resend-verification', { email: me.user.email })
+      }
     },
     guest: async () => {
       const r = await api.post<{ access_token: string }>('/auth/guest', { industry: 'retail' })

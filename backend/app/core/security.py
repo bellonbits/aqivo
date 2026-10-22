@@ -26,9 +26,9 @@ def _encode(payload: dict[str, Any], minutes: int) -> str:
     return jwt.encode(payload, get_settings().secret_key, algorithm="HS256")
 
 
-def create_access_token(user_id: str, extra: dict[str, Any] | None = None, minutes: int | None = None) -> str:
+def create_access_token(user_id: str, token_version: int = 0, extra: dict[str, Any] | None = None, minutes: int | None = None) -> str:
     s = get_settings()
-    return _encode({"sub": user_id, "typ": "access", **(extra or {})}, minutes or s.access_token_minutes)
+    return _encode({"sub": user_id, "typ": "access", "tv": token_version, **(extra or {})}, minutes or s.access_token_minutes)
 
 
 def create_refresh_token(user_id: str, token_version: int) -> str:

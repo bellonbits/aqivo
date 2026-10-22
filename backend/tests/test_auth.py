@@ -18,6 +18,50 @@ def test_duplicate_email_and_weak_password(client):
     assert client.post("/api/v1/auth/register", json={**body, "email": "b@example.com", "password": "short"}).status_code == 422
 
 
+def test_register_with_phone_only_and_login(client):
+    # User signs up with phone number and no email
+    r = client.post(
+        "/api/v1/auth/register",
+        json={"phone": "0712345678", "password": "correct-horse-1", "full_name": "Phone User"}
+    )
+    assert r.status_code == 201
+    token = r.json()["access_token"]
+    assert token
+
+    # Check /me profile reflects phone and null email
+    h = {"Authorization": f"Bearer {token}"}
+    me = client.get("/api/v1/auth/me", headers=h).json()
+    assert me["user"]["phone"] == "254712345678"
+    assert me["user"]["email"] is None
+    assert me["user"]["full_name"] == "Phone User"
+
+    # User can log in with their phone number in local format or international format
+    r2 = client.post("/api/v1/auth/login", json={"identifier": "0712345678", "password": "correct-horse-1"})
+    assert r2.status_code == 200
+    r3 = client.post("/api/v1/auth/login", json={"phone": "254712345678", "password": "correct-horse-1"})
+    assert r3.status_code == 200
+
+
+def test_duplicate_phone_signup_conflict(client):
+    body = {"phone": "0722000111", "password": "correct-horse-1", "full_name": "User One"}
+    assert client.post("/api/v1/auth/register", json=body).status_code == 201
+    # Duplicate phone in national format
+    assert client.post("/api/v1/auth/register", json={"phone": "0722 000 111", "password": "another-password", "full_name": "User Two"}).status_code == 409
+    # Duplicate phone in international format
+    assert client.post("/api/v1/auth/register", json={"phone": "254722000111", "password": "another-password", "full_name": "User Three"}).status_code == 409
+
+
+def test_register_without_email_or_phone_fails(client):
+    # Both missing
+    r = client.post("/api/v1/auth/register", json={"password": "correct-horse-1", "full_name": "No Contact"})
+    assert r.status_code == 422
+
+    # Both empty strings
+    r2 = client.post("/api/v1/auth/register", json={"email": "", "phone": "", "password": "correct-horse-1", "full_name": "Empty Contact"})
+    assert r2.status_code == 422
+
+
+
 def test_wrong_password_and_lockout(client, owner):
     for _ in range(5):
         assert client.post("/api/v1/auth/login", json={"email": owner.email, "password": "nope-nope-nope"}).status_code == 401
@@ -39,6 +83,8 @@ def test_refresh_cookie_flow_and_password_change_revokes(client, owner):
     assert r.status_code == 204
     old = client.cookies.get("bz_refresh")
     assert old  # cookie reissued with new token version
+    # The old access token in owner.h is now revoked immediately
+    assert client.get("/api/v1/businesses/me", headers=owner.h).status_code == 401
     assert client.post("/api/v1/auth/login", json={"email": owner.email, "password": "another-good-pass-2"}).status_code == 200
 
 
@@ -163,5 +209,75 @@ def test_update_profile(client, owner, db):
     assert r.status_code == 200
     assert r.json()["phone"] == "254712345678"
     assert r.json()["phone_verified"] is False
+
+
+def test_bearer_access_token_compromise_and_token_version_invalidation(client, db):
+    # Register and login to obtain an access token
+    r = client.post("/api/v1/auth/register", json={"email": "victim@example.com", "password": "correct-horse-1", "full_name": "Victim"})
+    assert r.status_code == 201
+    leaked_token = r.json()["access_token"]
+    h = {"Authorization": f"Bearer {leaked_token}"}
+
+    # Token works initially
+    assert client.get("/api/v1/auth/me", headers=h).status_code == 200
+
+    # Invalidate sessions by incrementing token_version in db (incident response)
+    from app.models import User
+    u = db.query(User).filter(User.email == "victim@example.com").first()
+    u.token_version += 1
+    db.commit()
+
+    # The compromised/leaked token is now immediately rejected
+    assert client.get("/api/v1/auth/me", headers=h).status_code == 401
+
+
+def test_logout_revokes_bearer_access_token(client):
+    # Login to obtain token
+    r = client.post("/api/v1/auth/register", json={"email": "logoutuser@example.com", "password": "correct-horse-1", "full_name": "Logout User"})
+    token = r.json()["access_token"]
+    h = {"Authorization": f"Bearer {token}"}
+    assert client.get("/api/v1/auth/me", headers=h).status_code == 200
+
+    # Call logout with the bearer token
+    logout_res = client.post("/api/v1/auth/logout", headers=h)
+    assert logout_res.status_code == 204
+
+    # Stolen/leaked bearer token cannot be reused after logout
+    assert client.get("/api/v1/auth/me", headers=h).status_code == 401
+
+
+def test_customer_cookie_invalidation_and_bypass_prevention(client, owner, db):
+    # Setup customer and business
+    H = {"X-Bizora": "1"}
+    req = client.post(f"/api/v1/public/{owner.slug}/account/otp/request", json={"identifier": "0755112233"}, headers=H).json()
+    code = req["dev_code"]
+    verify_res = client.post(f"/api/v1/public/{owner.slug}/account/otp/verify", json={"identifier": "0755112233", "code": code, "name": "Store Customer"}, headers=H)
+    assert verify_res.status_code == 200
+
+    # Orders endpoint accessible with valid customer session
+    assert client.get(f"/api/v1/public/{owner.slug}/account/orders").status_code == 200
+
+    # Clear cookies: Attempting to access orders using only phone parameter without session cookie is BLOCKED
+    client.cookies.clear()
+    assert client.get(f"/api/v1/public/{owner.slug}/account/orders?phone=0755112233").status_code == 401
+    assert client.get(f"/api/v1/public/{owner.slug}/account/orders", headers={"X-Customer-Phone": "0755112233"}).status_code == 401
+
+    # Re-login with OTP
+    req2 = client.post(f"/api/v1/public/{owner.slug}/account/otp/request", json={"identifier": "0755112233"}, headers=H).json()
+    code2 = req2["dev_code"]
+    verify_res2 = client.post(f"/api/v1/public/{owner.slug}/account/otp/verify", json={"identifier": "0755112233", "code": code2, "name": "Store Customer"}, headers=H)
+    assert verify_res2.status_code == 200
+
+    # Customer logout revokes session
+    assert client.post(f"/api/v1/public/{owner.slug}/account/logout", headers=H).status_code == 200
+    # Accessing with revoked cookie returns 401
+    assert client.get(f"/api/v1/public/{owner.slug}/account/orders").status_code == 401
+
+    # Attempting to bypass OTP via /identify for an existing customer account is rejected
+    ident = client.post(f"/api/v1/public/{owner.slug}/account/identify", json={"name": "Attacker", "phone": "0755112233", "location": "Nairobi"})
+    assert ident.status_code == 200
+    assert ident.json().get("requires_otp") is True
+    assert "token" not in ident.json()
+
 
 

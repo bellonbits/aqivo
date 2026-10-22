@@ -22,6 +22,7 @@ class Customer(Base, IdMixin, TimestampMixin, SoftDeleteMixin, TenantMixin):
     lead_id: Mapped[uuid.UUID | None] = fk("leads.id", nullable=True, ondelete="SET NULL")
     acquisition_source: Mapped[str | None] = mapped_column(String(48))  # where they first came from (instagram, google, qr…)
     acquisition_campaign: Mapped[str | None] = mapped_column(String(64))
+    token_version: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
 
 class CustomerNote(Base, IdMixin, TimestampMixin, TenantMixin):

@@ -180,7 +180,7 @@ export default function AdminLayout() {
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-bold text-slate-900">{me.user.full_name || 'Admin User'}</p>
-              <p className="truncate text-[11px] text-slate-500">{me.user.email}</p>
+              <p className="truncate text-[11px] text-slate-500">{me.user.email || me.user.phone || 'Admin'}</p>
               <div className="mt-1 flex items-center gap-1.5">
                 <span className="inline-block size-1.5 rounded-full bg-violet-600" />
                 <span className="text-[10px] font-extrabold uppercase tracking-wider text-violet-700">

@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     db_pool_recycle: int = 1800
     db_pool_pre_ping: bool = True
     secret_key: str = "dev-only-secret-change-me-dev-only-secret"
+    customer_session_secret: str = ""
     access_token_minutes: int = 30
     refresh_token_days: int = 14
     base_domain: str = "aqivo.shop"
@@ -70,6 +71,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.environment == "production"
+
+    @property
+    def customer_jwt_secret(self) -> str:
+        return self.customer_session_secret or self.secret_key
 
     @property
     def ai_configured(self) -> bool:
