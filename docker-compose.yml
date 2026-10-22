@@ -46,6 +46,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    depends_on:
       - backend
 
   # Optional build container to compile frontend assets on host without needing local node/npm:
