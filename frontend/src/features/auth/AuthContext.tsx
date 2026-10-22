@@ -8,7 +8,8 @@ interface AuthState {
   me: Me | null
   loading: boolean
   login: (identifier: string, password: string) => Promise<void>
-  register: (email: string | undefined, password: string, fullName: string, phone?: string) => Promise<void>
+  register: (email: string | undefined, password: string, fullName: string, phone?: string, code?: string) => Promise<void>
+  requestSignupCode: (identifier: string, channel: 'phone' | 'email', fullName?: string) => Promise<{ ok: boolean; message: string; identifier: string; channel: string; dev_code?: string }>
   guest: () => Promise<void>
   logout: () => Promise<void>
   reload: () => Promise<Me | null>
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       qc.clear()
       await reload()
     },
-    register: async (email, password, fullName, phone) => {
+    register: async (email, password, fullName, phone, code) => {
       const payload: Record<string, unknown> = {
         password,
         full_name: fullName,
@@ -81,11 +82,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (rawPhone) {
         payload.phone = rawPhone
       }
+      if (code && code.trim()) {
+        payload.code = code.trim()
+      }
 
       const r = await api.post<{ access_token: string }>('/auth/register', payload)
       setAccessToken(r.access_token)
       qc.clear()
       await reload()
+    },
+    requestSignupCode: async (identifier, channel, fullName) => {
+      return await api.post<{ ok: boolean; message: string; identifier: string; channel: string; dev_code?: string }>(
+        '/auth/signup/request-code',
+        { identifier, channel, full_name: fullName }
+      )
     },
     updateProfile: async (data) => {
       const u = await api.patch<User>('/auth/me', data)

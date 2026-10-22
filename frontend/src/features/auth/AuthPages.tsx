@@ -122,9 +122,11 @@ export function LoginPage() {
 const nav_q = (p: URLSearchParams) => (p.get('ref') || p.get('template') ? '&' : '?')
 
 export function RegisterPage() {
-  const { register } = useAuth()
+  const { register, requestSignupCode } = useAuth()
   const nav = useNavigate()
   const [params] = useSearchParams()
+
+  const [step, setStep] = useState<'details' | 'verify'>('details')
   const [name, setName] = useState('')
   const [method, setMethod] = useState<'phone' | 'email'>('phone')
   const [email, setEmail] = useState('')
@@ -136,221 +138,335 @@ export function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [clientError, setClientError] = useState('')
 
+  // Verification step state
+  const [code, setCode] = useState('')
+  const [sentIdentifier, setSentIdentifier] = useState('')
+  const [sentChannel, setSentChannel] = useState<'SMS' | 'EMAIL'>('SMS')
+  const [devCode, setDevCode] = useState<string | null>(null)
+  const [countdown, setCountdown] = useState(0)
+
+  useEffect(() => {
+    if (countdown <= 0) return
+    const id = setInterval(() => setCountdown((c) => c - 1), 1000)
+    return () => clearInterval(id)
+  }, [countdown])
+
   const { error, busy, submit } = useSubmit(async () => {
     const cleanPhone = phone.trim()
     const cleanEmail = email.trim()
+    const targetIdent = method === 'phone' ? cleanPhone : cleanEmail
 
-    if (!cleanPhone && !cleanEmail) {
-      setClientError('Please enter either your mobile phone number or your email address.')
-      return
+    if (step === 'details') {
+      if (!name.trim()) {
+        setClientError('Please enter your full name.')
+        return
+      }
+      if (!targetIdent) {
+        setClientError(method === 'phone' ? 'Please enter your mobile phone number.' : 'Please enter your email address.')
+        return
+      }
+      if (password.length < 8) {
+        setClientError('Password must be at least 8 characters long.')
+        return
+      }
+      if (password !== confirmPassword) {
+        setClientError('Passwords do not match.')
+        return
+      }
+      setClientError('')
+      const res = await requestSignupCode(targetIdent, method, name.trim())
+      setSentIdentifier(res.identifier)
+      setSentChannel(res.channel as 'SMS' | 'EMAIL')
+      if (res.dev_code) setDevCode(res.dev_code)
+      setCountdown(60)
+      setStep('verify')
+    } else {
+      const cleanCode = code.trim()
+      if (!cleanCode || cleanCode.length < 4) {
+        setClientError('Please enter the 6-digit verification code.')
+        return
+      }
+      setClientError('')
+      await register(cleanEmail || undefined, password, name.trim(), cleanPhone || undefined, cleanCode)
+      nav('/onboarding' + (params.get('ref') ? `?ref=${params.get('ref')}` : '') + (params.get('template') ? `${params.get('ref') ? '&' : '?'}template=${params.get('template')}` : '') + (params.get('industry') ? `${nav_q(params)}industry=${params.get('industry')}` : ''), { replace: true })
     }
-    if (password.length < 8) {
-      setClientError('Password must be at least 8 characters long.')
-      return
-    }
-    if (password !== confirmPassword) {
-      setClientError('Passwords do not match.')
-      return
-    }
-    setClientError('')
-    await register(cleanEmail || undefined, password, name, cleanPhone || undefined)
-    nav('/onboarding' + (params.get('ref') ? `?ref=${params.get('ref')}` : '') + (params.get('template') ? `${params.get('ref') ? '&' : '?'}template=${params.get('template')}` : '') + (params.get('industry') ? `${nav_q(params)}industry=${params.get('industry')}` : ''), { replace: true })
   })
 
   const displayError = clientError || error
 
   return (
     <AuthShell
-      title="Create your Aqivo store"
-      sub="Launch a beautiful online store for your business in minutes."
+      title={step === 'details' ? "Create your Aqivo store" : "Verify your account"}
+      sub={step === 'details' ? "Launch a beautiful online store for your business in minutes." : `We sent a 6-digit code to ${sentIdentifier}. Enter it below.`}
       footer={<>Already have an account? <Link className="font-bold text-[#5B21F5] hover:underline" to="/login">Sign in</Link></>}
     >
       <form onSubmit={submit} className="space-y-4">
-        <TextField
-          label="Your name"
-          autoComplete="name"
-          required
-          placeholder="e.g. Joe Mwai"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        {step === 'details' ? (
+          <>
+            <TextField
+              label="Your name"
+              autoComplete="name"
+              required
+              placeholder="e.g. Joe Mwai"
+              value={name}
+              onChange={(e) => { setName(e.target.value); setClientError('') }}
+            />
 
-        {/* Contact Method Switcher: Phone or Email */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-ink">Sign up using</span>
-          </div>
+            {/* Contact Method Switcher: Phone or Email */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-ink">Sign up using</span>
+              </div>
 
-          <div className="flex rounded-xl bg-slate-100 p-1 border border-line">
-            <button
-              type="button"
-              onClick={() => { setMethod('phone'); setClientError('') }}
-              className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-                method === 'phone'
-                  ? 'bg-white text-ink shadow-sm'
-                  : 'text-muted hover:text-ink'
-              }`}
-            >
-              <Phone className="size-3.5" />
-              <span>Phone number</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => { setMethod('email'); setClientError('') }}
-              className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
-                method === 'email'
-                  ? 'bg-white text-ink shadow-sm'
-                  : 'text-muted hover:text-ink'
-              }`}
-            >
-              <Mail className="size-3.5" />
-              <span>Email address</span>
-            </button>
-          </div>
-
-          {method === 'phone' ? (
-            <div className="space-y-2.5 pt-1">
-              <TextField
-                label="Mobile phone number"
-                type="tel"
-                autoComplete="tel"
-                required
-                placeholder="0712 345 678"
-                hint="Used to sign in, receive instant M-Pesa order alerts & SMS notifications."
-                value={phone}
-                onChange={(e) => { setPhone(e.target.value); setClientError('') }}
-              />
-
-              {!showSecondary && !email ? (
+              <div className="flex rounded-xl bg-slate-100 p-1 border border-line">
                 <button
                   type="button"
-                  onClick={() => setShowSecondary(true)}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#5B21F5] hover:underline"
+                  onClick={() => { setMethod('phone'); setClientError('') }}
+                  className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                    method === 'phone'
+                      ? 'bg-white text-ink shadow-sm'
+                      : 'text-muted hover:text-ink'
+                  }`}
                 >
-                  + Add email address (optional)
+                  <Phone className="size-3.5" />
+                  <span>Phone number</span>
                 </button>
-              ) : (
-                <div className="space-y-1.5 rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-ink">Email address <span className="font-normal text-muted">(optional)</span></label>
-                    <button
-                      type="button"
-                      onClick={() => { setShowSecondary(false); setEmail('') }}
-                      className="text-[11px] font-medium text-muted hover:text-ink"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                  <Input
-                    type="email"
-                    autoComplete="email"
-                    placeholder="e.g. you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2.5 pt-1">
-              <TextField
-                label="Email address"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="e.g. you@example.com"
-                hint="Used to sign in and receive order updates."
-                value={email}
-                onChange={(e) => { setEmail(e.target.value); setClientError('') }}
-              />
-
-              {!showSecondary && !phone ? (
                 <button
                   type="button"
-                  onClick={() => setShowSecondary(true)}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#5B21F5] hover:underline"
+                  onClick={() => { setMethod('email'); setClientError('') }}
+                  className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+                    method === 'email'
+                      ? 'bg-white text-ink shadow-sm'
+                      : 'text-muted hover:text-ink'
+                  }`}
                 >
-                  + Add mobile phone number (optional)
+                  <Mail className="size-3.5" />
+                  <span>Email address</span>
                 </button>
-              ) : (
-                <div className="space-y-1.5 rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-semibold text-ink">Mobile phone number <span className="font-normal text-muted">(optional)</span></label>
-                    <button
-                      type="button"
-                      onClick={() => { setShowSecondary(false); setPhone('') }}
-                      className="text-[11px] font-medium text-muted hover:text-ink"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                  <Input
+              </div>
+
+              {method === 'phone' ? (
+                <div className="space-y-2.5 pt-1">
+                  <TextField
+                    label="Mobile phone number"
                     type="tel"
                     autoComplete="tel"
+                    required
                     placeholder="0712 345 678"
+                    hint="A verification code will be sent via SMS to verify this number."
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => { setPhone(e.target.value); setClientError('') }}
                   />
+
+                  {!showSecondary && !email ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowSecondary(true)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#5B21F5] hover:underline"
+                    >
+                      + Add email address (optional)
+                    </button>
+                  ) : (
+                    <div className="space-y-1.5 rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-ink">Email address <span className="font-normal text-muted">(optional)</span></label>
+                        <button
+                          type="button"
+                          onClick={() => { setShowSecondary(false); setEmail('') }}
+                          className="text-[11px] font-medium text-muted hover:text-ink"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <Input
+                        type="email"
+                        autoComplete="email"
+                        placeholder="e.g. you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2.5 pt-1">
+                  <TextField
+                    label="Email address"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="e.g. you@example.com"
+                    hint="A verification code will be sent to your email to verify your address."
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setClientError('') }}
+                  />
+
+                  {!showSecondary && !phone ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowSecondary(true)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#5B21F5] hover:underline"
+                    >
+                      + Add mobile phone number (optional)
+                    </button>
+                  ) : (
+                    <div className="space-y-1.5 rounded-xl border border-dashed border-slate-200 bg-slate-50/70 p-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-ink">Mobile phone number <span className="font-normal text-muted">(optional)</span></label>
+                        <button
+                          type="button"
+                          onClick={() => { setShowSecondary(false); setPhone('') }}
+                          className="text-[11px] font-medium text-muted hover:text-ink"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <Input
+                        type="tel"
+                        autoComplete="tel"
+                        placeholder="0712 345 678"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        <div className="space-y-1.5">
-          <label className="text-sm font-semibold text-ink">Password</label>
-          <div className="relative">
-            <Input
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              minLength={8}
-              required
-              placeholder="At least 8 characters"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setClientError('') }}
-              className="pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
-              tabIndex={-1}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            </button>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-ink">Password</label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  placeholder="At least 8 characters"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setClientError('') }}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+                  tabIndex={-1}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-muted">At least 8 characters.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-ink">Confirm Password</label>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={(e) => { setConfirmPassword(e.target.value); setClientError('') }}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
+                  tabIndex={-1}
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </div>
+
+            {displayError && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">{displayError}</p>}
+            <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy}>
+              Continue to Verification
+            </Button>
+            <p className="text-xs text-muted">We will send a 6-digit code to verify your {method === 'phone' ? 'phone number' : 'email'} before creating your account.</p>
+          </>
+        ) : (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#5B21F5]">
+                <ShieldCheck className="size-5 shrink-0" />
+                <span>Verify your {sentChannel === 'SMS' ? 'phone number' : 'email address'}</span>
+              </div>
+              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
+                We sent a 6-digit verification code to <strong className="text-ink">{sentIdentifier}</strong> via {sentChannel === 'SMS' ? 'SMS' : 'email'}. Enter the code below to verify your identity and activate your store.
+              </p>
+            </div>
+
+            {devCode && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2 text-xs font-medium text-amber-800 flex items-center justify-between">
+                <span>Demo Code: <strong className="font-mono text-sm tracking-wider">{devCode}</strong></span>
+                <button
+                  type="button"
+                  onClick={() => setCode(devCode)}
+                  className="text-xs font-bold text-amber-900 underline hover:no-underline"
+                >
+                  Use Code
+                </button>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-ink">Enter 6-digit code</label>
+              <Input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                required
+                autoFocus
+                placeholder="123456"
+                value={code}
+                onChange={(e) => { setCode(e.target.value.replace(/\D/g, '')); setClientError('') }}
+                className="text-center font-mono text-2xl tracking-[0.35em] font-bold py-3"
+              />
+            </div>
+
+            {displayError && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">{displayError}</p>}
+
+            <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy}>
+              Verify & Create Store
+            </Button>
+
+            <div className="flex items-center justify-between pt-1 text-xs">
+              <button
+                type="button"
+                disabled={countdown > 0 || busy}
+                onClick={async () => {
+                  setClientError('')
+                  try {
+                    const res = await requestSignupCode(sentIdentifier, method, name.trim())
+                    if (res.dev_code) setDevCode(res.dev_code)
+                    setCountdown(60)
+                  } catch (err) {
+                    setClientError(err instanceof Error ? err.message : 'Failed to resend code')
+                  }
+                }}
+                className={`font-semibold ${countdown > 0 ? 'text-muted cursor-not-allowed' : 'text-[#5B21F5] hover:underline'}`}
+              >
+                {countdown > 0 ? `Resend code in ${countdown}s` : 'Resend code'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setStep('details'); setCode(''); setClientError('') }}
+                className="font-medium text-muted hover:text-ink hover:underline"
+              >
+                Change {method === 'phone' ? 'phone' : 'email'}
+              </button>
+            </div>
           </div>
-          <p className="text-xs text-muted">At least 8 characters.</p>
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-sm font-semibold text-ink">Confirm Password</label>
-          <div className="relative">
-            <Input
-              type={showConfirmPassword ? 'text' : 'password'}
-              autoComplete="new-password"
-              minLength={8}
-              required
-              placeholder="Re-enter your password"
-              value={confirmPassword}
-              onChange={(e) => { setConfirmPassword(e.target.value); setClientError('') }}
-              className="pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-1"
-              tabIndex={-1}
-              aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-            >
-              {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-            </button>
-          </div>
-        </div>
-
-        {displayError && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-bad" role="alert">{displayError}</p>}
-        <Button type="submit" size="lg" className="w-full bg-[#5B21F5] hover:bg-[#4a18d1] text-white" loading={busy}>Create your store</Button>
-        <p className="text-xs text-muted">By continuing you agree to our terms and privacy policy.</p>
+        )}
       </form>
     </AuthShell>
   )

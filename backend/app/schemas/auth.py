@@ -6,12 +6,19 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, model_validato
 from app.schemas.common import ORM, Name
 
 
+class SignupRequestCodeIn(BaseModel):
+    identifier: str = Field(min_length=3, max_length=255)
+    channel: str = Field(default="phone", max_length=16)  # phone | email
+    full_name: str | None = Field(default=None, max_length=160)
+
+
 class RegisterIn(BaseModel):
     email: str | None = Field(default=None, max_length=255)
     phone: str | None = Field(default=None, max_length=32)
     identifier: str | None = Field(default=None, max_length=255)
     password: str = Field(min_length=8, max_length=128)
     full_name: Name
+    code: str | None = Field(default=None, max_length=16)
 
     @field_validator("email", mode="before")
     @classmethod
@@ -23,6 +30,13 @@ class RegisterIn(BaseModel):
     @field_validator("phone", mode="before")
     @classmethod
     def clean_phone_val(cls, v):
+        if not v or not str(v).strip():
+            return None
+        return str(v).strip()
+
+    @field_validator("code", mode="before")
+    @classmethod
+    def clean_code(cls, v):
         if not v or not str(v).strip():
             return None
         return str(v).strip()

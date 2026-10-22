@@ -51,3 +51,15 @@ class BusinessMember(Base, IdMixin, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     user: Mapped[User] = relationship(back_populates="memberships")
+
+
+class SignupOTP(Base, IdMixin, TimestampMixin):
+    __tablename__ = "signup_otps"
+
+    identifier: Mapped[str] = mapped_column(String(255), index=True)
+    channel: Mapped[str] = mapped_column(String(10))  # SMS | EMAIL
+    code_hash: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    used: Mapped[bool] = mapped_column(Boolean, default=False)
+

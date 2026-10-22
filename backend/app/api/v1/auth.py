@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import hmac
 import logging
 import uuid
 
@@ -14,11 +15,11 @@ from app.core.db import get_db
 from app.core.errors import bad_request, conflict
 from app.core.rate_limit import rate_limit
 from app.core.security import (create_access_token, create_refresh_token, create_verification_token, decode_token, hash_password, verify_password)
-from app.models import Business, BusinessMember, User
-from app.schemas.auth import (ForgotIn, ForgotPhoneIn, LoginIn, MeOut, PasswordChangeIn, ProfileUpdateIn, RegisterIn, RequestPhoneCodeIn, ResendVerificationIn, ResetIn, ResetPhoneIn, TokenOut, UserOut, VerifyEmailIn, VerifyPhoneIn)
+from app.models import Business, BusinessMember, SignupOTP, User
+from app.schemas.auth import (ForgotIn, ForgotPhoneIn, LoginIn, MeOut, PasswordChangeIn, ProfileUpdateIn, RegisterIn, RequestPhoneCodeIn, ResendVerificationIn, ResetIn, ResetPhoneIn, SignupRequestCodeIn, TokenOut, UserOut, VerifyEmailIn, VerifyPhoneIn)
 from app.services.audit import audit
 from app.services.notifications import notify
-from app.services.sms import clean_phone, generate_otp, hash_otp, send_sms
+from app.services.sms import (clean_phone, generate_otp, hash_otp, hash_signup_otp, is_disposable_email, is_valid_mobile_phone, send_sms)
 
 log = logging.getLogger("bizora.auth")
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -32,17 +33,95 @@ def _set_refresh(response: Response, user: User) -> None:
                         secure=s.is_production, samesite="lax", path="/api/v1/auth")
 
 
+@router.post("/signup/request-code", dependencies=[Depends(rate_limit("signup_code_req", 6, 600))])
+def request_signup_code(body: SignupRequestCodeIn, db: Session = Depends(get_db)):
+    """Request an OTP verification code sent via SMS or Email before creating an account.
+    Validates that the phone or email is not fake/disposable and is not already registered."""
+    s = get_settings()
+    raw = (body.identifier or "").strip()
+    channel = body.channel.strip().lower()
+
+    if channel == "email" or "@" in raw:
+        clean_email = raw.lower()
+        if "@" not in clean_email or "." not in clean_email:
+            raise bad_request("Please enter a valid email address.")
+        if is_disposable_email(clean_email):
+            raise bad_request("Disposable or temporary email addresses are not allowed. Please use your permanent email.")
+        if db.scalar(select(User.id).where(User.email == clean_email, User.deleted_at.is_(None))):
+            raise conflict("An account with this email already exists. Please sign in.")
+
+        norm_identifier = clean_email
+        actual_channel = "EMAIL"
+    else:
+        norm_phone = clean_phone(raw)
+        if not is_valid_mobile_phone(norm_phone):
+            raise bad_request("Please enter a valid active Kenyan mobile number (e.g. 0712 345 678 or 0110 123 456).")
+        phone_variants = {raw, norm_phone, f"+{norm_phone}"}
+        if norm_phone.startswith("254") and len(norm_phone) == 12:
+            phone_variants.add("0" + norm_phone[3:])
+            phone_variants.add(norm_phone[3:])
+        if db.scalar(select(User.id).where(User.phone.in_(phone_variants), User.deleted_at.is_(None))):
+            raise conflict("An account with this phone number already exists. Please sign in.")
+
+        norm_identifier = norm_phone
+        actual_channel = "SMS"
+
+    code = generate_otp()
+    now = datetime.now(timezone.utc)
+    expires = now + timedelta(minutes=10)
+
+    # Invalidate previous unexpired signup OTPs for this identifier
+    db.query(SignupOTP).filter(SignupOTP.identifier == norm_identifier, SignupOTP.used.is_(False)).delete()
+
+    otp_row = SignupOTP(
+        identifier=norm_identifier,
+        channel=actual_channel,
+        code_hash=hash_signup_otp(norm_identifier, code),
+        expires_at=expires,
+        attempts=0,
+        used=False,
+    )
+    db.add(otp_row)
+    db.commit()
+
+    if actual_channel == "SMS":
+        sms_res = send_sms(
+            recipient=norm_identifier,
+            message=f"Your Aqivo verification code is {code}. Enter this code to create your store account. Valid for 10 minutes.",
+        )
+        if sms_res.get("status") == "error":
+            log.warning("Failed to send signup SMS to %s: %s", norm_identifier, sms_res.get("message"))
+    else:
+        name = (body.full_name or "").strip() or "there"
+        notify(db, "signup_code", norm_identifier, name=name, code=code, minutes=10)
+
+    res = {
+        "ok": True,
+        "message": f"Verification code sent via {'SMS' if actual_channel == 'SMS' else 'email'}.",
+        "identifier": norm_identifier,
+        "channel": actual_channel,
+    }
+    if s.environment != "production":
+        res["dev_code"] = code
+    return res
+
+
 @router.post("/register", response_model=TokenOut, status_code=201, dependencies=[Depends(rate_limit("register", 10, 3600))])
 def register(body: RegisterIn, request: Request, response: Response, db: Session = Depends(get_db)):
+    s = get_settings()
     email = body.email.strip().lower() if body.email and body.email.strip() else None
     raw_phone = body.phone.strip() if body.phone and body.phone.strip() else None
     norm_phone = clean_phone(raw_phone) if raw_phone else None
 
     if email:
+        if is_disposable_email(email):
+            raise bad_request("Disposable or temporary email addresses are not allowed. Please use your permanent email.")
         if db.scalar(select(User.id).where(User.email == email, User.deleted_at.is_(None))):
             raise conflict("An account with this email already exists. Try signing in.")
 
     if norm_phone:
+        if not is_valid_mobile_phone(norm_phone):
+            raise bad_request("Please enter a valid active Kenyan mobile number.")
         phone_variants = {raw_phone, norm_phone, f"+{norm_phone}"}
         if norm_phone.startswith("254") and len(norm_phone) == 12:
             phone_variants.add("0" + norm_phone[3:])
@@ -50,15 +129,74 @@ def register(body: RegisterIn, request: Request, response: Response, db: Session
         if db.scalar(select(User.id).where(User.phone.in_(phone_variants), User.deleted_at.is_(None))):
             raise conflict("An account with this phone number already exists. Try signing in.")
 
-    user = User(email=email, password_hash=hash_password(body.password), full_name=body.full_name, phone=norm_phone)
+    primary_ident = norm_phone or email
+    now = datetime.now(timezone.utc)
+    otp_row = None
+
+    # In non-test mode (dev and production), require and verify valid OTP code
+    if s.environment != "test":
+        if not body.code:
+            raise bad_request("Verification code is required. Please verify your phone number or email first.")
+
+        otp_row = db.query(SignupOTP).filter(
+            SignupOTP.identifier == primary_ident,
+            SignupOTP.used.is_(False),
+            SignupOTP.expires_at > now,
+        ).order_by(SignupOTP.created_at.desc()).first()
+
+        if not otp_row:
+            raise bad_request("Verification code has expired or was not requested. Please request a new code.")
+
+        if otp_row.attempts >= 5:
+            raise bad_request("Too many incorrect attempts. Please request a new verification code.")
+
+        expected_hash = hash_signup_otp(primary_ident, body.code.strip())
+        if not hmac.compare_digest(otp_row.code_hash, expected_hash):
+            otp_row.attempts += 1
+            db.commit()
+            raise bad_request("Invalid verification code. Please check and try again.")
+
+        otp_row.used = True
+    else:
+        # In test mode, if code is supplied, check it if a SignupOTP exists
+        if body.code:
+            otp_row = db.query(SignupOTP).filter(
+                SignupOTP.identifier == primary_ident,
+                SignupOTP.used.is_(False),
+                SignupOTP.expires_at > now,
+            ).order_by(SignupOTP.created_at.desc()).first()
+            if otp_row:
+                expected_hash = hash_signup_otp(primary_ident, body.code.strip())
+                if not hmac.compare_digest(otp_row.code_hash, expected_hash):
+                    otp_row.attempts += 1
+                    db.commit()
+                    raise bad_request("Invalid verification code.")
+                otp_row.used = True
+
+    verified_by_phone = False
+    verified_by_email = False
+    if otp_row and otp_row.used:
+        if otp_row.channel == "SMS":
+            verified_by_phone = True
+        elif otp_row.channel == "EMAIL":
+            verified_by_email = True
+
+    user = User(
+        email=email,
+        password_hash=hash_password(body.password),
+        full_name=body.full_name,
+        phone=norm_phone,
+        phone_verified=verified_by_phone,
+        email_verified=verified_by_email,
+    )
     db.add(user)
     db.flush()
     audit(db, "auth.register", user_id=user.id, resource_type="user", resource_id=user.id, request=request)
 
-    if user.email:
+    if user.email and not user.email_verified:
         v_token = create_verification_token(str(user.id), user.email)
         notify(db, "verify_email", user.email, user_id=user.id, name=user.full_name, token=v_token)
-    elif user.phone:
+    elif user.phone and not user.phone_verified:
         send_sms(
             recipient=user.phone,
             message=f"Welcome to Aqivo, {user.full_name}! Your store account has been created. Start building your store at aqivo.shop",

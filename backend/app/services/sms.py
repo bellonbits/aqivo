@@ -24,6 +24,38 @@ def clean_phone(phone: str) -> str:
     return digits
 
 
+DISPOSABLE_EMAIL_DOMAINS = {
+    "mailinator.com", "guerrillamail.com", "tempmail.com", "10minutemail.com",
+    "throwawaymail.com", "yopmail.com", "sharklasers.com", "trashmail.com",
+    "dispostable.com", "getairmail.com", "fakemailgenerator.com", "mohmal.com",
+    "crazymailing.com", "nada.ltd", "inboxkitten.com", "temp-mail.org",
+    "generator.email", "emailondeck.com", "burnermail.io", "maildrop.cc",
+    "temp-mail.io", "guerrillamailblock.com", "guerrillamail.net", "guerrillamail.org",
+}
+
+
+def is_disposable_email(email: str) -> bool:
+    if not email or "@" not in email:
+        return False
+    domain = email.split("@")[-1].strip().lower()
+    return domain in DISPOSABLE_EMAIL_DOMAINS
+
+
+def is_valid_mobile_phone(phone: str) -> bool:
+    norm = clean_phone(phone)
+    # Must be 12 digits starting with 254
+    if not (norm.startswith("254") and len(norm) == 12):
+        return False
+    # Check that it's a mobile prefix (7 or 1)
+    if not (norm.startswith("2547") or norm.startswith("2541")):
+        return False
+    # Reject dummy repetitive sequences (e.g. 254700000000, 254711111111)
+    digits_after_prefix = norm[4:]
+    if len(set(digits_after_prefix)) <= 1:
+        return False
+    return True
+
+
 def generate_otp() -> str:
     """Generate a secure 6-digit numeric OTP."""
     return f"{secrets.randbelow(10**6):06d}"
@@ -34,6 +66,13 @@ def hash_otp(phone: str, code: str) -> str:
     s = get_settings()
     clean = clean_phone(phone)
     return hashlib.sha256(f"{s.secret_key}|{clean}|{code}".encode()).hexdigest()
+
+
+def hash_signup_otp(identifier: str, code: str) -> str:
+    """SHA-256 hash of signup OTP salted with secret_key and clean identifier."""
+    s = get_settings()
+    clean = identifier.strip().lower()
+    return hashlib.sha256(f"{s.secret_key}|{clean}|{code.strip()}".encode()).hexdigest()
 
 
 def send_sms(recipient: str, message: str, sender_id: str | None = None) -> dict:

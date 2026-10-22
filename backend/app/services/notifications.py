@@ -27,6 +27,7 @@ TEMPLATES = {
     "order_update": ("Order #{number} — {status}", "Hi {customer},\n\nYour order #{number} with {business} is now: {status}.\n\nTrack it: {url}"),
     "growth_ready": ("{title}", "{body}\n\nOpen it: {app_url}{href}\n\nNothing has been sent to your customers. You review and send it yourself."),
     "login_code": ("Your {business} login code", "Your login code is {code}. It expires in {minutes} minutes.\n\nIf you didn't ask for it, ignore this email."),
+    "signup_code": ("Your Aqivo verification code: {code}", "Hi {name},\n\nYour verification code to create your store on Aqivo is: {code}\n\nThis code expires in {minutes} minutes. Enter it to complete your registration.\n\nIf you did not request this, please ignore this email."),
     "team_invite": ("You've been added to {business}", "Hi {name},\n\nYou now have access to {business} on Aqivo. Sign in at {app_url}/login"),
 }
 

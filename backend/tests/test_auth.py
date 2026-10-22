@@ -280,4 +280,56 @@ def test_customer_cookie_invalidation_and_bypass_prevention(client, owner, db):
     assert "token" not in ident.json()
 
 
+def test_signup_request_code_and_otp_verification(client, db):
+    # 1. Reject fake repetitive phone number
+    fake_phone_res = client.post("/api/v1/auth/signup/request-code", json={"identifier": "0700000000", "channel": "phone"})
+    assert fake_phone_res.status_code == 400
+    assert "valid" in fake_phone_res.json()["detail"].lower()
+
+    # 2. Reject disposable email
+    fake_email_res = client.post("/api/v1/auth/signup/request-code", json={"identifier": "bot@mailinator.com", "channel": "email"})
+    assert fake_email_res.status_code == 400
+    assert "disposable" in fake_email_res.json()["detail"].lower()
+
+    # 3. Request OTP for legitimate phone
+    req_phone = client.post("/api/v1/auth/signup/request-code", json={"identifier": "0722334455", "channel": "phone", "full_name": "Legit User"})
+    assert req_phone.status_code == 200
+    data = req_phone.json()
+    assert data["ok"] is True
+    code = data["dev_code"]
+
+    # 4. Attempting to register with wrong code fails
+    bad_reg = client.post("/api/v1/auth/register", json={
+        "full_name": "Legit User",
+        "phone": "0722334455",
+        "password": "correct-horse-1",
+        "code": "999999"
+    })
+    assert bad_reg.status_code == 400
+    assert "invalid" in bad_reg.json()["detail"].lower()
+
+    # 5. Register with correct code succeeds and activates user
+    ok_reg = client.post("/api/v1/auth/register", json={
+        "full_name": "Legit User",
+        "phone": "0722334455",
+        "password": "correct-horse-1",
+        "code": code
+    })
+    assert ok_reg.status_code == 201
+    token = ok_reg.json()["access_token"]
+    assert token
+
+    # User in db has phone_verified=True
+    from app.models import User
+    u = db.query(User).filter(User.phone == "254722334455").first()
+    assert u is not None
+    assert u.phone_verified is True
+    assert u.is_active is True
+
+    # 6. Requesting OTP for already registered phone fails with conflict
+    conflict_req = client.post("/api/v1/auth/signup/request-code", json={"identifier": "0722334455", "channel": "phone"})
+    assert conflict_req.status_code == 409
+
+
+
 
