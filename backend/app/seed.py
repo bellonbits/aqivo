@@ -71,6 +71,11 @@ def seed_admin(db: Session) -> None:
         log.info("created super admin %s", email)
     else:
         changed = False
+        if pw:
+            admin.password_hash = hash_password(pw)
+            admin.failed_logins = 0
+            admin.locked_until = None
+            changed = True
         if admin.platform_role != PlatformRole.SUPER_ADMIN:
             admin.platform_role = PlatformRole.SUPER_ADMIN
             changed = True
