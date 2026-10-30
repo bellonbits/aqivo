@@ -53,13 +53,36 @@ def seed_roles(db: Session) -> None:
 
 
 def seed_admin(db: Session) -> None:
-    email, pw = os.getenv("ADMIN_EMAIL"), os.getenv("ADMIN_PASSWORD")
+    email = os.getenv("ADMIN_EMAIL", "admin@aqivo.shop").strip().lower()
+    pw = os.getenv("ADMIN_PASSWORD", "AdminSecure2026!")
     if not (email and pw):
         return
-    if not db.scalar(select(User.id).where(User.email == email.lower())):
-        db.add(User(email=email.lower(), password_hash=hash_password(pw), full_name=os.getenv("ADMIN_NAME", "Bizora Admin"), platform_role=PlatformRole.SUPER_ADMIN, email_verified=True))
+    admin = db.scalars(select(User).where(User.email == email)).first()
+    if not admin:
+        db.add(User(
+            email=email,
+            password_hash=hash_password(pw),
+            full_name=os.getenv("ADMIN_NAME", "Aqivo Super Admin"),
+            platform_role=PlatformRole.SUPER_ADMIN,
+            is_active=True,
+            email_verified=True,
+        ))
         db.commit()
         log.info("created super admin %s", email)
+    else:
+        changed = False
+        if admin.platform_role != PlatformRole.SUPER_ADMIN:
+            admin.platform_role = PlatformRole.SUPER_ADMIN
+            changed = True
+        if not admin.email_verified:
+            admin.email_verified = True
+            changed = True
+        if not admin.is_active:
+            admin.is_active = True
+            changed = True
+        if changed:
+            db.commit()
+            log.info("updated/promoted super admin %s", email)
 
 
 def _tile(seed: int, accent: str) -> bytes:

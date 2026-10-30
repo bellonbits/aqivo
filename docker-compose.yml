@@ -13,6 +13,9 @@ services:
       - MEDIA_DIR=/app/storage
       - FRONTEND_DIST_DIR=/app/dist
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@aqivo.shop}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
+      - ADMIN_NAME=${ADMIN_NAME:-Aqivo Super Admin}
     depends_on:
       redis:
         condition: service_healthy

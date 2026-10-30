@@ -41,4 +41,7 @@ echo "Running Alembic migrations..."
 alembic upgrade head
 echo "Database migrations complete."
 
+echo "Ensuring platform roles, plans, templates and admin..."
+python -m app.seed || echo "Warning: Seed step skipped or encountered non-fatal error."
+
 exec "$@"
