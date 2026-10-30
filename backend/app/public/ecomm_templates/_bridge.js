@@ -1093,6 +1093,13 @@
     if (directImg) return directImg;
     return getSmartFallbackImage(p);
   }
+  function thumbPic(p) {
+    var raw = pic(p);
+    if (typeof raw === "string" && raw.indexOf("_large.webp") !== -1) {
+      return raw.replace("_large.webp", "_thumb.webp");
+    }
+    return raw;
+  }
 
   function hide(ids) {
     ids.forEach(function (id) {
@@ -2465,6 +2472,12 @@
         }
         if (emptyState) emptyState.classList.add("hidden");
 
+        if (activeCat === "all" && !searchQuery && gridContainer.firstElementChild && !gridContainer.dataset.hydrated) {
+          gridContainer.dataset.hydrated = "true";
+          return;
+        }
+        gridContainer.dataset.hydrated = "true";
+
         gridContainer.innerHTML = filtered.map(function (it) {
           var isSvc = isService || it.kind === "service";
           var hasVariants = it.variants && it.variants.length > 0;
@@ -2480,7 +2493,7 @@
           return '<div class="store-card group bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between relative overflow-hidden" data-item-id="' + esc(it.id) + '">' +
             '<a href="' + detailUrl + '" class="block group">' +
               '<div class="relative w-full aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden flex items-center justify-center border border-slate-100">' +
-                '<img src="' + esc(pic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out" loading="lazy" />' +
+                '<img src="' + esc(thumbPic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out" loading="lazy" width="320" height="320" onerror="this.onerror=null;this.parentElement.innerHTML=\'<span class=\\\'text-2xl font-black text-slate-300\\\'>' + esc((it.name || \'A\').charAt(0)) + '</span>\';" />' +
                 saleBadge +
               '</div>' +
               '<div class="mb-2.5">' +
@@ -2720,7 +2733,7 @@
                 return '<div class="store-card group bg-white rounded-2xl p-3 border border-slate-200/90 shadow-sm flex flex-col justify-between" data-item-id="' + esc(it.id) + '">' +
                   '<a href="' + detailUrl + '" class="block">' +
                     '<div class="w-full aspect-square rounded-xl bg-slate-50 mb-2 overflow-hidden flex items-center justify-center border border-slate-100">' +
-                      '<img src="' + esc(pic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover" loading="lazy" />' +
+                      '<img src="' + esc(thumbPic(it)) + '" alt="' + esc(it.name) + '" class="w-full h-full object-cover" loading="lazy" width="240" height="240" onerror="this.onerror=null;this.parentElement.innerHTML=\'<span class=\\\'text-2xl font-black text-slate-300\\\'>' + esc((it.name || \'A\').charAt(0)) + '</span>\';" />' +
                     '</div>' +
                     '<h4 class="font-bold text-xs text-[#0B1736] line-clamp-2 mb-1">' + esc(it.name) + '</h4>' +
                   '</a>' +

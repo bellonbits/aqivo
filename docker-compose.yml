@@ -12,6 +12,10 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - MEDIA_DIR=/app/storage
       - FRONTEND_DIST_DIR=/app/dist
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      redis:
+        condition: service_healthy
     volumes:
       - media_storage:/app/storage
       - ./backend/app:/app/app
@@ -25,8 +29,6 @@ services:
       - 1.1.1.1
     dns_opt:
       - use-vc
-    extra_hosts:
-      - "pg-22880706-aqivo.f.aivencloud.com:168.144.221.143"
 
   caddy:
     image: caddy:2-alpine
@@ -79,8 +81,24 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis cache container with LRU eviction and memory bounds
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru", "--save", "60", "1", "--loglevel", "warning"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
 volumes:
   media_storage:
   postgres_data:
   caddy_data:
   caddy_config:
+  redis_data:

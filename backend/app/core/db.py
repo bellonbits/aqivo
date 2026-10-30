@@ -9,8 +9,12 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+db_url = settings.database_url
+if db_url.startswith("postgresql://"):
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+
 connect_args = {}
-if settings.database_url.startswith("postgresql"):
+if db_url.startswith("postgresql"):
     connect_args = {
         "connect_timeout": 10,
         "keepalives": 1,
@@ -22,14 +26,14 @@ if settings.database_url.startswith("postgresql"):
 
 if settings.db_pool_size <= 0:
     engine = create_engine(
-        settings.database_url,
+        db_url,
         poolclass=NullPool,
         pool_pre_ping=settings.db_pool_pre_ping,
         connect_args=connect_args,
     )
 else:
     engine = create_engine(
-        settings.database_url,
+        db_url,
         pool_pre_ping=settings.db_pool_pre_ping,
         pool_size=settings.db_pool_size,
         max_overflow=settings.db_max_overflow,

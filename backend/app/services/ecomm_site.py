@@ -515,9 +515,132 @@ def _render_receipt_page(
     return page
 
 
+def _card_thumb_img(url: str | None) -> str:
+    """Uses optimized 400px WebP thumbnails for product cards instead of full-size 1600px images."""
+    if not url:
+        return ""
+    if "_large.webp" in url:
+        return url.replace("_large.webp", "_thumb.webp")
+    if "images.unsplash.com" in url:
+        if "w=" in url:
+            return re.sub(r"w=\d+", "w=400", url)
+        return url + "&w=400&q=75&auto=format"
+    return url
+
+
+def _pre_render_storefront_catalogue(business: Business, data: dict, page: str, is_service: bool) -> str:
+    """Pre-renders initial product cards, category pills and count badge directly into server HTML.
+
+    Eliminates the blank screen while JavaScript/bridge downloads and parses.
+    """
+    items = data.get("items") or []
+    if not items or '<div id="items-grid"' not in page:
+        return page
+
+    cur_sym = data.get("symbol") or business.currency or "KSh"
+    prefix = f"/{business.slug}" if business.slug else ""
+
+    cards_html = []
+    for idx, it in enumerate(items):
+        is_svc = is_service or it.get("kind") == "service"
+        has_variants = bool(it.get("variants"))
+        action_label = "Book" if is_svc else ("Options" if has_variants else "+ Add")
+        duration_badge = f'<span class="text-[11px] text-slate-400 font-medium">⏱ {_html.escape(str(it["duration"]))}m</span>' if (is_svc and it.get("duration")) else ""
+
+        comp = it.get("compare")
+        price = it.get("price") or 0
+        sale_badge = ""
+        comp_price_html = duration_badge
+        if not is_svc and comp and price and comp > price:
+            pct = round((1 - price / comp) * 100)
+            sale_badge = f'<span class="absolute top-2.5 left-2.5 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">-{pct}%</span>'
+            comp_price_html = f'<s class="text-xs text-slate-400 font-medium ml-1.5">{cur_sym} {comp:,.0f}</s>'
+
+        cat_html = f'<span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1 truncate">{_html.escape(it.get("category") or "")}</span>' if it.get("category") else ""
+        detail_page = "service.html" if is_svc else "product.html"
+        detail_url = f"{prefix}/{detail_page}?id={_html.escape(str(it['id']))}"
+
+        raw_img = it.get("image")
+        img_src = _card_thumb_img(raw_img)
+        first_letter = _html.escape((it.get("name") or "A")[:1])
+        fetch_priority = "high" if idx < 4 else "auto"
+        loading_attr = "eager" if idx < 4 else "lazy"
+
+        if img_src:
+            img_tag = (
+                f'<img src="{_html.escape(img_src)}" alt="{_html.escape(it["name"])}" '
+                f'class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out" '
+                f'loading="{loading_attr}" fetchpriority="{fetch_priority}" width="320" height="320" '
+                f'onerror="this.onerror=null;this.parentElement.innerHTML=\'<span class=\\\'text-2xl font-black text-slate-300\\\'>{first_letter}</span>\';" />'
+            )
+        else:
+            img_tag = f'<span class="text-2xl font-black text-slate-300">{first_letter}</span>'
+
+        desc_html = f'<p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">{_html.escape(it["desc"])}</p>' if it.get("desc") else ""
+
+        card_markup = (
+            f'<div class="store-card group bg-white rounded-2xl p-3.5 sm:p-4 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between relative overflow-hidden" data-item-id="{_html.escape(str(it["id"]))}">'
+            f'<a href="{detail_url}" class="block group">'
+            f'<div class="relative w-full aspect-square rounded-xl bg-slate-50 mb-3 overflow-hidden flex items-center justify-center border border-slate-100">'
+            f'{img_tag}'
+            f'{sale_badge}'
+            f'</div>'
+            f'<div class="mb-2.5">'
+            f'{cat_html}'
+            f'<h4 class="font-bold text-sm text-[#0B1736] group-hover:text-[#5B21F5] transition-colors line-clamp-2 leading-snug mb-1">{_html.escape(it["name"])}</h4>'
+            f'{desc_html}'
+            f'</div>'
+            f'</a>'
+            f'<div class="mt-auto pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">'
+            f'<div class="min-w-0 font-extrabold text-sm sm:text-base text-[#0B1736] tracking-tight leading-none">{cur_sym} {price:,.0f}{comp_price_html}</div>'
+            f'<button type="button" class="btn-add-cart h-8 sm:h-9 px-3 rounded-xl bg-[#5B21F5] hover:bg-[#4a18d1] text-white text-xs font-bold transition-all active:scale-95 flex items-center gap-1 shadow-sm shrink-0" data-id="{_html.escape(str(it["id"]))}" data-has-variants="{"1" if has_variants else "0"}" data-is-service="{"1" if is_svc else "0"}">'
+            f'<span>{action_label}</span>'
+            f'</button>'
+            f'</div>'
+            f'</div>'
+        )
+        cards_html.append(card_markup)
+
+    rendered_grid = "".join(cards_html)
+    page = re.sub(
+        r'(<div[^>]*id="items-grid"[^>]*>).*?(</div>)',
+        rf'\g<1>{rendered_grid}\g<2>',
+        page,
+        count=1,
+        flags=re.S,
+    )
+
+    cats = data.get("categories") or []
+    all_label = "All services" if is_service else "All items"
+    pills = [f'<button type="button" class="cat-pill active" data-cat-id="all">{all_label} <span class="pill-count opacity-75 font-semibold text-[11px]">({len(items)})</span></button>']
+    for c in cats:
+        cnt = sum(1 for x in items if str(x.get("cid")) == str(c.get("id")) or x.get("category") == c.get("name"))
+        pills.append(f'<button type="button" class="cat-pill" data-cat-id="{_html.escape(str(c.get("id")))}">{_html.escape(c.get("name", ""))}' + (f' <span class="pill-count opacity-75 font-semibold text-[11px]">({cnt})</span>' if cnt else "") + "</button>")
+
+    page = re.sub(
+        r'(<div[^>]*id="category-pills"[^>]*>).*?(</div>)',
+        rf'\g<1>{"".join(pills)}\g<2>',
+        page,
+        count=1,
+        flags=re.S,
+    )
+
+    count_label = f"{len(items)} {'service' if is_service else 'item'}{'' if len(items) == 1 else 's'}"
+    page = re.sub(
+        r'(<div[^>]*id="items-count-badge"[^>]*>).*?(</div>)',
+        rf'\g<1>{count_label}\g<2>',
+        page,
+        count=1,
+        flags=re.S,
+    )
+
+    return page
+
+
 def render_ecomm(
     db: Session,
     ctx: dict,
+
     business: Business,
     key: str,
     page_name: str = "index.html",
@@ -810,6 +933,12 @@ def render_ecomm(
         safe_items_js = _safe_json(items)
         clean_phone = normalize_wa_phone(business.phone or business.whatsapp or "")
         page = re.sub(r'store:\s*\{[\s\S]*?products:\s*\[[\s\S]*?\][\s\S]*?\}', lambda _: f'store: {{ name: {_safe_json(business.name)}, whatsappPhone: {_safe_json(clean_phone)}, products: {safe_items_js} }}', page)
+
+    # Pre-render storefront product catalogue into index.html to eliminate white screen
+    # (Skip only when the merchant has configured an explicit collection_grid or product_grid section)
+    has_custom_catalog = any(s.get("type") in ("collection_grid", "product_grid") for s in ctx.get("sections", []))
+    if page_name in ("index.html", "index", "") and not has_custom_catalog:
+        page = _pre_render_storefront_catalogue(business, data, page, is_service)
 
     # Render custom sections (e.g. rich text, custom html, video, ig feed, google reviews, collections)
     draft_mode = bool(ctx.get("draft") or ctx.get("editing"))

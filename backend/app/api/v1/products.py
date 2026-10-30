@@ -36,13 +36,59 @@ def _out(db: Session, p: Product) -> ProductOut:
     o = ProductOut.model_validate(p)
     vs = inv.active_variants(db, p)
     o.variant_count = len(vs)
-    o.total_stock = inv.product_total_stock(db, p)
+    if not p.track_stock:
+        o.total_stock = None
+    elif vs:
+        o.total_stock = sum(v.stock_qty for v in vs)
+    else:
+        o.total_stock = p.stock_qty
     return o
+
+
+def _batch_out(db: Session, products: list[Product], business_id: uuid.UUID) -> list[ProductOut]:
+    """Batch-loads variants for a list of products in a single indexed SQL query, eliminating N+1 queries."""
+    if not products:
+        return []
+    pids = [p.id for p in products]
+    from app.models import ProductVariant
+
+    variants = list(
+        db.scalars(
+            select(ProductVariant)
+            .where(
+                ProductVariant.product_id.in_(pids),
+                ProductVariant.business_id == business_id,
+                ProductVariant.is_active.is_(True),
+            )
+            .order_by(ProductVariant.position, ProductVariant.created_at)
+        )
+    )
+    vars_by_pid: dict[uuid.UUID, list[ProductVariant]] = {}
+    for v in variants:
+        vars_by_pid.setdefault(v.product_id, []).append(v)
+
+    out = []
+    for p in products:
+        o = ProductOut.model_validate(p)
+        vs = vars_by_pid.get(p.id, [])
+        o.variant_count = len(vs)
+        if not p.track_stock:
+            o.total_stock = None
+        elif vs:
+            o.total_stock = sum(v.stock_qty for v in vs)
+        else:
+            o.total_stock = p.stock_qty
+        out.append(o)
+    return out
 
 
 def _dirty(ctx: TenantContext) -> None:
     if ctx.business.website:
         touch_draft(ctx.business.website)
+    from app.core.cache import invalidate_categories, invalidate_products
+    invalidate_products(ctx.business_id, ctx.business.slug)
+    invalidate_categories(ctx.business_id, ctx.business.slug)
+
 
 
 def _check_category(db, ctx, category_id) -> None:
@@ -67,10 +113,11 @@ def list_products(q: str | None = None, category_id: uuid.UUID | None = None, st
         where.append(Product.featured.is_(featured))
     if low_stock:
         where.append(Product.track_stock.is_(True))
-        where.append(Product.stock_qty <= Product.low_stock_threshold)
-    total = db.scalar(select(func.count()).select_from(Product).where(*where)) or 0
-    items = db.scalars(select(Product).where(*where).order_by(Product.position, Product.created_at.desc()).limit(limit).offset(offset)).all()
-    return {"items": [_out(db, p) for p in items], "total": total, "limit": limit, "offset": offset}
+    repo = ProductRepository(db, ctx.business_id)
+    total = repo.count(*where)
+    items = repo.list(*where, order_by=(Product.position, Product.created_at.desc()), limit=limit, offset=offset)
+    return {"items": _batch_out(db, items, ctx.business_id), "total": total, "limit": limit, "offset": offset}
+
 
 
 @router.post("", response_model=ProductOut, status_code=201)

@@ -130,20 +130,14 @@ def _days(n: int):
 def effective_plan(db: Session, business: Business) -> Plan:
     """The plan whose features apply right now. TRIAL/ACTIVE/PAST_DUE(in grace) => subscribed plan; else FREE.
     Data is never deleted when a plan lapses — paid features simply lock (grace/retention)."""
-    cache = db.info.setdefault("_effective_plan_cache", {})
-    if business.id in cache:
-        return cache[business.id]
     sub = get_subscription(db, business.id)
     if sub is None:
-        plan = get_plan(db, "FREE")
-    else:
-        refresh_subscription_state(db, sub)
-        if sub.status in (SubscriptionStatus.TRIAL, SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE):
-            plan = sub.plan
-        else:
-            plan = get_plan(db, "FREE")
-    cache[business.id] = plan
-    return plan
+        return get_plan(db, "FREE")
+    refresh_subscription_state(db, sub)
+    if sub.status in (SubscriptionStatus.TRIAL, SubscriptionStatus.ACTIVE, SubscriptionStatus.PAST_DUE):
+        return sub.plan
+    return get_plan(db, "FREE")
+
 
 
 def has_feature(db: Session, business: Business, feature: str) -> bool:

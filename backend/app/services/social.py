@@ -57,16 +57,17 @@ def instagram_refresh(db: Session, b: Business, *, force: bool = False, timeout:
 
 
 def instagram_posts(db: Session, b: Business) -> list[dict]:
-    """For rendering: cached posts, refreshed quietly when stale."""
+    """For rendering: cached posts, never blocking storefront render with slow external APIs."""
     row = cx.get_row(db, b, "instagram")
     if row is None or not row.enabled or not row.secrets_enc:
         return []
     cur = (row.cache or {}).get("instagram")
-    if not _fresh(cur):
-        try:
-            cur = instagram_refresh(db, b, force=True, timeout=2.5)
-        except Exception:  # noqa: BLE001 - keep showing the last good copy
-            pass
+    if cur:
+        return list((cur or {}).get("posts", []))
+    try:
+        cur = instagram_refresh(db, b, force=True, timeout=1.0)
+    except Exception:  # noqa: BLE001 - keep showing the last good copy
+        pass
     return list((cur or {}).get("posts", []))
 
 
@@ -92,13 +93,16 @@ def google_refresh(db: Session, b: Business, *, force: bool = False, timeout: fl
 
 
 def google_summary(db: Session, b: Business) -> dict | None:
+    """For rendering: cached Google reviews summary, never blocking storefront render."""
     row = cx.get_row(db, b, "google_places")
     if row is None or not row.enabled or not row.secrets_enc:
         return None
     cur = (row.cache or {}).get("google")
-    if not _fresh(cur):
-        try:
-            cur = google_refresh(db, b, force=True, timeout=2.5)
-        except Exception:  # noqa: BLE001
-            pass
+    if cur:
+        return cur
+    try:
+        cur = google_refresh(db, b, force=True, timeout=1.0)
+    except Exception:  # noqa: BLE001
+        pass
     return cur or None
+

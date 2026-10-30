@@ -118,5 +118,8 @@ def set_plan(business_id, key="PRO", status="ACTIVE"):
         sub.plan_id, sub.status = plan.id, status
         sub.current_period_end = datetime.now(timezone.utc) + timedelta(days=30)
         s.commit()
+        from app.services.site_render import clear_render_cache
+        clear_render_cache(business_id)
     finally:
         s.close()
+

@@ -73,10 +73,27 @@ app.add_middleware(
     expose_headers=["Content-Length", "X-Request-Id", "X-Business-Id"],
     max_age=86400,
 )
+
+class CachedStaticFiles(StaticFiles):
+    """StaticFiles with explicit browser and proxy Cache-Control headers."""
+
+    def __init__(self, *args, max_age: int = 86400 * 30, is_immutable: bool = False, **kwargs):
+        self.max_age = max_age
+        self.is_immutable = is_immutable
+        super().__init__(*args, **kwargs)
+
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 200:
+            imm = ", immutable" if self.is_immutable else ""
+            response.headers["Cache-Control"] = f"public, max-age={self.max_age}{imm}"
+        return response
+
+
 app.include_router(api_router)
-app.mount("/media", StaticFiles(directory=settings.media_dir, check_dir=False), name="media")
-app.mount("/static", StaticFiles(directory=BASE / "public" / "static"), name="static")
-app.mount("/brand", StaticFiles(directory=BASE / "public" / "static" / "brand"), name="brand")
+app.mount("/media", CachedStaticFiles(directory=settings.media_dir, check_dir=False, max_age=86400 * 30, is_immutable=True), name="media")
+app.mount("/static", CachedStaticFiles(directory=BASE / "public" / "static", max_age=86400 * 7), name="static")
+app.mount("/brand", CachedStaticFiles(directory=BASE / "public" / "static" / "brand", max_age=86400 * 30, is_immutable=True), name="brand")
 
 
 @app.get("/verify-email", include_in_schema=False)

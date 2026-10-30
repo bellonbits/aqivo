@@ -37,7 +37,13 @@ def adjust_stock(db: Session, product: Product, variant: ProductVariant | None, 
                              product_name=f"{product.name}{' – ' + variant.title if variant else ''}"[:200], delta=delta, qty_after=new, reason=reason,
                              note=note[:200], order_id=order_id, created_by=user_id))
     db.flush()
+    try:
+        from app.core.cache import invalidate_products
+        invalidate_products(product.business_id, product_id=product.id, product_slug=product.slug)
+    except Exception:
+        pass
     return new
+
 
 
 def product_total_stock(db: Session, product: Product) -> int | None:

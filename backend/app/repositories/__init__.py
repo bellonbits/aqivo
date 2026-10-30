@@ -22,3 +22,6 @@ PaymentRepository = _repo(Payment)
 InvoiceRepository = _repo(Invoice)
 CampaignRepository = _repo(MarketingCampaign)
 EventRepository = _repo(AnalyticsEvent)
+
+from app.repositories.product import IProductRepository, ProductRepository
+
