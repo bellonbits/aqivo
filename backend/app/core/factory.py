@@ -42,9 +42,9 @@ class ClientFactory:
     """Factory creating external clients and services based on configuration."""
 
     @staticmethod
-    def create_storage(settings: Settings | None = None) -> LocalStorage:
-        s = settings or get_settings()
-        return LocalStorage(s.media_dir)
+    def create_storage(settings: Settings | None = None):
+        from app.services.images import get_storage
+        return get_storage()
 
     @staticmethod
     def create_sms_provider(provider_name: str | None = None, settings: Settings | None = None) -> ISmsProvider:

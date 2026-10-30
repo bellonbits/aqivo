@@ -521,6 +521,10 @@ def _card_thumb_img(url: str | None) -> str:
         return ""
     if "_large.webp" in url:
         return url.replace("_large.webp", "_thumb.webp")
+    if "res.cloudinary.com" in url:
+        if "/upload/" in url and "/upload/w_" not in url:
+            return url.replace("/upload/", "/upload/w_400,c_limit,q_auto,f_auto/")
+        return url
     if "images.unsplash.com" in url:
         if "w=" in url:
             return re.sub(r"w=\d+", "w=400", url)

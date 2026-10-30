@@ -2,6 +2,8 @@
 cap dimensions, and emit web-optimised WebP variants. Storage is behind a tiny backend interface."""
 import io
 import uuid
+import logging
+import os
 from pathlib import Path
 
 from fastapi import UploadFile
@@ -9,6 +11,8 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 
 from app.core.config import get_settings
 from app.core.errors import bad_request
+
+log = logging.getLogger("bizora.images")
 
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 MAX_PIXELS = 40_000_000
@@ -27,8 +31,42 @@ class LocalStorage:
         return f"/media/{key}"
 
 
-def get_storage() -> LocalStorage:
-    return LocalStorage(get_settings().media_dir)
+class CloudinaryStorage:
+    def __init__(self, cloudinary_url: str):
+        import cloudinary
+        import cloudinary.uploader
+        self.cloudinary = cloudinary
+        self.uploader = cloudinary.uploader
+        os.environ["CLOUDINARY_URL"] = cloudinary_url
+        self.cloudinary.reset_config()
+
+    def save(self, key: str, data: bytes) -> str:
+        try:
+            clean_key = key.rsplit(".", 1)[0] if "." in key else key
+            public_id = f"aqivo/{clean_key}"
+            res = self.uploader.upload(
+                io.BytesIO(data),
+                public_id=public_id,
+                resource_type="image",
+                overwrite=True,
+                unique_filename=False,
+                use_filename=False,
+            )
+            return res.get("secure_url", res.get("url"))
+        except Exception as exc:
+            log.warning("Cloudinary upload failed for %s, falling back to local: %s", key, exc)
+            return LocalStorage(get_settings().media_dir).save(key, data)
+
+
+def get_storage():
+    s = get_settings()
+    c_url = getattr(s, "cloudinary_url", None) or os.getenv("CLOUDINARY_URL", "")
+    if c_url:
+        try:
+            return CloudinaryStorage(c_url)
+        except Exception as exc:
+            log.warning("Failed to initialize CloudinaryStorage: %s. Using LocalStorage.", exc)
+    return LocalStorage(s.media_dir)
 
 
 async def process_upload(file: UploadFile, business_id: uuid.UUID, folder: str) -> dict:

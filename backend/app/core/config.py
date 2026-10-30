@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     custom_domain_ips: str = ""  # comma-separated A-record targets for apex domains (set in production)
     redis_url: str = ""  # set to share rate limits across workers, e.g. redis://localhost:6379/0
     media_dir: str = "storage"
+    cloudinary_url: str = ""
     max_upload_bytes: int = 8 * 1024 * 1024
 
     smtp_host: str = ""

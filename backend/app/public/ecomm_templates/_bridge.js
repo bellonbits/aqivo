@@ -1095,8 +1095,13 @@
   }
   function thumbPic(p) {
     var raw = pic(p);
-    if (typeof raw === "string" && raw.indexOf("_large.webp") !== -1) {
-      return raw.replace("_large.webp", "_thumb.webp");
+    if (typeof raw === "string") {
+      if (raw.indexOf("_large.webp") !== -1) {
+        return raw.replace("_large.webp", "_thumb.webp");
+      }
+      if (raw.indexOf("res.cloudinary.com") !== -1 && raw.indexOf("/upload/") !== -1 && raw.indexOf("/upload/w_") === -1) {
+        return raw.replace("/upload/", "/upload/w_400,c_limit,q_auto,f_auto/");
+      }
     }
     return raw;
   }
