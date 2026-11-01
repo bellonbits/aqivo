@@ -24,7 +24,8 @@ RESERVED_SLUGS = {
     "help", "support", "terms", "privacy", "bizora", "docs", "blog", "mail", "ftp", "demo", "s", "sitemap.xml",
     "robots.txt", "favicon.ico", "forgot-password", "reset-password", "public", "storage", "wp-admin", "wp-content",
     "wp-includes", "config", "env", ".env", "actuator", "cgi-bin", "telescope", "debug", "ecomm-templates",
-    "verify-email", "verify-phone",
+    "verify-email", "verify-phone", "solutions", "services", "products", "industries", "insights",
+    "ethical-architecture", "confidentiality-security",
 }
 
 
