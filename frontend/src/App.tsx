@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MotionConfig } from 'framer-motion'
 import { AuthProvider } from '@/features/auth/AuthContext'
@@ -7,8 +7,18 @@ import { ToastProvider } from '@/hooks/useToast'
 import { ForgotPage, LoginPage, RegisterPage, ResetPage, VerifyEmailPage, VerifyPhonePage } from '@/features/auth/AuthPages'
 import { PageLoading } from '@/components/ui'
 import Landing from '@/pages/Landing'
+import { PublicLayout } from '@/layouts/PublicLayout'
 
 const Templates = lazy(() => import('@/pages/Templates'))
+const Solutions = lazy(() => import('@/pages/Solutions'))
+const ServicesPage = lazy(() => import('@/pages/Services'))
+const ProductsPage = lazy(() => import('@/pages/Products'))
+const IndustriesPage = lazy(() => import('@/pages/Industries'))
+const InsightsPage = lazy(() => import('@/pages/Insights'))
+const AboutPage = lazy(() => import('@/pages/About'))
+const ContactPage = lazy(() => import('@/pages/Contact'))
+const EthicalArchitecture = lazy(() => import('@/pages/EthicalArchitecture'))
+const ConfidentialitySecurity = lazy(() => import('@/pages/ConfidentialitySecurity'))
 const Onboarding = lazy(() => import('@/features/onboarding/Onboarding'))
 const DashboardLayout = lazy(() => import('@/layouts/DashboardLayout'))
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'))
@@ -41,6 +51,23 @@ const AdminDashboard = adm('AdminDashboard'), AdminBusinesses = adm('AdminBusine
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 15_000 } } })
 
+function ScrollToTop() {
+  const { pathname, hash } = useLocation()
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    } else {
+      const el = document.getElementById(hash.slice(1))
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' })
+      } else {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      }
+    }
+  }, [pathname, hash])
+  return null
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={qc}>
@@ -48,9 +75,19 @@ export default function App() {
       <ToastProvider>
         <AuthProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Suspense fallback={<PageLoading />}>
               <Routes>
                 <Route path="/" element={<Landing />} />
+                <Route path="/solutions" element={<PublicLayout><Solutions /></PublicLayout>} />
+                <Route path="/services" element={<PublicLayout><ServicesPage /></PublicLayout>} />
+                <Route path="/products" element={<PublicLayout><ProductsPage /></PublicLayout>} />
+                <Route path="/industries" element={<PublicLayout><IndustriesPage /></PublicLayout>} />
+                <Route path="/insights" element={<PublicLayout><InsightsPage /></PublicLayout>} />
+                <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
+                <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
+                <Route path="/ethical-architecture" element={<PublicLayout><EthicalArchitecture /></PublicLayout>} />
+                <Route path="/confidentiality-security" element={<PublicLayout><ConfidentialitySecurity /></PublicLayout>} />
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />

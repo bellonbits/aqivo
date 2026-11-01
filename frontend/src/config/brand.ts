@@ -1,17 +1,19 @@
 /**
- * Centralized brand tokens and identity configuration for Aqivo.shop
+ * Centralized brand tokens and identity configuration for Aqivo
  */
 
 export const brand = {
   name: 'Aqivo',
-  fullName: 'Aqivo.shop',
+  fullName: 'Aqivo',
+  storeName: 'Aqivo Store',
   domain: 'aqivo.shop',
   url: 'https://aqivo.shop',
-  tagline: 'The Booking & Appointment Platform for Modern Service Businesses',
-  description: 'A modern booking and appointment scheduling platform allowing salons, spas, barbershops, and service pros to take 24/7 bookings, automate WhatsApp reminders, manage specialists, and collect upfront deposits.',
+  tagline: 'We Build the Technology Behind Growing Businesses.',
+  description:
+    'Aqivo is a technology partner that helps startups and growing businesses design, build, and scale software, data, and AI systems while creating the technical foundations and teams required for long-term growth.',
   supportEmail: 'info@aqivo.shop',
-  supportName: 'Aqivo Support',
-  copyright: '© 2026 Aqivo.shop',
+  supportName: 'Aqivo Advisory & Engineering',
+  copyright: '© 2026 Aqivo',
   assets: {
     logo: '/brand/aqivo-logo.png',
     logoWhite: '/brand/aqivo-logo-white.png',

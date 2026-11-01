@@ -1,26 +1,10 @@
-import { Categories, Faq, FinalCta, Features, HowItWorks, EarlyAccess, Messaging, OrderManagement, PaymentsBlock, Pricing, ProfileDemo, SiteFooter, WhatsAppOrdering } from './landing/Sections'
-import { Hero, SiteNav } from './landing/Hero'
+import { PublicLayout } from '@/layouts/PublicLayout'
+import Home from './Home'
 
 export default function Landing() {
   return (
-    <>
-      <SiteNav />
-      <main>
-        <Hero />
-        <WhatsAppOrdering />
-        <OrderManagement />
-        <PaymentsBlock />
-        <Messaging />
-        <ProfileDemo />
-        <Features />
-        <Categories />
-        <HowItWorks />
-        <Pricing />
-        <EarlyAccess />
-        <Faq />
-        <FinalCta />
-      </main>
-      <SiteFooter />
-    </>
+    <PublicLayout>
+      <Home />
+    </PublicLayout>
   )
 }

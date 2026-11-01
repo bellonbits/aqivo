@@ -4,8 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Monitor, Smartphone } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { IndustryConfig, Template } from '@/types'
-import { SiteNav } from './landing/Hero'
-import { SiteFooter } from './landing/Sections'
+import { PublicLayout } from '@/layouts/PublicLayout'
 import { PageLoading } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { useAuth } from '@/features/auth/AuthContext'
@@ -55,8 +54,7 @@ export default function Templates() {
   const shown = (data ?? []).filter((t) => ind === 'all' || t.industry === ind)
   const present = new Set((data ?? []).map((t) => t.industry))
   return (
-    <>
-      <SiteNav dark={false} />
+    <PublicLayout>
       <main className="mx-auto max-w-7xl px-5 pb-24 pt-8 md:px-10">
         <h1 className="max-w-3xl text-4xl md:text-6xl">Designs made for every kind of business.</h1>
         <p className="mt-4 max-w-2xl text-muted">Every design is generated from your own business details. Pick a look — you can switch any time without losing your content. Previews use a demo business.</p>
@@ -64,7 +62,6 @@ export default function Templates() {
         {isLoading ? <PageLoading /> : <div className="mt-6 space-y-6">{shown.map((t) => <TemplateCard key={t.key} t={t} />)}</div>}
         <p className="mt-10 text-sm text-muted">Don't see your industry? Pick the closest design — you can change every colour, font and word. <Link to="/register" className="font-bold text-ink underline">Start your business</Link>.</p>
       </main>
-      <SiteFooter />
-    </>
+    </PublicLayout>
   )
 }
