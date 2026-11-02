@@ -30,42 +30,16 @@ export function PublicNavbar() {
   const { me } = useAuth()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-
-  const isHome = location.pathname === '/'
-  const isTransparent = isHome && !scrolled
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   useEffect(() => {
     setMobileOpen(false)
   }, [location.pathname])
 
   return (
-    <header
-      className={cn(
-        'sticky top-0 z-50 w-full transition-all duration-300',
-        isTransparent ? 'px-4 pt-4 sm:px-8 sm:pt-6 bg-transparent' : 'px-3 pt-3 pb-2 sm:px-6 sm:pt-4'
-      )}
-    >
-      <div
-        className={cn(
-          'mx-auto flex max-w-7xl items-center justify-between transition-all duration-300',
-          isTransparent
-            ? 'bg-transparent border-transparent shadow-none px-2 text-white'
-            : scrolled
-            ? 'glass-strong shadow-[0_12px_36px_rgba(15,23,42,0.12)] text-ink rounded-full px-5 py-3'
-            : 'glass shadow-[0_4px_24px_rgba(15,23,42,0.06)] text-ink rounded-full px-5 py-3'
-        )}
-      >
+    <header className="sticky top-0 z-50 w-full px-3 pt-3 pb-2 sm:px-6 sm:pt-4 transition-all duration-300">
+      <div className="mx-auto flex max-w-7xl items-center justify-between glass-strong bg-white/92 backdrop-blur-xl border border-slate-200/90 shadow-[0_8px_30px_rgba(15,23,42,0.08)] text-slate-900 rounded-full px-4 sm:px-6 py-2.5 sm:py-3 transition-all duration-300">
         <Link to="/" className="flex items-center gap-2" aria-label="Aqivo Home">
-          <Logo size="md" dark={isTransparent} />
+          <Logo size="md" />
         </Link>
 
         {/* Desktop Nav */}
@@ -78,23 +52,14 @@ export function PublicNavbar() {
                 to={link.path}
                 className={cn(
                   'text-[14px] font-medium transition-colors relative py-1',
-                  isTransparent
-                    ? isActive
-                      ? 'text-white font-semibold drop-shadow-sm'
-                      : 'text-white/90 hover:text-white drop-shadow-sm'
-                    : isActive
-                    ? 'text-ink font-semibold'
-                    : 'text-muted hover:text-ink'
+                  isActive ? 'text-slate-950 font-bold' : 'text-slate-600 hover:text-slate-950'
                 )}
               >
                 {link.name}
                 {isActive && (
                   <motion.span
                     layoutId="nav-underline"
-                    className={cn(
-                      'absolute -bottom-1 left-0 right-0 h-0.5 rounded-full',
-                      isTransparent ? 'bg-white shadow-xs' : 'bg-brand'
-                    )}
+                    className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-brand"
                     transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                   />
                 )}
@@ -117,21 +82,13 @@ export function PublicNavbar() {
             <>
               <Link
                 to="/login"
-                className={cn(
-                  'text-xs sm:text-sm font-medium px-2 py-1.5 transition-colors',
-                  isTransparent ? 'text-white hover:text-white/80 drop-shadow-sm' : 'text-muted hover:text-ink'
-                )}
+                className="text-xs sm:text-sm font-semibold px-2 py-1.5 text-slate-600 hover:text-slate-950 transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 to="/contact"
-                className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold transition hover:scale-[1.02] active:scale-95 shadow-sm',
-                  isTransparent
-                    ? 'border border-white/50 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md'
-                    : 'btn-brand text-white'
-                )}
+                className="btn-brand inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-xs sm:text-sm font-bold transition hover:scale-[1.02] active:scale-95 shadow-md"
               >
                 <span>Start a Conversation</span>
                 <ArrowRight className="size-3.5" />
@@ -144,23 +101,13 @@ export function PublicNavbar() {
         <div className="flex items-center gap-2 lg:hidden">
           <Link
             to="/contact"
-            className={cn(
-              'inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-semibold sm:hidden',
-              isTransparent
-                ? 'border border-white/40 bg-white/25 text-white backdrop-blur-md'
-                : 'btn-brand text-white'
-            )}
+            className="btn-brand inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-bold sm:hidden"
           >
             <span>Talk to Us</span>
           </Link>
           <button
             type="button"
-            className={cn(
-              'grid size-10 place-items-center rounded-full border shadow-xs transition',
-              isTransparent
-                ? 'bg-black/25 border-white/30 text-white backdrop-blur-sm'
-                : 'bg-white/80 border-slate-200/80 text-ink'
-            )}
+            className="grid size-9 sm:size-10 place-items-center rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 shadow-xs transition active:scale-95"
             aria-label="Toggle navigation menu"
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen(!mobileOpen)}
