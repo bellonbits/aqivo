@@ -1,428 +1,605 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowRight,
-  Compass,
-  Code2,
-  Database,
-  Bot,
-  Cloud,
-  Users,
-  CheckCircle2,
-  AlertCircle,
-  Sparkles,
-  ShoppingBag,
+  ChevronLeft,
   ChevronRight,
+  Plus,
+  Minus,
+  Sliders,
+  Layers,
+  CheckCircle2,
+  Terminal,
+  Boxes,
 } from 'lucide-react'
-import { EcosystemVisualizer } from '@/components/ecosystem/EcosystemVisualizer'
 import { cn } from '@/lib/cn'
 
-const SOLUTIONS = [
-  {
-    id: 'strategy',
-    title: 'Strategy',
-    sub: 'Technology & Startup Strategy',
-    keyMessage: 'Start with the right technology decisions.',
-    desc: 'Help founders make sound architectural decisions, select the right tech stack, and develop comprehensive MVP roadmaps before committing heavy engineering capital.',
-    icon: Compass,
-    color: 'from-violet-500/10 to-violet-500/5',
-    iconColor: 'text-violet-600',
-    link: '/services#strategy',
-    tags: ['Feasibility Analysis', 'Stack Selection', 'MVP Scoping', 'Cost Trajectory'],
-    image: '/img/professional-5.webp',
-  },
-  {
-    id: 'software',
-    title: 'Software',
-    sub: 'Software & Product Engineering',
-    keyMessage: 'From idea to production-ready software.',
-    desc: 'Design and build digital products that solve real business problems. From web & mobile applications to custom SaaS, marketplaces, APIs, and enterprise internal tools.',
-    icon: Code2,
-    color: 'from-blue-500/10 to-blue-500/5',
-    iconColor: 'text-blue-600',
-    link: '/services#software',
-    tags: ['Web & Mobile Apps', 'Production MVPs', 'SaaS Architecture', 'Internal Portals'],
-    image: '/img/professional-3.webp',
-  },
-  {
-    id: 'data',
-    title: 'Data',
-    sub: 'Data Architecture & Intelligence',
-    keyMessage: 'Turn business data into better decisions.',
-    desc: 'Build systems that transform raw, scattered operational data into reliable single sources of truth, robust ETL pipelines, data warehouses, and decision dashboards.',
-    icon: Database,
-    color: 'from-cyan-500/10 to-cyan-500/5',
-    iconColor: 'text-cyan-600',
-    link: '/services#data',
-    tags: ['Database Design', 'ETL/ELT Pipelines', 'Warehouses & Lakehouse', 'Executive BI'],
-    image: '/img/professional-4.webp',
-  },
-  {
-    id: 'ai',
-    title: 'AI',
-    sub: 'Artificial Intelligence & Automation',
-    keyMessage: 'Build AI that creates real business value.',
-    desc: 'Practical, reliable AI solutions built to solve measurable problems: retrieval-augmented generation (RAG), AI agents, intelligent customer support, and document intelligence.',
-    icon: Bot,
-    color: 'from-emerald-500/10 to-emerald-500/5',
-    iconColor: 'text-emerald-600',
-    link: '/services#ai',
-    tags: ['RAG Systems', 'AI Agents & LLMs', 'Workflow Automation', 'Predictive Analytics'],
-    image: '/img/professional-6.webp',
-  },
-  {
-    id: 'engineering',
-    title: 'Engineering',
-    sub: 'Cloud, Infrastructure & Scalability',
-    keyMessage: 'Build technology that is ready to grow.',
-    desc: 'Construct dependable cloud foundations with zero-downtime CI/CD, modern containerization, multi-environment security, observability, and database optimization.',
-    icon: Cloud,
-    color: 'from-indigo-500/10 to-indigo-500/5',
-    iconColor: 'text-indigo-600',
-    link: '/services#infrastructure',
-    tags: ['Cloud Architecture', 'DevOps & CI/CD', 'Observability', 'Security Hardening'],
-    image: '/img/professional-1.webp',
-  },
-  {
-    id: 'teams',
-    title: 'Teams',
-    sub: 'Build Your Technical Team',
-    keyMessage: 'Build the team behind your technology.',
-    desc: 'Strategic technology advisory and fractional CTO support to help startups evaluate, recruit, interview, and mentor their in-house engineering and data teams.',
-    icon: Users,
-    color: 'from-rose-500/10 to-rose-500/5',
-    iconColor: 'text-rose-600',
-    link: '/services#teams',
-    tags: ['Technical Hiring Rubrics', 'Fractional CTO', 'Code Reviews & Standards', 'Team Mentorship'],
-    image: '/img/professional-2.webp',
-  },
-]
-
-const PROBLEMS = [
-  {
-    title: 'Building the Wrong Product',
-    desc: 'Investing months building complex features before validating whether customers actually need or will pay for them.',
-  },
-  {
-    title: 'Choosing the Wrong Tech Stack',
-    desc: 'Adopting hyped frameworks or bloated architectures that cripple development speed and require painful rewrites later.',
-  },
-  {
-    title: 'Poor System Architecture',
-    desc: 'Fragile, monolithic codebases with tightly coupled logic that break under moderate user concurrency or schema shifts.',
-  },
-  {
-    title: 'Disconnected Business Data',
-    desc: 'Valuable customer and financial data trapped across isolated spreadsheets and third-party tools with zero consolidated visibility.',
-  },
-  {
-    title: 'AI Implemented Without Strategy',
-    desc: 'Adding superficial chatbot wrappers that hallucinate and cost money instead of automating concrete operational bottlenecks.',
-  },
-  {
-    title: 'Hiring Without Technical Leadership',
-    desc: 'Non-technical founders struggling to assess developer seniority, resulting in missed delivery dates and unmaintainable code.',
-  },
-]
-
-const PROCESS_STEPS = [
-  {
-    number: '01',
-    title: 'Understand',
-    desc: 'Deeply evaluate the business model, unit economics, target users, operational friction, and commercial goals.',
-  },
-  {
-    number: '02',
-    title: 'Strategize',
-    desc: 'Formulate an actionable technology roadmap, select appropriate stacks, and establish phased architectural milestones.',
-  },
-  {
-    number: '03',
-    title: 'Architect',
-    desc: 'Design the software schema, data models, cloud infrastructure, security policies, and AI boundaries.',
-  },
-  {
-    number: '04',
-    title: 'Build',
-    desc: 'Execute clean, maintainable engineering with automated testing, continuous integration, and rapid delivery cycles.',
-  },
-  {
-    number: '05',
-    title: 'Integrate',
-    desc: 'Unify internal workflows, third-party APIs, data pipelines, and intelligent automation into a cohesive ecosystem.',
-  },
-  {
-    number: '06',
-    title: 'Scale',
-    desc: 'Continuously optimize database queries, cloud infrastructure, reliability engineering, and technical team capacity.',
-  },
-]
-
-const TECH_DOMAINS = [
-  {
-    domain: 'Frontend & User Experience',
-    tech: ['React', 'Next.js', 'Vite', 'TypeScript', 'Tailwind CSS', 'State Management'],
-    desc: 'Fast, responsive, accessible web and mobile interfaces built for high user conversion and retention.',
-  },
-  {
-    domain: 'Backend & System APIs',
-    tech: ['FastAPI', 'Python', 'Node.js', 'Spring Boot / Java', 'REST & GraphQL', 'Event Queues'],
-    desc: 'Secure, high-throughput microservices and APIs engineered for business logic integrity.',
-  },
-  {
-    domain: 'Data & Analytics',
-    tech: ['PostgreSQL', 'MySQL', 'Redis', 'Modern Data Warehouses', 'ETL/ELT Pipelines', 'Apache Spark'],
-    desc: 'High-availability transactional databases, optimized caching layers, and analytical pipelines.',
-  },
-  {
-    domain: 'Applied AI & ML',
-    tech: ['Large Language Models', 'Retrieval-Augmented Gen (RAG)', 'Vector DBs (pgvector)', 'AI Agents', 'Automation'],
-    desc: 'Pragmatic, measurable AI applications that streamline workflows without unnecessary overhead.',
-  },
-  {
-    domain: 'Infrastructure & Cloud',
-    tech: ['Docker & Containers', 'Cloud Environments', 'CI/CD Pipelines', 'Monitoring & Tracing', 'Cloudflare'],
-    desc: 'Resilient, automated cloud infrastructure designed to scale smoothly with zero operational panic.',
-  },
-]
-
-const ENGAGEMENT_MODELS = [
-  {
-    title: 'Project Engagement',
-    desc: 'For clearly defined software, data, or AI initiatives with specific deliverables, milestones, and timelines.',
-    features: ['Fixed-scope or sprint-based delivery', 'Complete architecture & documentation', 'Full IP and codebase handover'],
-    image: '/img/professional-3.webp',
-    pill: 'Fixed Milestones',
-  },
-  {
-    title: 'Dedicated Technology Partner',
-    desc: 'For startups that require ongoing engineering velocity, architectural guidance, and continuous product iteration.',
-    features: ['Embedded senior engineering capacity', 'Ongoing architecture & data oversight', 'Sprint-by-sprint technical alignment'],
-    image: '/img/professional-1.webp',
-    pill: 'Continuous Velocity',
-  },
-  {
-    title: 'Fractional CTO',
-    desc: 'For non-technical founders or growing companies needing high-level strategic technology direction without a full-time hire.',
-    features: ['Technical roadmapping & stack selection', 'Vendor & partner technical evaluation', 'Board & investor technical advisory'],
-    image: '/img/professional-5.webp',
-    pill: 'Strategic Advisory',
-  },
-  {
-    title: 'Team Building & Mentorship',
-    desc: 'For businesses transitioning to an internal team, ensuring they hire the right talent and adopt mature standards.',
-    features: ['Technical interview support & coding rubrics', 'Engineering culture & workflow setup', 'Onboarding & codebase knowledge transfer'],
-    image: '/img/professional-2.webp',
-    pill: 'In-House Talent',
-  },
-]
-
 export default function Home() {
+  // Use cases carousel index
+  const [carouselIdx, setCarouselIdx] = useState(0)
+
+  // FAQ Tab Filter and Accordion State
+  const [faqCategory, setFaqCategory] = useState<'all' | 'architecture' | 'network' | 'developer'>('all')
+  const [openFaq, setOpenFaq] = useState<number | null>(0)
+
+  // Terminal active tab state
+  const [terminalTab, setTerminalTab] = useState<'protocol' | 'architecture' | 'metrics'>('protocol')
+
+  const USE_CASES = [
+    {
+      id: 'public-systems',
+      title: 'Public Systems',
+      desc: 'Transparent registry state, sovereign digital credentials, and verifiably immutable audit trails for civic and public institutions.',
+      img: '/img/aerion/use-case-1.webp',
+      badge: 'Public Infrastructure',
+    },
+    {
+      id: 'energy',
+      title: 'Energy & Grid',
+      desc: 'Decentralized automated micro-grid settlements, renewable carbon credit accounting, and sub-second IoT telemetry verification.',
+      img: '/img/aerion/use-case-2.webp',
+      badge: 'Distributed Grid',
+    },
+    {
+      id: 'infrastructure',
+      title: 'Infrastructure',
+      desc: 'Decoupled settlement layers, cross-chain messaging primitives, and zero-knowledge privacy channels for mission-critical logistics.',
+      img: '/img/aerion/use-case-3.webp',
+      badge: 'Zero-Knowledge',
+    },
+    {
+      id: 'data-ai',
+      title: 'Data & Intelligence',
+      desc: 'Verifiable AI inference proofs, decentralized training provenance, and secure high-volume transactional data pipelines.',
+      img: '/img/aerion/use-case-4.webp',
+      badge: 'Verifiable AI',
+    },
+  ]
+
+  const FAQS = [
+    {
+      id: 0,
+      category: 'architecture',
+      question: 'What is AERION?',
+      answer:
+        'AERION is a high-performance decentralized Layer-1 and modular infrastructure platform. Engineered with mathematical formal verification, AERION delivers sub-second deterministic finality, modular state execution, and institutional cryptographic security for modern technology ventures.',
+    },
+    {
+      id: 1,
+      category: 'network',
+      question: 'How does AERION scale real-world throughput?',
+      answer:
+        'AERION decouples consensus ordering from execution state channels. By parallelizing transaction verification across pipelined DAG validators, the network sustains over 65,000 TPS without sacrificing decentralization or elevating hardware node requirements.',
+    },
+    {
+      id: 2,
+      category: 'developer',
+      question: 'Is AERION EVM-compatible or WASM native?',
+      answer:
+        'AERION offers a dual runtime environment: complete bytecode compatibility for Solidity and EVM developer tooling, alongside an ultra-fast WebAssembly (WASM) execution engine for Rust, TypeScript, and Go smart contracts.',
+    },
+    {
+      id: 3,
+      category: 'developer',
+      question: 'How do I build and deploy applications on AERION?',
+      answer:
+        'Developers can spin up nodes via the AERION CLI, test against local sandbox testnets, and deploy using standard toolchains (Hardhat, Foundry, or the native Aerion SDK) with comprehensive automated test harnesses.',
+    },
+    {
+      id: 4,
+      category: 'architecture',
+      question: 'What makes AERION different from traditional networks?',
+      answer:
+        'Unlike fragile monolithic chains or hyped agency platforms, AERION prioritizes long-term architectural durability: zero vendor lock-in, mathematically verified state transitions, and predictable low gas fees anchored by sustainable tokenomics.',
+    },
+  ]
+
+  const filteredFaqs = faqCategory === 'all' ? FAQS : FAQS.filter((f) => f.category === faqCategory)
+
   return (
-    <div className="space-y-24 sm:space-y-32 pb-20">
+    <div className="space-y-24 sm:space-y-36 pb-0 overflow-x-hidden selection:bg-slate-900 selection:text-white">
       {/* =========================================================================
-          SECTION 1 — HERO
+          SECTION 1 — HERO SECTION (Cinematic Landscape Card with Floating Header)
           ========================================================================= */}
-      <section className="relative px-4 pt-6 sm:px-6 sm:pt-12 md:pt-16">
-        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl sm:rounded-[36px] border border-slate-200/90 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/90 p-6 sm:p-12 md:p-16 shadow-[0_24px_70px_rgba(15,23,42,0.06)]">
-          {/* Subtle Ambient Grid */}
-          <div className="tech-grid absolute inset-0 opacity-40 pointer-events-none" />
+      <section className="relative px-3 pt-3 sm:px-6 sm:pt-5">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[32px] sm:rounded-[40px] border border-slate-200/90 shadow-[0_30px_90px_rgba(15,23,42,0.14)] min-h-[580px] sm:min-h-[660px] md:min-h-[720px] flex flex-col justify-between p-6 sm:p-10 md:p-14 text-white">
+          {/* Cinematic Landscape Background Image */}
+          <div className="absolute inset-0 select-none pointer-events-none">
+            <img
+              src="/img/aerion/hero-cinematic.webp"
+              alt="Where Growth Feels Natural for the Long Term"
+              className="size-full object-cover object-center scale-105 transition-transform duration-1000"
+            />
+            {/* Soft Ambient Cinematic Vignette */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-slate-950/30" />
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-transparent" />
+          </div>
 
-          <div className="relative mx-auto max-w-4xl text-center">
-            {/* Pill */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100/80 px-4 py-1.5 text-xs font-semibold text-brand ring-1 ring-purple-200 mb-6">
-              <Sparkles className="size-3.5 text-brand" />
-              <span>Technology Partner for Startups & Growing Businesses</span>
-            </div>
+          {/* Top Floating Transparent Navigation Inside Card */}
+          <header className="relative z-20 flex items-center justify-between border-b border-white/20 pb-5">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <div className="grid size-9 place-items-center rounded-xl bg-white/15 backdrop-blur-md border border-white/30 text-white transition group-hover:scale-105">
+                <Boxes className="size-5" />
+              </div>
+              <span className="font-extrabold tracking-[0.25em] text-sm uppercase text-white drop-shadow-sm">
+                AERION
+              </span>
+            </Link>
 
-            {/* Hero Headline */}
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl md:text-6xl lg:text-[64px] leading-[1.12]">
-              We Build the Technology Behind Growing Businesses.
-            </h1>
+            {/* Nav links */}
+            <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-white/90">
+              <Link to="/solutions" className="transition hover:text-white">
+                Solutions
+              </Link>
+              <Link to="/services" className="transition hover:text-white">
+                Network
+              </Link>
+              <Link to="/about" className="transition hover:text-white">
+                About
+              </Link>
+              <Link to="/products" className="transition hover:text-white">
+                Products
+              </Link>
+            </nav>
 
-            {/* Supporting Text */}
-            <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed font-normal">
-              From startup ideas and MVPs to scalable software, data infrastructure, AI systems, and technical teams, Aqivo
-              helps businesses build the technology foundations they need to grow.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Link
+                to="/login"
+                className="hidden sm:inline-block text-xs font-semibold text-white/90 hover:text-white px-3 py-1.5 transition"
+              >
+                Sign In
+              </Link>
               <Link
                 to="/contact"
-                className="btn-brand inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm sm:text-base font-bold shadow-lg transition hover:scale-[1.02] active:scale-95"
+                className="rounded-full bg-slate-950/90 text-white hover:bg-black px-5 py-2 text-xs font-bold tracking-wide uppercase shadow-lg border border-white/20 transition hover:scale-[1.02] active:scale-95"
               >
-                <span>Talk to Our Team</span>
-                <ArrowRight className="size-4" />
+                Get Started
               </Link>
-              <a
-                href="#solutions"
-                className="glass inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm sm:text-base font-bold text-slate-800 transition hover:bg-white active:scale-95 border border-slate-200"
+            </div>
+          </header>
+
+          {/* Center Hero Content */}
+          <div className="relative z-10 mx-auto my-auto max-w-3xl text-center pt-10 sm:pt-14 pb-8">
+            {/* Top Tag Pill */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-3.5 py-1 text-[11px] font-semibold text-white border border-white/30 shadow-xs mb-6">
+              <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="tracking-wider uppercase">INTRODUCING THE AERION NETWORK</span>
+            </div>
+
+            {/* Hero Headline in Editorial Serif */}
+            <h1 className="font-editorial text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-normal tracking-tight text-white drop-shadow-md leading-[1.08]">
+              Where Growth Feels Natural for the Long Term
+            </h1>
+
+            {/* Subtext in Clean Sans */}
+            <p className="mx-auto mt-6 max-w-xl text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-normal drop-shadow-xs">
+              Aqivo is building the technology behind growing businesses. We design modular systems that prioritize
+              clarity, scalability, and long-term trust.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+              <Link
+                to="/contact"
+                className="rounded-full bg-slate-950 text-white hover:bg-black px-7 py-3 text-xs sm:text-sm font-bold tracking-wide uppercase shadow-xl border border-white/20 transition hover:scale-[1.02] active:scale-95"
               >
-                <span>Explore Our Solutions</span>
-              </a>
+                Get Started
+              </Link>
+              <Link
+                to="/solutions"
+                className="rounded-full bg-white/85 hover:bg-white text-slate-950 px-7 py-3 text-xs sm:text-sm font-bold tracking-wide uppercase backdrop-blur-md shadow-md border border-white/80 transition hover:scale-[1.02] active:scale-95"
+              >
+                View Platform
+              </Link>
             </div>
           </div>
 
-          {/* Interactive Ecosystem Visualizer in Hero */}
-          <div className="relative mt-12 sm:mt-16">
-            <EcosystemVisualizer />
+          {/* Bottom subtle ambient spacer */}
+          <div className="relative z-10 flex items-center justify-between text-[11px] text-white/60 pt-4">
+            <span>Decentralized Modular State</span>
+            <span>Sub-Second Deterministic Finality</span>
           </div>
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 2 — THE PROBLEM
+          SECTION 2 — THE PHILOSOPHY (Statement with Inline Image Pills)
+          ========================================================================= */}
+      <section className="mx-auto max-w-6xl px-5 sm:px-8 text-center">
+        {/* Pill Badge */}
+        <div className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-3.5 py-1 text-[11px] font-bold tracking-widest uppercase mb-8 shadow-xs">
+          <span className="size-1.5 rounded-full bg-emerald-400" />
+          <span>OUR PHILOSOPHY</span>
+        </div>
+
+        {/* Big Editorial Headline with Inline Image Pills */}
+        <h2 className="font-editorial text-2xl sm:text-4xl md:text-5xl lg:text-[52px] text-slate-900 leading-[1.35] max-w-4xl mx-auto font-normal">
+          AERION is building the quiet infrastructure{' '}
+          <span className="inline-flex align-middle mx-1.5 w-16 sm:w-20 h-7 sm:h-9 rounded-full overflow-hidden border border-slate-300 shadow-sm relative -translate-y-0.5">
+            <img src="/img/aerion/pill-1.webp" alt="Infrastructure" className="size-full object-cover" />
+          </span>{' '}
+          behind the next era of Web3. We design modular systems that prioritize clarity, flexibility, and long-term
+          trust across{' '}
+          <span className="inline-flex align-middle mx-1.5 w-16 sm:w-20 h-7 sm:h-9 rounded-full overflow-hidden border border-slate-300 shadow-sm relative -translate-y-0.5">
+            <img src="/img/aerion/pill-2.webp" alt="Decentralized Networks" className="size-full object-cover" />
+          </span>{' '}
+          decentralized networks.
+        </h2>
+
+        <p className="mt-6 text-xs sm:text-sm text-slate-500 tracking-wider uppercase font-medium">
+          Built for scalable architectures and long-term stability.
+        </p>
+      </section>
+
+      {/* =========================================================================
+          SECTION 3 — AERION NETWORK SHOWCASE (Split Column with Terminal)
           ========================================================================= */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-white/90 p-8 sm:p-12 shadow-sm">
-          <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] items-center">
+        <div className="grid gap-12 lg:grid-cols-2 items-center">
+          {/* Left Column: Description & Features */}
+          <div className="space-y-6">
+            <h3 className="font-editorial text-3xl sm:text-5xl font-normal text-slate-900 leading-tight">
+              AERION Network
+            </h3>
+
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+              A modern foundation for building, executing, and scaling smart contracts and distributed systems with
+              uncompromising security and developer velocity.
+            </p>
+
+            <div className="pt-2">
+              <Link
+                to="/services"
+                className="inline-flex items-center gap-2 rounded-full bg-slate-950 text-white hover:bg-black px-6 py-3 text-xs font-bold tracking-wider uppercase shadow-md transition hover:scale-[1.02]"
+              >
+                <span>Learn More</span>
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+
+            {/* 4 Feature Checklist Items */}
+            <div className="pt-6 space-y-4 border-t border-slate-200">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Build on-chain</span>
+                </div>
+                <p className="pl-6 text-xs text-slate-500">
+                  Comprehensive developer toolchains, native compilers, and debugger suites.
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Correct by construct</span>
+                </div>
+                <p className="pl-6 text-xs text-slate-500">
+                  Mathematical state verification preventing re-entrancy and unexpected edge execution.
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Scale with confidence</span>
+                </div>
+                <p className="pl-6 text-xs text-slate-500">
+                  Parallel execution channels sustaining 65,000+ deterministic transactions per second.
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                  <span>Secure by design</span>
+                </div>
+                <p className="pl-6 text-xs text-slate-500">
+                  Hardware-segregated cryptographic validator keys and distributed multi-signature governance.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Landscape Card with Floating Dark Glassmorphic Terminal Modal */}
+          <div className="relative aspect-[16/11] w-full overflow-hidden rounded-3xl border border-slate-200 shadow-2xl bg-slate-950 flex items-center justify-center p-4 sm:p-8">
+            {/* Background Landscape Image */}
+            <img
+              src="/img/aerion/hero-cinematic.webp"
+              alt="Network Landscape"
+              className="absolute inset-0 size-full object-cover object-center filter saturate-125"
+            />
+            <div className="absolute inset-0 bg-slate-950/30 backdrop-blur-[2px]" />
+
+            {/* Floating Glassmorphic Terminal Window */}
+            <div className="relative z-10 w-full max-w-md rounded-2xl bg-slate-950/85 backdrop-blur-xl border border-white/20 p-5 shadow-2xl text-white">
+              {/* Header Bar */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <Terminal className="size-4 text-purple-400" />
+                  <span className="text-xs font-bold tracking-wider text-slate-200 uppercase">
+                    Launch Web3 Resources
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400 font-mono">
+                  <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Live 99.99%</span>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="mt-3 flex items-center gap-2 border-b border-white/10 pb-2 text-[11px] font-semibold text-slate-400">
+                <button
+                  type="button"
+                  onClick={() => setTerminalTab('protocol')}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md transition',
+                    terminalTab === 'protocol' ? 'bg-white/15 text-white' : 'hover:text-white'
+                  )}
+                >
+                  Protocol
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTerminalTab('architecture')}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md transition',
+                    terminalTab === 'architecture' ? 'bg-white/15 text-white' : 'hover:text-white'
+                  )}
+                >
+                  Architecture
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTerminalTab('metrics')}
+                  className={cn(
+                    'px-2.5 py-1 rounded-md transition',
+                    terminalTab === 'metrics' ? 'bg-white/15 text-white' : 'hover:text-white'
+                  )}
+                >
+                  Metrics
+                </button>
+              </div>
+
+              {/* Terminal Body */}
+              <div className="mt-4 space-y-3 font-mono text-xs">
+                <div className="rounded-xl bg-black/40 border border-white/10 p-3 space-y-2">
+                  <div className="flex justify-between text-slate-400">
+                    <span>Target Throughput</span>
+                    <span className="text-purple-300 font-bold">65,000 TPS</span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-gradient-to-r from-purple-500 to-emerald-400 h-full w-[88%]" />
+                  </div>
+
+                  <div className="flex justify-between text-slate-400 pt-1">
+                    <span>Block Finality</span>
+                    <span className="text-emerald-300 font-bold">400ms</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400">
+                    <span>Active Validators</span>
+                    <span className="text-white font-bold">1,280 Nodes</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 pt-2">
+                  <button
+                    type="button"
+                    className="flex-1 rounded-lg bg-white/10 hover:bg-white/20 py-2 text-center text-xs font-semibold text-white transition border border-white/15"
+                  >
+                    Inspect Spec
+                  </button>
+                  <Link
+                    to="/contact"
+                    className="flex-1 rounded-lg bg-white hover:bg-slate-100 py-2 text-center text-xs font-bold text-slate-900 transition shadow-sm"
+                  >
+                    Deploy Node
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 4 — ARCHITECTURE & SCALE (Built to scale real-world complexity)
+          ========================================================================= */}
+      <section className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="border-t border-slate-200/80 pt-12">
+          {/* Pill Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-slate-900 text-white px-3.5 py-1 text-[11px] font-bold tracking-widest uppercase mb-8 shadow-xs">
+            <span className="size-1.5 rounded-full bg-purple-400" />
+            <span>ARCHITECTURE & SCALE</span>
+          </div>
+
+          <div className="grid gap-10 lg:grid-cols-3 items-start">
+            {/* Left Headline */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-brand">The Reality of Startup Engineering</p>
-              <h2 className="mt-2 text-2xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
-                Building a Business Is Hard. Building the Right Technology Shouldn't Be.
+              <h2 className="font-editorial text-3xl sm:text-5xl font-normal text-slate-900 leading-tight">
+                Built to scale real-world complexity
               </h2>
-              <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-                Most startup failures are not market failures—they are technical execution failures. Founders spend precious
-                capital navigating fragmented decisions without strategic technical partnership.
+            </div>
+
+            {/* Right Pillars (2 columns) */}
+            <div className="space-y-3">
+              <div className="grid size-10 place-items-center rounded-xl bg-slate-100 text-slate-900 border border-slate-200">
+                <Layers className="size-5" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">Modular by design</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                Decoupled execution environments, custom data schemas, and isolated state channels that grow with your
+                business without architectural dead-ends.
               </p>
             </div>
 
-            {/* Strategic Reality Photographic Callout */}
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200 shadow-md">
-              <div className="relative aspect-[16/10] w-full">
-                <img
-                  src="/img/professional-6.webp"
-                  alt="Senior engineering leadership and strategic planning"
-                  loading="lazy"
-                  decoding="async"
-                  className="size-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
-                <div className="absolute top-3 left-3">
-                  <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-[10px] font-bold text-slate-900 shadow-xs">
-                    Engineering Architecture
-                  </span>
-                </div>
-                <div className="absolute bottom-3 left-3 right-3 text-white">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-purple-300">The Cost of Tech Debt</p>
-                  <p className="text-xs sm:text-sm font-semibold mt-0.5 leading-snug">
-                    Over 65% of early software rewrites stem from missing architectural blueprints.
-                  </p>
-                </div>
+            <div className="space-y-3">
+              <div className="grid size-10 place-items-center rounded-xl bg-slate-100 text-slate-900 border border-slate-200">
+                <Sliders className="size-5" />
               </div>
-            </div>
-          </div>
-
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {PROBLEMS.map((prob, i) => (
-              <div
-                key={i}
-                className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-5 transition-all hover:bg-white hover:shadow-md"
-              >
-                <div className="flex items-center gap-2 text-rose-600 mb-2.5">
-                  <AlertCircle className="size-4 shrink-0" />
-                  <h3 className="text-sm font-bold text-slate-900">{prob.title}</h3>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{prob.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 rounded-2xl bg-purple-50/80 border border-purple-200/80 p-5 sm:p-6 text-slate-800">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-brand">The Aqivo Advantage</p>
-                <p className="text-sm sm:text-base font-semibold text-slate-900 mt-0.5">
-                  Aqivo bridges business strategy and deep engineering discipline so you build right the first time.
-                </p>
-              </div>
-              <Link
-                to="/about"
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-brand hover:underline shrink-0"
-              >
-                <span>Read our philosophy</span>
-                <ChevronRight className="size-4" />
-              </Link>
+              <h3 className="text-lg font-bold text-slate-900">Programmable governance</h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                Automated on-chain parameter tuning, verifiable cryptographic proofs, and multi-signature authorization
+                ensuring predictable operational control.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 3 — AQIVO SOLUTIONS (6 Major Pillars with Photographic Bento Cards)
+          SECTION 5 — REAL-WORLD USE CASES CAROUSEL
           ========================================================================= */}
-      <section id="solutions" className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand">Comprehensive Capabilities</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
-            Six Pillars of Strategic Technology
+      <section className="mx-auto max-w-7xl px-5 sm:px-8">
+        {/* Header with Slider Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-6">
+          <h2 className="font-editorial text-3xl sm:text-4xl font-normal text-slate-900">
+            Built for Real-World Use Cases
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            Whether you need to validate an initial architecture or scale high-volume systems, Aqivo provides senior
-            capabilities across every facet of modern engineering.
-          </p>
+
+          <div className="flex items-center gap-3">
+            {/* Progress line */}
+            <div className="w-24 sm:w-32 h-0.5 bg-slate-200 rounded-full overflow-hidden">
+              <div
+                className="bg-slate-900 h-full transition-all duration-300"
+                style={{ width: `${((carouselIdx + 1) / USE_CASES.length) * 100}%` }}
+              />
+            </div>
+            {/* Arrows */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCarouselIdx((prev) => (prev > 0 ? prev - 1 : USE_CASES.length - 1))}
+                className="grid size-8 place-items-center rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition shadow-2xs"
+                aria-label="Previous card"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setCarouselIdx((prev) => (prev < USE_CASES.length - 1 ? prev + 1 : 0))}
+                className="grid size-8 place-items-center rounded-full border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition shadow-2xs"
+                aria-label="Next card"
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {SOLUTIONS.map((sol) => {
-            const Icon = sol.icon
+        {/* 4 Portrait Cards Grid */}
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {USE_CASES.map((uc) => (
+            <div
+              key={uc.id}
+              className="group relative aspect-[4/5] overflow-hidden rounded-3xl border border-slate-200/90 bg-slate-950 shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            >
+              <img
+                src={uc.img}
+                alt={uc.title}
+                loading="lazy"
+                decoding="async"
+                className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent" />
+
+              <div className="absolute top-4 left-4">
+                <span className="rounded-full bg-white/90 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-slate-900 shadow-xs">
+                  {uc.badge}
+                </span>
+              </div>
+
+              <div className="absolute bottom-5 left-5 right-5 text-white">
+                <h3 className="font-editorial text-2xl font-normal drop-shadow-xs">{uc.title}</h3>
+                <p className="mt-1 text-xs text-white/80 line-clamp-2 leading-relaxed font-normal">{uc.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 6 — FAQ ACCORDION (Everything you need to know)
+          ========================================================================= */}
+      <section className="mx-auto max-w-4xl px-5 sm:px-8">
+        <div className="text-center max-w-2xl mx-auto">
+          <h2 className="font-editorial text-3xl sm:text-5xl font-normal text-slate-900 leading-tight">
+            Everything you need to know
+          </h2>
+          <p className="mt-3 text-xs sm:text-sm text-slate-600 font-normal">
+            Clear answers about our network architecture, consensus layer, and developer tooling.
+          </p>
+
+          {/* Filter Pills */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            {[
+              { id: 'all', label: 'All' },
+              { id: 'architecture', label: 'Architecture' },
+              { id: 'network', label: 'Network' },
+              { id: 'developer', label: 'Developer' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setFaqCategory(tab.id as any)}
+                className={cn(
+                  'rounded-full px-4 py-1.5 text-xs font-semibold transition',
+                  faqCategory === tab.id
+                    ? 'bg-slate-950 text-white shadow-xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                )}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Stacked Accordion Items */}
+        <div className="mt-10 space-y-3">
+          {filteredFaqs.map((faq) => {
+            const isOpen = openFaq === faq.id
             return (
               <div
-                key={sol.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-slate-300"
+                key={faq.id}
+                className={cn(
+                  'overflow-hidden rounded-2xl border transition-all duration-200 bg-white',
+                  isOpen ? 'border-slate-300 shadow-sm' : 'border-slate-200 hover:border-slate-300 shadow-2xs'
+                )}
               >
-                <div>
-                  {/* Photo Header */}
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
-                    <img
-                      src={sol.image}
-                      alt={sol.sub}
-                      loading="lazy"
-                      decoding="async"
-                      className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent" />
-                    <div className="absolute top-3 left-3">
-                      <div className={cn('grid size-9 place-items-center rounded-xl bg-white/95 backdrop-blur-md shadow-xs', sol.iconColor)}>
-                        <Icon className="size-4.5" />
-                      </div>
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <span className="rounded-full bg-slate-900/80 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-white border border-white/20">
-                        Aqivo {sol.title}
-                      </span>
-                    </div>
-                    <div className="absolute bottom-3 left-3 right-3 text-white">
-                      <p className="text-[10px] font-semibold text-purple-200">"{sol.keyMessage}"</p>
-                      <h3 className="text-base font-bold drop-shadow-xs line-clamp-1">{sol.sub}</h3>
-                    </div>
-                  </div>
-
-                  <div className="p-6">
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{sol.desc}</p>
-
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      {sol.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="px-6 pb-6 pt-2 border-t border-slate-100">
-                  <Link
-                    to={sol.link}
-                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-900 group-hover:text-brand transition-colors"
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(isOpen ? null : faq.id)}
+                  className="flex w-full items-center justify-between p-5 text-left transition"
+                >
+                  <span className="text-sm sm:text-base font-bold text-slate-900">{faq.question}</span>
+                  <div
+                    className={cn(
+                      'grid size-7 place-items-center rounded-full transition-colors',
+                      isOpen ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700'
+                    )}
                   >
-                    <span>Learn more about {sol.title}</span>
-                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </div>
+                    {isOpen ? <Minus className="size-3.5" /> : <Plus className="size-3.5" />}
+                  </div>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="border-t border-slate-100 p-5 pt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                        {faq.answer}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             )
           })}
@@ -430,531 +607,203 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          SECTION 4 — HOW AQIVO WORKS (The 6-Step Process)
+          SECTION 7 — PRE-FOOTER CINEMATIC BANNER
           ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-gradient-to-br from-slate-900 via-slate-900 to-[#101a38] p-8 sm:p-14 text-white shadow-2xl">
-          <div className="max-w-3xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-purple-400">Our Methodology</span>
-            <h2 className="mt-2 text-2xl sm:text-4xl font-extrabold leading-tight">
-              From Problem to Scalable Solution.
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-300">
-              We apply an engineering process that balances commercial speed with architectural durability.
-            </p>
+      <section className="relative px-3 sm:px-6">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[32px] sm:rounded-[40px] border border-slate-200/90 shadow-[0_24px_70px_rgba(15,23,42,0.14)] min-h-[420px] sm:min-h-[480px] flex items-center justify-center p-8 sm:p-14 text-center text-white">
+          {/* Panoramic Mountain Cloud Background */}
+          <div className="absolute inset-0 select-none pointer-events-none">
+            <img
+              src="/img/aerion/mountains-fog.webp"
+              alt="Where Decentralization Becomes Intuitive"
+              className="size-full object-cover object-center scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-slate-950/40" />
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {PROCESS_STEPS.map((step) => (
-              <div
-                key={step.number}
-                className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xs transition hover:bg-white/10"
-              >
-                <span className="text-2xl font-black text-purple-400">{step.number}</span>
-                <h3 className="mt-2 text-lg font-bold text-white">{step.title}</h3>
-                <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6">
-            <p className="text-xs text-slate-400">
-              Clear sprint timelines, transparent Git repositories, and direct senior communication.
-            </p>
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 transition hover:bg-slate-100"
-            >
-              <span>Schedule Initial Technical Audit</span>
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 5 — STARTUP TECHNOLOGY JOURNEY (Stages)
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand">Long-Term Partnership</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
-            Meeting You at Every Stage of Growth
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            Aqivo does not abandon you after an MVP launch. We stay by your side as an enduring technical partner.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            {
-              stage: 'Stage 1 — Idea',
-              desc: 'Transform initial business hypotheses into validated technical roadmaps and feasibility specs.',
-              services: ['Technology Strategy', 'Feasibility Analysis', 'MVP Planning & Scoping'],
-              pill: 'Pre-Seed',
-              image: '/img/professional-5.webp',
-            },
-            {
-              stage: 'Stage 2 — MVP',
-              desc: 'Build and deploy a production-grade initial product with high reliability and quick feedback loops.',
-              services: ['Product Design', 'Software Development', 'Core Cloud Infrastructure'],
-              pill: 'Seed & Launch',
-              image: '/img/professional-3.webp',
-            },
-            {
-              stage: 'Stage 3 — Growth',
-              desc: 'Optimize database bottlenecks, streamline operational data, and automate repetitive workflows.',
-              services: ['Performance Optimization', 'Data Architecture', 'Analytics & Automation'],
-              pill: 'Series A / Traction',
-              image: '/img/professional-4.webp',
-            },
-            {
-              stage: 'Stage 4 — Scale',
-              desc: 'Deploy resilient multi-cloud architecture, applied AI systems, and transition to in-house teams.',
-              services: ['AI Systems & Agents', 'Cloud Reliability Engineering', 'Engineering Team Hiring'],
-              pill: 'Scale & Enterprise',
-              image: '/img/professional-2.webp',
-            },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div>
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
-                  <img
-                    src={item.image}
-                    alt={item.stage}
-                    loading="lazy"
-                    decoding="async"
-                    className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3 left-3">
-                    <span className="rounded-full bg-white/90 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-brand border border-white/60">
-                      {item.pill}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3 text-white">
-                    <h3 className="text-base font-bold drop-shadow-xs">{item.stage}</h3>
-                  </div>
-                </div>
-
-                <div className="p-5">
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{item.desc}</p>
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Core Services</p>
-                    <ul className="space-y-1.5 text-xs text-slate-700">
-                      {item.services.map((s) => (
-                        <li key={s} className="flex items-center gap-1.5">
-                          <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
-                          <span>{s}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-5 pt-0">
-                <div className="pt-2 border-t border-slate-100">
-                  <Link
-                    to="/services"
-                    className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:underline"
-                  >
-                    <span>Explore stage services</span>
-                    <ArrowRight className="size-3" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 6 — PRODUCT ECOSYSTEM SPOTLIGHT (Aqivo Store)
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-gradient-to-r from-purple-50/50 via-white to-blue-50/50 p-8 sm:p-12 shadow-sm">
-          <div className="grid items-center gap-8 lg:grid-cols-[1.3fr_1fr]">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
-                <ShoppingBag className="size-3.5" />
-                <span>Aqivo Product Ecosystem</span>
-              </div>
-
-              <h2 className="mt-4 text-2xl sm:text-4xl font-extrabold text-slate-900">
-                Aqivo Store: From Physical Shop to Modern Online Commerce
-              </h2>
-
-              <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-                As part of our commitment to empowering businesses, we created <strong>Aqivo Store</strong>—a premium
-                digital storefront platform engineered for merchants and retailers moving from physical selling to online selling.
-              </p>
-
-              <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700">
-                <span className="rounded-md bg-white px-2.5 py-1 border border-slate-200">Physical Shop</span>
-                <span>→</span>
-                <span className="rounded-md bg-purple-100 text-brand px-2.5 py-1 border border-purple-200">Aqivo</span>
-                <span>→</span>
-                <span className="rounded-md bg-white px-2.5 py-1 border border-slate-200">Online Store</span>
-              </div>
-
-              <div className="mt-6 grid grid-cols-2 gap-2 text-xs sm:text-sm text-slate-700">
-                {[
-                  'Digital storefront with fast checkout',
-                  'Product & live inventory management',
-                  'Itemized WhatsApp order routing',
-                  'M-Pesa, card & mobile payment verification',
-                  'Customer tracking and live status updates',
-                  'Custom branding, domains & SEO readiness',
-                ].map((feat) => (
-                  <div key={feat} className="flex items-center gap-2">
-                    <CheckCircle2 className="size-3.5 text-brand shrink-0" />
-                    <span>{feat}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Link
-                  to="/products"
-                  className="btn-brand inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs sm:text-sm font-bold shadow-md"
-                >
-                  <span>Explore Aqivo Store</span>
-                  <ArrowRight className="size-3.5" />
-                </Link>
-                <Link
-                  to="/register"
-                  className="glass inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs sm:text-sm font-bold text-slate-800 border border-slate-200"
-                >
-                  <span>Launch a Merchant Store</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Store Preview Illustration with Real Retail Imagery */}
-            <div className="relative rounded-3xl border border-slate-200/90 bg-white p-4 shadow-xl overflow-hidden">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 px-2">
-                <div className="flex items-center gap-2">
-                  <div className="size-2.5 rounded-full bg-red-400" />
-                  <div className="size-2.5 rounded-full bg-amber-400" />
-                  <div className="size-2.5 rounded-full bg-emerald-400" />
-                </div>
-                <span className="text-xs font-mono text-slate-400">aqivo.shop/two-sides</span>
-              </div>
-
-              <div className="mt-3 space-y-3">
-                {/* Physical Store Photo with Digital Storefront Overlay */}
-                <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-100">
-                  <img
-                    src="/img/retail-1.webp"
-                    alt="Physical merchant transformed to digital store"
-                    loading="lazy"
-                    decoding="async"
-                    className="size-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3 left-3">
-                    <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-[10px] font-bold text-slate-900 shadow-xs">
-                      Physical Store → Online
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3 right-3 text-white flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold text-purple-200">Automated Catalog</p>
-                      <p className="text-sm font-bold">Two Sides Boutique</p>
-                    </div>
-                    <span className="rounded-lg bg-emerald-500/90 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-xs">
-                      WhatsApp Live
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
-                    <p className="text-[11px] text-slate-500">Orders Received</p>
-                    <p className="text-base font-bold text-slate-900 mt-0.5">100% Automated</p>
-                    <p className="text-[10px] text-emerald-600 mt-0.5">Direct itemized cart</p>
-                  </div>
-                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
-                    <p className="text-[11px] text-slate-500">Instant Payments</p>
-                    <p className="text-base font-bold text-slate-900 mt-0.5">M-Pesa STK</p>
-                    <p className="text-[10px] text-brand mt-0.5">Auto-reconciliation</p>
-                  </div>
-                </div>
-
-                <p className="text-[11px] text-slate-400 text-center italic">
-                  Aqivo Store is one of several products in the Aqivo technology ecosystem.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 7 — TECHNICAL CAPABILITIES
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand">Modern Tooling</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
-            Pragmatic Engineering Capabilities
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            We do not mandate every technology for every project. Technology choices are strictly driven by your business
-            requirements, scalability targets, and team capabilities.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {TECH_DOMAINS.map((domain, i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <h3 className="text-base font-bold text-slate-900">{domain.domain}</h3>
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">{domain.desc}</p>
-              </div>
-              <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap gap-1.5">
-                {domain.tech.map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 border border-slate-200/60"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 8 — ENGAGEMENT MODELS
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand">Collaboration Structures</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
-            Flexible Ways to Work With Aqivo
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            From targeted technical sprints to long-term advisory and fractional leadership.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {ENGAGEMENT_MODELS.map((model, i) => (
-            <div
-              key={i}
-              className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div>
-                {/* Photo Header */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
-                  <img
-                    src={model.image}
-                    alt={model.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-3 left-3">
-                    <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-[10px] font-bold text-slate-900 shadow-xs">
-                      {model.pill}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 left-3 right-3 text-white">
-                    <h3 className="text-base font-bold drop-shadow-xs">{model.title}</h3>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{model.desc}</p>
-
-                  <ul className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-xs text-slate-700">
-                    {model.features.map((feat) => (
-                      <li key={feat} className="flex items-start gap-2">
-                        <CheckCircle2 className="size-3.5 text-brand shrink-0 mt-0.5" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="p-6 pt-0">
-                <Link
-                  to="/contact"
-                  className="btn-dark w-full rounded-full py-2.5 text-xs font-bold text-center block transition hover:bg-brand"
-                >
-                  Discuss Engagement
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 9 — INDUSTRIES OVERVIEW (With Photographic Showcase)
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-slate-50/80 p-8 sm:p-12">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-wider text-brand">Domain Experience</p>
-            <h2 className="mt-2 text-2xl sm:text-4xl font-extrabold text-slate-900">
-              Technology Solutions Designed Around Your Business Model
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-600">
-              Every vertical presents unique technical hurdles—whether it is real-time inventory synchronization,
-              regulatory compliance, or low-latency event processing.
-            </p>
-          </div>
-
-          {/* Featured 4-Photo Showcase Grid */}
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                title: 'Retail & Digital Commerce',
-                metric: 'Real-Time Sync',
-                desc: 'Digital storefronts, inventory tracking, and M-Pesa automated reconciliation.',
-                img: '/img/retail-1.webp',
-              },
-              {
-                title: 'Fleet & Logistics',
-                metric: 'Telemetry & Dispatch',
-                desc: 'Driver dispatch apps, route telemetry, and delivery tracking systems.',
-                img: '/img/auto-1.webp',
-              },
-              {
-                title: 'Healthcare & Clinics',
-                metric: 'Data Protection',
-                desc: 'Patient appointment triage, encrypted records, and compliance logging.',
-                img: '/img/clinic-1.webp',
-              },
-              {
-                title: 'SaaS & Professional Firms',
-                metric: 'Multi-Tenant Portals',
-                desc: 'Client workspaces, role-based workflows, and automated invoice billing.',
-                img: '/img/professional-4.webp',
-              },
-            ].map((ind, idx) => (
-              <div
-                key={idx}
-                className="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xs hover:shadow-lg transition-all"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                  <img
-                    src={ind.img}
-                    alt={ind.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                  <div className="absolute top-2.5 left-2.5">
-                    <span className="rounded-full bg-white/90 backdrop-blur-md px-2 py-0.5 text-[9px] font-bold text-slate-900">
-                      {ind.metric}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-                    <h3 className="text-xs sm:text-sm font-bold drop-shadow-xs">{ind.title}</h3>
-                  </div>
-                </div>
-                <div className="p-3.5">
-                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{ind.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 flex flex-wrap gap-2 sm:gap-3">
-            {[
-              'E-commerce & Retail',
-              'Logistics & Freight',
-              'Financial Services & FinTech',
-              'Education & EdTech',
-              'Healthcare & Clinics',
-              'Real Estate & PropTech',
-              'Professional Services',
-              'Multi-Sided Marketplaces',
-              'B2B SaaS Platforms',
-            ].map((ind) => (
-              <span
-                key={ind}
-                className="rounded-full bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-slate-800 border border-slate-200/80 shadow-2xs"
-              >
-                {ind}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-slate-200/70 flex items-center justify-between">
-            <p className="text-xs text-slate-500">
-              We focus on system architecture, database integrity, and operational flow rather than superficial redesigns.
-            </p>
-            <Link
-              to="/industries"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-brand hover:underline"
-            >
-              <span>Explore Industry Architectures</span>
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 10 — ABOUT AQIVO & FINAL CTA
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl sm:rounded-[36px] bg-gradient-to-br from-slate-900 via-slate-900 to-[#1e1045] p-8 sm:p-16 text-center text-white shadow-2xl">
-          <div className="tech-grid-dark absolute inset-0 pointer-events-none opacity-20" />
-
-          <div className="relative mx-auto max-w-3xl space-y-6">
-            <span className="rounded-full bg-white/10 px-4 py-1 text-xs font-semibold text-purple-200 border border-white/15">
-              Start Your Technology Journey
-            </span>
-
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-              Technology Should Help Businesses Move Forward.
+          {/* Banner Content */}
+          <div className="relative z-10 max-w-2xl mx-auto space-y-6">
+            <h2 className="font-editorial text-3xl sm:text-5xl md:text-6xl font-normal tracking-tight text-white drop-shadow-md leading-tight">
+              Where Decentralization Becomes Intuitive
             </h2>
 
-            <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed font-normal">
-              You shouldn't have to navigate complex software architecture, data modeling, AI implementation, and engineering
-              recruitment alone. Aqivo is your partner from the first line of strategy to long-term scale.
+            <p className="text-sm sm:text-base text-white/90 leading-relaxed font-normal drop-shadow-xs max-w-lg mx-auto">
+              Partner with senior engineers and architects who care about your business for the long term.
             </p>
 
-            <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3.5">
               <Link
                 to="/contact"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-4 text-sm sm:text-base font-bold text-slate-900 shadow-xl transition hover:bg-slate-100 active:scale-95"
+                className="rounded-full bg-slate-950 text-white hover:bg-black px-7 py-3 text-xs sm:text-sm font-bold tracking-wide uppercase shadow-xl border border-white/20 transition hover:scale-[1.02] active:scale-95"
               >
-                <span>Start a Conversation</span>
-                <ArrowRight className="size-4" />
+                Start Building
               </Link>
               <Link
                 to="/services"
-                className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-8 py-4 text-sm sm:text-base font-bold text-white transition hover:bg-white/20 active:scale-95"
+                className="rounded-full bg-white/85 hover:bg-white text-slate-950 px-7 py-3 text-xs sm:text-sm font-bold tracking-wide uppercase backdrop-blur-md shadow-md border border-white/80 transition hover:scale-[1.02] active:scale-95"
               >
-                <span>Review All Services</span>
+                Explore Docs
               </Link>
             </div>
-
-            <p className="text-xs text-slate-400 pt-2">
-              Confidential discussions · Direct senior engineering review · Pragmatic solutions
-            </p>
           </div>
         </div>
       </section>
+
+      {/* =========================================================================
+          SECTION 8 — MONUMENTAL DARK FOOTER WITH GIANT WATERMARK TYPOGRAPHY
+          ========================================================================= */}
+      <footer className="relative bg-[#070A0F] text-white pt-20 pb-10 px-5 sm:px-10 overflow-hidden border-t border-white/10">
+        <div className="mx-auto max-w-7xl relative z-10">
+          {/* Top Row: Newsletter + Link Columns */}
+          <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+            {/* Brand + Newsletter */}
+            <div className="space-y-5">
+              <div className="flex items-center gap-2.5">
+                <div className="grid size-8 place-items-center rounded-lg bg-white/10 border border-white/20 text-white">
+                  <Boxes className="size-4.5" />
+                </div>
+                <span className="font-extrabold tracking-[0.25em] text-sm uppercase text-white">
+                  AERION
+                </span>
+              </div>
+
+              <p className="max-w-sm text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+                Decentralized modular architecture engineered for institutional reliability, micro-second consensus,
+                and developer velocity.
+              </p>
+
+              {/* Email Subscription Box */}
+              <div className="pt-2">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    alert('Thank you for subscribing to AERION updates.')
+                  }}
+                  className="flex items-center max-w-sm rounded-full bg-white/5 border border-white/15 p-1.5 focus-within:border-white/40 transition"
+                >
+                  <input
+                    type="email"
+                    placeholder="Enter your work email"
+                    required
+                    className="w-full bg-transparent px-3.5 text-xs text-white placeholder:text-slate-500 focus:outline-hidden"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-950 hover:bg-slate-200 transition shrink-0 uppercase tracking-wider"
+                  >
+                    Subscribe
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            {/* Column 1: Solutions */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Solutions</h4>
+              <ul className="mt-4 space-y-2.5 text-xs text-slate-400">
+                <li>
+                  <Link to="/solutions" className="hover:text-white transition">
+                    Public Systems
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/solutions" className="hover:text-white transition">
+                    Enterprise Chains
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/solutions" className="hover:text-white transition">
+                    Energy & Micro-grids
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/solutions" className="hover:text-white transition">
+                    Data & AI Pipelines
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 2: Platform */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Platform</h4>
+              <ul className="mt-4 space-y-2.5 text-xs text-slate-400">
+                <li>
+                  <Link to="/services" className="hover:text-white transition">
+                    Protocol Spec
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/services" className="hover:text-white transition">
+                    Consensus Layer
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/services" className="hover:text-white transition">
+                    Validator Nodes
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/services" className="hover:text-white transition">
+                    Zero-Knowledge VM
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Resources */}
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Resources</h4>
+              <ul className="mt-4 space-y-2.5 text-xs text-slate-400">
+                <li>
+                  <Link to="/insights" className="hover:text-white transition">
+                    Whitepaper
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/insights" className="hover:text-white transition">
+                    Documentation
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/ethical-architecture" className="hover:text-white transition">
+                    Ethical Architecture
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="hover:text-white transition">
+                    Contact Team
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* GIGANTIC WATERMARK TYPOGRAPHY: AERION */}
+          <div className="pt-16 sm:pt-24 pb-8 select-none pointer-events-none text-center">
+            <p className="font-editorial text-[18vw] font-black tracking-[0.12em] text-white/[0.04] leading-none uppercase">
+              AERION
+            </p>
+          </div>
+
+          {/* Bottom Copyright Bar */}
+          <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <p>© 2026 AERION Network. All rights reserved.</p>
+
+            <div className="flex items-center gap-6">
+              <Link to="/confidentiality-security" className="hover:text-slate-300 transition">
+                Privacy Policy
+              </Link>
+              <Link to="/ethical-architecture" className="hover:text-slate-300 transition">
+                Terms of Service
+              </Link>
+              <Link to="/contact" className="hover:text-slate-300 transition">
+                Security
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

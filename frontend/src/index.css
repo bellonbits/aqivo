@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: "Inter", "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-editorial: "Playfair Display", "Cormorant Garamond", "Newsreader", Georgia, serif;
   --color-ink: #0f172a;
   --color-ink-2: #1e293b;
   --color-ink-3: #334155;
@@ -36,6 +37,7 @@
 }
 
 @layer utilities {
+  .font-editorial { font-family: "Playfair Display", "Cormorant Garamond", "Newsreader", Georgia, serif; }
   .glass { background: rgba(255,255,255,0.72); backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); border: 1px solid rgba(226,232,240,0.9); box-shadow: 0 10px 36px rgba(15,23,42,0.05), inset 0 1px 0 rgba(255,255,255,0.9); }
   .glass-strong { background: rgba(255,255,255,0.88); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border: 1px solid rgba(226,232,240,0.95); box-shadow: 0 14px 44px rgba(15,23,42,0.08), inset 0 1px 0 #fff; }
   .surface-dark { background: linear-gradient(165deg, #0b1736 0%, #0f172a 60%, #131c38 100%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px rgba(11,23,54,0.28); }

@@ -1,10 +1,9 @@
-import { PublicLayout } from '@/layouts/PublicLayout'
 import Home from './Home'
 
 export default function Landing() {
   return (
-    <PublicLayout>
+    <div className="min-h-screen bg-[#FDFCFB] text-slate-900 font-sans selection:bg-slate-900 selection:text-white">
       <Home />
-    </PublicLayout>
+    </div>
   )
 }
