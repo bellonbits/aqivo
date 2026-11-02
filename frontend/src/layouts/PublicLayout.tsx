@@ -32,6 +32,9 @@ export function PublicNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
+  const isHome = location.pathname === '/'
+  const isTransparent = isHome && !scrolled
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
@@ -49,13 +52,15 @@ export function PublicNavbar() {
       <div
         className={cn(
           'mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3 transition-all duration-300',
-          scrolled
-            ? 'glass-strong shadow-[0_12px_36px_rgba(15,23,42,0.12)]'
-            : 'glass shadow-[0_4px_24px_rgba(15,23,42,0.06)]'
+          isTransparent
+            ? 'bg-black/15 backdrop-blur-md border border-white/20 shadow-xs text-white'
+            : scrolled
+            ? 'glass-strong shadow-[0_12px_36px_rgba(15,23,42,0.12)] text-ink'
+            : 'glass shadow-[0_4px_24px_rgba(15,23,42,0.06)] text-ink'
         )}
       >
         <Link to="/" className="flex items-center gap-2" aria-label="Aqivo Home">
-          <Logo size="md" />
+          <Logo size="md" dark={isTransparent} />
         </Link>
 
         {/* Desktop Nav */}
@@ -67,15 +72,24 @@ export function PublicNavbar() {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  'text-[14px] font-medium transition-colors hover:text-ink relative py-1',
-                  isActive ? 'text-ink font-semibold' : 'text-muted'
+                  'text-[14px] font-medium transition-colors relative py-1',
+                  isTransparent
+                    ? isActive
+                      ? 'text-white font-semibold'
+                      : 'text-white/85 hover:text-white'
+                    : isActive
+                    ? 'text-ink font-semibold'
+                    : 'text-muted hover:text-ink'
                 )}
               >
                 {link.name}
                 {isActive && (
                   <motion.span
                     layoutId="nav-underline"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-brand"
+                    className={cn(
+                      'absolute -bottom-1 left-0 right-0 h-0.5 rounded-full',
+                      isTransparent ? 'bg-white' : 'bg-brand'
+                    )}
                     transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                   />
                 )}
@@ -98,13 +112,21 @@ export function PublicNavbar() {
             <>
               <Link
                 to="/login"
-                className="text-xs sm:text-sm font-medium text-muted hover:text-ink px-3 py-1.5 transition-colors"
+                className={cn(
+                  'text-xs sm:text-sm font-medium px-3 py-1.5 transition-colors',
+                  isTransparent ? 'text-white/90 hover:text-white' : 'text-muted hover:text-ink'
+                )}
               >
                 Sign In
               </Link>
               <Link
                 to="/contact"
-                className="btn-brand inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold shadow-sm transition hover:scale-[1.02] active:scale-95"
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold transition hover:scale-[1.02] active:scale-95 shadow-sm',
+                  isTransparent
+                    ? 'border border-white/40 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md'
+                    : 'btn-brand text-white'
+                )}
               >
                 <span>Start a Conversation</span>
                 <ArrowRight className="size-3.5" />
@@ -123,7 +145,12 @@ export function PublicNavbar() {
           </Link>
           <button
             type="button"
-            className="grid size-10 place-items-center rounded-full bg-white/80 border border-slate-200/80 text-ink shadow-xs"
+            className={cn(
+              'grid size-10 place-items-center rounded-full border shadow-xs transition',
+              isTransparent
+                ? 'bg-black/30 border-white/25 text-white'
+                : 'bg-white/80 border-slate-200/80 text-ink'
+            )}
             aria-label="Toggle navigation menu"
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen(!mobileOpen)}

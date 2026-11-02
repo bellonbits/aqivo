@@ -11,7 +11,6 @@ import {
   Users,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   ShoppingBag,
   ChevronRight,
   ChevronLeft,
@@ -324,64 +323,60 @@ export default function Home() {
   return (
     <div className="space-y-24 sm:space-y-36 pb-24 overflow-x-hidden selection:bg-purple-100 selection:text-purple-900">
       {/* =========================================================================
-          SECTION 1 — FULL-WIDTH HERO (EXACTLY MATCHING USER'S SCREENSHOT)
+          SECTION 1 — THE CINEMATIC HERO (EXACTLY MATCHING USER'S SCREENSHOT)
           ========================================================================= */}
-      <section className="relative w-full overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/25 to-slate-50/90 pt-12 pb-20 sm:pt-20 sm:pb-28">
-        {/* Full-width Ambient Tech Grid & Soft Radial Glow */}
-        <div className="tech-grid absolute inset-0 opacity-40 pointer-events-none" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[640px] sm:size-[800px] rounded-full bg-gradient-to-tr from-purple-200/40 via-blue-200/30 to-transparent blur-3xl pointer-events-none -z-0" />
+      <section className="relative w-full -mt-20 sm:-mt-24 min-h-[640px] sm:min-h-[740px] md:min-h-[840px] lg:h-[88vh] overflow-hidden flex flex-col justify-center items-center text-center px-5 sm:px-8">
+        {/* Full-bleed scenic landscape background from user's image */}
+        <img
+          src="/img/aerion/hero-cinematic.webp"
+          alt="Aqivo Cinematic Landscape"
+          className="absolute inset-0 size-full object-cover object-bottom -z-10"
+        />
+        {/* Subtle ambient lighting layer for high contrast and readability */}
+        <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] -z-10" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="mx-auto max-w-4xl text-center">
-            {/* Pill: Technology Partner for Startups & Growing Businesses */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100/90 px-4 py-1.5 text-xs font-semibold text-brand ring-1 ring-purple-200 mb-6 shadow-2xs">
-              <Sparkles className="size-3.5 text-brand" />
-              <span>Technology Partner for Startups & Growing Businesses</span>
-            </div>
-
-            {/* Hero Headline: We Build the Technology Behind Growing Businesses. */}
-            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl md:text-7xl lg:text-[76px] leading-[1.08]">
-              We Build the Technology Behind Growing Businesses.
-            </h1>
-
-            {/* Supporting Text */}
-            <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed font-normal">
-              From startup ideas and MVPs to scalable software, data infrastructure, AI systems, and technical teams,
-              Aqivo helps businesses build the technology foundations they need to grow.
-            </p>
-
-            {/* Action Buttons: Talk to Our Team -> & Explore Our Solutions */}
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
-              <Link
-                to="/contact"
-                className="btn-brand inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm sm:text-base font-bold shadow-xl transition hover:scale-[1.02] active:scale-95"
-              >
-                <span>Talk to Our Team</span>
-                <ArrowRight className="size-4" />
-              </Link>
-              <a
-                href="#solutions"
-                className="glass inline-flex items-center gap-2 rounded-full px-8 py-4 text-sm sm:text-base font-bold text-slate-800 transition hover:bg-white active:scale-95 border border-slate-200 shadow-xs"
-              >
-                <span>Explore Our Solutions</span>
-              </a>
-            </div>
+        <div className="relative z-10 max-w-4xl mx-auto pt-24 sm:pt-28 pb-8">
+          {/* Pill Badge with Glowing Emerald Dot (Exactly from screenshot) */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/20 backdrop-blur-md px-4 py-1.5 text-xs font-medium text-white shadow-xs mb-6">
+            <span className="size-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
+            <span>Designed for sustainable growth</span>
           </div>
 
-          {/* Interactive Ecosystem Visualizer Inside Full-Width Hero Container */}
-          <div className="relative mt-16 sm:mt-24">
-            <EcosystemVisualizer />
+          {/* Headline in Editorial Serif (Exact font & wording from user screenshot) */}
+          <h1 className="font-editorial text-4xl sm:text-6xl md:text-7xl lg:text-[78px] font-normal sm:font-medium tracking-normal text-white drop-shadow-md leading-[1.08] text-balance">
+            Where Growth Feels Natural for the Long Term
+          </h1>
+
+          {/* Subtitle (Exact layout from user screenshot) */}
+          <p className="mx-auto mt-6 max-w-xl text-sm sm:text-base md:text-lg text-white/95 leading-relaxed font-normal drop-shadow-xs">
+            Aqivo combines intelligent technology with thoughtful design to help your business grow steadily over time.
+          </p>
+
+          {/* Buttons: Our Approach & View Portfolios (Exact styling from user screenshot) */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
+            <Link
+              to="/contact"
+              className="rounded-full bg-slate-950/90 hover:bg-slate-950 text-white border border-white/10 px-8 py-3.5 text-sm sm:text-base font-semibold shadow-xl backdrop-blur-md transition-all hover:scale-[1.02] active:scale-95"
+            >
+              <span>Our Approach</span>
+            </Link>
+            <a
+              href="#solutions"
+              className="rounded-full border border-white/40 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md px-8 py-3.5 text-sm sm:text-base font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-95"
+            >
+              <span>View Portfolios</span>
+            </a>
           </div>
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 2 — THE EDITORIAL MANIFESTO (Matching Image 2 with Inline Chips)
+          SECTION 2 — THE EDITORIAL MANIFESTO (Matching Image with Inline Chips)
           ========================================================================= */}
-      <section className="mx-auto max-w-5xl px-5 sm:px-8 text-center">
+      <section className="mx-auto max-w-5xl px-5 sm:px-8 text-center pt-8 sm:pt-14">
         <div className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white mb-6">
           <span className="size-1.5 rounded-full bg-purple-400 animate-pulse" />
-          <span>Foundational Architecture</span>
+          <span>About Aqivo</span>
         </div>
 
         <p className="font-editorial text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-slate-900 leading-snug font-normal text-balance">
@@ -400,6 +395,11 @@ export default function Home() {
         <p className="mt-6 text-xs sm:text-sm text-slate-500 uppercase tracking-widest font-semibold">
           Explore the solutions and operational principles powering our work
         </p>
+
+        {/* Embedded Interactive Ecosystem Visualizer */}
+        <div className="mt-14 text-left">
+          <EcosystemVisualizer />
+        </div>
       </section>
 
       {/* =========================================================================
@@ -415,7 +415,7 @@ export default function Home() {
                   <Sliders className="size-3.5" />
                   <span>Aqivo Platform</span>
                 </span>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                <h2 className="font-editorial text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
                   Aqivo Platform
                 </h2>
                 <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
@@ -597,7 +597,7 @@ export default function Home() {
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1.2fr_2fr] items-start">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+          <h2 className="font-editorial text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
             Built to scale real-world complexity
           </h2>
 
@@ -633,7 +633,7 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-slate-200">
           <div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900">Built for Real-World Use Cases</h2>
+            <h2 className="font-editorial text-2xl sm:text-4xl font-extrabold text-slate-900">Built for Real-World Use Cases</h2>
             <p className="mt-2 text-xs sm:text-sm text-slate-500">
               Architectural solutions proven across high-trust industries and high-concurrency platforms.
             </p>
@@ -700,7 +700,7 @@ export default function Home() {
           <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-brand">The Reality of Startup Engineering</p>
-              <h2 className="mt-2 text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
+              <h2 className="font-editorial mt-2 text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 leading-tight">
                 Building a Business Is Hard. Building the Right Technology Shouldn't Be.
               </h2>
               <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
@@ -758,7 +758,7 @@ export default function Home() {
       <section id="solutions" className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="text-center max-w-3xl mx-auto">
           <p className="text-xs font-bold uppercase tracking-wider text-brand">Core Solutions</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
+          <h2 className="font-editorial mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
             Engineered for Modern Business Realities
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
@@ -842,7 +842,7 @@ export default function Home() {
         <div className="rounded-3xl border border-slate-200/90 bg-slate-50/70 p-8 sm:p-14">
           <div className="max-w-3xl">
             <p className="text-xs font-bold uppercase tracking-wider text-brand">Delivery Process</p>
-            <h2 className="mt-2 text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900">
+            <h2 className="font-editorial mt-2 text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900">
               From Problem to Scalable Solution
             </h2>
             <p className="mt-3 text-sm sm:text-base text-slate-600">
@@ -871,7 +871,7 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="text-center max-w-3xl mx-auto">
           <p className="text-xs font-bold uppercase tracking-wider text-brand">The Startup Journey</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
+          <h2 className="font-editorial mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
             Supporting Businesses at Every Stage of Growth
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
@@ -919,7 +919,7 @@ export default function Home() {
                 <span>Aqivo Product Ecosystem</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900">
+              <h2 className="font-editorial text-2xl sm:text-4xl font-extrabold text-slate-900">
                 Aqivo Store: Physical Shop → Aqivo → Online Store
               </h2>
 
@@ -992,7 +992,7 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="text-center max-w-3xl mx-auto">
           <p className="text-xs font-bold uppercase tracking-wider text-brand">Collaboration Structures</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
+          <h2 className="font-editorial mt-2 text-3xl sm:text-5xl font-extrabold text-slate-900">
             Flexible Ways to Work With Aqivo
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
