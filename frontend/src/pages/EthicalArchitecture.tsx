@@ -13,21 +13,24 @@ import {
 
 export default function EthicalArchitecture() {
   return (
-    <div className="space-y-24 sm:space-y-32 py-10">
-      {/* Header */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4">
-            <Sparkles className="size-3.5" />
-            <span>Engineering Principles & Integrity</span>
+    <div className="space-y-24 sm:space-y-32 pb-24">
+      {/* Full-Width Hero Header */}
+      <section className="relative w-full border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/70 pt-14 pb-16 sm:pt-20 sm:pb-24">
+        <div className="tech-grid absolute inset-0 opacity-30 pointer-events-none" />
+        <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4 shadow-2xs">
+              <Sparkles className="size-3.5" />
+              <span>Engineering Principles & Integrity</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Ethical Architecture & Engineering Integrity
+            </h1>
+            <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+              Software decisions are business decisions. We reject artificial vendor lock-in, inflated cloud bills,
+              and unverified AI hype. Our architectural commitments prioritize your company's long-term independence.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Ethical Architecture & Engineering Integrity
-          </h1>
-          <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-            Software decisions are business decisions. We reject artificial vendor lock-in, inflated cloud bills,
-            and unverified AI hype. Our architectural commitments prioritize your company's long-term independence.
-          </p>
         </div>
       </section>
 

@@ -5,7 +5,6 @@ import {
   Menu,
   X,
   ArrowRight,
-  Mail,
   ChevronRight,
 } from 'lucide-react'
 import { Logo } from '@/components/Logo'
@@ -187,144 +186,174 @@ export function PublicFooter() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="relative mt-24 border-t border-slate-200/80 bg-white/70 backdrop-blur-md pt-16 pb-12 text-slate-600">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8 md:px-10">
-        <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr_1fr_1.2fr]">
-          {/* Brand Col */}
+    <footer className="relative mt-24 border-t border-slate-900 bg-slate-950 text-slate-300 pt-20 pb-12 overflow-hidden selection:bg-purple-900 selection:text-white">
+      {/* Subtle Grid Pattern in Footer */}
+      <div className="tech-grid-dark absolute inset-0 opacity-20 pointer-events-none" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 md:px-10">
+        {/* Top Section: Newsletter & Brand */}
+        <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr] pb-16 border-b border-white/10">
           <div className="space-y-4">
-            <Link to="/" className="inline-block">
+            <Link to="/" className="inline-block" aria-label="Aqivo Home">
               <Logo size="lg" />
             </Link>
-            <p className="max-w-md text-sm leading-relaxed text-slate-600">
-              <strong className="text-slate-900 font-semibold">We Build the Technology Behind Growing Businesses.</strong>
-              <br className="mt-1" />
-              Aqivo is a technology partner for startups and growing businesses. We help companies design, build, and scale
+            <p className="max-w-sm text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
+              Aqivo is the strategic technology partner for startups and growing businesses. We design, build, and scale
               software, data, and AI systems while creating the technical foundations and teams required for long-term growth.
             </p>
 
-            <div className="pt-2">
-              <p className="text-xs font-semibold tracking-wider uppercase text-slate-400">The Aqivo Journey</p>
-              <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-slate-500">
-                {['Strategy', 'Software', 'Data', 'AI', 'Teams', 'Scale'].map((step, idx) => (
-                  <span key={step} className="inline-flex items-center gap-1.5">
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 border border-slate-200">
-                      {step}
-                    </span>
-                    {idx < 5 && <span className="text-slate-300">→</span>}
-                  </span>
-                ))}
-              </div>
+            {/* Newsletter input from Image 2 */}
+            <div className="pt-2 max-w-sm">
+              <p className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-2">
+                Engineering & Architecture Insights
+              </p>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  alert('Thank you for subscribing to Aqivo Engineering Insights.')
+                }}
+                className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 p-1.5 backdrop-blur-md focus-within:border-purple-400"
+              >
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter work email..."
+                  className="flex-1 bg-transparent px-3 text-xs text-white placeholder-slate-500 outline-none"
+                />
+                <button
+                  type="submit"
+                  className="rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-950 hover:bg-slate-200 transition shrink-0 uppercase tracking-wider"
+                >
+                  Subscribe
+                </button>
+              </form>
             </div>
           </div>
 
-          {/* Solutions & Services */}
+          {/* Column 1: Capabilities */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">Capabilities</h4>
-            <ul className="mt-4 space-y-2.5 text-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Capabilities</h4>
+            <ul className="mt-4 space-y-2.5 text-xs text-slate-400">
               <li>
-                <Link to="/services#strategy" className="hover:text-slate-900 transition-colors">
-                  Startup Technology Strategy
+                <Link to="/services#strategy" className="hover:text-white transition">
+                  Technology Strategy
                 </Link>
               </li>
               <li>
-                <Link to="/services#software" className="hover:text-slate-900 transition-colors">
-                  Software Engineering & MVP
+                <Link to="/services#software" className="hover:text-white transition">
+                  Software & MVP Engineering
                 </Link>
               </li>
               <li>
-                <Link to="/services#data" className="hover:text-slate-900 transition-colors">
+                <Link to="/services#data" className="hover:text-white transition">
                   Data Architecture & BI
                 </Link>
               </li>
               <li>
-                <Link to="/services#ai" className="hover:text-slate-900 transition-colors">
+                <Link to="/services#ai" className="hover:text-white transition">
                   Applied AI & Automation
                 </Link>
               </li>
               <li>
-                <Link to="/services#infrastructure" className="hover:text-slate-900 transition-colors">
-                  Cloud Infrastructure & Scale
+                <Link to="/services#infrastructure" className="hover:text-white transition">
+                  Cloud Infrastructure
                 </Link>
               </li>
               <li>
-                <Link to="/services#teams" className="hover:text-slate-900 transition-colors">
-                  Technical Team Building & CTO
+                <Link to="/services#teams" className="hover:text-white transition">
+                  Fractional CTO & Teams
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Navigation & Products */}
+          {/* Column 2: Solutions & Products */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">Company & Products</h4>
-            <ul className="mt-4 space-y-2.5 text-sm">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Solutions & Ecosystem</h4>
+            <ul className="mt-4 space-y-2.5 text-xs text-slate-400">
               <li>
-                <Link to="/solutions" className="hover:text-slate-900 transition-colors">
+                <Link to="/solutions" className="hover:text-white transition">
                   Solutions Matrix
                 </Link>
               </li>
               <li>
-                <Link to="/industries" className="hover:text-slate-900 transition-colors">
+                <Link to="/industries" className="hover:text-white transition">
                   Target Industries
                 </Link>
               </li>
               <li>
-                <Link to="/products" className="hover:text-slate-900 transition-colors flex items-center gap-1.5">
+                <Link to="/products" className="hover:text-white transition flex items-center gap-1.5">
                   <span>Aqivo Store</span>
-                  <span className="rounded-full bg-emerald-100 px-1.5 py-0.2 text-[10px] font-bold text-emerald-800">
+                  <span className="rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30 px-1.5 py-0.2 text-[9px] font-bold">
                     Product
                   </span>
                 </Link>
               </li>
               <li>
-                <Link to="/insights" className="hover:text-slate-900 transition-colors">
-                  Strategic Insights
+                <Link to="/ethical-architecture" className="hover:text-white transition">
+                  Ethical Architecture
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="hover:text-slate-900 transition-colors">
-                  About Aqivo
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className="hover:text-slate-900 transition-colors">
-                  Start a Project
+                <Link to="/confidentiality-security" className="hover:text-white transition">
+                  Security & IP Protection
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Discovery & Contact */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">Start an Engagement</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Have an idea, architectural bottleneck, or scaling challenge? Connect directly with our engineering and strategy team.
-            </p>
-            <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-slate-800"
-            >
-              <Mail className="size-3.5" />
-              <span>Request Discovery Call</span>
-            </Link>
-            <div className="pt-2 text-xs text-slate-500 space-y-1">
-              <p>Direct inquiries: info@aqivo.shop</p>
-              <p>Advisory, Systems Architecture & Engineering</p>
-            </div>
+          {/* Column 3: Company */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Company & Contact</h4>
+            <ul className="mt-4 space-y-2.5 text-xs text-slate-400">
+              <li>
+                <Link to="/about" className="hover:text-white transition">
+                  About Aqivo
+                </Link>
+              </li>
+              <li>
+                <Link to="/insights" className="hover:text-white transition">
+                  Strategic Insights
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="hover:text-white transition">
+                  Start a Conversation
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:info@aqivo.shop" className="hover:text-white transition">
+                  info@aqivo.shop
+                </a>
+              </li>
+              <li>
+                <Link to="/login" className="hover:text-white transition">
+                  Client Portal
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-200/60 pt-8 sm:flex-row text-xs text-slate-500">
-          <p>© {currentYear} Aqivo. All rights reserved. Technology partner for startups and growing businesses.</p>
+        {/* GIGANTIC WATERMARK TYPOGRAPHY: AQIVO (Exactly from Image 2) */}
+        <div className="pt-16 sm:pt-24 pb-8 select-none pointer-events-none text-center">
+          <p className="font-editorial text-[18vw] font-black tracking-[0.12em] text-white/[0.04] leading-none uppercase">
+            AQIVO
+          </p>
+        </div>
+
+        {/* Bottom Copyright Bar */}
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>© {currentYear} Aqivo. All rights reserved. Technology partner for startups & growing businesses.</p>
+
           <div className="flex items-center gap-6">
-            <Link to="/ethical-architecture" className="hover:text-slate-800">
+            <Link to="/ethical-architecture" className="hover:text-slate-300 transition">
               Ethical Architecture
             </Link>
-            <Link to="/products" className="hover:text-slate-800">
+            <Link to="/products" className="hover:text-slate-300 transition">
               Products
             </Link>
-            <Link to="/confidentiality-security" className="hover:text-slate-800">
+            <Link to="/confidentiality-security" className="hover:text-slate-300 transition">
               Confidentiality & Security
             </Link>
           </div>

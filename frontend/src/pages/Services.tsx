@@ -241,34 +241,37 @@ const SERVICE_PILLARS: ServicePillar[] = [
 
 export default function Services() {
   return (
-    <div className="space-y-20 sm:space-y-28 py-10">
-      {/* Header */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4">
-            <Sparkles className="size-3.5" />
-            <span>End-to-End Technology Services</span>
+    <div className="space-y-20 sm:space-y-28 pb-20">
+      {/* Full-Width Hero Header */}
+      <section className="relative w-full border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/70 pt-14 pb-16 sm:pt-20 sm:pb-24">
+        <div className="tech-grid absolute inset-0 opacity-30 pointer-events-none" />
+        <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4 shadow-2xs">
+              <Sparkles className="size-3.5" />
+              <span>End-to-End Technology Services</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Strategic Engineering Services for Growing Businesses
+            </h1>
+            <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+              Aqivo provides comprehensive technology capabilities across strategy, product engineering, data systems,
+              applied AI, cloud infrastructure, and technical leadership.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Strategic Engineering Services for Growing Businesses
-          </h1>
-          <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-            Aqivo provides comprehensive technology capabilities across strategy, product engineering, data systems,
-            applied AI, cloud infrastructure, and technical leadership.
-          </p>
-        </div>
 
-        {/* Quick Nav Anchors */}
-        <div className="mt-8 flex flex-wrap gap-2 border-b border-slate-200 pb-6">
-          {SERVICE_PILLARS.map((p) => (
-            <a
-              key={p.id}
-              href={`#${p.id}`}
-              className="rounded-full bg-slate-100 hover:bg-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 transition"
-            >
-              {p.title}
-            </a>
-          ))}
+          {/* Quick Nav Anchors */}
+          <div className="mt-8 flex flex-wrap gap-2 border-t border-slate-200/80 pt-6">
+            {SERVICE_PILLARS.map((p) => (
+              <a
+                key={p.id}
+                href={`#${p.id}`}
+                className="rounded-full bg-white hover:bg-slate-100 border border-slate-200/90 px-4 py-2 text-xs font-semibold text-slate-700 transition shadow-2xs"
+              >
+                {p.title}
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 

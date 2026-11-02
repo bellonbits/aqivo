@@ -12,87 +12,90 @@ import {
 
 export default function About() {
   return (
-    <div className="space-y-24 sm:space-y-32 py-10">
-      {/* Hero Section with Creative Image Composition */}
-      <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
-          <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand">
-              <Sparkles className="size-3.5" />
-              <span>Our Mission & Philosophy</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.12]">
-              Technology Should Help Businesses Move Forward.
-            </h1>
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-              Aqivo was established on a fundamental conviction: founders and business leaders should not have to navigate
-              complex software architecture, data modeling, artificial intelligence, and engineering hiring alone.
-            </p>
-            <div className="pt-2 flex flex-wrap gap-4">
-              <Link
-                to="/contact"
-                className="btn-brand inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm sm:text-base font-bold shadow-md transition hover:scale-[1.02] active:scale-95"
-              >
-                <span>Talk to Our Leadership</span>
-                <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                to="/services"
-                className="glass inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm sm:text-base font-bold text-slate-800 border border-slate-200 transition hover:bg-white"
-              >
-                <span>Explore Capabilities</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Creative Layered Image Collage */}
-          <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
-            {/* Primary Hero Photo */}
-            <div className="relative overflow-hidden rounded-3xl border border-slate-200/90 shadow-2xl aspect-[4/3] group">
-              <img
-                src="/img/professional-1.webp"
-                alt="Aqivo engineering and strategy team collaborating"
-                loading="eager"
-                decoding="async"
-                className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-              
-              <div className="absolute bottom-4 left-4 right-4 text-white">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/80 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-white mb-1.5">
-                  <Cpu className="size-3" />
-                  <span>Senior Engineering Team</span>
-                </span>
-                <p className="text-sm sm:text-base font-bold leading-snug">
-                  Bridging Business Strategy with Technical Execution
-                </p>
+    <div className="space-y-24 sm:space-y-32 pb-24">
+      {/* Full-Width Hero Section with Creative Image Composition */}
+      <section className="relative w-full border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/70 pt-14 pb-20 sm:pt-20 sm:pb-28">
+        <div className="tech-grid absolute inset-0 opacity-30 pointer-events-none" />
+        <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand shadow-2xs">
+                <Sparkles className="size-3.5" />
+                <span>Our Mission & Philosophy</span>
+              </div>
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.12]">
+                Technology Should Help Businesses Move Forward.
+              </h1>
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+                Aqivo was established on a fundamental conviction: founders and business leaders should not have to navigate
+                complex software architecture, data modeling, artificial intelligence, and engineering hiring alone.
+              </p>
+              <div className="pt-2 flex flex-wrap gap-4">
+                <Link
+                  to="/contact"
+                  className="btn-brand inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm sm:text-base font-bold shadow-md transition hover:scale-[1.02] active:scale-95"
+                >
+                  <span>Talk to Our Leadership</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+                <Link
+                  to="/services"
+                  className="glass inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm sm:text-base font-bold text-slate-800 border border-slate-200 transition hover:bg-white"
+                >
+                  <span>Explore Capabilities</span>
+                </Link>
               </div>
             </div>
 
-            {/* Overlapping Floating Inset Card */}
-            <div className="absolute -bottom-6 -left-4 sm:-bottom-8 sm:-left-8 max-w-[240px] sm:max-w-[280px] rounded-2xl border border-white/90 bg-white/95 p-3.5 sm:p-4 shadow-xl backdrop-blur-md">
-              <div className="flex items-center gap-3">
+            {/* Creative Layered Image Collage */}
+            <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
+              {/* Primary Hero Photo */}
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200/90 shadow-2xl aspect-[4/3] group">
                 <img
-                  src="/img/professional-3-sm.webp"
-                  alt="Production software development"
-                  loading="lazy"
-                  className="size-12 rounded-xl object-cover shrink-0 border border-slate-100"
+                  src="/img/professional-1.webp"
+                  alt="Aqivo engineering and strategy team collaborating"
+                  loading="eager"
+                  decoding="async"
+                  className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div>
-                  <p className="text-xs font-bold text-slate-900 leading-tight">Production Standards</p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">Clean Code · Full IP Handover</p>
-                  <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold mt-1">
-                    <CheckCircle2 className="size-3" />
-                    <span>Zero Vendor Lock-In</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
+                
+                <div className="absolute bottom-4 left-4 right-4 text-white">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/80 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-white mb-1.5">
+                    <Cpu className="size-3" />
+                    <span>Senior Engineering Team</span>
+                  </span>
+                  <p className="text-sm sm:text-base font-bold leading-snug">
+                    Bridging Business Strategy with Technical Execution
+                  </p>
+                </div>
+              </div>
+
+              {/* Overlapping Floating Inset Card */}
+              <div className="absolute -bottom-6 -left-4 sm:-bottom-8 sm:-left-8 max-w-[240px] sm:max-w-[280px] rounded-2xl border border-white/90 bg-white/95 p-3.5 sm:p-4 shadow-xl backdrop-blur-md">
+                <div className="flex items-center gap-3">
+                  <img
+                    src="/img/professional-3-sm.webp"
+                    alt="Production software development"
+                    loading="lazy"
+                    className="size-12 rounded-xl object-cover shrink-0 border border-slate-100"
+                  />
+                  <div>
+                    <p className="text-xs font-bold text-slate-900 leading-tight">Production Standards</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Clean Code · Full IP Handover</p>
+                    <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold mt-1">
+                      <CheckCircle2 className="size-3" />
+                      <span>Zero Vendor Lock-In</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Floating Top-Right Metric Pill */}
-            <div className="absolute -top-4 -right-2 sm:-top-5 sm:-right-4 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-xl border border-white/10 flex items-center gap-2">
-              <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Strategic Partner</span>
+              {/* Floating Top-Right Metric Pill */}
+              <div className="absolute -top-4 -right-2 sm:-top-5 sm:-right-4 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-xl border border-white/10 flex items-center gap-2">
+                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Strategic Partner</span>
+              </div>
             </div>
           </div>
         </div>
