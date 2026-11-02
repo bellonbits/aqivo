@@ -325,30 +325,30 @@ export default function Home() {
       {/* =========================================================================
           SECTION 1 — THE CINEMATIC HERO (EXACTLY MATCHING USER'S SCREENSHOT)
           ========================================================================= */}
-      <section className="relative w-full -mt-20 sm:-mt-24 min-h-[640px] sm:min-h-[740px] md:min-h-[840px] lg:h-[88vh] overflow-hidden flex flex-col justify-center items-center text-center px-5 sm:px-8">
-        {/* Full-bleed scenic landscape background from user's image */}
+      <section className="relative w-full -mt-20 sm:-mt-24 min-h-[640px] sm:min-h-[740px] md:min-h-[840px] lg:h-[90vh] overflow-hidden flex flex-col justify-center items-center text-center px-5 sm:px-8">
+        {/* Full-bleed scenic vibrant landscape background */}
         <img
           src="/img/aerion/hero-cinematic.webp"
           alt="Aqivo Cinematic Landscape"
-          className="absolute inset-0 size-full object-cover object-bottom -z-10"
+          className="absolute inset-0 size-full object-cover object-[center_28%] -z-10"
         />
-        {/* Subtle ambient lighting layer for high contrast and readability */}
-        <div className="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] -z-10" />
+        {/* Transparent gradient only at top edge for nav contrast — no grey fog over image */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/15 pointer-events-none -z-10" />
 
         <div className="relative z-10 max-w-4xl mx-auto pt-24 sm:pt-28 pb-8">
           {/* Pill Badge with Glowing Emerald Dot (Exactly from screenshot) */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/20 backdrop-blur-md px-4 py-1.5 text-xs font-medium text-white shadow-xs mb-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/20 backdrop-blur-md px-4 py-1.5 text-xs font-semibold text-white shadow-sm mb-6">
             <span className="size-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
             <span>Designed for sustainable growth</span>
           </div>
 
           {/* Headline in Editorial Serif (Exact font & wording from user screenshot) */}
-          <h1 className="font-editorial text-4xl sm:text-6xl md:text-7xl lg:text-[78px] font-normal sm:font-medium tracking-normal text-white drop-shadow-md leading-[1.08] text-balance">
+          <h1 className="font-editorial text-4xl sm:text-6xl md:text-7xl lg:text-[78px] font-normal sm:font-medium tracking-normal text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.7)] leading-[1.08] text-balance">
             Where Growth Feels Natural for the Long Term
           </h1>
 
           {/* Subtitle (Exact layout from user screenshot) */}
-          <p className="mx-auto mt-6 max-w-xl text-sm sm:text-base md:text-lg text-white/95 leading-relaxed font-normal drop-shadow-xs">
+          <p className="mx-auto mt-6 max-w-xl text-sm sm:text-base md:text-lg text-white/95 leading-relaxed font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]">
             Aqivo combines intelligent technology with thoughtful design to help your business grow steadily over time.
           </p>
 
@@ -356,13 +356,13 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
             <Link
               to="/contact"
-              className="rounded-full bg-slate-950/90 hover:bg-slate-950 text-white border border-white/10 px-8 py-3.5 text-sm sm:text-base font-semibold shadow-xl backdrop-blur-md transition-all hover:scale-[1.02] active:scale-95"
+              className="rounded-full bg-slate-950/90 hover:bg-slate-950 text-white border border-white/20 px-8 py-3.5 text-sm sm:text-base font-semibold shadow-2xl backdrop-blur-md transition-all hover:scale-[1.02] active:scale-95"
             >
               <span>Our Approach</span>
             </Link>
             <a
               href="#solutions"
-              className="rounded-full border border-white/40 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md px-8 py-3.5 text-sm sm:text-base font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-95"
+              className="rounded-full border border-white/50 bg-white/25 hover:bg-white/35 text-white backdrop-blur-md px-8 py-3.5 text-sm sm:text-base font-semibold shadow-md transition-all hover:scale-[1.02] active:scale-95"
             >
               <span>View Portfolios</span>
             </a>

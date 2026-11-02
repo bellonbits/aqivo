@@ -48,15 +48,20 @@ export function PublicNavbar() {
   }, [location.pathname])
 
   return (
-    <header className="sticky top-0 z-50 w-full px-3 pt-3 pb-2 sm:px-6 sm:pt-4 transition-all duration-300">
+    <header
+      className={cn(
+        'sticky top-0 z-50 w-full transition-all duration-300',
+        isTransparent ? 'px-4 pt-4 sm:px-8 sm:pt-6 bg-transparent' : 'px-3 pt-3 pb-2 sm:px-6 sm:pt-4'
+      )}
+    >
       <div
         className={cn(
-          'mx-auto flex max-w-7xl items-center justify-between rounded-full px-5 py-3 transition-all duration-300',
+          'mx-auto flex max-w-7xl items-center justify-between transition-all duration-300',
           isTransparent
-            ? 'bg-black/15 backdrop-blur-md border border-white/20 shadow-xs text-white'
+            ? 'bg-transparent border-transparent shadow-none px-2 text-white'
             : scrolled
-            ? 'glass-strong shadow-[0_12px_36px_rgba(15,23,42,0.12)] text-ink'
-            : 'glass shadow-[0_4px_24px_rgba(15,23,42,0.06)] text-ink'
+            ? 'glass-strong shadow-[0_12px_36px_rgba(15,23,42,0.12)] text-ink rounded-full px-5 py-3'
+            : 'glass shadow-[0_4px_24px_rgba(15,23,42,0.06)] text-ink rounded-full px-5 py-3'
         )}
       >
         <Link to="/" className="flex items-center gap-2" aria-label="Aqivo Home">
@@ -75,8 +80,8 @@ export function PublicNavbar() {
                   'text-[14px] font-medium transition-colors relative py-1',
                   isTransparent
                     ? isActive
-                      ? 'text-white font-semibold'
-                      : 'text-white/85 hover:text-white'
+                      ? 'text-white font-semibold drop-shadow-sm'
+                      : 'text-white/90 hover:text-white drop-shadow-sm'
                     : isActive
                     ? 'text-ink font-semibold'
                     : 'text-muted hover:text-ink'
@@ -88,7 +93,7 @@ export function PublicNavbar() {
                     layoutId="nav-underline"
                     className={cn(
                       'absolute -bottom-1 left-0 right-0 h-0.5 rounded-full',
-                      isTransparent ? 'bg-white' : 'bg-brand'
+                      isTransparent ? 'bg-white shadow-xs' : 'bg-brand'
                     )}
                     transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                   />
@@ -99,7 +104,7 @@ export function PublicNavbar() {
         </nav>
 
         {/* Action CTAs */}
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
           {me ? (
             <Link
               to={me.user.platform_role && !me.memberships.length ? '/admin' : '/dashboard'}
@@ -113,8 +118,8 @@ export function PublicNavbar() {
               <Link
                 to="/login"
                 className={cn(
-                  'text-xs sm:text-sm font-medium px-3 py-1.5 transition-colors',
-                  isTransparent ? 'text-white/90 hover:text-white' : 'text-muted hover:text-ink'
+                  'text-xs sm:text-sm font-medium px-2 py-1.5 transition-colors',
+                  isTransparent ? 'text-white hover:text-white/80 drop-shadow-sm' : 'text-muted hover:text-ink'
                 )}
               >
                 Sign In
@@ -124,7 +129,7 @@ export function PublicNavbar() {
                 className={cn(
                   'inline-flex items-center gap-1.5 rounded-full px-5 py-2 text-xs sm:text-sm font-semibold transition hover:scale-[1.02] active:scale-95 shadow-sm',
                   isTransparent
-                    ? 'border border-white/40 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md'
+                    ? 'border border-white/50 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md'
                     : 'btn-brand text-white'
                 )}
               >
@@ -139,7 +144,12 @@ export function PublicNavbar() {
         <div className="flex items-center gap-2 lg:hidden">
           <Link
             to="/contact"
-            className="btn-brand inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-semibold sm:hidden"
+            className={cn(
+              'inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-semibold sm:hidden',
+              isTransparent
+                ? 'border border-white/40 bg-white/25 text-white backdrop-blur-md'
+                : 'btn-brand text-white'
+            )}
           >
             <span>Talk to Us</span>
           </Link>
@@ -148,7 +158,7 @@ export function PublicNavbar() {
             className={cn(
               'grid size-10 place-items-center rounded-full border shadow-xs transition',
               isTransparent
-                ? 'bg-black/30 border-white/25 text-white'
+                ? 'bg-black/25 border-white/30 text-white backdrop-blur-sm'
                 : 'bg-white/80 border-slate-200/80 text-ink'
             )}
             aria-label="Toggle navigation menu"
