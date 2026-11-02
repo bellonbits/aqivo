@@ -10,8 +10,8 @@ import { CountUp, Floaty, Item, Reveal, Stagger } from '@/lib/motion'
 import { PhoneProfile } from './Hero'
 import { Logo } from '@/components/Logo'
 
-const wrap = 'mx-auto max-w-7xl px-5 md:px-10'
-export const Eyebrow = ({ children }: { children: ReactNode; dark?: boolean }) => <Reveal y={14}><p className="mb-3 text-sm font-bold uppercase tracking-[0.14em] text-brand">{children}</p></Reveal>
+const wrap = 'mx-auto max-w-7xl px-4 sm:px-6 md:px-10'
+export const Eyebrow = ({ children }: { children: ReactNode; dark?: boolean }) => <Reveal y={14}><p className="mb-2 sm:mb-3 text-xs sm:text-sm font-bold uppercase tracking-[0.14em] text-brand">{children}</p></Reveal>
 
 export function Pillars() {
   const cols = [
@@ -21,16 +21,16 @@ export function Pillars() {
     { t: 'Grow', items: ['Source & funnel analytics', 'Campaigns for every channel', 'A daily growth plan from your numbers', 'Customer timeline & win-back lists', 'Aqivo AI — drafts you approve'] },
   ]
   return (
-    <section className="py-20 md:py-28">
+    <section className="overflow-x-clip py-14 sm:py-20 md:py-28">
       <div className={wrap}>
         <Eyebrow>One platform</Eyebrow>
-        <h2 className="max-w-3xl text-3xl md:text-5xl">Build your storefront, take orders and bookings, and see what brings customers.</h2>
-        <p className="mt-4 max-w-2xl text-muted">Aqivo isn't a template site. It's a storefront you shape yourself, a way to sell and book on WhatsApp, and the numbers that show what's working.</p>
-        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <h2 className="max-w-3xl text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">Build your storefront, take orders and bookings, and see what brings customers.</h2>
+        <p className="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base text-muted">Aqivo isn't a template site. It's a storefront you shape yourself, a way to sell and book on WhatsApp, and the numbers that show what's working.</p>
+        <Stagger className="mt-8 sm:mt-12 grid gap-3.5 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {cols.map((c, i) => (
-            <Item key={c.t}><motion.div whileHover={{ y: -6 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} className="h-full"><div className={cn('h-full rounded-[24px] p-6', i === 0 ? 'btn-brand' : 'glass')}>
-              <h3 className="text-xl">{c.t}</h3>
-              <ul className="mt-4 space-y-2.5 text-sm">{c.items.map((it) => <li key={it} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0" />{it}</li>)}</ul>
+            <Item key={c.t}><motion.div whileHover={{ y: -6 }} transition={{ type: 'spring', stiffness: 300, damping: 20 }} className="h-full"><div className={cn('h-full rounded-[22px] sm:rounded-[24px] p-5 sm:p-6', i === 0 ? 'btn-brand' : 'glass')}>
+              <h3 className="text-lg sm:text-xl font-bold">{c.t}</h3>
+              <ul className="mt-3.5 sm:mt-4 space-y-2 sm:space-y-2.5 text-xs sm:text-sm">{c.items.map((it) => <li key={it} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0" /><span>{it}</span></li>)}</ul>
             </div></motion.div></Item>
           ))}
         </Stagger>
@@ -44,19 +44,19 @@ export function Categories() {
   const cfg = useQuery({ queryKey: ['config'], queryFn: () => api.get<{ industries: IndustryConfig[] }>('/businesses/config'), staleTime: Infinity })
   const items = cfg.data?.industries ?? []
   return (
-    <section id="industries" className="py-16 md:py-24">
+    <section id="industries" className="overflow-x-clip py-12 sm:py-16 md:py-24">
       <div className={wrap}>
         <Eyebrow>For every small business</Eyebrow>
-        <h2 className="max-w-3xl text-3xl md:text-5xl">One platform for salons, shops, restaurants, clinics and more.</h2>
-        <p className="mt-4 max-w-2xl text-muted">Pick your industry and Aqivo builds your first storefront with the right sections, wording and starter items — then it's yours to change.</p>
-        <Stagger className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-4 xl:grid-cols-6" gap={0.05}>
+        <h2 className="max-w-3xl text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">One platform for salons, shops, restaurants, clinics and more.</h2>
+        <p className="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base text-muted">Pick your industry and Aqivo builds your first storefront with the right sections, wording and starter items — then it's yours to change.</p>
+        <Stagger className="mt-8 sm:mt-10 grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 lg:grid-cols-4 md:gap-4 xl:grid-cols-6" gap={0.05}>
           {items.map((c) => (
             <Item key={c.key}>
               <Link to={`/register?industry=${c.key}`}>
-                <motion.figure whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="group relative aspect-[3/4] overflow-hidden rounded-[24px] shadow-[0_18px_40px_rgba(70,80,160,0.18)]">
+                <motion.figure whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="group relative aspect-[3/4] overflow-hidden rounded-[20px] sm:rounded-[24px] shadow-[0_12px_30px_rgba(70,80,160,0.14)] sm:shadow-[0_18px_40px_rgba(70,80,160,0.18)]">
                   <img src={`/img/${c.photo}-sm.webp`} alt={`${c.label} — example photo`} loading="lazy" decoding="async" width={640} height={853} className="size-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1b1550]/85 via-transparent to-transparent" />
-                  <figcaption className="absolute inset-x-0 bottom-0 p-4 text-white"><p className="text-base font-bold leading-tight">{c.label}</p><p className="mt-0.5 line-clamp-2 text-xs text-white/75">{c.blurb}</p></figcaption>
+                  <figcaption className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white"><p className="text-sm sm:text-base font-bold leading-tight">{c.label}</p><p className="mt-0.5 line-clamp-2 text-[11px] sm:text-xs text-white/75">{c.blurb}</p></figcaption>
                 </motion.figure>
               </Link>
             </Item>
@@ -76,15 +76,15 @@ export function HowItWorks() {
     ['See what works', 'Sales and enquiries by channel, plus a daily plan of what to do next.'],
   ]
   return (
-    <section id="how" className="py-20 md:py-28">
+    <section id="how" className="overflow-x-clip py-14 sm:py-20 md:py-28">
       <div className={wrap}>
         <Eyebrow>How it works</Eyebrow>
-        <h2 className="max-w-2xl text-3xl md:text-5xl">From nothing to selling online in about ten minutes.</h2>
-        <Stagger className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5" gap={0.12}><ol className="contents">
+        <h2 className="max-w-2xl text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">From nothing to selling online in about ten minutes.</h2>
+        <Stagger className="mt-8 sm:mt-12 grid gap-3.5 sm:gap-4 sm:grid-cols-2 lg:grid-cols-5" gap={0.12}><ol className="contents">
           {steps.map(([t, b], i) => (
-            <li key={t}><Item className="glass h-full rounded-[24px] p-6">
-              <span className="grid size-9 place-items-center rounded-full btn-brand text-sm font-extrabold">{i + 1}</span>
-              <h3 className="mt-5 text-lg leading-snug">{t}</h3><p className="mt-2 text-sm text-muted">{b}</p>
+            <li key={t}><Item className="glass h-full rounded-[20px] sm:rounded-[24px] p-5 sm:p-6">
+              <span className="grid size-8 sm:size-9 place-items-center rounded-full btn-brand text-xs sm:text-sm font-extrabold">{i + 1}</span>
+              <h3 className="mt-4 sm:mt-5 text-base sm:text-lg font-bold leading-snug">{t}</h3><p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-muted">{b}</p>
             </Item></li>
           ))}
         </ol></Stagger>
@@ -95,15 +95,21 @@ export function HowItWorks() {
 
 export function ProfileDemo() {
   return (
-    <section className="py-20 md:py-28">
-      <div className={cn(wrap, 'glass grid items-center gap-12 rounded-[36px] p-8 md:p-14 lg:grid-cols-2')}>
+    <section className="overflow-x-clip py-12 sm:py-18 md:py-24">
+      <div className={cn(wrap, 'glass grid items-center gap-8 md:gap-12 rounded-[26px] sm:rounded-[36px] p-5 sm:p-8 md:p-14 lg:grid-cols-2')}>
         <div>
           <Eyebrow dark>Storefront builder</Eyebrow>
-          <h2 className="text-3xl md:text-5xl">A real storefront you build by dragging sections — free.</h2>
-          <p className="mt-4 max-w-lg text-muted">Every business gets a storefront at <span className="font-bold text-ink">aqivo.shop/yourname</span> with products, services, photos, reviews, a WhatsApp button and a cart. Add pages, a menu, a FAQ or a video. Preview it on a phone before you publish.</p>
-          <ul className="mt-6 space-y-2.5">{['Storefront, orders and bookings are on the free plan', 'Your own subdomain — or your own domain on Grow', 'QR codes (PNG, SVG, printable poster) with scan counts', 'Search-readiness check with fixes'].map((t) => <li key={t} className="flex gap-2"><Check className="mt-1 size-4 text-brand" />{t}</li>)}</ul>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">A real storefront you build by dragging sections — free.</h2>
+          <p className="mt-3 sm:mt-4 text-xs sm:text-base text-muted">Every business gets a storefront at <span className="font-bold text-ink">aqivo.shop/yourname</span> with products, services, photos, reviews, a WhatsApp button and a cart. Add pages, a menu, a FAQ or a video. Preview it on a phone before you publish.</p>
+          <ul className="mt-5 sm:mt-6 space-y-2 sm:space-y-2.5 text-xs sm:text-sm">{['Storefront, orders and bookings are on the free plan', 'Your own subdomain — or your own domain on Grow', 'QR codes (PNG, SVG, printable poster) with scan counts', 'Search-readiness check with fixes'].map((t) => <li key={t} className="flex gap-2"><Check className="mt-0.5 sm:mt-1 size-4 shrink-0 text-brand" /><span>{t}</span></li>)}</ul>
         </div>
-        <Reveal x={40} y={0} className="flex justify-center"><Floaty amp={14} duration={4200}><PhoneProfile className="scale-110" /></Floaty></Reveal>
+        <Reveal x={30} y={0} className="flex justify-center overflow-hidden py-3">
+          <Floaty amp={8} duration={4200}>
+            <div className="scale-[0.88] xs:scale-95 sm:scale-100 lg:scale-110 origin-center transition-transform">
+              <PhoneProfile />
+            </div>
+          </Floaty>
+        </Reveal>
       </div>
     </section>
   )
@@ -132,21 +138,21 @@ const Chip = ({ children }: { children: ReactNode }) => <span className="rounded
 /** Section 1: the chat-to-order story. Left: how it goes without a store. Right: the same order, complete. */
 export function WhatsAppOrdering() {
   return (
-    <section id="products" className="py-20 md:py-28">
+    <section id="products" className="overflow-x-clip py-14 sm:py-20 md:py-28">
       <div className={wrap}>
         <Eyebrow>WhatsApp ordering</Eyebrow>
-        <h2 className="max-w-3xl text-3xl md:text-5xl">Stop piecing orders together from chat.</h2>
-        <p className="mt-4 max-w-2xl text-muted">Customers pick from your storefront and check out. You get one complete message — items, total, delivery address, preferred time — instead of twenty back-and-forth texts.</p>
-        <div className="mt-10 grid gap-5 lg:grid-cols-2">
-          <Reveal x={-30} y={0}><div className="h-full rounded-[28px] glass p-6"><p className="mb-4 text-xs font-bold uppercase tracking-wider text-muted">Before</p>
-            <div className="space-y-2.5"><Bubble>Hi do u have the silk scarf</Bubble><Bubble me>Yes! Which size?</Bubble><Bubble>M. how much with delivery to Kilimani</Bubble><Bubble me>1,200 + 200 delivery</Bubble><Bubble>ok. can u do saturday morning? i'll send mpesa</Bubble></div></div></Reveal>
-          <Reveal x={30} y={0} delay={0.1}><div className="h-full rounded-[28px] sky p-6"><p className="mb-4 text-xs font-bold uppercase tracking-wider text-muted">With Aqivo</p>
-            <div className="rounded-2xl rounded-bl-sm bg-white p-4 text-sm shadow-sm"><p className="font-extrabold">New order #1042</p>
-              <ul className="mt-2 space-y-0.5 text-stone-700"><li>• 1× Silk Scarf (M) — KSh 1,200</li><li>Delivery (Kilimani): KSh 200</li></ul>
-              <p className="mt-2 font-extrabold">Total: KSh 1,400</p>
+        <h2 className="max-w-3xl text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">Stop piecing orders together from chat.</h2>
+        <p className="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base text-muted">Customers pick from your storefront and check out. You get one complete message — items, total, delivery address, preferred time — instead of twenty back-and-forth texts.</p>
+        <div className="mt-8 sm:mt-10 grid gap-4 sm:gap-5 lg:grid-cols-2">
+          <Reveal x={-30} y={0}><div className="h-full rounded-[22px] sm:rounded-[28px] glass p-4 sm:p-6"><p className="mb-3 sm:mb-4 text-xs font-bold uppercase tracking-wider text-muted">Before</p>
+            <div className="space-y-2"><Bubble>Hi do u have the silk scarf</Bubble><Bubble me>Yes! Which size?</Bubble><Bubble>M. how much with delivery to Kilimani</Bubble><Bubble me>1,200 + 200 delivery</Bubble><Bubble>ok. can u do saturday morning? i'll send mpesa</Bubble></div></div></Reveal>
+          <Reveal x={30} y={0} delay={0.1}><div className="h-full rounded-[22px] sm:rounded-[28px] sky p-4 sm:p-6"><p className="mb-3 sm:mb-4 text-xs font-bold uppercase tracking-wider text-muted">With Aqivo</p>
+            <div className="rounded-2xl rounded-bl-sm bg-white p-3.5 sm:p-4 text-xs sm:text-sm shadow-sm"><p className="font-extrabold text-sm sm:text-base">New order #1042</p>
+              <ul className="mt-2 space-y-1 text-stone-700"><li>• 1× Silk Scarf (M) — KSh 1,200</li><li>• Delivery (Kilimani): KSh 200</li></ul>
+              <p className="mt-2 font-extrabold text-ink">Total: KSh 1,400</p>
               <p className="mt-1 text-stone-600">Sat 10:00 · Amina K. · M-Pesa</p>
-              <p className="mt-2 text-xs text-muted">Track: aqivo.shop/yourname/order/…</p></div>
-            <p className="mt-4 text-center text-xs text-muted/80">Illustration with sample data</p></div></Reveal>
+              <p className="mt-2 text-[11px] sm:text-xs text-muted truncate">Track: aqivo.shop/yourname/order/…</p></div>
+            <p className="mt-3 sm:mt-4 text-center text-xs text-muted/80">Illustration with sample data</p></div></Reveal>
         </div>
       </div>
     </section>
@@ -155,17 +161,41 @@ export function WhatsAppOrdering() {
 
 /** Section 2: order management, with the Aqivo-specific "where did this customer come from" column. */
 export function OrderManagement() {
-  const rows: [string, string, string, string, string, string][] = [['#1043', 'John M.', 'KSh 3,500', 'Instagram', 'Pending', 'bg-amber-100 text-amber-800'], ['#1042', 'Amina K.', 'KSh 1,400', 'QR poster', 'Confirmed', 'bg-blue-100 text-blue-800'], ['#1041', 'Faith N.', 'KSh 2,800', 'WhatsApp', 'Completed', 'bg-green-100 text-green-800'], ['#1040', 'Peter O.', 'KSh 1,200', 'Direct', 'Cancelled', 'bg-red-100 text-red-800']]
+  const rows: [string, string, string, string, string, string][] = [
+    ['#1043', 'John M.', 'KSh 3,500', 'Instagram', 'Pending', 'bg-amber-100 text-amber-800'],
+    ['#1042', 'Amina K.', 'KSh 1,400', 'QR poster', 'Confirmed', 'bg-blue-100 text-blue-800'],
+    ['#1041', 'Faith N.', 'KSh 2,800', 'WhatsApp', 'Completed', 'bg-green-100 text-green-800'],
+    ['#1040', 'Peter O.', 'KSh 1,200', 'Direct', 'Cancelled', 'bg-red-100 text-red-800']
+  ]
   return (
-    <section className="py-8 md:py-14">
-      <div className={cn(wrap, 'grid items-center gap-10 lg:grid-cols-2 lg:gap-16')}>
-        <Reveal x={-40} y={0}><Eyebrow>Order management</Eyebrow><h3 className="text-2xl md:text-4xl">Every order in one place, with where it came from.</h3>
-          <p className="mt-4 max-w-lg text-muted">Confirm, mark paid, assign a rider and message the customer. Stock goes down automatically and can't be oversold. Unlike a plain order list, you also see which post or poster brought the order.</p>
-          <ul className="mt-5 space-y-2">{['Status and payment state on every order', 'Rider name, phone and tracking link the customer can see', 'Source of every order: Instagram, TikTok, QR, WhatsApp…', 'Receipts and a customer tracking page'].map((t) => <li key={t} className="flex gap-2 text-sm"><Check className="mt-0.5 size-4 shrink-0 text-ok" />{t}</li>)}</ul></Reveal>
-        <Reveal x={40} y={0} delay={0.1}><div className="rounded-[28px] sky p-5 md:p-8"><div className="overflow-hidden rounded-2xl bg-white/90 text-sm shadow-sm">
-          <div className="grid grid-cols-[56px_1fr_84px_84px] gap-2 border-b border-line px-4 py-2.5 text-xs font-bold text-muted"><span>Order</span><span>Customer</span><span className="hidden sm:block">From</span><span>Status</span></div>
-          {rows.map(([n, c, t, src, st, tone]) => <div key={n} className="grid grid-cols-[56px_1fr_84px_84px] items-center gap-2 border-b border-line/60 px-4 py-3 last:border-0"><span className="font-bold">{n}</span><span className="min-w-0"><span className="block truncate font-semibold">{c}</span><span className="text-xs text-muted">{t}</span></span><span className="hidden text-xs text-muted sm:block">{src}</span><Pill tone={tone}>{st}</Pill></div>)}</div>
-          <p className="mt-4 text-center text-xs text-muted/80">Illustration with sample data</p></div></Reveal>
+    <section className="overflow-x-clip py-8 sm:py-14">
+      <div className={cn(wrap, 'grid items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-16')}>
+        <Reveal x={-40} y={0}><Eyebrow>Order management</Eyebrow><h3 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Every order in one place, with where it came from.</h3>
+          <p className="mt-3 sm:mt-4 max-w-lg text-xs sm:text-base text-muted">Confirm, mark paid, assign a rider and message the customer. Stock goes down automatically and can't be oversold. Unlike a plain order list, you also see which post or poster brought the order.</p>
+          <ul className="mt-4 sm:mt-5 space-y-2 text-xs sm:text-sm">{['Status and payment state on every order', 'Rider name, phone and tracking link the customer can see', 'Source of every order: Instagram, TikTok, QR, WhatsApp…', 'Receipts and a customer tracking page'].map((t) => <li key={t} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-ok" /><span>{t}</span></li>)}</ul></Reveal>
+        <Reveal x={40} y={0} delay={0.1}><div className="rounded-[22px] sm:rounded-[28px] sky p-3.5 sm:p-5 md:p-8">
+          <div className="overflow-x-auto rounded-2xl bg-white/90 text-sm shadow-sm scrollbar-none">
+            <div className="min-w-[280px]">
+              <div className="grid grid-cols-[48px_1fr_75px] sm:grid-cols-[56px_1fr_84px_84px] gap-2 border-b border-line px-3.5 sm:px-4 py-2.5 text-xs font-bold text-muted">
+                <span>Order</span>
+                <span>Customer</span>
+                <span className="hidden sm:block">From</span>
+                <span className="text-right sm:text-left">Status</span>
+              </div>
+              {rows.map(([n, c, t, src, st, tone]) => (
+                <div key={n} className="grid grid-cols-[48px_1fr_75px] sm:grid-cols-[56px_1fr_84px_84px] items-center gap-2 border-b border-line/60 px-3.5 sm:px-4 py-2.5 sm:py-3 last:border-0">
+                  <span className="font-bold text-xs sm:text-sm">{n}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold text-xs sm:text-sm">{c}</span>
+                    <span className="text-[11px] sm:text-xs text-muted">{t}</span>
+                  </span>
+                  <span className="hidden text-xs text-muted sm:block">{src}</span>
+                  <div className="text-right sm:text-left"><Pill tone={tone}>{st}</Pill></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="mt-3 sm:mt-4 text-center text-xs text-muted/80">Illustration with sample data</p></div></Reveal>
       </div>
     </section>
   )
@@ -175,18 +205,18 @@ export function OrderManagement() {
 export function PaymentsBlock() {
   const methods = ['M-Pesa till / paybill', 'M-Pesa prompt (Daraja)', 'Paystack', 'Flutterwave', 'Cards & mobile money', 'Bank transfer', 'Cash on delivery']
   return (
-    <section className="py-8 md:py-14">
+    <section className="overflow-x-clip py-8 sm:py-14">
       <div className={wrap}>
-        <div className="rounded-[36px] glass p-8 md:p-12">
+        <div className="rounded-[26px] sm:rounded-[36px] glass p-5 sm:p-8 md:p-12">
           <Eyebrow>Payments</Eyebrow>
-          <h3 className="max-w-3xl text-2xl md:text-4xl">Get paid into your own accounts. Aqivo never holds your money.</h3>
-          <p className="mt-4 max-w-2xl text-muted">Connect your own Paystack, Flutterwave or M-Pesa (Daraja) account, or keep it simple with a till number or bank details. Each option appears at checkout only once it actually works.</p>
-          <div className="mt-6 flex flex-wrap gap-2">{methods.map((m) => <Chip key={m}>{m}</Chip>)}</div>
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl bg-white/80 p-5"><p className="font-extrabold">Confirmed automatically</p><p className="mt-1 text-sm text-muted">Card, mobile money and M-Pesa prompts: the provider tells us when it's paid, we check the amount and mark the order paid. No chasing screenshots.</p></div>
-            <div className="rounded-2xl bg-white/80 p-5"><p className="font-extrabold">Confirmed by you</p><p className="mt-1 text-sm text-muted">Till, paybill and bank transfer: the customer sends the payment code, you check it against your statement and confirm.</p></div>
+          <h3 className="max-w-3xl text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Get paid into your own accounts. Aqivo never holds your money.</h3>
+          <p className="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base text-muted">Connect your own Paystack, Flutterwave or M-Pesa (Daraja) account, or keep it simple with a till number or bank details. Each option appears at checkout only once it actually works.</p>
+          <div className="mt-5 sm:mt-6 flex flex-wrap gap-1.5 sm:gap-2">{methods.map((m) => <Chip key={m}>{m}</Chip>)}</div>
+          <div className="mt-6 sm:mt-8 grid gap-3.5 sm:gap-4 md:grid-cols-2">
+            <div className="rounded-2xl bg-white/80 p-4 sm:p-5"><p className="font-extrabold text-sm sm:text-base">Confirmed automatically</p><p className="mt-1 text-xs sm:text-sm text-muted">Card, mobile money and M-Pesa prompts: the provider tells us when it's paid, we check the amount and mark the order paid. No chasing screenshots.</p></div>
+            <div className="rounded-2xl bg-white/80 p-4 sm:p-5"><p className="font-extrabold text-sm sm:text-base">Confirmed by you</p><p className="mt-1 text-xs sm:text-sm text-muted">Till, paybill and bank transfer: the customer sends the payment code, you check it against your statement and confirm.</p></div>
           </div>
-          <p className="mt-4 text-xs text-muted">Not available yet: Pesapal, DPO, PawaPay and Airtel Money checkout.</p>
+          <p className="mt-3 sm:mt-4 text-[11px] sm:text-xs text-muted">Not available yet: Pesapal, DPO, PawaPay and Airtel Money checkout.</p>
         </div>
       </div>
     </section>
@@ -197,12 +227,12 @@ export function PaymentsBlock() {
 export function Messaging() {
   const items: [string, string][] = [['Order updates', 'Customers get a WhatsApp when you confirm, dispatch or complete their order.'], ['Win-back campaigns', 'Find customers who haven\'t been back in 30–90 days and prepare one message each.'], ['Review requests', 'Single-use links, so every review is from a real customer.'], ['Daily plan', 'Leads waiting, orders to confirm, products people view but don\'t buy.']]
   return (
-    <section className="py-8 md:py-14">
+    <section className="overflow-x-clip py-8 sm:py-14">
       <div className={wrap}>
         <Eyebrow>Follow-ups</Eyebrow>
-        <h3 className="max-w-3xl text-2xl md:text-4xl">Keep customers coming back — without sending anything you haven't approved.</h3>
-        <p className="mt-4 max-w-2xl text-muted">Messages go out from your own WhatsApp number, only when you've turned them on or confirmed a campaign. Aqivo AI can prepare drafts; you review and send.</p>
-        <Stagger className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{items.map(([t, b]) => <Item key={t}><div className="h-full rounded-[24px] glass p-5"><h4 className="text-base font-bold">{t}</h4><p className="mt-2 text-sm text-muted">{b}</p></div></Item>)}</Stagger>
+        <h3 className="max-w-3xl text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Keep customers coming back — without sending anything you haven't approved.</h3>
+        <p className="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base text-muted">Messages go out from your own WhatsApp number, only when you've turned them on or confirmed a campaign. Aqivo AI can prepare drafts; you review and send.</p>
+        <Stagger className="mt-6 sm:mt-8 grid gap-3.5 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">{items.map(([t, b]) => <Item key={t}><div className="h-full rounded-[22px] sm:rounded-[24px] glass p-4 sm:p-5"><h4 className="text-sm sm:text-base font-bold">{t}</h4><p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-muted">{b}</p></div></Item>)}</Stagger>
       </div>
     </section>
   )
@@ -210,7 +240,7 @@ export function Messaging() {
 
 export function Features() {
   return (
-    <section className="py-8 md:py-14">
+    <section id="features" className="overflow-x-clip py-8 sm:py-14">
       <div className={cn(wrap, 'divide-y divide-white/70')}>
         <FeatureRow eyebrow="Storefront builder" title="Build it your way. Nothing to code, nothing locked into a template."
           body="Your storefront is a stack of sections you add, drag and edit: hero, products, categories, FAQ, video, map, WhatsApp prompt, opening hours and more. What you see in the preview is exactly what customers get."
@@ -240,21 +270,21 @@ export function Features() {
 export function Pricing() {
   const { data } = useQuery({ queryKey: ['plans', 'KES'], queryFn: () => api.get<Plan[]>('/subscriptions/plans', { currency: 'KES' }) })
   return (
-    <section id="pricing" className="py-20 md:py-28">
+    <section id="pricing" className="overflow-x-clip py-14 sm:py-20 md:py-28">
       <div className={wrap}>
         <Eyebrow>Pricing</Eyebrow>
-        <h2 className="max-w-2xl text-3xl md:text-5xl">Free to start. Fair to grow.</h2>
-        <p className="mt-4 max-w-2xl text-muted">Start free — the storefront, orders and bookings are included. Upgrade for your own domain, analytics, campaigns and AI. Cancel any time; your data is kept.</p>
-        <Stagger className="mt-12 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <h2 className="max-w-2xl text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">Free to start. Fair to grow.</h2>
+        <p className="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base text-muted">Start free — the storefront, orders and bookings are included. Upgrade for your own domain, analytics, campaigns and AI. Cancel any time; your data is kept.</p>
+        <Stagger className="mt-8 sm:mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {(data ?? []).map((p) => {
             const featured = p.key === 'GROW'
             return (
-              <Item key={p.key} className="h-full"><motion.div whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 260, damping: 18 }} className={cn('flex h-full flex-col rounded-[24px] p-6', featured ? 'btn-brand border-transparent' : 'glass')}>
-                <div className="flex items-center justify-between"><h3 className="text-xl">{p.name}</h3>{featured && <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-bold text-brand">Most popular</span>}</div>
-                <p className={cn('mt-4 text-4xl font-extrabold tracking-tight', featured ? 'text-white' : 'text-ink')}>{p.price && Number(p.price) > 0 ? <CountUp prefix={p.currency === 'KES' ? 'KSh ' : `${p.currency} `} to={Number(p.price)} duration={1100} /> : 'Free'}<span className={cn('text-sm font-semibold', featured ? 'text-white/50' : 'text-muted')}>{p.price && Number(p.price) > 0 ? ' /month' : ''}</span></p>
-                <p className={cn('mt-3 text-sm', featured ? 'text-white/60' : 'text-muted')}>{p.description}</p>
-                <ul className="mt-5 flex-1 space-y-2 text-sm">{p.highlights.map((h) => <li key={h} className="flex gap-2"><Check className={cn('mt-0.5 size-4 shrink-0', featured ? 'text-white' : 'text-ok')} />{h}</li>)}</ul>
-                <Link to="/register" className={cn('mt-6 rounded-full py-3 text-center text-sm font-bold', featured ? 'bg-white text-brand hover:bg-white/90' : 'btn-brand')}>{p.key === 'FREE' ? 'Start free' : 'Start free trial'}</Link>
+              <Item key={p.key} className="h-full"><motion.div whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 260, damping: 18 }} className={cn('flex h-full flex-col rounded-[22px] sm:rounded-[24px] p-5 sm:p-6', featured ? 'btn-brand border-transparent' : 'glass')}>
+                <div className="flex items-center justify-between"><h3 className="text-lg sm:text-xl font-bold">{p.name}</h3>{featured && <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-bold text-brand">Most popular</span>}</div>
+                <p className={cn('mt-3 sm:mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight', featured ? 'text-white' : 'text-ink')}>{p.price && Number(p.price) > 0 ? <CountUp prefix={p.currency === 'KES' ? 'KSh ' : `${p.currency} `} to={Number(p.price)} duration={1100} /> : 'Free'}<span className={cn('text-xs sm:text-sm font-semibold', featured ? 'text-white/60' : 'text-muted')}>{p.price && Number(p.price) > 0 ? ' /month' : ''}</span></p>
+                <p className={cn('mt-2 sm:mt-3 text-xs sm:text-sm', featured ? 'text-white/70' : 'text-muted')}>{p.description}</p>
+                <ul className="mt-4 sm:mt-5 flex-1 space-y-2 text-xs sm:text-sm">{p.highlights.map((h) => <li key={h} className="flex gap-2"><Check className={cn('mt-0.5 size-4 shrink-0', featured ? 'text-white' : 'text-ok')} /><span>{h}</span></li>)}</ul>
+                <Link to="/register" className={cn('mt-5 sm:mt-6 rounded-full py-3 text-center text-xs sm:text-sm font-bold active:scale-98 transition shadow-xs', featured ? 'bg-white text-brand hover:bg-white/90' : 'btn-brand')}>{p.key === 'FREE' ? 'Start free' : 'Start free trial'}</Link>
               </motion.div></Item>
             )
           })}
@@ -266,13 +296,19 @@ export function Pricing() {
 
 export function EarlyAccess() {
   return (
-    <section className="py-20 md:py-28">
-      <div className={cn(wrap, 'grid items-center gap-10 lg:grid-cols-[1.2fr_1fr]')}>
-        <div><img src="/img/salon-scissors-sm.webp" alt="A hairdresser working with scissors" loading="lazy" width={640} height={427} className="mb-8 aspect-[16/9] w-full max-w-xl rounded-[28px] object-cover shadow-[0_18px_40px_rgba(70,80,160,0.18)]" /><Eyebrow>Testimonials</Eyebrow><h2 className="text-3xl md:text-5xl">We're onboarding our first businesses.</h2>
-          <p className="mt-4 max-w-xl text-muted">We won't invent reviews. When our first customers have results to share, they'll appear here in their own words. Want us to set your business up for you and show you a live demo?</p></div>
-        <div className="rounded-[28px] btn-brand p-8"><p className="text-2xl font-extrabold leading-tight">“We'll set up your digital business presence for you.”</p>
-          <p className="mt-3 text-sm">Salons, shops, restaurants, clinics, gyms and more — message us on WhatsApp for a done-for-you setup.</p>
-          <Link to="/register" className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-bold text-brand">Start your business</Link></div>
+    <section className="overflow-x-clip py-14 sm:py-20 md:py-28">
+      <div className={cn(wrap, 'grid items-center gap-8 sm:gap-10 lg:grid-cols-[1.2fr_1fr]')}>
+        <div>
+          <img src="/img/salon-scissors-sm.webp" alt="A hairdresser working with scissors" loading="lazy" width={640} height={427} className="mb-6 sm:mb-8 aspect-[16/9] w-full max-w-xl rounded-[22px] sm:rounded-[28px] object-cover shadow-[0_18px_40px_rgba(70,80,160,0.18)]" />
+          <Eyebrow>Testimonials</Eyebrow>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">We're onboarding our first businesses.</h2>
+          <p className="mt-3 sm:mt-4 max-w-xl text-xs sm:text-base text-muted">We won't invent reviews. When our first customers have results to share, they'll appear here in their own words. Want us to set your business up for you and show you a live demo?</p>
+        </div>
+        <div className="rounded-[22px] sm:rounded-[28px] btn-brand p-6 sm:p-8 shadow-lg">
+          <p className="text-xl sm:text-2xl font-extrabold leading-tight">“We'll set up your digital business presence for you.”</p>
+          <p className="mt-3 text-xs sm:text-sm opacity-90">Salons, shops, restaurants, clinics, gyms and more — message us on WhatsApp for a done-for-you setup.</p>
+          <Link to="/register" className="mt-5 sm:mt-6 inline-flex rounded-full bg-white px-6 py-3 text-xs sm:text-sm font-bold text-brand shadow-sm active:scale-95 transition">Start your business</Link>
+        </div>
       </div>
     </section>
   )
@@ -288,17 +324,18 @@ const FAQS = [
   ['What happens if I cancel?', 'Your plan stays active until the end of the period you paid for. Your storefront and data stay, paid features lock, and you can come back any time.'],
   ['Will Aqivo message my customers by itself?', 'Never on its own. Campaigns and AI drafts always need your confirmation, and messages go out through your own WhatsApp number. Order updates are only sent if you’ve connected WhatsApp and left them on.'],
 ]
+
 export function Faq() {
   const [open, setOpen] = useState<number | null>(0)
   return (
-    <section id="faq" className="py-20 md:py-28">
-      <div className={cn(wrap, 'grid gap-10 lg:grid-cols-[1fr_1.6fr]')}>
-        <div><Eyebrow>FAQ</Eyebrow><h2 className="text-3xl md:text-5xl">Questions, answered.</h2></div>
-        <div className="divide-y divide-white/70 rounded-[24px] glass">
+    <section id="faq" className="overflow-x-clip py-14 sm:py-20 md:py-28">
+      <div className={cn(wrap, 'grid gap-8 sm:gap-10 lg:grid-cols-[1fr_1.6fr]')}>
+        <div><Eyebrow>FAQ</Eyebrow><h2 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight">Questions, answered.</h2></div>
+        <div className="divide-y divide-white/70 rounded-[22px] sm:rounded-[24px] glass">
           {FAQS.map(([q, a], i) => (
             <div key={q}>
-              <button className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left font-bold" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>{q}<ChevronDown className={cn('size-5 shrink-0 transition-transform', open === i && 'rotate-180')} /></button>
-              <AnimatePresence initial={false}>{open === i && <motion.div key="c" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden"><p className="px-6 pb-5 text-sm text-muted">{a}</p></motion.div>}</AnimatePresence>
+              <button className="flex w-full items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left text-sm sm:text-base font-bold" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>{q}<ChevronDown className={cn('size-4 sm:size-5 shrink-0 transition-transform', open === i && 'rotate-180')} /></button>
+              <AnimatePresence initial={false}>{open === i && <motion.div key="c" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden"><p className="px-5 sm:px-6 pb-4 sm:pb-5 text-xs sm:text-sm text-muted">{a}</p></motion.div>}</AnimatePresence>
             </div>
           ))}
         </div>
@@ -309,13 +346,13 @@ export function Faq() {
 
 export function FinalCta() {
   return (
-    <section className="px-3 py-10 sm:px-6">
-      <motion.div initial={{ opacity: 0, scale: 0.94 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.8 }} className="mx-auto max-w-[1400px] rounded-[40px] px-6 py-20 text-center text-white md:py-28" style={{ background: 'linear-gradient(160deg,#8fa8ff 0%,#5b3cf5 65%,#4a2ee0 100%)' }}>
-        <h2 className="mx-auto max-w-3xl text-4xl md:text-6xl">Ready to get found?</h2>
-        <p className="mx-auto mt-4 max-w-xl text-white/80">Create your free storefront now. Add your own domain when you're ready.</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/register" className="rounded-full bg-white px-8 py-4 font-bold text-brand">Start your business</Link>
-          <a href="#how" className="rounded-full border border-white/50 px-8 py-4 font-bold hover:bg-white/10">See how it works</a>
+    <section className="overflow-x-clip px-3 py-8 sm:px-6 sm:py-12">
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.8 }} className="mx-auto max-w-[1400px] rounded-[26px] sm:rounded-[40px] px-5 py-14 text-center text-white sm:px-6 sm:py-20 md:py-28 shadow-xl" style={{ background: 'linear-gradient(160deg,#8fa8ff 0%,#5b3cf5 65%,#4a2ee0 100%)' }}>
+        <h2 className="mx-auto max-w-3xl text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight">Ready to get found?</h2>
+        <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-xs sm:text-base text-white/80">Create your free storefront now. Add your own domain when you're ready.</p>
+        <div className="mt-6 sm:mt-8 flex flex-col xs:flex-row justify-center items-center gap-2.5 sm:gap-3">
+          <Link to="/register" className="w-full xs:w-auto rounded-full bg-white px-7 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base font-bold text-brand shadow-lg transition active:scale-95 text-center">Start your business</Link>
+          <a href="#how" className="w-full xs:w-auto rounded-full border border-white/50 px-7 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base font-bold hover:bg-white/10 transition text-center">See how it works</a>
         </div>
       </motion.div>
     </section>
@@ -324,13 +361,27 @@ export function FinalCta() {
 
 export function SiteFooter() {
   return (
-    <footer className="px-5 py-12 text-muted md:px-10">
-      <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-8">
-        <div className="max-w-xs"><Logo /><p className="mt-2 text-sm">Get Found. Get Customers. Grow. The storefront and growth platform built for African small businesses.</p></div>
-        <div className="flex gap-16 text-sm"><div className="space-y-2"><p className="font-bold text-ink">Product</p><a href="/#how" className="block hover:text-ink">How it works</a><a href="/#pricing" className="block hover:text-ink">Pricing</a><a href="/#faq" className="block hover:text-ink">FAQ</a></div>
-          <div className="space-y-2"><p className="font-bold text-ink">Account</p><Link to="/login" className="block hover:text-ink">Sign in</Link><Link to="/register" className="block hover:text-ink">Start your business</Link></div></div>
+    <footer className="px-4 py-10 sm:py-12 text-muted sm:px-6 md:px-10 border-t border-line/40">
+      <div className="mx-auto flex max-w-7xl flex-col sm:flex-row justify-between gap-8">
+        <div className="max-w-xs">
+          <Logo />
+          <p className="mt-3 text-xs sm:text-sm">Get Found. Get Customers. Grow. The storefront and growth platform built for African small businesses.</p>
+        </div>
+        <div className="flex flex-wrap gap-10 sm:gap-16 text-xs sm:text-sm">
+          <div className="space-y-2">
+            <p className="font-bold text-ink">Product</p>
+            <a href="/#how" className="block hover:text-ink transition-colors">How it works</a>
+            <a href="/#pricing" className="block hover:text-ink transition-colors">Pricing</a>
+            <a href="/#faq" className="block hover:text-ink transition-colors">FAQ</a>
+          </div>
+          <div className="space-y-2">
+            <p className="font-bold text-ink">Account</p>
+            <Link to="/login" className="block hover:text-ink transition-colors">Sign in</Link>
+            <Link to="/register" className="block hover:text-ink transition-colors">Start your business</Link>
+          </div>
+        </div>
       </div>
-      <p className="mx-auto mt-10 max-w-7xl text-xs">© {new Date().getFullYear()} Aqivo.shop. Demo businesses shown on this site are sample content, not real customers.</p>
+      <p className="mx-auto mt-8 sm:mt-10 max-w-7xl text-[11px] sm:text-xs text-muted/70">© {new Date().getFullYear()} Aqivo.shop. Demo businesses shown on this site are sample content, not real customers.</p>
     </footer>
   )
 }
