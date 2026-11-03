@@ -24,17 +24,17 @@ export const brand = {
     ogImage: '/brand/aqivo-og.png',
   },
   colors: {
-    primary: '#5B21F5', // Aqivo Purple
-    secondary: '#7C3AED', // Aqivo Violet
-    navy: '#0B1736', // Brand Navy
-    background: '#F8FAFC',
+    primary: '#375A8A', // Dim Refined Slate Cobalt
+    secondary: '#2C476F',
+    navy: '#0F172A', // Dim Brand Navy
+    background: '#080D1A',
     white: '#FFFFFF',
-    text: '#0F172A',
+    text: '#E2E8F0',
     muted: '#64748B',
-    border: '#E2E8F0',
-    success: '#16A34A',
+    border: 'rgba(255, 255, 255, 0.08)',
+    success: '#10B981',
     warning: '#F59E0B',
-    error: '#DC2626',
+    error: '#EF4444',
   }
 } as const
 

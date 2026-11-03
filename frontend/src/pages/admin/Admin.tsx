@@ -148,7 +148,7 @@ export function AdminDashboard() {
 
       {/* Revenue Separation Banner */}
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="relative overflow-hidden rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-600 via-indigo-600 to-purple-700 p-6 text-white shadow-md">
+        <div className="relative overflow-hidden rounded-2xl border border-blue-900 bg-[#0f172a] p-6 text-white shadow-md">
           <div className="flex items-center justify-between">
             <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-extrabold uppercase tracking-wider backdrop-blur-sm">
               Aqivo Platform Income
@@ -166,7 +166,7 @@ export function AdminDashboard() {
           </p>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-600 via-teal-600 to-teal-800 p-6 text-white shadow-md">
+        <div className="relative overflow-hidden rounded-2xl border border-blue-800 bg-[#375a8a] p-6 text-white shadow-md">
           <div className="flex items-center justify-between">
             <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-extrabold uppercase tracking-wider backdrop-blur-sm">
               Merchants' Gross Sales (GMV)

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   ShoppingBag,
   Truck,
@@ -9,16 +10,17 @@ import {
   Briefcase,
   Layers,
   Code2,
-  ArrowRight,
   CheckCircle2,
+  ArrowRight,
   Sparkles,
 } from 'lucide-react'
+import { CreativeRobot } from '@/components/ui/CreativeRobot'
 
 const INDUSTRIES = [
   {
     name: 'E-commerce & Retail',
     icon: ShoppingBag,
-    color: '#8B5CF6',
+    color: '#375a8a',
     image: '/img/retail-1.webp',
     challenge:
       'High cart abandonment, chaotic inventory tracking across multiple branches, manual WhatsApp receipt verification, and order fulfillment errors.',
@@ -29,7 +31,7 @@ const INDUSTRIES = [
   {
     name: 'Logistics & Supply Chain',
     icon: Truck,
-    color: '#3B82F6',
+    color: '#3b82f6',
     image: '/img/auto-1.webp',
     challenge:
       'Fragmented driver communications, lack of real-time route visibility, manual paper waybills, and slow dispute resolution on delivered packages.',
@@ -40,7 +42,7 @@ const INDUSTRIES = [
   {
     name: 'Financial Services & FinTech',
     icon: CreditCard,
-    color: '#10B981',
+    color: '#10b981',
     image: '/img/professional-4.webp',
     challenge:
       'Strict regulatory compliance, audit logging requirements, secure customer authentication, and resilient transaction processing without double-charges.',
@@ -51,7 +53,7 @@ const INDUSTRIES = [
   {
     name: 'Education & EdTech',
     icon: GraduationCap,
-    color: '#F59E0B',
+    color: '#f59e0b',
     image: '/img/education-1.webp',
     challenge:
       'Disjointed student tracking, manual fee verification via bank slips, clunky content delivery on mobile devices, and poor student engagement metrics.',
@@ -62,7 +64,7 @@ const INDUSTRIES = [
   {
     name: 'Healthcare & Clinics',
     icon: HeartPulse,
-    color: '#F43F5E',
+    color: '#f43f5e',
     image: '/img/clinic-1.webp',
     challenge:
       'High patient no-show rates, disorganized appointment schedules, insecure patient records, and chaotic consultation follow-ups.',
@@ -73,7 +75,7 @@ const INDUSTRIES = [
   {
     name: 'Real Estate & PropTech',
     icon: Building,
-    color: '#06B6D4',
+    color: '#06b6d4',
     image: '/img/real-estate-1.webp',
     challenge:
       'Unstructured lead capture from social media ads, manual tenant rent tracking, slow maintenance request dispatching, and paper receipts.',
@@ -84,7 +86,7 @@ const INDUSTRIES = [
   {
     name: 'Professional Services',
     icon: Briefcase,
-    color: '#6366F1',
+    color: '#8b5cf6',
     image: '/img/professional-1.webp',
     challenge:
       'Consultants and agencies losing billable hours to manual invoicing, back-and-forth client scheduling, and fragmented project status updates.',
@@ -95,7 +97,7 @@ const INDUSTRIES = [
   {
     name: 'Multi-Sided Marketplaces',
     icon: Layers,
-    color: '#EC4899',
+    color: '#ec4899',
     image: '/img/retail-4.webp',
     challenge:
       'Balancing buyer and seller trust, complex commission splits, multi-vendor payouts, and search latency across large product catalogs.',
@@ -106,7 +108,7 @@ const INDUSTRIES = [
   {
     name: 'B2B SaaS Platforms',
     icon: Code2,
-    color: '#14B8A6',
+    color: '#14b8a6',
     image: '/img/professional-3.webp',
     challenge:
       'Managing tenant data isolation, user seat billing, rate limiting, granular role permissions, and API telemetry as customer companies scale.',
@@ -120,21 +122,50 @@ export default function Industries() {
   return (
     <div className="space-y-24 sm:space-y-32 pb-24">
       {/* Full-Width Hero Header */}
-      <section className="relative w-full border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/70 pt-14 pb-16 sm:pt-20 sm:pb-24">
-        <div className="tech-grid absolute inset-0 opacity-30 pointer-events-none" />
+      <section className="theme-hero-section relative w-full pt-14 pb-16 sm:pt-20 sm:pb-24 overflow-hidden">
+        <div className="tech-grid absolute inset-0 opacity-20 pointer-events-none" />
+
         <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4 shadow-2xs">
-              <Sparkles className="size-3.5" />
-              <span>Vertical Domain Architectures</span>
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] items-center">
+            <div className="max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="inline-flex items-center gap-2 rounded-full bg-[#375a8a]/10 border border-[#375a8a]/30 px-3.5 py-1 text-xs font-semibold text-[#375a8a] mb-4 shadow-2xs"
+              >
+                <Sparkles className="size-3.5" />
+                <span>Vertical Domain Architectures</span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.1 }}
+                className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight"
+              >
+                Technology Solutions Designed Around Your Business Model
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.2 }}
+                className="mt-5 text-base sm:text-lg theme-muted leading-relaxed font-normal"
+              >
+                Technology should fit your operational workflow—not the other way around. We design system architectures,
+                databases, and automated workflows tailored to the specific economics and operational realities of your industry.
+              </motion.p>
             </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Technology Solutions Designed Around Your Business Model
-            </h1>
-            <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-              Technology should fit your operational workflow—not the other way around. We design system architectures,
-              databases, and automated workflows tailored to the specific economics and operational realities of your industry.
-            </p>
+
+            <div className="flex justify-center">
+              <CreativeRobot
+                variant="floating"
+                size="md"
+                badgeText="Sector-Specific Engineering"
+                showOrbits={true}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -142,16 +173,20 @@ export default function Industries() {
       {/* Industries Grid with Photographic Headers */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {INDUSTRIES.map((ind) => {
+          {INDUSTRIES.map((ind, idx) => {
             const Icon = ind.icon
             return (
-              <div
+              <motion.div
                 key={ind.name}
-                className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: (idx % 3) * 0.1 }}
+                className="theme-card group flex flex-col justify-between overflow-hidden rounded-3xl shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 <div>
                   {/* Photo Header */}
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-black">
                     <img
                       src={ind.image}
                       alt={`${ind.name} architectural context`}
@@ -159,7 +194,7 @@ export default function Industries() {
                       decoding="async"
                       className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent" />
+                    <div className="absolute inset-0 bg-black/60" />
                     
                     <div className="absolute bottom-3 left-4 right-4 flex items-center gap-3 text-white">
                       <div
@@ -168,27 +203,33 @@ export default function Industries() {
                       >
                         <Icon className="size-5" />
                       </div>
-                      <h2 className="text-lg font-bold leading-tight drop-shadow-xs">{ind.name}</h2>
+                      <h2 className="text-lg font-bold leading-tight text-white drop-shadow-xs">{ind.name}</h2>
                     </div>
                   </div>
 
                   <div className="p-6 space-y-4">
-                    <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5">
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-rose-600 mb-1">Common Bottleneck</p>
-                      <p className="text-xs text-slate-600 leading-relaxed">{ind.challenge}</p>
+                    <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-3.5">
+                      <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-rose-500 mb-1">
+                        Common Bottleneck
+                      </p>
+                      <p className="text-xs theme-muted leading-relaxed font-normal">{ind.challenge}</p>
                     </div>
 
-                    <div className="rounded-xl border border-slate-100 bg-emerald-50/40 p-3.5">
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 mb-1">Aqivo Architecture</p>
-                      <p className="text-xs text-slate-700 leading-relaxed">{ind.solution}</p>
+                    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3.5">
+                      <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-500 mb-1">
+                        Aqivo Architecture
+                      </p>
+                      <p className="text-xs theme-muted leading-relaxed font-normal">{ind.solution}</p>
                     </div>
 
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Key Capabilities</p>
-                      <ul className="space-y-1.5 text-xs text-slate-700">
+                      <p className="text-[11px] font-mono font-bold uppercase tracking-wider theme-muted mb-2">
+                        Key Capabilities
+                      </p>
+                      <ul className="space-y-1.5 text-xs theme-muted font-mono">
                         {ind.capabilities.map((cap) => (
                           <li key={cap} className="flex items-center gap-2">
-                            <CheckCircle2 className="size-3.5 text-brand shrink-0" />
+                            <CheckCircle2 className="size-3.5 text-[#375a8a] shrink-0" />
                             <span>{cap}</span>
                           </li>
                         ))}
@@ -197,18 +238,18 @@ export default function Industries() {
                   </div>
                 </div>
 
-                <div className="p-6 pt-0 border-t border-slate-100 mt-2">
+                <div className="p-6 pt-0 border-t border-slate-200 dark:border-white/10 mt-2">
                   <div className="pt-4">
                     <Link
                       to={`/contact?industry=${encodeURIComponent(ind.name)}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-900 group-hover:text-brand transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#375a8a] hover:underline transition-colors"
                     >
                       <span>Discuss {ind.name} architecture</span>
                       <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )
           })}
         </div>
@@ -216,16 +257,16 @@ export default function Industries() {
 
       {/* Domain Consultation CTA */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl bg-slate-900 p-8 sm:p-14 text-center text-white">
-          <h2 className="text-2xl sm:text-4xl font-extrabold">Operating in a Highly Specialized Sector?</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-slate-300">
+        <div className="rounded-3xl border border-slate-700/40 bg-[#0f172a] dark:bg-[#0a0f1d] p-8 sm:p-14 text-center text-white shadow-2xl relative overflow-hidden">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">Operating in a Highly Specialized Sector?</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-white/95 font-normal">
             If your industry has bespoke regulatory requirements, proprietary hardware integrations, or specialized
             data pipelines, our architecture team will deconstruct your technical requirements from first principles.
           </p>
           <div className="mt-8 flex justify-center">
             <Link
               to="/contact"
-              className="btn-brand rounded-full px-8 py-3.5 text-sm sm:text-base font-bold shadow-lg"
+              className="rounded-full bg-white text-[#09090b] px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl transition hover:bg-zinc-100 hover:scale-105 active:scale-95"
             >
               Start Industry Discovery
             </Link>

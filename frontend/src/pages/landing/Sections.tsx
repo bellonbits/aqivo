@@ -55,7 +55,7 @@ export function Categories() {
               <Link to={`/register?industry=${c.key}`}>
                 <motion.figure whileHover={{ y: -8 }} transition={{ type: 'spring', stiffness: 260, damping: 20 }} className="group relative aspect-[3/4] overflow-hidden rounded-[20px] sm:rounded-[24px] shadow-[0_12px_30px_rgba(70,80,160,0.14)] sm:shadow-[0_18px_40px_rgba(70,80,160,0.18)]">
                   <img src={`/img/${c.photo}-sm.webp`} alt={`${c.label} — example photo`} loading="lazy" decoding="async" width={640} height={853} className="size-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1b1550]/85 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-[#080d1a]/65" />
                   <figcaption className="absolute inset-x-0 bottom-0 p-3 sm:p-4 text-white"><p className="text-sm sm:text-base font-bold leading-tight">{c.label}</p><p className="mt-0.5 line-clamp-2 text-[11px] sm:text-xs text-white/75">{c.blurb}</p></figcaption>
                 </motion.figure>
               </Link>
@@ -347,7 +347,7 @@ export function Faq() {
 export function FinalCta() {
   return (
     <section className="overflow-x-clip px-3 py-8 sm:px-6 sm:py-12">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.8 }} className="mx-auto max-w-[1400px] rounded-[26px] sm:rounded-[40px] px-5 py-14 text-center text-white sm:px-6 sm:py-20 md:py-28 shadow-xl" style={{ background: 'linear-gradient(160deg,#8fa8ff 0%,#5b3cf5 65%,#4a2ee0 100%)' }}>
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: '-60px' }} transition={{ duration: 0.8 }} className="mx-auto max-w-[1400px] rounded-[26px] sm:rounded-[40px] px-5 py-14 text-center text-white sm:px-6 sm:py-20 md:py-28 shadow-xl bg-[#375a8a]">
         <h2 className="mx-auto max-w-3xl text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight">Ready to get found?</h2>
         <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-xs sm:text-base text-white/80">Create your free storefront now. Add your own domain when you're ready.</p>
         <div className="mt-6 sm:mt-8 flex flex-col xs:flex-row justify-center items-center gap-2.5 sm:gap-3">

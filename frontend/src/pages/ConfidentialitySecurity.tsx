@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   Lock,
   ShieldCheck,
@@ -10,26 +11,56 @@ import {
   Sparkles,
   EyeOff,
 } from 'lucide-react'
+import { CreativeRobot } from '@/components/ui/CreativeRobot'
 
 export default function ConfidentialitySecurity() {
   return (
     <div className="space-y-24 sm:space-y-32 pb-24">
       {/* Full-Width Hero Header */}
-      <section className="relative w-full border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/70 pt-14 pb-16 sm:pt-20 sm:pb-24">
-        <div className="tech-grid absolute inset-0 opacity-30 pointer-events-none" />
+      <section className="theme-hero-section relative w-full pt-14 pb-16 sm:pt-20 sm:pb-24 overflow-hidden">
+        <div className="tech-grid absolute inset-0 opacity-20 pointer-events-none" />
+
         <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4 shadow-2xs">
-              <Sparkles className="size-3.5" />
-              <span>Data Protection & IP Safeguards</span>
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] items-center">
+            <div className="max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="inline-flex items-center gap-2 rounded-full bg-[#375a8a]/10 border border-[#375a8a]/30 px-3.5 py-1 text-xs font-semibold text-[#375a8a] mb-4 shadow-2xs"
+              >
+                <Sparkles className="size-3.5" />
+                <span>Data Protection & IP Safeguards</span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.1 }}
+                className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight"
+              >
+                Confidentiality, Intellectual Property & Security
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.2 }}
+                className="mt-5 text-base sm:text-lg theme-muted leading-relaxed font-normal"
+              >
+                Your startup ideas, proprietary customer records, and system codebases represent your greatest commercial
+                assets. We treat them with institutional security discipline from day one.
+              </motion.p>
             </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Confidentiality, Intellectual Property & Security
-            </h1>
-            <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-              Your startup ideas, proprietary customer records, and system codebases represent your greatest commercial
-              assets. We treat them with institutional security discipline from day one.
-            </p>
+
+            <div className="flex justify-center">
+              <CreativeRobot
+                variant="floating"
+                size="md"
+                badgeText="Enterprise Cryptographic Discipline"
+                showOrbits={true}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -77,29 +108,33 @@ export default function ConfidentialitySecurity() {
           ].map((item, idx) => {
             const Icon = item.icon
             return (
-              <div
+              <motion.div
                 key={idx}
-                className="flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: (idx % 3) * 0.1 }}
+                className="theme-card flex flex-col justify-between rounded-3xl p-6 sm:p-8 shadow-xl transition-all duration-300"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="grid size-12 place-items-center rounded-2xl bg-purple-50 text-brand">
+                    <div className="grid size-12 place-items-center rounded-2xl bg-[#375a8a]/10 text-[#375a8a] border border-[#375a8a]/20">
                       <Icon className="size-6" />
                     </div>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-bold text-slate-700">
+                    <span className="rounded-full theme-card-subtle px-2.5 py-0.5 text-[11px] font-mono font-bold">
                       {item.tag}
                     </span>
                   </div>
 
-                  <h2 className="text-xl font-bold text-slate-900">{item.title}</h2>
-                  <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{item.desc}</p>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">{item.title}</h2>
+                  <p className="mt-3 text-xs sm:text-sm theme-muted leading-relaxed font-normal">{item.desc}</p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-emerald-700">
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/10 flex items-center gap-2 text-xs font-mono font-semibold text-emerald-500">
                   <CheckCircle2 className="size-4 shrink-0" />
                   <span>Enforced Across All Engagements</span>
                 </div>
-              </div>
+              </motion.div>
             )
           })}
         </div>
@@ -107,29 +142,29 @@ export default function ConfidentialitySecurity() {
 
       {/* NDA Request Box */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-slate-900 p-8 sm:p-14 text-white text-center">
+        <div className="theme-card rounded-3xl p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden">
           <div className="mx-auto max-w-2xl space-y-4">
-            <span className="rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold text-purple-200 border border-white/15">
+            <span className="rounded-full bg-[#375a8a]/10 border border-[#375a8a]/30 px-3.5 py-1 text-xs font-mono font-semibold text-[#375a8a]">
               Secure Onboarding
             </span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold leading-tight">
+            <h2 className="text-2xl sm:text-4xl font-extrabold leading-tight text-slate-900 dark:text-white">
               Request an NDA Prior to Initial Discussion
             </h2>
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            <p className="text-sm sm:text-base theme-muted leading-relaxed font-normal">
               If your company requires an executed Non-Disclosure Agreement before sharing product roadmaps or system
               architecture, our team will countersign your standard NDA or provide our standard mutual NDA immediately.
             </p>
             <div className="pt-4 flex flex-wrap justify-center gap-4">
               <Link
                 to="/contact?interest=strategy&nda=true"
-                className="btn-brand inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm sm:text-base font-bold shadow-lg"
+                className="btn-brand inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm sm:text-base font-bold shadow-lg hover:scale-105 transition"
               >
                 <span>Request NDA & Discovery Call</span>
                 <ArrowRight className="size-4" />
               </Link>
               <Link
                 to="/ethical-architecture"
-                className="glass inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm sm:text-base font-bold text-white border border-white/20 hover:bg-white/10"
+                className="btn-dark inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm sm:text-base font-semibold transition"
               >
                 <span>Review Ethical Architecture</span>
               </Link>

@@ -125,7 +125,7 @@ export function PhoneFrame({
           className="absolute inset-0"
           style={{
             borderRadius: outerRadius,
-            background: 'linear-gradient(145deg, #f8fafc 0%, #cbd5e1 15%, #475569 35%, #1e293b 50%, #475569 65%, #cbd5e1 85%, #f8fafc 100%)',
+            background: '#0f172a',
             boxShadow: '0 32px 72px -16px rgba(15, 23, 42, 0.45), 0 12px 28px -8px rgba(15, 23, 42, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.55)',
           }}
         />

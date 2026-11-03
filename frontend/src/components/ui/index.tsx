@@ -159,7 +159,7 @@ export function UpgradePrompt({ feature, title, body }: { feature?: string; titl
 /* ---------- Stat ---------- */
 export function Stat({ label, value, sub, tone = 'default' }: { label: string; value: ReactNode; sub?: ReactNode; tone?: 'default' | 'lime' }) {
   return (
-    <div className={cn('rounded-[18px] border p-4', tone === 'lime' ? 'border-white bg-gradient-to-br from-[#dfe6ff] to-[#e9defe]' : 'glass')}>
+    <div className={cn('rounded-[18px] border p-4', tone === 'lime' ? 'border-[#375a8a]/20 bg-blue-50/60' : 'glass')}>
       <p className={cn('text-xs font-semibold uppercase tracking-wide', tone === 'lime' ? 'text-lime-ink/70' : 'text-muted')}>{label}</p>
       <p className="mt-1.5 text-2xl font-extrabold tracking-tight md:text-3xl">{typeof value === 'number' ? <CountUp to={value} duration={900} /> : value}</p>
       {sub && <p className={cn('mt-0.5 text-xs', tone === 'lime' ? 'text-lime-ink/70' : 'text-muted')}>{sub}</p>}

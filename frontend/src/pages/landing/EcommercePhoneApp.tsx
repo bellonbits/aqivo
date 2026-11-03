@@ -226,7 +226,7 @@ export function EcommercePhoneApp({
                   className="space-y-2 p-2 sm:space-y-2.5 sm:p-2.5"
                 >
                   {/* Hero Banner Component */}
-                  <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 p-2.5 sm:p-3 text-white shadow-sm">
+                  <div className="relative overflow-hidden rounded-xl bg-[#0f172a] p-2.5 sm:p-3 text-white shadow-sm">
                     <div className="relative z-10 max-w-[190px]">
                       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[8.5px] font-bold text-emerald-300">
                         <Sparkles className="size-2" /> New Season Drop

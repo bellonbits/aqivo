@@ -53,7 +53,7 @@ export function AqivoLogo({
         <span className={cn('font-bold tracking-tight shrink-0 whitespace-nowrap', textSizes[size])}>
           <span className={isDark ? 'text-white' : 'text-[#0B1736]'}>Aqivo</span>
           {showDomain && (
-            <span className="text-[#5B21F5] font-extrabold text-[0.85em]">.shop</span>
+            <span className="text-[#0040FA] font-extrabold text-[0.85em]">.shop</span>
           )}
         </span>
       </span>
@@ -65,7 +65,7 @@ export function AqivoLogo({
     <span className={cn('inline-flex items-center gap-1.5 font-bold tracking-tight select-none', textSizes[size], className)}>
       <span className={isDark ? 'text-white' : 'text-[#0B1736]'}>Aqivo</span>
       {showDomain && (
-        <span className="text-[#5B21F5] font-extrabold text-[0.85em]">.shop</span>
+        <span className="text-[#0040FA] font-extrabold text-[0.85em]">.shop</span>
       )}
     </span>
   )

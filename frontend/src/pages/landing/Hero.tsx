@@ -174,7 +174,7 @@ export function Hero() {
               {['Grow', 'your', isEcom ? 'retail' : 'appointment', 'business.'].map((w, i) => (
                 <motion.span
                   key={`${previewMode}-${w}`}
-                  className={`mr-[0.25em] inline-block ${i === 0 ? 'text-gradient' : ''}`}
+                  className={`mr-[0.25em] inline-block ${i === 0 ? 'text-[#375a8a]' : ''}`}
                   initial={{ opacity: 0, y: 30, filter: 'blur(6px)' }}
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   transition={{ duration: 0.6, delay: 0.5 + i * 0.08, ease }}
@@ -232,7 +232,7 @@ export function Hero() {
                 {isEcom ? 'Your storefront link' : 'Your booking link'}
               </p>
               <p className="mt-1 break-all text-xl sm:text-2xl font-semibold tracking-tight">
-                aqivo.shop/<span className="text-gradient">{isEcom ? 'two-sides' : 'broadway-beauty'}</span>
+                aqivo.shop/<span className="text-[#375a8a]">{isEcom ? 'two-sides' : 'broadway-beauty'}</span>
               </p>
               <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold">
                 {(isEcom

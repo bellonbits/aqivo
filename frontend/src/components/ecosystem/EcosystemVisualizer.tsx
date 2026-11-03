@@ -24,8 +24,7 @@ export interface EcosystemStage {
   tagline: string
   icon: typeof Lightbulb
   color: string
-  gradient: string
-  description: string
+description: string
   keyQuestions: string[]
   deliverables: string[]
   technologies: string[]
@@ -40,8 +39,7 @@ export const ECOSYSTEM_STAGES: EcosystemStage[] = [
     title: 'Transform Ideas into Viable Concepts',
     tagline: 'Before writing code, validate feasibility and market architecture.',
     icon: Lightbulb,
-    color: '#F59E0B',
-    gradient: 'from-amber-500/20 to-amber-500/5',
+    color: '#b4833e',
     description:
       'We deconstruct your operational bottleneck or startup vision into a clear, validated technical hypothesis. We analyze technical feasibility, risk boundaries, and market expectations.',
     keyQuestions: [
@@ -64,8 +62,7 @@ export const ECOSYSTEM_STAGES: EcosystemStage[] = [
     title: 'Technology & Startup Roadmap',
     tagline: 'Start with the right technology decisions.',
     icon: Compass,
-    color: '#8B5CF6',
-    gradient: 'from-violet-500/20 to-violet-500/5',
+    color: '#6c6b9e',
     description:
       'Help founders and businesses select the ideal technology stack, plan infrastructure cost trajectories, and establish architecture blueprints before heavy capital commitments.',
     keyQuestions: [
@@ -88,8 +85,7 @@ export const ECOSYSTEM_STAGES: EcosystemStage[] = [
     title: 'Software & Product Engineering',
     tagline: 'From idea to production-ready software.',
     icon: Code2,
-    color: '#3B82F6',
-    gradient: 'from-blue-500/20 to-blue-500/5',
+    color: '#4a6fa5',
     description:
       'Full-lifecycle software engineering from rapid, high-integrity MVPs to robust multi-tenant web applications, mobile platforms, APIs, and mission-critical customer portals.',
     keyQuestions: [
@@ -112,8 +108,7 @@ export const ECOSYSTEM_STAGES: EcosystemStage[] = [
     title: 'Data Architecture & Intelligence',
     tagline: 'Turn business data into better decisions.',
     icon: Database,
-    color: '#06B6D4',
-    gradient: 'from-cyan-500/20 to-cyan-500/5',
+    color: '#40808a',
     description:
       'Build dependable data pipelines, transactional database structures, analytical data warehouses, and automated KPI dashboards that empower leadership with real-time clarity.',
     keyQuestions: [
@@ -136,8 +131,7 @@ export const ECOSYSTEM_STAGES: EcosystemStage[] = [
     title: 'Practical AI & Automation',
     tagline: 'Build AI that creates real business value.',
     icon: Bot,
-    color: '#10B981',
-    gradient: 'from-emerald-500/20 to-emerald-500/5',
+    color: '#4d8b6f',
     description:
       'Move past artificial hype into high-impact applied AI: proprietary knowledge assistants, Retrieval-Augmented Generation (RAG), intelligent customer support agents, and automated document processing.',
     keyQuestions: [
@@ -160,8 +154,7 @@ export const ECOSYSTEM_STAGES: EcosystemStage[] = [
     title: 'Build Your Technical Team',
     tagline: 'Build the team behind your technology.',
     icon: Users,
-    color: '#F43F5E',
-    gradient: 'from-rose-500/20 to-rose-500/5',
+    color: '#9e5a68',
     description:
       'Provide fractional CTO leadership while helping non-technical founders hire, evaluate, onboard, and establish engineering standards for their permanent in-house technical team.',
     keyQuestions: [
@@ -184,8 +177,7 @@ export const ECOSYSTEM_STAGES: EcosystemStage[] = [
     title: 'Cloud Infrastructure & Sustainable Growth',
     tagline: 'Build technology that is ready to grow.',
     icon: TrendingUp,
-    color: '#6366F1',
-    gradient: 'from-indigo-500/20 to-indigo-500/5',
+    color: '#5671a8',
     description:
       'Scale infrastructure, optimize database queries, implement multi-region caching, robust observability, and cloud automation so systems never stumble during traffic surges.',
     keyQuestions: [
@@ -208,29 +200,29 @@ export function EcosystemVisualizer() {
   const activeStage = ECOSYSTEM_STAGES.find((s) => s.id === selectedId) || ECOSYSTEM_STAGES[0]
 
   return (
-    <div className="relative mx-auto w-full max-w-6xl rounded-3xl border border-slate-200/90 bg-white/80 p-5 shadow-2xl backdrop-blur-xl sm:p-8">
+    <div className="relative mx-auto w-full max-w-6xl rounded-3xl border border-slate-200 dark:border-white/10 bg-white/95 dark:bg-[#0f172a]/90 p-5 shadow-2xl backdrop-blur-xl sm:p-8 text-[#0f172a] dark:text-white transition-colors">
       {/* Top Header */}
-      <div className="flex flex-col items-start justify-between gap-4 border-b border-slate-200/80 pb-6 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-4 border-b border-slate-200 dark:border-white/10 pb-6 sm:flex-row sm:items-center">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-brand border border-purple-200/60">
-            <Sparkles className="size-3.5 text-brand" />
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#375a8a]/10 px-3 py-1 text-xs font-semibold text-[#375a8a] dark:text-[#8ea9d4] border border-[#375a8a]/25">
+            <Sparkles className="size-3.5 text-[#375a8a] dark:text-[#8ea9d4]" />
             <span>Interactive Technology Ecosystem</span>
           </div>
-          <h3 className="mt-2 text-xl font-bold text-slate-900 sm:text-2xl">
+          <h3 className="mt-2 text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
             The Aqivo Lifecycle: From Idea to Scalable Business
           </h3>
-          <p className="mt-1 text-xs sm:text-sm text-slate-600">
+          <p className="mt-1 text-xs sm:text-sm theme-muted">
             Select any stage below to inspect the architectural questions, deliverables, and engineering capabilities.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-          <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="flex items-center gap-2 text-xs font-medium theme-muted">
+          <span className="flex size-2 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
           <span>Active Technology Engine</span>
         </div>
       </div>
 
-      {/* Horizontal Flow Line on Desktop / Scrollable on Mobile with ample headroom so cards never clip */}
+      {/* Horizontal Flow Line on Desktop / Scrollable on Mobile */}
       <div className="mt-4 overflow-x-auto py-5 px-2 scrollbar-none">
         <div className="flex items-center justify-between min-w-[740px] gap-2 px-2 py-2">
           {ECOSYSTEM_STAGES.map((stage, idx) => {
@@ -246,15 +238,15 @@ export function EcosystemVisualizer() {
                   className={cn(
                     'group relative flex flex-col items-center rounded-2xl p-3 sm:p-3.5 transition-all duration-200 w-full text-center shrink-0 min-w-[90px]',
                     isSelected
-                      ? 'bg-slate-900 text-white shadow-lg border-2 border-brand'
-                      : 'bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-200/80 shadow-2xs'
+                      ? 'bg-[#375a8a] text-white shadow-md border-2 border-[#375a8a]'
+                      : 'theme-pill-inactive'
                   )}
                 >
                   {/* Step pill */}
                   <span
                     className={cn(
                       'text-[10px] font-bold tracking-wider uppercase mb-1',
-                      isSelected ? 'text-purple-300' : 'text-slate-400'
+                      isSelected ? 'text-white' : 'theme-muted'
                     )}
                   >
                     {stage.number}
@@ -264,9 +256,9 @@ export function EcosystemVisualizer() {
                   <div
                     className={cn(
                       'grid size-10 place-items-center rounded-xl transition-transform duration-200 group-hover:scale-105',
-                      isSelected ? 'bg-white/10 text-white' : 'bg-slate-50 shadow-2xs text-slate-800 border border-slate-150'
+                      isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-white/5'
                     )}
-                    style={{ color: isSelected ? '#FFFFFF' : stage.color }}
+                    style={{ color: isSelected ? '#ffffff' : stage.color }}
                   >
                     <Icon className="size-5" />
                   </div>
@@ -274,11 +266,11 @@ export function EcosystemVisualizer() {
                   {/* Label */}
                   <span className="mt-2 text-xs font-bold leading-tight line-clamp-1">{stage.label}</span>
 
-                  {/* Clean internal active indicator bar */}
+                  {/* Active indicator bar */}
                   {isSelected && (
                     <motion.span
                       layoutId="active-indicator"
-                      className="absolute bottom-1.5 inset-x-4 h-0.5 rounded-full bg-brand"
+                      className="absolute bottom-1.5 inset-x-4 h-0.5 rounded-full bg-white"
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                     />
                   )}
@@ -286,7 +278,7 @@ export function EcosystemVisualizer() {
 
                 {/* Arrow connector */}
                 {idx < ECOSYSTEM_STAGES.length - 1 && (
-                  <div className="mx-1 flex items-center justify-center text-slate-300 shrink-0">
+                  <div className="mx-1 flex items-center justify-center text-slate-400 dark:text-zinc-600 shrink-0">
                     <ArrowRight className="size-4" />
                   </div>
                 )}
@@ -304,7 +296,7 @@ export function EcosystemVisualizer() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="mt-6 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50/90 via-white to-slate-50/40 p-6 sm:p-8 shadow-sm"
+          className="mt-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#080d1a] p-6 sm:p-8 shadow-sm"
         >
           <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
             {/* Left: Deep Dive & Core Questions */}
@@ -317,27 +309,27 @@ export function EcosystemVisualizer() {
                   <activeStage.icon className="size-6" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#375a8a] dark:text-[#8ea9d4]">
                     Phase {activeStage.number} — {activeStage.label}
                   </span>
-                  <h4 className="text-xl font-bold text-slate-900 sm:text-2xl">{activeStage.title}</h4>
+                  <h4 className="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">{activeStage.title}</h4>
                 </div>
               </div>
 
-              <p className="text-sm sm:text-base leading-relaxed text-slate-700 font-medium">
+              <p className="text-sm sm:text-base leading-relaxed text-slate-700 dark:text-zinc-300 font-normal">
                 {activeStage.description}
               </p>
 
               {/* Questions Answered */}
-              <div className="rounded-xl border border-slate-200/90 bg-white p-4 shadow-2xs">
-                <h5 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
-                  <ShieldCheck className="size-4 text-brand" />
+              <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 p-4 shadow-2xs">
+                <h5 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-200 mb-3 flex items-center gap-1.5">
+                  <ShieldCheck className="size-4 text-[#375a8a] dark:text-[#8ea9d4]" />
                   <span>Strategic Questions Solved</span>
                 </h5>
                 <ul className="space-y-2">
                   {activeStage.keyQuestions.map((q, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
-                      <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-purple-100 text-[10px] font-bold text-brand mt-0.5">
+                    <li key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-zinc-300">
+                      <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-[#375a8a]/15 text-[10px] font-bold text-[#375a8a] dark:text-[#8ea9d4] mt-0.5">
                         ?
                       </span>
                       <span>{q}</span>
@@ -348,16 +340,16 @@ export function EcosystemVisualizer() {
 
               {/* Key Deliverables */}
               <div>
-                <h5 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+                <h5 className="text-xs font-bold uppercase tracking-wider theme-muted mb-2.5">
                   Standard Deliverables
                 </h5>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {activeStage.deliverables.map((item, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-medium text-slate-800 border border-slate-200/80 shadow-2xs"
+                      className="flex items-center gap-2 rounded-lg bg-white dark:bg-white/5 px-3 py-2 text-xs font-medium text-slate-800 dark:text-zinc-200 border border-slate-200 dark:border-white/10"
                     >
-                      <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                      <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>{item}</span>
                     </div>
                   ))}
@@ -366,20 +358,20 @@ export function EcosystemVisualizer() {
             </div>
 
             {/* Right: Architectural Capabilities & Outcome Box */}
-            <div className="flex flex-col justify-between space-y-5 rounded-2xl bg-slate-900 p-6 text-white shadow-xl">
+            <div className="flex flex-col justify-between space-y-5 rounded-2xl bg-[#0f172a] border border-slate-800 p-6 text-slate-100 shadow-md">
               <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-purple-300">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#8ea9d4]">
                     Technology & Stack Capabilities
                   </span>
-                  <Cpu className="size-4 text-purple-400" />
+                  <Cpu className="size-4 text-[#8ea9d4]" />
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
                   {activeStage.technologies.map((tech) => (
                     <span
                       key={tech}
-                      className="rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium text-white border border-white/15"
+                      className="rounded-md bg-white/10 px-2.5 py-1 text-xs font-medium text-slate-200 border border-white/10"
                     >
                       {tech}
                     </span>
@@ -388,15 +380,15 @@ export function EcosystemVisualizer() {
 
                 <div className="pt-2">
                   <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Guiding Principle</p>
-                  <p className="mt-1 text-sm font-semibold text-purple-200">"{activeStage.tagline}"</p>
+                  <p className="mt-1 text-xs sm:text-sm text-slate-300 leading-relaxed font-mono">
+                    "{activeStage.tagline}"
+                  </p>
                 </div>
               </div>
 
-              <div className="rounded-xl bg-white/5 border border-white/10 p-4">
-                <p className="text-xs uppercase font-bold tracking-wider text-emerald-400">Measurable Outcome</p>
-                <p className="mt-1 text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
-                  {activeStage.outcome}
-                </p>
+              <div className="rounded-xl bg-[#375a8a]/15 border border-[#375a8a]/30 p-4">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#8ea9d4]">Validated Outcome</p>
+                <p className="mt-1 text-xs text-slate-300 leading-relaxed">{activeStage.outcome}</p>
               </div>
             </div>
           </div>

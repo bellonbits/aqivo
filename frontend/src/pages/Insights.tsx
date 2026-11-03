@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sparkles,
   ArrowRight,
@@ -10,7 +11,10 @@ import {
   Users,
   Compass,
   Clock,
+  ChevronDown,
 } from 'lucide-react'
+import { CreativeRobot } from '@/components/ui/CreativeRobot'
+import { cn } from '@/lib/cn'
 
 const INSIGHTS = [
   {
@@ -87,21 +91,50 @@ export default function Insights() {
   return (
     <div className="space-y-24 sm:space-y-32 pb-24">
       {/* Full-Width Hero Header */}
-      <section className="relative w-full border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/70 pt-14 pb-16 sm:pt-20 sm:pb-24">
-        <div className="tech-grid absolute inset-0 opacity-30 pointer-events-none" />
+      <section className="theme-hero-section relative w-full pt-14 pb-16 sm:pt-20 sm:pb-24 overflow-hidden">
+        <div className="tech-grid absolute inset-0 opacity-20 pointer-events-none" />
+
         <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4 shadow-2xs">
-              <Sparkles className="size-3.5" />
-              <span>Engineering & Strategy Perspectives</span>
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] items-center">
+            <div className="max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="inline-flex items-center gap-2 rounded-full bg-[#375a8a]/10 border border-[#375a8a]/30 px-3.5 py-1 text-xs font-semibold text-[#375a8a] mb-4 shadow-2xs"
+              >
+                <Sparkles className="size-3.5" />
+                <span>Engineering & Strategy Perspectives</span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.1 }}
+                className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight"
+              >
+                Strategic Insights for Technical Founders & Executives
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.2 }}
+                className="mt-5 text-base sm:text-lg theme-muted leading-relaxed font-normal"
+              >
+                Clear, pragmatic frameworks on software engineering, database design, applied artificial intelligence, and
+                building durable technology foundations. No marketing fluff.
+              </motion.p>
             </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Strategic Insights for Technical Founders & Executives
-            </h1>
-            <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-              Clear, pragmatic frameworks on software engineering, database design, applied artificial intelligence, and
-              building durable technology foundations. No marketing fluff.
-            </p>
+
+            <div className="flex justify-center">
+              <CreativeRobot
+                variant="floating"
+                size="md"
+                badgeText="Pragmatic Architectural Thinking"
+                showOrbits={true}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -109,18 +142,22 @@ export default function Insights() {
       {/* Articles Grid */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {INSIGHTS.map((post) => {
+          {INSIGHTS.map((post, idx) => {
             const Icon = post.icon
             const isOpen = selectedPost === post.slug
 
             return (
-              <article
+              <motion.article
                 key={post.slug}
-                className="flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm transition hover:shadow-md"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: (idx % 3) * 0.1 }}
+                className="theme-card flex flex-col justify-between rounded-3xl p-6 sm:p-8 shadow-xl transition-all duration-300 group"
               >
                 <div>
-                  <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-2.5 py-0.5 font-bold text-brand border border-purple-200/60">
+                  <div className="flex items-center justify-between text-xs theme-muted mb-4 font-mono">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#375a8a]/10 px-2.5 py-0.5 font-bold text-[#375a8a] border border-[#375a8a]/30">
                       <Icon className="size-3.5" />
                       <span>{post.category}</span>
                     </span>
@@ -130,36 +167,50 @@ export default function Insights() {
                     </span>
                   </div>
 
-                  <h2 className="text-xl font-bold text-slate-900 leading-snug">{post.title}</h2>
-                  <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{post.excerpt}</p>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white leading-snug transition-colors">
+                    {post.title}
+                  </h2>
+                  <p className="mt-3 text-xs sm:text-sm theme-muted leading-relaxed font-normal">{post.excerpt}</p>
 
                   {/* Expandable Core Framework */}
-                  {isOpen && (
-                    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-700 space-y-2">
-                      <p className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">The Aqivo Principle</p>
-                      <p className="leading-relaxed">{post.summary}</p>
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mt-4 rounded-xl border border-[#375a8a]/30 bg-[#375a8a]/10 p-4 text-xs space-y-2">
+                          <p className="font-bold text-[#375a8a] uppercase tracking-wider text-[11px] font-mono">
+                            The Aqivo Principle
+                          </p>
+                          <p className="leading-relaxed font-normal">{post.summary}</p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => setSelectedPost(isOpen ? null : post.slug)}
-                    className="text-xs font-bold text-brand hover:underline inline-flex items-center gap-1"
+                    className="text-xs font-bold text-[#375a8a] hover:underline inline-flex items-center gap-1 transition cursor-pointer"
                   >
-                    <span>{isOpen ? 'Collapse framework' : 'Read key takeaway'}</span>
-                    <ArrowRight className="size-3" />
+                    <span>{isOpen ? 'Collapse takeaway' : 'Read key takeaway'}</span>
+                    <ChevronDown className={cn('size-3.5 transition-transform duration-200', isOpen && 'rotate-180')} />
                   </button>
 
                   <Link
                     to={`/contact?topic=${encodeURIComponent(post.title)}`}
-                    className="text-xs text-slate-500 hover:text-slate-900"
+                    className="text-xs theme-muted hover:text-[#375a8a] font-mono transition"
                   >
-                    Discuss topic
+                    Discuss topic →
                   </Link>
                 </div>
-              </article>
+              </motion.article>
             )
           })}
         </div>
@@ -167,16 +218,16 @@ export default function Insights() {
 
       {/* Advisory Newsletter / Call Box */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl bg-slate-900 p-8 sm:p-14 text-center text-white">
-          <h2 className="text-2xl sm:text-4xl font-extrabold">Have a Specific Architecture Challenge?</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-slate-300">
+        <div className="rounded-3xl border border-slate-700/40 bg-[#0f172a] dark:bg-[#0a0f1d] p-8 sm:p-14 text-center text-white shadow-2xl relative overflow-hidden">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">Have a Specific Architecture Challenge?</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-white/95 font-normal">
             Our senior engineering partners review software design, database schemas, and AI roadmaps directly with
             founders.
           </p>
-          <div className="mt-6">
+          <div className="mt-8">
             <Link
               to="/contact"
-              className="btn-brand inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-sm sm:text-base font-bold shadow-lg"
+              className="rounded-full bg-white text-[#09090b] px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl transition hover:bg-zinc-100 hover:scale-105 active:scale-95 inline-flex items-center gap-2"
             >
               <span>Schedule Architecture Review</span>
               <ArrowRight className="size-4" />

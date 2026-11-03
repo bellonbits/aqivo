@@ -175,7 +175,7 @@ export function BookingPhoneApp({
                         onClick={() => handleScreenChange('salon')}
                         className={`flex items-center gap-1 shrink-0 rounded-full px-2 py-1 text-[9.5px] font-bold transition-all ${
                           cat.active
-                            ? 'bg-gradient-to-r from-brand to-purple-600 text-white shadow-sm'
+                            ? 'bg-[#375a8a] text-white shadow-sm'
                             : 'bg-white text-stone-600 ring-1 ring-stone-100'
                         }`}
                       >
@@ -188,7 +188,7 @@ export function BookingPhoneApp({
                   {/* Special Offers Banner */}
                   <div
                     onClick={() => handleScreenChange('service-detail')}
-                    className="mt-2.5 relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-100/90 via-violet-50 to-indigo-100/90 p-2.5 shadow-sm ring-1 ring-purple-200/50 cursor-pointer group"
+                    className="mt-2.5 relative overflow-hidden rounded-xl bg-blue-50/80 p-2.5 shadow-sm ring-1 ring-blue-100 cursor-pointer group"
                   >
                     <div className="flex justify-between items-center relative z-10">
                       <div className="space-y-0.5">
@@ -308,7 +308,7 @@ export function BookingPhoneApp({
                       alt="Broadway Beauty Bar"
                       className="size-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                    <div className="absolute inset-0 bg-black/40" />
                     <div className="absolute top-2.5 inset-x-2.5 flex justify-between items-center text-white">
                       <button
                         onClick={() => handleScreenChange('home')}
@@ -479,7 +479,7 @@ export function BookingPhoneApp({
                       {/* Book Now Button */}
                       <button
                         onClick={() => handleScreenChange('step1')}
-                        className="mt-2.5 w-full rounded-full bg-gradient-to-r from-brand to-purple-600 py-2 text-center text-[10.5px] font-extrabold text-white shadow-sm hover:brightness-105 active:scale-95 transition-all"
+                        className="mt-2.5 w-full rounded-full bg-[#375a8a] py-2 text-center text-[10.5px] font-extrabold text-white shadow-sm hover:brightness-105 active:scale-95 transition-all"
                       >
                         Book Now
                       </button>
@@ -656,7 +656,7 @@ export function BookingPhoneApp({
                   {/* Next Step Button */}
                   <button
                     onClick={() => handleScreenChange('step2')}
-                    className="mt-2 w-full rounded-full bg-gradient-to-r from-brand to-purple-600 py-2 text-center text-[10.5px] font-extrabold text-white shadow-sm hover:brightness-105 active:scale-95 transition-all"
+                    className="mt-2 w-full rounded-full bg-[#375a8a] py-2 text-center text-[10.5px] font-extrabold text-white shadow-sm hover:brightness-105 active:scale-95 transition-all"
                   >
                     Next
                   </button>
@@ -737,7 +737,7 @@ export function BookingPhoneApp({
 
                   <button
                     onClick={() => handleScreenChange('confirm')}
-                    className="mt-2.5 w-full rounded-full bg-gradient-to-r from-brand to-purple-600 py-2 text-center text-[10.5px] font-extrabold text-white shadow-sm hover:brightness-105 active:scale-95 transition-all"
+                    className="mt-2.5 w-full rounded-full bg-[#375a8a] py-2 text-center text-[10.5px] font-extrabold text-white shadow-sm hover:brightness-105 active:scale-95 transition-all"
                   >
                     Confirm & View Pass
                   </button>
@@ -844,7 +844,7 @@ export function BookingPhoneApp({
                   {/* Download Pass Button */}
                   <button
                     onClick={() => handleScreenChange('home')}
-                    className="mt-2 flex items-center justify-center gap-1 w-full rounded-full bg-gradient-to-r from-brand to-purple-600 py-2 text-center text-[10px] font-extrabold text-white shadow-sm hover:brightness-105 active:scale-95 transition-all"
+                    className="mt-2 flex items-center justify-center gap-1 w-full rounded-full bg-[#375a8a] py-2 text-center text-[10px] font-extrabold text-white shadow-sm hover:brightness-105 active:scale-95 transition-all"
                   >
                     <Download className="size-2.5" /> Download Order Receipt
                   </button>

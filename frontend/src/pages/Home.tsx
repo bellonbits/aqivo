@@ -3,323 +3,138 @@ import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowRight,
-  Compass,
-  Code2,
-  Database,
-  Bot,
-  Cloud,
-  Users,
   CheckCircle2,
-  AlertCircle,
   ShoppingBag,
   Sparkles,
-  Server,
+  ChevronRight,
   Plus,
   Minus,
 } from 'lucide-react'
 import { EcosystemVisualizer } from '@/components/ecosystem/EcosystemVisualizer'
+import { CreativeRobot } from '@/components/ui/CreativeRobot'
 import { cn } from '@/lib/cn'
 
-const SOLUTIONS = [
+const FEATURE_CARDS = [
   {
-    id: 'strategy',
-    title: 'Strategy',
-    sub: 'Technology & Startup Strategy',
-    keyMessage: 'Start with the right technology decisions.',
-    desc: 'Help founders make sound architectural decisions, select the right tech stack, and develop comprehensive MVP roadmaps before committing heavy engineering capital.',
-    icon: Compass,
-    iconColor: 'text-violet-600',
-    bgColor: 'bg-violet-50',
+    title: 'Precision Architecture',
+    sub: 'Startup Technology Strategy',
+    desc: 'Systematic technical roadmaps, stack selection, and MVP scoping before heavy engineering commitments.',
+    image: '/img/theme/feature-target.webp',
+    tag: 'Strategy',
+  },
+  {
+    title: 'Modern Tech Stack',
+    sub: 'Full-Stack Software Engineering',
+    desc: 'Engineered with high-concurrency databases, clean API contracts, and modular production architectures.',
+    image: '/img/theme/feature-processor.webp',
+    tag: 'Engineering',
+  },
+  {
+    title: 'Practical AI & Data',
+    sub: 'Data Architecture & Applied AI',
+    desc: 'Practical AI agents, RAG on internal knowledge, and single-source-of-truth operational data warehouses.',
+    image: '/img/theme/feature-network.webp',
+    tag: 'Intelligence',
+  },
+  {
+    title: 'Engineered to Scale',
+    sub: 'Cloud Infrastructure & DevOps',
+    desc: 'Automated CI/CD pipelines, container orchestration, and zero-downtime infrastructure ready for growth.',
+    image: '/img/theme/feature-scale.webp',
+    tag: 'Scale',
+  },
+]
+
+const SERVICES_LIST = [
+  {
+    id: '01',
+    name: 'Startup Technology Strategy',
+    tagline: 'Start with the right technology decisions.',
+    desc: 'Feasibility analysis, product roadmapping, tech stack selection, and infrastructure cost modeling.',
     link: '/services#strategy',
-    tags: ['Startup Technology Strategy', 'Feasibility Analysis', 'MVP Roadmap', 'Stack Selection', 'Cost Modeling'],
   },
   {
-    id: 'software',
-    title: 'Software',
-    sub: 'Software & Product Engineering',
-    keyMessage: 'From idea to production-ready software.',
-    desc: 'Design and build digital products that solve real business problems. From web & mobile applications to custom SaaS platforms, marketplaces, APIs, and internal portals.',
-    icon: Code2,
-    iconColor: 'text-blue-600',
-    bgColor: 'bg-blue-50',
+    id: '02',
+    name: 'Software & Product Engineering',
+    tagline: 'From idea to production-ready software.',
+    desc: 'Web & mobile applications, multi-tenant SaaS platforms, custom enterprise systems, and high-throughput APIs.',
     link: '/services#software',
-    tags: ['MVP Development', 'SaaS Platforms', 'Web & Mobile Apps', 'APIs & Integrations', 'Custom Portals'],
   },
   {
-    id: 'data',
-    title: 'Data',
-    sub: 'Data Architecture & Intelligence',
-    keyMessage: 'Turn business data into better decisions.',
-    desc: 'Build systems that transform raw, scattered operational data into reliable single sources of truth, robust ETL pipelines, data warehouses, and decision dashboards.',
-    icon: Database,
-    iconColor: 'text-cyan-600',
-    bgColor: 'bg-cyan-50',
+    id: '03',
+    name: 'Data Architecture & Intelligence',
+    tagline: 'Turn business data into better decisions.',
+    desc: 'Database schema design, ETL/ELT pipelines, data warehouses, real-time analytics, and executive KPI systems.',
     link: '/services#data',
-    tags: ['Database Design', 'ETL/ELT Pipelines', 'Data Warehouses', 'Business Intelligence', 'Data Governance'],
   },
   {
-    id: 'ai',
-    title: 'AI',
-    sub: 'Artificial Intelligence & Automation',
-    keyMessage: 'Build AI that creates real business value.',
-    desc: 'Practical, reliable AI solutions built to solve measurable operational bottlenecks: retrieval-augmented generation (RAG), AI agents, customer support copilots, and intelligent automation.',
-    icon: Bot,
-    iconColor: 'text-emerald-600',
-    bgColor: 'bg-emerald-50',
+    id: '04',
+    name: 'Artificial Intelligence & Automation',
+    tagline: 'Build AI that creates real business value.',
+    desc: 'Retrieval-augmented generation (RAG), autonomous AI agents, customer support copilots, and document AI.',
     link: '/services#ai',
-    tags: ['AI Strategy & Architecture', 'RAG Systems', 'AI Agents & LLMs', 'Intelligent Automation', 'Document AI'],
   },
   {
-    id: 'engineering',
-    title: 'Cloud & Engineering',
-    sub: 'Scalable Technology Infrastructure',
-    keyMessage: 'Build technology that is ready to grow.',
-    desc: 'Construct dependable cloud foundations with automated CI/CD, modern containerization, multi-environment security, observability, and database optimization.',
-    icon: Cloud,
-    iconColor: 'text-indigo-600',
-    bgColor: 'bg-indigo-50',
+    id: '05',
+    name: 'Cloud & Scalable Infrastructure',
+    tagline: 'Build technology that is ready to grow.',
+    desc: 'Cloud architecture (AWS/GCP), DevOps, CI/CD, database optimization, monitoring, and security hardening.',
     link: '/services#infrastructure',
-    tags: ['Cloud Architecture', 'DevOps & CI/CD', 'API Architecture', 'Observability', 'Scalability & Reliability'],
   },
   {
-    id: 'teams',
-    title: 'Teams',
-    sub: 'Build Your Technical Team',
-    keyMessage: 'Build the team behind your technology.',
-    desc: 'Strategic technology advisory and fractional CTO support to help startups evaluate, recruit, interview, and mentor their in-house engineering and data teams.',
-    icon: Users,
-    iconColor: 'text-rose-600',
-    bgColor: 'bg-rose-50',
+    id: '06',
+    name: 'Technical Team Building & Fractional CTO',
+    tagline: 'Build the team behind your technology.',
+    desc: 'Fractional CTO advisory, technical hiring rubrics, candidate coding interviews, and engineering mentorship.',
     link: '/services#teams',
-    tags: ['Technical Team Planning', 'Recruitment Support', 'Developer Evaluations', 'Fractional CTO', 'Code Standards'],
   },
 ]
 
-const PROBLEMS = [
+const CAPABILITIES_STACK = [
   {
-    title: 'Building the Wrong Product',
-    desc: 'Investing months building complex features before validating whether customers actually need or will pay for them.',
+    num: '01',
+    title: 'Build with confidence',
+    desc: 'Composable, modern architectures engineered for low maintenance and zero premature technical debt.',
   },
   {
-    title: 'Choosing the Wrong Tech Stack',
-    desc: 'Adopting hyped frameworks or bloated architectures that cripple development speed and require painful rewrites later.',
+    num: '02',
+    title: 'Unified business data',
+    desc: 'Consolidated database models, real-time webhooks, and single-source-of-truth operational analytics.',
   },
   {
-    title: 'Poor System Architecture',
-    desc: 'Constructing brittle schemas and single-point-of-failure databases that crash during traffic spikes or data influx.',
+    num: '03',
+    title: 'Scalable by design',
+    desc: 'Stateless API layers, connection pooling, and multi-region CDN caching for extreme concurrency.',
   },
   {
-    title: 'Slow or Unreliable Software',
-    desc: 'Shipping unoptimized code, sluggish queries, and unmonitored bugs that frustrate early users and cause churn.',
-  },
-  {
-    title: 'Disconnected Business Data',
-    desc: 'Operating with siloed spreadsheets, misaligned records, and zero clear visibility into real customer KPIs.',
-  },
-  {
-    title: 'AI Implemented Without Strategy',
-    desc: 'Adding superficial AI wrappers and gimmicks that burn API costs without solving measurable business bottlenecks.',
-  },
-  {
-    title: 'Difficulty Hiring Technical Talent',
-    desc: 'Struggling to screen, interview, and evaluate engineering resumes without an experienced technical leader.',
-  },
-  {
-    title: 'Lack of Technical Leadership',
-    desc: 'Founders forced to make major architectural and infrastructure choices alone without trusted senior guidance.',
+    num: '04',
+    title: 'Security & governance',
+    desc: 'Zero-trust access policies, encrypted secrets management, and automated vulnerability scanning.',
   },
 ]
 
-const PROCESS_STEPS = [
+const PRINCIPLES = [
   {
-    number: '01',
-    title: 'Understand',
-    desc: 'Understand the business model, customers, operational challenges, unit economics, and commercial goals.',
+    title: 'Deterministic Software',
+    desc: 'We engineer with strict typing, automated testing suites, and modular boundaries for lasting code quality.',
   },
   {
-    number: '02',
-    title: 'Strategize',
-    desc: 'Define the product roadmap, technology stack, system architecture, and immediate milestone priorities.',
+    title: 'Pragmatic Business AI',
+    desc: 'We never treat AI as a gimmick. We deploy AI only where it drives measurable ROI and operational efficiency.',
   },
   {
-    number: '03',
-    title: 'Architect',
-    desc: 'Design the software structure, database schemas, API contracts, security boundaries, and AI foundations.',
+    title: 'Complete IP Ownership',
+    desc: '100% of all source code, database schemas, repository commits, and cloud configurations belong to you.',
   },
   {
-    number: '04',
-    title: 'Build',
-    desc: 'Develop and implement the solution using clean, maintainable, production-grade code with automated tests.',
-  },
-  {
-    number: '05',
-    title: 'Integrate',
-    desc: 'Connect systems, databases, payment rails, third-party APIs, automated workflows, and practical AI models.',
-  },
-  {
-    number: '06',
-    title: 'Scale',
-    desc: 'Optimize query performance, monitor uptime, harden infrastructure reliability, and mentor your technical team.',
-  },
-]
-
-const STAGES = [
-  {
-    stage: 'Stage 1 — Idea',
-    title: 'From Concept to Clear Blueprint',
-    focus: 'Technology Strategy, Feasibility & MVP Roadmap',
-    desc: 'Validate technical viability, avoid premature over-engineering, choose the optimal stack, and plan an MVP scope that hits the market quickly.',
-    services: ['Startup technology strategy', 'Technical feasibility analysis', 'MVP planning & scoping', 'Cost & infrastructure planning'],
-    badge: 'Discovery & Feasibility',
-  },
-  {
-    stage: 'Stage 2 — MVP',
-    title: 'From Blueprint to Working Software',
-    focus: 'Product Design, Software Development & Core Infra',
-    desc: 'Ship a high-quality, production-ready MVP that real customers can use and pay for, built on clean foundations ready for growth.',
-    services: ['Product design & UX', 'Full-stack software engineering', 'Core database & API architecture', 'Automated CI/CD deployment'],
-    badge: 'Build & Launch',
-  },
-  {
-    stage: 'Stage 3 — Growth',
-    title: 'From Traction to Scalable Operations',
-    focus: 'Performance Optimization, Data Architecture & Automation',
-    desc: 'Optimize application performance, eliminate database bottlenecks, consolidate business data, and build executive reporting.',
-    services: ['Performance profiling & caching', 'Data architecture & ETL pipelines', 'Business intelligence & KPI dashboards', 'Process automation'],
-    badge: 'Optimize & Consolidate',
-  },
-  {
-    stage: 'Stage 4 — Scale',
-    title: 'From Growth to Category Leadership',
-    focus: 'Practical AI, Cloud Scalability & Engineering Teams',
-    desc: 'Deploy practical AI automation, harden multi-tenant infrastructure, achieve enterprise reliability, and build senior in-house developers.',
-    services: ['Production AI & RAG systems', 'High-availability cloud architecture', 'Technical team recruitment & rubrics', 'Fractional CTO leadership'],
-    badge: 'Scale & Lead',
-  },
-]
-
-const CAPABILITIES = [
-  {
-    category: 'Frontend Engineering',
-    desc: 'Modern, high-performance interfaces engineered for speed, mobile responsiveness, and clean component architecture.',
-    stack: ['React', 'Next.js', 'Vite', 'TypeScript', 'Tailwind CSS'],
-    icon: Code2,
-  },
-  {
-    category: 'Backend & APIs',
-    desc: 'Reliable, well-documented backend services and REST/GraphQL APIs with strong typing and strict validation.',
-    stack: ['FastAPI', 'Python', 'Node.js / Express', 'Java / Spring Boot', 'Go'],
-    icon: Server,
-  },
-  {
-    category: 'Data Architecture',
-    desc: 'Scalable relational, analytical, and vector storage engines configured for ACID compliance and low-latency queries.',
-    stack: ['PostgreSQL', 'MySQL', 'Redis', 'Data Warehouses', 'ETL/ELT Pipelines', 'Apache Spark'],
-    icon: Database,
-  },
-  {
-    category: 'Artificial Intelligence',
-    desc: 'Pragmatic AI systems and autonomous workflows designed around measurable business problems, not gimmicks.',
-    stack: ['Large Language Models', 'Retrieval-Augmented Generation (RAG)', 'Vector Databases', 'Machine Learning', 'AI Agents'],
-    icon: Bot,
-  },
-  {
-    category: 'Cloud & Infrastructure',
-    desc: 'Automated deployment pipelines, secure container orchestration, and continuous observability.',
-    stack: ['Docker', 'AWS / Google Cloud', 'CI/CD Pipelines', 'Monitoring & Metrics', 'Edge Caching & CDN'],
-    icon: Cloud,
-  },
-]
-
-const INDUSTRIES = [
-  {
-    name: 'E-commerce & Retail',
-    desc: 'Catalog synchronization, high-concurrency checkouts, inventory reconciliation, and automated WhatsApp order alerts.',
-  },
-  {
-    name: 'Logistics & Supply Chain',
-    desc: 'Fleet tracking APIs, automated dispatching, multi-warehouse inventory systems, and delivery status webhooks.',
-  },
-  {
-    name: 'Financial Services & Fintech',
-    desc: 'Secure payment gateway integrations, double-entry ledger databases, automated reconciliation, and audit trails.',
-  },
-  {
-    name: 'Healthcare & HealthTech',
-    desc: 'HIPAA-conscious patient record architectures, appointment engines, secure telemedicine portals, and doctor scheduling.',
-  },
-  {
-    name: 'Education & EdTech',
-    desc: 'Course delivery portals, interactive assessment engines, student progress analytics, and cohort communication systems.',
-  },
-  {
-    name: 'Real Estate & PropTech',
-    desc: 'Property listing databases, lead ingestion funnels, automated tour booking, and digital tenancy management.',
-  },
-  {
-    name: 'Professional Services',
-    desc: 'Client portals, document exchange systems, automated billing workflows, and time-tracking integrations.',
-  },
-  {
-    name: 'Marketplaces & Platforms',
-    desc: 'Multi-sided buyer/seller architectures, escrow payment flows, review verification engines, and search indexing.',
-  },
-  {
-    name: 'B2B & SaaS',
-    desc: 'Multi-tenant database isolation, subscription billing via Stripe/Paystack, RBAC authorization, and user onboarding.',
-  },
-]
-
-const ENGAGEMENT_MODELS = [
-  {
-    title: 'Project Engagement',
-    pill: 'Fixed-Scope Delivery',
-    desc: 'For clearly defined software or technology projects with fixed deliverables, clear milestones, and verified outcomes.',
-    features: [
-      'Concrete MVP scoping & architecture',
-      'Milestone-based sprint deliverables',
-      'Full source code ownership from day one',
-      'Comprehensive documentation & handover',
-    ],
-  },
-  {
-    title: 'Dedicated Technology Partner',
-    pill: 'Continuous Partnership',
-    desc: 'For startups and growing businesses needing ongoing technical bandwidth, architecture advisory, and engineering execution.',
-    features: [
-      'Embedded senior engineering support',
-      'Proactive system reviews & optimization',
-      'Continuous deployment & feature development',
-      'Priority response SLA for critical infrastructure',
-    ],
-  },
-  {
-    title: 'Fractional CTO',
-    pill: 'Strategic Leadership',
-    desc: 'For founders who need seasoned technical leadership to guide architecture, evaluate vendor proposals, and represent tech to investors.',
-    features: [
-      'Strategic technology roadmap planning',
-      'Investor tech due-diligence preparation',
-      'Architecture governance & security audits',
-      'Vendor negotiation & stack governance',
-    ],
-  },
-  {
-    title: 'Technical Team Building',
-    pill: 'Hiring & Mentorship',
-    desc: 'For companies building their permanent in-house engineering, data, or AI teams who need help vetting and onboarding talent.',
-    features: [
-      'Job description & competency design',
-      'Technical interview rubrics & screenings',
-      'Engineering workflow & code review standards',
-      'Mentorship & smooth codebase transition',
-    ],
+    title: 'Long-Term Partnership',
+    desc: 'We support founders across the entire journey: from the first idea to production MVP, scaling, and team building.',
   },
 ]
 
 const FAQS = [
   {
-    question: 'How is Aqivo different from a traditional website design agency?',
+    question: 'How is Aqivo different from a traditional digital agency?',
     answer:
       'Aqivo is a technology partner, software engineering consultancy, and systems architect. Traditional agencies focus on superficial marketing themes. We design, engineer, and scale complex software, data systems, databases, cloud infrastructure, practical AI pipelines, and technical teams that businesses run on.',
   },
@@ -343,216 +158,124 @@ const FAQS = [
     answer:
       'Yes, completely. 100% of all software, database schemas, repository commits, and cloud configurations belong exclusively to your company under strict confidentiality and IP assignment agreements.',
   },
-  {
-    question: 'Can Aqivo help us transition to an in-house engineering team later?',
-    answer:
-      'Yes. One of our core engagement models is Technical Team Building. We act as your interim engineering leadership, help write job specs, conduct technical coding interviews, establish code review standards, and mentor new hires for a seamless transition.',
-  },
 ]
 
 export default function Home() {
+  const [activeService, setActiveService] = useState<number>(0)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
 
   return (
-    <div className="space-y-24 sm:space-y-36 pb-24 overflow-x-hidden selection:bg-purple-100 selection:text-purple-900">
+    <div className="space-y-24 sm:space-y-36 pb-24 overflow-x-hidden selection:bg-[#375a8a] selection:text-white">
       {/* =========================================================================
-          SECTION 1 — HERO SECTION
+          SECTION 1 — HERO SECTION (Matching Orange Gradient Banner & Showcase)
           ========================================================================= */}
-      <section className="relative px-4 sm:px-6 pt-10 sm:pt-16 md:pt-20">
-        {/* Subtle Ambient Radial Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-purple-200/40 via-indigo-100/30 to-blue-100/20 rounded-full blur-3xl pointer-events-none -z-10" />
+      <section className="relative px-3 sm:px-6 pt-4 sm:pt-6">
+        <div className="relative mx-auto max-w-[1400px] overflow-hidden rounded-[32px] sm:rounded-[44px] bg-[#0f172a] border border-[#375a8a]/30 p-6 sm:p-12 md:p-16 shadow-2xl">
+          {/* Subtle Grid Lines Overlay */}
+          <div className="absolute inset-0 tech-grid-dark opacity-15 pointer-events-none" />
 
-        <div className="mx-auto max-w-5xl text-center">
-          {/* Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-200/80 bg-purple-50/80 px-4 py-1.5 text-xs font-bold text-brand shadow-2xs mb-6">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Strategic Technology Partner for Startups & Growing Businesses</span>
-          </div>
-
-          {/* Primary Headline */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-slate-900 leading-[1.08] text-balance">
-            We Build the Technology Behind <span className="text-gradient">Growing Businesses.</span>
-          </h1>
-
-          {/* Supporting Text */}
-          <p className="mx-auto mt-6 max-w-3xl text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed font-normal text-balance">
-            From startup ideas and MVPs to scalable software, data infrastructure, AI systems, and technical teams,
-            Aqivo helps businesses build the technology foundations they need to grow.
-          </p>
-
-          {/* Primary & Secondary CTAs */}
-          <div className="mt-8 sm:mt-10 flex flex-col xs:flex-row items-center justify-center gap-3.5 sm:gap-4">
-            <Link
-              to="/contact"
-              className="btn-brand w-full xs:w-auto inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-sm sm:text-base font-bold shadow-lg transition hover:scale-[1.02] active:scale-95 text-center"
-            >
-              <span>Talk to Our Team</span>
-              <ArrowRight className="size-4" />
-            </Link>
-            <a
-              href="#solutions"
-              className="glass w-full xs:w-auto inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-sm sm:text-base font-bold text-slate-800 transition hover:bg-white active:scale-95 border border-slate-200 shadow-xs text-center"
-            >
-              <span>Explore Our Solutions</span>
-            </a>
-          </div>
-        </div>
-
-        {/* =========================================================================
-            INTERACTIVE AQIVO ECOSYSTEM VISUALIZATION
-            BUSINESS IDEA → STRATEGY → SOFTWARE → DATA → AI → TEAM → SCALE
-            ========================================================================= */}
-        <div className="mt-14 sm:mt-20">
-          <EcosystemVisualizer />
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 2 — THE PROBLEM (Startup Technology Challenges)
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-12 md:p-16 shadow-xs">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-wider text-brand">The Reality of Modern Ventures</p>
-            <h2 className="mt-2 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900 leading-tight">
-              Building a Business Is Hard. Building the Right Technology Shouldn't Be.
-            </h2>
-            <p className="mt-4 text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed font-normal">
-              Most technology failures are not caused by bad programming—they are caused by poor architectural and strategic
-              decisions made before a single line of code is written. Aqivo positions itself as the partner that helps solve
-              these connected challenges before they become expensive rewrites.
-            </p>
-          </div>
-
-          <div className="mt-10 sm:mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {PROBLEMS.map((prob, i) => (
-              <div
-                key={i}
-                className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-5 transition-all hover:bg-white hover:shadow-md hover:border-purple-200"
-              >
-                <div className="flex items-center gap-2 text-rose-600 mb-2.5">
-                  <AlertCircle className="size-4 shrink-0" />
-                  <h3 className="text-sm font-bold text-slate-900 leading-snug">{prob.title}</h3>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{prob.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 rounded-2xl bg-purple-50/70 border border-purple-200/60 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          {/* Top Row: Headline on Left, Supporting Text & CTA on Right */}
+          <div className="relative z-10 grid gap-8 lg:grid-cols-[1.3fr_1fr] items-start">
             <div>
-              <p className="text-sm font-bold text-slate-900">
-                Primary Positioning Statement
-              </p>
-              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                Aqivo is a technology partner that helps startups and growing businesses design, build, and scale software,
-                data, and AI systems while creating the technical foundations and teams required for long-term growth.
-              </p>
+              <div className="inline-flex items-center gap-2 rounded-full bg-black/25 backdrop-blur-md px-3.5 py-1 text-xs font-semibold text-white/95 border border-white/20 mb-5">
+                <Sparkles className="size-3.5 text-[#375a8a]" />
+                <span>Strategic Technology Partner for Growing Businesses</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-[68px] font-extrabold tracking-tight text-white leading-[1.08] text-balance">
+                Building Digital Experiences That Create Real Business Growth
+              </h1>
+
+              {/* Tagline numbers */}
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold text-white/80">
+                <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-full border border-white/10">
+                  <span className="text-[#375a8a] font-mono">01</span> Strategy & Architecture
+                </span>
+                <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-full border border-white/10">
+                  <span className="text-[#375a8a] font-mono">02</span> Production Software
+                </span>
+                <span className="flex items-center gap-1.5 bg-black/20 px-3 py-1 rounded-full border border-white/10">
+                  <span className="text-[#375a8a] font-mono">03</span> Scalable Cloud & Data
+                </span>
+              </div>
             </div>
-            <Link
-              to="/contact"
-              className="btn-brand shrink-0 rounded-full px-5 py-2.5 text-xs font-bold shadow-xs whitespace-nowrap"
-            >
-              Start a Conversation
-            </Link>
+
+            <div className="space-y-6 lg:pt-6 lg:pl-6 flex flex-col justify-between h-full">
+              <p className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-normal">
+                From startup ideas and MVPs to scalable software, data infrastructure, AI systems, and technical teams,
+                Aqivo helps businesses build the technology foundations they need to grow.
+              </p>
+
+              <div>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-zinc-100 text-[#09090b] font-bold px-8 py-4 text-sm sm:text-base shadow-2xl transition-all hover:scale-[1.02] active:scale-95"
+                >
+                  <span>Talk to Our Team</span>
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* =========================================================================
-          SECTION 3 — AQIVO SOLUTIONS (The 6 Major Solution Areas)
-          ========================================================================= */}
-      <section id="solutions" className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand">Core Solutions</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-bold tracking-tight text-slate-900">
-            Engineered for Modern Business Realities
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            Aqivo helps businesses solve technology problems from the earliest stages of an idea through product
-            development, scaling, data infrastructure, artificial intelligence, and technical team building.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {SOLUTIONS.map((sol) => {
-            const Icon = sol.icon
-            return (
-              <div
-                key={sol.id}
-                className="group flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-7 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-purple-200"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={cn('p-3 rounded-2xl', sol.bgColor, sol.iconColor)}>
-                      <Icon className="size-6" />
-                    </div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                      Aqivo {sol.title}
+          {/* Bottom Showcase Gallery (Matching Image 1's horizontal screen cards) */}
+          <div className="relative z-10 mt-12 sm:mt-16 pt-8 border-t border-white/20">
+            <p className="text-xs font-bold uppercase tracking-wider text-white/70 mb-4">
+              Real-World Platform & Storefront Architecture
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 overflow-hidden">
+              {[
+                { title: 'Storefront Commerce', img: '/img/retail-1.webp', tag: 'E-commerce' },
+                { title: 'Booking & Scheduling', img: '/img/spa-facial.webp', tag: 'Bookings' },
+                { title: 'Logistics Telemetry', img: '/img/professional-3.webp', tag: 'Logistics' },
+                { title: 'Restaurant Ordering', img: '/img/restaurant-1.webp', tag: 'Food & Bar' },
+                { title: 'Fitness & Memberships', img: '/img/fitness-1.webp', tag: 'Wellness' },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="group relative overflow-hidden rounded-2xl bg-black/40 border border-white/20 aspect-[4/3] shadow-lg transition-transform duration-300 hover:scale-[1.03]"
+                >
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="size-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/60" />
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5">
+                    <span className="text-[10px] font-bold text-[#375a8a] uppercase tracking-wider block">
+                      {item.tag}
+                    </span>
+                    <span className="text-xs font-bold text-white truncate block">
+                      {item.title}
                     </span>
                   </div>
-
-                  <h3 className="text-xl font-bold text-slate-900">{sol.title}</h3>
-                  <p className="text-xs font-semibold text-brand mt-0.5">{sol.sub}</p>
-                  <p className="text-xs font-bold text-slate-800 mt-2 bg-slate-100/80 rounded-lg px-2.5 py-1.5 inline-block">
-                    “{sol.keyMessage}”
-                  </p>
-
-                  <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-                    {sol.desc}
-                  </p>
-
-                  <div className="mt-5 flex flex-wrap gap-1.5 border-t border-slate-100 pt-4">
-                    {sol.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-md bg-slate-50 border border-slate-200/70 px-2 py-0.5 text-[11px] font-medium text-slate-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
-
-                <div className="mt-6 pt-4 border-t border-slate-100">
-                  <Link
-                    to={sol.link}
-                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-brand hover:underline"
-                  >
-                    <span>Learn More About {sol.title}</span>
-                    <ArrowRight className="size-3.5" />
-                  </Link>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 4 — HOW AQIVO WORKS (01 Understand ... 06 Scale)
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-slate-50/70 p-7 sm:p-12 md:p-16">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-wider text-brand">Execution Process</p>
-            <h2 className="mt-2 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
-              From Problem to Scalable Solution
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-600">
-              A structured, transparent engineering methodology that replaces guesswork with measurable execution.
-            </p>
+              ))}
+            </div>
           </div>
+        </div>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {PROCESS_STEPS.map((step) => (
+        {/* Ghost Outline Watermark & 4 Pillars Strip Below Hero (Matching Image 1) */}
+        <div className="relative mx-auto max-w-7xl pt-10 sm:pt-14 text-center">
+          {/* Subtle Watermark */}
+          <p className="font-editorial text-[14vw] font-black tracking-[0.16em] text-slate-900/[0.04] dark:text-white/[0.04] uppercase select-none pointer-events-none leading-none -mb-8 sm:-mb-14">
+            AQIVO
+          </p>
+
+          {/* 4 Pillars Strip */}
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+            {[
+              { num: '01', title: 'Strategy & Architecture' },
+              { num: '02', title: 'Production MVPs' },
+              { num: '03', title: 'Scalable Cloud & Data' },
+              { num: '04', title: 'Dedicated Tech Teams' },
+            ].map((p) => (
               <div
-                key={step.number}
-                className="relative rounded-2xl border border-slate-200/90 bg-white p-6 shadow-2xs transition-all hover:shadow-md"
+                key={p.num}
+                className="theme-card rounded-2xl p-3.5 sm:p-4 text-center transition shadow-xs"
               >
-                <span className="text-3xl font-extrabold text-slate-300 font-mono">{step.number}</span>
-                <h3 className="mt-2 text-lg font-bold text-slate-900">{step.title}</h3>
-                <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{step.desc}</p>
+                <span className="text-[11px] font-mono font-bold text-[#375a8a] mr-1.5">{p.num}</span>
+                <span className="text-xs sm:text-sm font-bold text-inherit">{p.title}</span>
               </div>
             ))}
           </div>
@@ -560,41 +283,50 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          SECTION 5 — STARTUP TECHNOLOGY JOURNEY (Idea, MVP, Growth, Scale)
+          SECTION 2 — ABOUT US: WE ARE MORE THAN A TRADITIONAL AGENCY (4 3D Cards)
           ========================================================================= */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
         <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand">The Startup Journey</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-bold tracking-tight text-slate-900">
-            Supporting Businesses at Every Stage of Growth
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#375a8a]/40 bg-[#375a8a]/10 px-3.5 py-1 text-xs font-bold text-[#375a8a] mb-4">
+            <span>About Us</span>
+          </div>
+
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+            We Are More Than a Traditional Agency
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            We adapt our engineering capabilities to match your exact maturity stage—from pre-code strategy to scaling teams.
+
+          <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed font-normal">
+            Aqivo is a technology partner that helps startups and growing businesses design, build, and scale software,
+            data, and AI systems while creating the technical foundations and teams required for long-term growth.
           </p>
         </div>
 
+        {/* 4 Feature 3D Cards (Target, Processor, Network, Scale) */}
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {STAGES.map((s, idx) => (
+          {FEATURE_CARDS.map((card, i) => (
             <div
-              key={idx}
-              className="flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xs hover:shadow-lg transition-all"
+              key={i}
+              className="theme-card group overflow-hidden rounded-3xl p-4 shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
-              <div>
-                <span className="rounded-full bg-purple-100 text-brand px-3 py-1 text-[11px] font-bold">
-                  {s.badge}
-                </span>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">{s.stage}</h3>
-                <p className="text-xs font-semibold text-brand mt-1">{s.focus}</p>
-                <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{s.desc}</p>
+              <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-black mb-4">
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute top-2.5 left-2.5">
+                  <span className="rounded-full bg-black/60 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-[#375a8a] border border-white/10">
+                    {card.tag}
+                  </span>
+                </div>
+              </div>
 
-                <ul className="mt-5 space-y-2 border-t border-slate-100 pt-4 text-xs text-slate-600">
-                  {s.services.map((item) => (
-                    <li key={item} className="flex items-start gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-brand shrink-0 mt-0.5" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="px-2 pb-2">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-[#375a8a] transition-colors">
+                  {card.title}
+                </h3>
+                <p className="text-[11px] font-semibold text-[#375a8a] mt-0.5">{card.sub}</p>
+                <p className="mt-2 text-xs text-slate-600 dark:text-zinc-400 leading-relaxed font-normal">{card.desc}</p>
               </div>
             </div>
           ))}
@@ -602,44 +334,185 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          SECTION 6 — TECHNICAL CAPABILITIES
+          SECTION 3 — OUR VISION (Mascot on Orange + 3 Value Tabs)
           ========================================================================= */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-12 md:p-16 shadow-xs">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-wider text-brand">Engineering Excellence</p>
-            <h2 className="mt-2 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
-              Modern Capabilities for Real-World Systems
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr] items-center">
+          {/* Left Text & Tabs */}
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#375a8a]/40 bg-[#375a8a]/10 px-3.5 py-1 text-xs font-bold text-[#375a8a]">
+              <span>Our Vision</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+              We Believe Every Business Has the Potential to Grow Digitally
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-600">
-              Technology choices should always be driven by the client's actual business requirements, not personal preferences or industry hype.
+
+            <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed font-normal">
+              Building a business is hard. Choosing the right architecture, selecting the right database engine, and
+              building the right technical team shouldn't hold you back.
             </p>
+
+            <div className="space-y-3 pt-2">
+              {[
+                {
+                  title: 'Eliminate architectural technical debt early',
+                  desc: 'Validate feasibility, database boundaries, and scale trajectories before heavy capital commitments.',
+                },
+                {
+                  title: 'Production-ready software from day one',
+                  desc: 'Ship clean, well-tested code with automated CI/CD pipelines and low ongoing maintenance overhead.',
+                },
+                {
+                  title: 'Build the team behind your technology',
+                  desc: 'Transition smoothly from early partner execution to an in-house engineering team as you scale.',
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="theme-card rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 transition"
+                >
+                  <div className="grid size-6 place-items-center rounded-full bg-[#375a8a]/20 text-[#375a8a] shrink-0 mt-0.5">
+                    <CheckCircle2 className="size-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-inherit">{item.title}</h4>
+                    <p className="text-xs theme-muted mt-1 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {CAPABILITIES.map((cap) => {
-              const Icon = cap.icon
+          {/* Right Mascot on Vibrant Orange Card */}
+          <div className="relative overflow-hidden rounded-[36px] bg-[#0f172a] border border-[#375a8a]/30 p-6 sm:p-10 shadow-2xl flex flex-col justify-between aspect-[4/5]">
+            <div className="relative z-10">
+              <span className="rounded-full bg-black/25 backdrop-blur-md px-3 py-1 text-xs font-bold text-white border border-white/20">
+                Aqivo Intelligence & Systems
+              </span>
+            </div>
+
+            {/* Mascot Image - Cutout Asset with Floating Physics & Orbit Rings */}
+            <div className="relative z-10 my-auto flex justify-center py-4">
+              <CreativeRobot
+                variant="floating"
+                size="md"
+                badgeText="Aqivo Autonomous Vanguard"
+                mascot="2"
+                showOrbits={true}
+              />
+            </div>
+
+            {/* Quote box at bottom */}
+            <div className="relative z-10 rounded-2xl bg-black/35 backdrop-blur-md border border-white/20 p-4 text-white">
+              <p className="text-xs sm:text-sm font-semibold leading-relaxed">
+                “Transforming ambitious ideas and operational bottlenecks into scalable technology systems that stand the test of time.”
+              </p>
+              <p className="text-[11px] font-mono text-white mt-1.5 uppercase tracking-wider">
+                — Aqivo Core Philosophy
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 4 — SERVICES: HELPING BUSINESSES BUILD DIGITAL EXPERIENCES
+          ========================================================================= */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#375a8a]/40 bg-[#375a8a]/10 px-3.5 py-1 text-xs font-bold text-[#375a8a] mb-4">
+            <span>Services</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+            Helping Businesses Build Scalable Digital Experiences
+          </h2>
+          <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-zinc-400">
+            From idea to production-ready software, data architecture, practical AI systems, and technical leadership.
+          </p>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[1fr_1.3fr] items-start">
+          {/* Left: 4 Preview Screens Grid */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {[
+              { title: 'Storefront Suite', img: '/img/retail-2.webp' },
+              { title: 'Booking Flow', img: '/img/spa-massage.webp' },
+              { title: 'Inventory Engine', img: '/img/retail-3.webp' },
+              { title: 'Executive Analytics', img: '/img/professional-4.webp' },
+            ].map((s, idx) => (
+              <div
+                key={idx}
+                className="relative overflow-hidden rounded-2xl border border-white/10 bg-black aspect-video shadow-md group"
+              >
+                <img
+                  src={s.img}
+                  alt={s.title}
+                  className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/60" />
+                <span className="absolute bottom-2 left-2 text-[11px] font-bold text-white">
+                  {s.title}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Right: 6 Interactive Service Accordions */}
+          <div className="space-y-2.5">
+            {SERVICES_LIST.map((srv, idx) => {
+              const isOpen = activeService === idx
               return (
                 <div
-                  key={cap.category}
-                  className="rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 transition-all hover:bg-white hover:shadow-md"
+                  key={srv.id}
+                  className={cn(
+                    'overflow-hidden rounded-2xl transition-all duration-200',
+                    isOpen
+                      ? 'border border-[#375a8a] bg-blue-50/50 dark:bg-[#11224d] shadow-lg shadow-blue-500/5'
+                      : 'theme-card-interactive'
+                  )}
                 >
-                  <div className="size-10 rounded-xl bg-purple-100 text-brand grid place-items-center mb-4">
-                    <Icon className="size-5" />
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900">{cap.category}</h3>
-                  <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">{cap.desc}</p>
-
-                  <div className="mt-4 flex flex-wrap gap-1.5 pt-3 border-t border-slate-200/60">
-                    {cap.stack.map((item) => (
-                      <span
-                        key={item}
-                        className="rounded-md bg-white border border-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-700"
-                      >
-                        {item}
+                  <button
+                    type="button"
+                    onClick={() => setActiveService(isOpen ? -1 : idx)}
+                    className="flex w-full items-center justify-between p-4 sm:p-5 text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={cn('font-mono text-xs font-bold', isOpen ? 'text-[#375a8a]' : 'text-zinc-500')}>
+                        {srv.id}
                       </span>
-                    ))}
-                  </div>
+                      <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">{srv.name}</span>
+                    </div>
+                    <ChevronRight
+                      className={cn(
+                        'size-4 text-zinc-400 transition-transform duration-200',
+                        isOpen && 'rotate-90 text-[#375a8a]'
+                      )}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="border-t border-slate-200 dark:border-white/10 px-5 pb-5 pt-3 space-y-3">
+                          <p className="text-xs font-semibold text-[#375a8a] font-mono">"{srv.tagline}"</p>
+                          <p className="text-xs sm:text-sm text-slate-700 dark:text-zinc-300 leading-relaxed font-normal">{srv.desc}</p>
+                          <Link
+                            to={srv.link}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#375a8a] hover:underline pt-1"
+                          >
+                            <span>Explore {srv.name}</span>
+                            <ArrowRight className="size-3" />
+                          </Link>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )
             })}
@@ -648,32 +521,137 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          SECTION 7 — AQIVO PRODUCT ECOSYSTEM: AQIVO STORE
+          SECTION 5 — CAPABILITIES: EVERYTHING YOU NEED TO BUILD YOUR DIGITAL FUTURE
           ========================================================================= */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="overflow-hidden rounded-3xl border border-purple-200/80 bg-gradient-to-br from-white via-purple-50/40 to-white p-7 sm:p-12 md:p-16 shadow-xs">
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_1.3fr] items-start">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#375a8a]/40 bg-[#375a8a]/10 px-3.5 py-1 text-xs font-bold text-[#375a8a]">
+              <span>Capabilities</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+              Everything You Need to Build Your Digital Future
+            </h2>
+
+            <p className="text-sm sm:text-base text-slate-600 dark:text-zinc-400 leading-relaxed font-normal">
+              Whether architecting a zero-downtime transactional database, designing an MVP, or deploying practical AI
+              assistants, Aqivo supplies the deep engineering rigor required.
+            </p>
+
+            {/* Giant Background Outline Watermark in this section */}
+            <div className="pt-4 select-none pointer-events-none">
+              <p className="font-editorial text-[10vw] font-black tracking-[0.14em] text-slate-900/[0.04] dark:text-white/[0.04] leading-none uppercase">
+                AQIVO
+              </p>
+            </div>
+          </div>
+
+          {/* Vertical Stack of Dark Cards with Orange Badges */}
+          <div className="space-y-3.5">
+            {CAPABILITIES_STACK.map((cap) => (
+              <div
+                key={cap.num}
+                className="theme-card rounded-2xl p-5 sm:p-6 transition shadow-md"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="grid size-7 place-items-center rounded-lg bg-[#375a8a] text-white font-mono font-bold text-xs shadow-xs">
+                    {cap.num}
+                  </span>
+                  <h3 className="text-base font-bold text-inherit">{cap.title}</h3>
+                </div>
+                <p className="text-xs sm:text-sm theme-muted leading-relaxed pl-10 font-normal">{cap.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 6 — PRINCIPLES BEHIND OUR WORK (Mascot Dark + 4 Principles)
+          ========================================================================= */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.3fr] items-center">
+          {/* Left: Mascot on dark pedestal */}
+          <div className="theme-card-subtle relative overflow-hidden rounded-[36px] p-6 sm:p-10 shadow-2xl flex items-center justify-center aspect-[4/5]">
+            <CreativeRobot
+              variant="pedestal"
+              size="lg"
+              badgeText="Zero Architectural Debt"
+              mascot="1"
+              showOrbits={true}
+            />
+          </div>
+
+          {/* Right: Principles List */}
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#375a8a]/40 bg-[#375a8a]/10 px-3.5 py-1 text-xs font-bold text-[#375a8a]">
+              <span>Principles</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+              The Principles Behind Our Work
+            </h2>
+
+            <div className="space-y-3.5 pt-2">
+              {PRINCIPLES.map((prin) => (
+                <div
+                  key={prin.title}
+                  className="theme-card rounded-2xl p-5 transition"
+                >
+                  <h4 className="text-sm sm:text-base font-bold text-[#375a8a]">{prin.title}</h4>
+                  <p className="text-xs sm:text-sm theme-muted mt-1.5 leading-relaxed font-normal">{prin.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 7 — INTERACTIVE LIFECYCLE: THE AQIVO ECOSYSTEM
+          ========================================================================= */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#375a8a]">Full Lifecycle Engineering</p>
+          <h2 className="mt-2 text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            From Idea to Scalable Technology Engine
+          </h2>
+          <p className="mt-3 text-xs sm:text-sm text-slate-600 dark:text-zinc-400">
+            Click through each phase below to inspect the architectural questions, deliverables, and capabilities.
+          </p>
+        </div>
+
+        <EcosystemVisualizer />
+      </section>
+
+      {/* =========================================================================
+          SECTION 8 — PRODUCT ECOSYSTEM: AQIVO STORE
+          ========================================================================= */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+        <div className="theme-card overflow-hidden rounded-3xl p-7 sm:p-12 md:p-16 shadow-xl">
           <div className="grid gap-8 lg:grid-cols-2 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#375a8a]/15 border border-[#375a8a]/30 px-3 py-1 text-xs font-bold text-[#375a8a] mb-4">
                 <ShoppingBag className="size-3.5" />
                 <span>Aqivo Products Ecosystem</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
                 Aqivo Store — Turn your physical business into an online store.
               </h2>
 
-              <p className="mt-2 text-sm font-bold text-brand">
+              <p className="mt-2 text-sm font-bold text-[#375a8a]">
                 Physical Shop → Aqivo → Online Store
               </p>
 
-              <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+              <p className="mt-4 text-sm sm:text-base theme-muted leading-relaxed font-normal">
                 While Aqivo operates as a broad technology partner for ambitious businesses, the company also builds
-                purpose-driven digital products. <strong>Aqivo Store</strong> is a digital storefront platform that
+                purpose-driven digital products. <strong className="text-inherit">Aqivo Store</strong> is a digital storefront platform that
                 helps businesses move from physical selling to online selling without complexity.
               </p>
 
-              <div className="mt-6 grid grid-cols-2 gap-3 text-xs sm:text-sm text-slate-700">
+              <div className="mt-6 grid grid-cols-2 gap-3 text-xs sm:text-sm text-slate-700 dark:text-zinc-300">
                 {[
                   'Digital storefront',
                   'Product management',
@@ -685,7 +663,7 @@ export default function Home() {
                   'Business dashboard & branding',
                 ].map((feat) => (
                   <div key={feat} className="flex items-center gap-2">
-                    <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="size-3.5 text-[#375a8a] shrink-0" />
                     <span>{feat}</span>
                   </div>
                 ))}
@@ -701,19 +679,19 @@ export default function Home() {
                 </Link>
                 <Link
                   to="/register"
-                  className="glass inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs sm:text-sm font-bold text-slate-800 transition hover:bg-white active:scale-95 border border-slate-200"
+                  className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs sm:text-sm font-bold text-slate-900 dark:text-white bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-300 dark:border-white/15 transition active:scale-95"
                 >
                   <span>Launch Merchant Storefront</span>
                 </Link>
               </div>
 
-              <p className="mt-4 text-[11px] text-slate-400">
+              <p className="mt-4 text-[11px] text-zinc-500">
                 * Future ecosystem products (Aqivo Analytics, Aqivo AI, Aqivo Cloud, Aqivo Teams) are on our internal roadmap.
               </p>
             </div>
 
             {/* Visual Storefront Mockup Card */}
-            <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-xl bg-slate-900 aspect-[16/11]">
+            <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black aspect-[16/11]">
               <img
                 src="/img/retail-4.webp"
                 alt="Aqivo Store Digital Platform"
@@ -721,13 +699,13 @@ export default function Home() {
                 decoding="async"
                 className="size-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent" />
+              <div className="absolute inset-0 bg-black/60" />
               <div className="absolute bottom-5 left-5 right-5 text-white">
-                <span className="rounded-full bg-emerald-500/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                <span className="rounded-full bg-[#375a8a] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                   Live Merchant Product
                 </span>
                 <p className="text-base font-bold mt-1">Multi-Tenant Digital Commerce Engine</p>
-                <p className="text-xs text-slate-300 mt-0.5">
+                <p className="text-xs text-zinc-300 mt-0.5">
                   Integrated with M-Pesa STK, Daraja webhooks, automated WhatsApp receipts, and catalog management.
                 </p>
               </div>
@@ -737,138 +715,14 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          SECTION 8 — INDUSTRIES
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand">Domain Expertise</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-bold tracking-tight text-slate-900">
-            Technology Solutions Designed Around Your Business Model
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            We adapt system architectures to the operational reality and regulatory constraints of your specific industry.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {INDUSTRIES.map((ind) => (
-            <div
-              key={ind.name}
-              className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-2xs hover:shadow-md transition-all hover:border-purple-200"
-            >
-              <h3 className="text-base font-bold text-slate-900">{ind.name}</h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{ind.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 9 — ENGAGEMENT MODELS
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="text-center max-w-3xl mx-auto">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand">Collaboration Structures</p>
-          <h2 className="mt-2 text-3xl sm:text-5xl font-bold tracking-tight text-slate-900">
-            Flexible Ways to Work With Aqivo
-          </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            From targeted technical sprints to long-term advisory and fractional leadership.
-          </p>
-        </div>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {ENGAGEMENT_MODELS.map((model, i) => (
-            <div
-              key={i}
-              className="flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xs hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-            >
-              <div>
-                <span className="rounded-full bg-purple-50 text-brand border border-purple-200 px-2.5 py-0.5 text-[10px] font-bold">
-                  {model.pill}
-                </span>
-                <h3 className="text-lg font-bold text-slate-900 mt-3">{model.title}</h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal mt-2">{model.desc}</p>
-
-                <ul className="mt-4 space-y-2 border-t border-slate-100 pt-4 text-xs text-slate-700">
-                  {model.features.map((feat) => (
-                    <li key={feat} className="flex items-start gap-1.5">
-                      <CheckCircle2 className="size-3.5 text-brand shrink-0 mt-0.5" />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-slate-100">
-                <Link
-                  to="/contact"
-                  className="btn-dark w-full rounded-full py-2.5 text-xs font-bold text-center block transition hover:bg-brand"
-                >
-                  Discuss Engagement
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 10 — ABOUT AQIVO & PHILOSOPHY
-          ========================================================================= */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-white p-7 sm:p-12 md:p-16 shadow-xs">
-          <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] items-center">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-brand">Our Philosophy</p>
-              <h2 className="mt-2 text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-slate-900 leading-tight">
-                Technology Should Help Businesses Move Forward.
-              </h2>
-              <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-                Aqivo believes startups should not have to make major technology decisions alone. The company combines
-                business understanding, software engineering, data expertise, AI capabilities, technology architecture,
-                and technical leadership. The goal is to help companies build technology that is useful today and ready for tomorrow.
-              </p>
-
-              <div className="mt-6 grid grid-cols-2 gap-3 text-xs sm:text-sm text-slate-700">
-                {[
-                  'Business understanding',
-                  'Software engineering',
-                  'Data expertise',
-                  'AI capabilities',
-                  'Technology architecture',
-                  'Technical leadership',
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="size-3.5 text-brand shrink-0" />
-                    <span className="font-semibold">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-slate-900 p-6 sm:p-8 text-white space-y-4 shadow-xl">
-              <p className="text-xs font-mono uppercase tracking-wider text-purple-300">The Aqivo Mission</p>
-              <p className="text-xl sm:text-2xl font-bold leading-snug">
-                Help ambitious businesses transform ideas and operational problems into scalable technology solutions.
-              </p>
-              <p className="text-xs text-slate-300 leading-relaxed font-mono pt-2 border-t border-white/10">
-                Idea → Strategy → Architecture → MVP → Product Development → Data → AI → Team → Scale
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 11 — FAQS
+          SECTION 9 — FAQS
           ========================================================================= */}
       <section className="mx-auto max-w-4xl px-4 sm:px-6 md:px-8">
         <div className="text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
             Frequently Asked Questions
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+          <p className="mt-2 text-xs sm:text-sm text-slate-600 dark:text-zinc-400 max-w-md mx-auto">
             Direct answers about our architectural methodology, engagement structures, and engineering standards.
           </p>
         </div>
@@ -879,16 +733,16 @@ export default function Home() {
             return (
               <div
                 key={i}
-                className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white transition shadow-2xs"
+                className="theme-card overflow-hidden rounded-2xl transition shadow-xs"
               >
                 <button
                   type="button"
                   onClick={() => setOpenFaq(isOpen ? null : i)}
-                  className="flex w-full items-center justify-between p-5 text-left transition hover:bg-slate-50/50"
+                  className="flex w-full items-center justify-between p-5 text-left transition hover:bg-slate-50 dark:hover:bg-white/5 cursor-pointer"
                   aria-expanded={isOpen}
                 >
-                  <span className="text-sm sm:text-base font-bold text-slate-900 pr-4">{faq.question}</span>
-                  <div className="grid size-7 place-items-center rounded-full bg-slate-100 text-slate-700 shrink-0">
+                  <span className="text-sm sm:text-base font-bold text-inherit pr-4">{faq.question}</span>
+                  <div className="grid size-7 place-items-center rounded-full bg-slate-100 dark:bg-white/10 text-inherit shrink-0">
                     {isOpen ? <Minus className="size-4" /> : <Plus className="size-4" />}
                   </div>
                 </button>
@@ -901,7 +755,7 @@ export default function Home() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="border-t border-slate-100 p-5 pt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal bg-slate-50/40">
+                      <div className="border-t border-slate-200 dark:border-white/10 p-5 pt-3 text-xs sm:text-sm theme-muted leading-relaxed font-normal bg-slate-50/70 dark:bg-black/30">
                         {faq.answer}
                       </div>
                     </motion.div>
@@ -914,23 +768,16 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
-          SECTION 12 — FINAL CALL TO ACTION
+          SECTION 10 — BOTTOM RADIANT ORANGE CTA BANNER (Matching Image 1)
           ========================================================================= */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl sm:rounded-[36px] bg-slate-950 p-8 sm:p-16 text-center text-white shadow-2xl">
-          <div className="absolute top-0 right-0 w-[500px] h-[300px] bg-gradient-to-bl from-purple-600/20 via-brand/10 to-transparent blur-3xl pointer-events-none" />
-
+        <div className="relative overflow-hidden rounded-3xl sm:rounded-[40px] bg-[#0f172a] dark:bg-[#0a0f1d] border border-slate-700/40 p-8 sm:p-16 text-center text-white shadow-2xl">
           <div className="relative z-10 mx-auto max-w-3xl space-y-6">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30 px-3.5 py-1 text-xs font-bold">
-              <Sparkles className="size-3.5 text-purple-300" />
-              <span>Let's Build Together</span>
-            </span>
-
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-tight">
-              Let's Build What Your Business Needs Next.
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
+              Ready to Build a Stronger Digital Future?
             </h2>
 
-            <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed font-normal max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-white/95 leading-relaxed font-normal max-w-2xl mx-auto">
               From startup ideas and MVPs to scalable software, data infrastructure, AI systems, and technical teams,
               Aqivo helps businesses build the technology foundations they need to grow.
             </p>
@@ -938,20 +785,20 @@ export default function Home() {
             <div className="pt-4 flex flex-col xs:flex-row items-center justify-center gap-3.5 sm:gap-4">
               <Link
                 to="/contact"
-                className="btn-brand w-full xs:w-auto inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-sm sm:text-base font-bold shadow-xl transition hover:scale-[1.02] active:scale-95"
+                className="w-full xs:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-zinc-100 text-[#09090b] px-8 py-4 text-sm sm:text-base font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-95"
               >
                 <span>Talk to Our Team</span>
                 <ArrowRight className="size-4" />
               </Link>
               <Link
                 to="/solutions"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 px-8 py-4 text-sm sm:text-base font-bold text-white transition hover:bg-white/20 active:scale-95 w-full xs:w-auto"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-black/25 backdrop-blur-md border border-white/30 px-8 py-4 text-sm sm:text-base font-bold text-white transition hover:bg-black/35 active:scale-95 w-full xs:w-auto"
               >
                 <span>Explore Solutions</span>
               </Link>
             </div>
 
-            <p className="text-xs text-slate-400 pt-2 font-mono">
+            <p className="text-xs text-white/80 pt-2 font-mono">
               Confidential discussions · Direct senior engineering review · Pragmatic solutions
             </p>
           </div>

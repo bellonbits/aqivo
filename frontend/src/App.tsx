@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-route
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MotionConfig } from 'framer-motion'
 import { AuthProvider } from '@/features/auth/AuthContext'
+import { ThemeProvider } from '@/context/ThemeContext'
 import { ToastProvider } from '@/hooks/useToast'
 import { ForgotPage, LoginPage, RegisterPage, ResetPage, VerifyEmailPage, VerifyPhonePage } from '@/features/auth/AuthPages'
 import { PageLoading } from '@/components/ui'
@@ -72,12 +73,13 @@ export default function App() {
   return (
     <QueryClientProvider client={qc}>
       <MotionConfig reducedMotion="user">
-      <ToastProvider>
-        <AuthProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <Suspense fallback={<PageLoading />}>
-              <Routes>
+        <ThemeProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <BrowserRouter>
+                <ScrollToTop />
+                <Suspense fallback={<PageLoading />}>
+                  <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/solutions" element={<PublicLayout><Solutions /></PublicLayout>} />
                 <Route path="/services" element={<PublicLayout><ServicesPage /></PublicLayout>} />
@@ -143,6 +145,7 @@ export default function App() {
           </BrowserRouter>
         </AuthProvider>
       </ToastProvider>
+      </ThemeProvider>
       </MotionConfig>
     </QueryClientProvider>
   )

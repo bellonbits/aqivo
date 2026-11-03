@@ -113,7 +113,7 @@ export default function Onboarding() {
                 <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">{industries.map((i) => (
                   <button key={i.key} onClick={() => pickIndustry(i)} aria-pressed={d.industry === i.key} className={cn('group relative aspect-[4/3] overflow-hidden rounded-2xl text-left ring-2 transition', d.industry === i.key ? 'ring-brand' : 'ring-transparent hover:ring-line-strong')}>
                     <img src={`/img/${i.photo}-sm.webp`} alt="" loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <span className="absolute inset-0 bg-gradient-to-t from-[#1b1550]/85 via-[#1b1550]/20 to-transparent" />
+                    <span className="absolute inset-0 bg-[#080d1a]/60" />
                     <span className="absolute inset-x-0 bottom-0 p-3 text-white"><span className="block text-sm font-extrabold leading-tight">{i.label}</span></span>
                     {d.industry === i.key && <span className="btn-brand absolute right-2 top-2 grid size-6 place-items-center rounded-full"><Check className="size-4" /></span>}
                   </button>))}</div>

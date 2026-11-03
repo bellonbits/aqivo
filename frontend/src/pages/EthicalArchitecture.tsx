@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   ShieldCheck,
   CheckCircle2,
@@ -10,26 +11,56 @@ import {
   Cpu,
   FileCheck,
 } from 'lucide-react'
+import { CreativeRobot } from '@/components/ui/CreativeRobot'
 
 export default function EthicalArchitecture() {
   return (
     <div className="space-y-24 sm:space-y-32 pb-24">
       {/* Full-Width Hero Header */}
-      <section className="relative w-full border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/70 pt-14 pb-16 sm:pt-20 sm:pb-24">
-        <div className="tech-grid absolute inset-0 opacity-30 pointer-events-none" />
+      <section className="theme-hero-section relative w-full pt-14 pb-16 sm:pt-20 sm:pb-24 overflow-hidden">
+        <div className="tech-grid absolute inset-0 opacity-20 pointer-events-none" />
+
         <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4 shadow-2xs">
-              <Sparkles className="size-3.5" />
-              <span>Engineering Principles & Integrity</span>
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] items-center">
+            <div className="max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="inline-flex items-center gap-2 rounded-full bg-[#375a8a]/10 border border-[#375a8a]/30 px-3.5 py-1 text-xs font-semibold text-[#375a8a] mb-4 shadow-2xs"
+              >
+                <Sparkles className="size-3.5" />
+                <span>Engineering Principles & Integrity</span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.1 }}
+                className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight"
+              >
+                Ethical Architecture & Engineering Integrity
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.2 }}
+                className="mt-5 text-base sm:text-lg theme-muted leading-relaxed font-normal"
+              >
+                Software decisions are business decisions. We reject artificial vendor lock-in, inflated cloud bills,
+                and unverified AI hype. Our architectural commitments prioritize your company's long-term independence.
+              </motion.p>
             </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Ethical Architecture & Engineering Integrity
-            </h1>
-            <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-              Software decisions are business decisions. We reject artificial vendor lock-in, inflated cloud bills,
-              and unverified AI hype. Our architectural commitments prioritize your company's long-term independence.
-            </p>
+
+            <div className="flex justify-center">
+              <CreativeRobot
+                variant="floating"
+                size="md"
+                badgeText="Zero Technical Debt Guardian"
+                showOrbits={true}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -77,29 +108,33 @@ export default function EthicalArchitecture() {
           ].map((item, idx) => {
             const Icon = item.icon
             return (
-              <div
+              <motion.div
                 key={idx}
-                className="flex flex-col justify-between rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: (idx % 3) * 0.1 }}
+                className="theme-card flex flex-col justify-between rounded-3xl p-6 sm:p-8 shadow-xl transition-all duration-300"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="grid size-12 place-items-center rounded-2xl bg-purple-50 text-brand">
+                    <div className="grid size-12 place-items-center rounded-2xl bg-[#375a8a]/10 text-[#375a8a] border border-[#375a8a]/20">
                       <Icon className="size-6" />
                     </div>
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200/60">
+                    <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-mono font-bold text-emerald-500 border border-emerald-500/30">
                       {item.highlight}
                     </span>
                   </div>
 
-                  <h2 className="text-xl font-bold text-slate-900">{item.title}</h2>
-                  <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">{item.desc}</p>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">{item.title}</h2>
+                  <p className="mt-3 text-xs sm:text-sm theme-muted leading-relaxed font-normal">{item.desc}</p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-semibold text-slate-700">
-                  <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/10 flex items-center gap-2 text-xs font-mono font-semibold theme-muted">
+                  <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
                   <span>Verified Standard Operating Procedure</span>
                 </div>
-              </div>
+              </motion.div>
             )
           })}
         </div>
@@ -107,13 +142,15 @@ export default function EthicalArchitecture() {
 
       {/* The Anti-Agency Manifesto */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl border border-slate-200/90 bg-slate-900 p-8 sm:p-14 text-white">
+        <div className="theme-card rounded-3xl p-8 sm:p-14 shadow-2xl relative overflow-hidden">
           <div className="max-w-3xl space-y-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-purple-400">Our Pledge to Founders</span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold leading-tight">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#375a8a]">
+              Our Pledge to Founders
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold leading-tight text-slate-900 dark:text-white">
               What Aqivo Will Never Do
             </h2>
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            <p className="text-sm sm:text-base theme-muted leading-relaxed font-normal">
               We hold ourselves to a strict standard of professional ethics. In every engagement, our priorities are your
               commercial success, data privacy, and engineering sovereignty.
             </p>
@@ -146,23 +183,23 @@ export default function EthicalArchitecture() {
                 desc: 'We remain by your side through launch, load testing, and stabilization, ensuring your internal team has complete operational confidence.',
               },
             ].map((p, i) => (
-              <div key={i} className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                <p className="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
-                  <span className="text-rose-400 font-black">✕</span>
+              <div key={i} className="theme-card-subtle rounded-2xl p-5 transition">
+                <p className="text-sm font-bold text-inherit mb-1.5 flex items-center gap-2">
+                  <span className="text-rose-500 font-black">✕</span>
                   <span>{p.title}</span>
                 </p>
-                <p className="text-xs text-slate-300 leading-relaxed">{p.desc}</p>
+                <p className="text-xs theme-muted leading-relaxed font-normal">{p.desc}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
-            <p className="text-xs text-slate-400">
+          <div className="mt-10 pt-6 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-xs theme-muted font-mono">
               Read more about our security protocols and confidentiality agreements.
             </p>
             <Link
               to="/confidentiality-security"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-xs sm:text-sm font-bold text-slate-900 transition hover:bg-slate-100"
+              className="btn-brand inline-flex items-center gap-2 rounded-full px-6 py-3 text-xs sm:text-sm font-bold shadow-lg hover:scale-105 transition"
             >
               <span>Review Confidentiality & Security Protocols</span>
               <ArrowRight className="size-3.5" />

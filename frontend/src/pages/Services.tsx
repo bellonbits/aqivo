@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import {
   Compass,
   Code2,
@@ -14,6 +15,7 @@ import {
   Cpu,
   Workflow,
 } from 'lucide-react'
+import { CreativeRobot } from '@/components/ui/CreativeRobot'
 
 interface ServicePillar {
   id: string
@@ -34,7 +36,7 @@ const SERVICE_PILLARS: ServicePillar[] = [
     title: 'Startup Technology Strategy',
     tagline: 'Start with the right technology decisions.',
     icon: Compass,
-    color: '#8B5CF6',
+    color: '#375a8a',
     problem:
       'Founders often burn through their initial funding building overly complicated products, choosing inappropriate tech stacks, or failing to anticipate infrastructure scaling costs before launch.',
     approach:
@@ -58,9 +60,9 @@ const SERVICE_PILLARS: ServicePillar[] = [
     ],
     process: [
       '1. Business Discovery & Discovery Call',
-      '2. Technical Feasibility & Constraint Audit',
-      '3. Technology Roadmap & Stack Recommendation',
-      '4. Architecture Blueprints & Sizing Handover',
+      '2. Technical Scoping & Risk Evaluation',
+      '3. Architecture Blueprint & Stack Proposal',
+      '4. Iterative Milestone Execution Plan',
     ],
   },
   {
@@ -68,35 +70,33 @@ const SERVICE_PILLARS: ServicePillar[] = [
     title: 'Software & Product Engineering',
     tagline: 'From idea to production-ready software.',
     icon: Code2,
-    color: '#3B82F6',
+    color: '#3b82f6',
     problem:
-      'Agencies frequently deliver fragile, rushed prototypes that cannot be extended, lack automated testing, or break under user concurrency, forcing costly rewrites after gaining initial traction.',
+      'Startups frequently suffer from buggy MVPs, sluggish load times, tangled codebases, and poor UX, forcing expensive full rewrites when user numbers finally grow.',
     approach:
-      'We engineer production-grade software adhering to strict quality, security, and maintainability standards. Our codebases feature modular architectures, automated testing suites, and clear documentation.',
+      'We design and engineer bespoke web and mobile platforms with clean component boundaries, resilient data access layers, and responsive UI systems that scale smoothly.',
     services: [
-      'MVP Design & Rapid Development',
-      'SaaS Platforms & Multi-Tenant Architectures',
-      'Responsive Web Applications (React, Next.js)',
-      'Cross-Platform & Native Mobile Applications',
-      'Multi-Sided Marketplaces & Transaction Engines',
-      'Modern E-commerce Platforms',
-      'Internal Business Management Systems',
-      'RESTful & GraphQL API Infrastructure',
-      'Customer Portals & Real-Time Dashboards',
-      'Custom Enterprise Workflow Systems',
+      'Custom Web Application Development',
+      'Mobile App Development (iOS & Android)',
+      'MVP Development for Early-Stage Startups',
+      'SaaS Platform Engineering & Multi-Tenancy',
+      'API Design & Microservice Integration',
+      'Internal Tools, Portals & Operations Dashboards',
+      'E-commerce & Transaction Platforms',
+      'Performance Profiling & Legacy Refactoring',
     ],
     capabilities: [
-      'React, Next.js, Vite, TypeScript',
-      'FastAPI, Python, Spring Boot / Java, Node.js',
-      'Tailwind CSS, Modern Accessible UI',
-      'Automated Unit & End-to-End Testing',
-      'Event-Driven Microservices',
+      'React, TypeScript, Tailwind CSS',
+      'FastAPI, Node.js, Go Microservices',
+      'PostgreSQL, Redis, Supabase',
+      'Async Queues & WebSocket Telemetry',
+      'Clean Code & Comprehensive Unit Testing',
     ],
     process: [
-      '1. User Journey & Interface Wireframing',
-      '2. Schema & API Contract Specification',
-      '3. Agile Bi-Weekly Development Sprints',
-      '4. Quality Assurance, Security & Deployment',
+      '1. UI/UX Wireframing & Schema Architecture',
+      '2. Rapid Agile Sprint Development',
+      '3. Integration Testing & Edge Case Hardening',
+      '4. Zero-Downtime Deployment & Handover',
     ],
   },
   {
@@ -104,33 +104,32 @@ const SERVICE_PILLARS: ServicePillar[] = [
     title: 'Data Architecture & Intelligence',
     tagline: 'Turn business data into better decisions.',
     icon: Database,
-    color: '#06B6D4',
+    color: '#06b6d4',
     problem:
-      'Valuable business data remains trapped across isolated spreadsheets, disconnected SaaS tools, and unindexed databases, leaving executives without reliable metrics or real-time decision clarity.',
+      'Operational records trapped in scattered spreadsheets, siloed tools, and untracked databases make accurate financial reporting, inventory visibility, and user retention tracking nearly impossible.',
     approach:
-      'We architect synchronized, dependable data systems that turn raw transactional logs into structured operational insights. We establish strict data schemas, automated ETL/ELT pipelines, and real-time executive dashboards.',
+      'We establish dependable, single-source-of-truth data architectures with automated ETL pipelines, analytics warehouses, and real-time operational reporting dashboards.',
     services: [
-      'Relational Database Architecture & Schema Design',
-      'ETL & ELT Pipeline Engineering',
-      'Data Warehousing & Lakehouse Implementation',
-      'Business Intelligence (BI) & Executive Dashboards',
-      'Real-Time KPI & Metrics Tracking Systems',
-      'Automated Financial & Operational Reporting',
-      'Data Governance & Compliance Frameworks',
-      'Data Quality, Anomaly Detection & Auditing',
+      'Database Schema Architecture & Modeling',
+      'Data Warehouse Design (PostgreSQL / ClickHouse)',
+      'Automated ETL/ELT Pipeline Engineering',
+      'Executive Dashboards & Business Intelligence',
+      'Real-Time Analytics & User Funnel Tracking',
+      'Data Migration & Consolidation Services',
+      'Data Governance, Audit Trails & Integrity',
     ],
     capabilities: [
-      'PostgreSQL, MySQL, Redis Caching',
-      'Modern Columnar Warehouses (ClickHouse, BigQuery)',
-      'Automated Ingestion Pipelines & Event Streaming',
-      'Interactive Analytics & Reporting Engines',
-      'Schema Migration & Zero-Downtime Indexing',
+      'Relational & Columnar Database Engineering',
+      'Python Data Pipelines & Scheduled Ingestion',
+      'Event-Driven Analytics & Webhooks',
+      'Interactive Charting & BI Telemetry',
+      'Role-Based Data Access Controls',
     ],
     process: [
-      '1. Data Source Mapping & Entity Modeling',
-      '2. Pipeline Architecture & Storage Design',
-      '3. Automated Transformation & Cleansing Setup',
-      '4. Dashboard Delivery & Analytics Training',
+      '1. Source Data Audit & Inventory Mapping',
+      '2. Centralized Schema & Warehouse Design',
+      '3. Automated ETL Pipeline Ingestion',
+      '4. Executive BI Dashboard Validation',
     ],
   },
   {
@@ -138,21 +137,20 @@ const SERVICE_PILLARS: ServicePillar[] = [
     title: 'Artificial Intelligence & Automation',
     tagline: 'Build AI that creates real business value.',
     icon: Bot,
-    color: '#10B981',
+    color: '#10b981',
     problem:
-      'AI is frequently deployed as a marketing gimmick or ungrounded chatbot wrapper that hallucinates, leaks proprietary context, and fails to impact core unit economics.',
+      'Companies rush to adopt generic AI wrappers that hallucinate answers, expose confidential internal documents, or fail to connect into underlying transaction engines.',
     approach:
-      'We implement practical, verified AI systems focused squarely on solving measurable operational bottlenecks: context-grounded Retrieval-Augmented Generation (RAG), intelligent customer triage, automated document extraction, and predictive business models.',
+      'We build domain-grounded AI systems using Retrieval-Augmented Generation (RAG) and structured autonomous agents that automate manual operational bottlenecks with verifiable accuracy.',
     services: [
-      'Enterprise AI Strategy & Opportunity Assessment',
-      'Retrieval-Augmented Generation (RAG) Architecture',
-      'Autonomous AI Agents & Multi-Step Task Executors',
+      'AI Strategy & Practical Use-Case Discovery',
+      'Custom LLM Integration & Middleware Design',
+      'Retrieval-Augmented Generation (RAG) on Company Docs',
+      'Autonomous Task & Operations Agents',
       'AI-Powered Customer Support & Live Triage',
       'Intelligent Business Workflow Automation',
       'Document Intelligence & OCR Extraction',
       'Recommendation Engines & Personalization',
-      'Predictive Analytics & Churn Forecasting',
-      'Proprietary Internal Knowledge Assistants',
     ],
     capabilities: [
       'Large Language Model Orchestration',
@@ -173,11 +171,11 @@ const SERVICE_PILLARS: ServicePillar[] = [
     title: 'Cloud & Infrastructure Engineering',
     tagline: 'Build technology that is ready to grow.',
     icon: Cloud,
-    color: '#6366F1',
+    color: '#2c476f',
     problem:
       'Fragile hosting configurations collapse under sudden traffic spikes, suffer from sluggish page loads, lack automated disaster recovery, or incur runaway monthly cloud bills.',
     approach:
-      'We construct automated, hardened, cost-efficient cloud architectures engineered for high availability and zero operational panic. We implement seamless CI/CD, multi-region CDN caching, comprehensive observability, and proactive security.',
+      'We construct automated, hardened, cost-efficient cloud architectures engineered for high availability and zero operational panic with automated CI/CD, multi-region CDN caching, and proactive security.',
     services: [
       'Modern Cloud Architecture (AWS, GCP, DigitalOcean)',
       'Containerization (Docker, Orchestration)',
@@ -208,7 +206,7 @@ const SERVICE_PILLARS: ServicePillar[] = [
     title: 'Technical Team Building & Fractional CTO',
     tagline: 'Build the team behind your technology.',
     icon: Users,
-    color: '#F43F5E',
+    color: '#e11d48',
     problem:
       'Non-technical founders frequently struggle to evaluate engineering candidates, set coding benchmarks, or establish structured development processes, leading to poor hires and misaligned deliverables.',
     approach:
@@ -218,17 +216,15 @@ const SERVICE_PILLARS: ServicePillar[] = [
       'Technical Team Organization & Capacity Planning',
       'Developer Screening, Coding Rubrics & Interviews',
       'Engineering Workflow & Code Review Standards',
-      'CI/CD & Release Governance Process Design',
-      'In-House Developer Training & Technical Upskilling',
-      'Comprehensive System Architecture Documentation',
-      'Transition Handover from External Partner to Internal Team',
-    ],
-    capabilities: [
-      'Engineering Competency Frameworks',
-      'Rigorous Practical Code Challenge Design',
-      'Agile Sprint Frameworks & Jira/Linear Setup',
       'Developer Onboarding Handbooks',
       'Codebase Ownership & IP Transfer Management',
+    ],
+    capabilities: [
+      'Senior Engineering Hiring Rubrics',
+      'Live Coding Architecture Assessment',
+      'Sprint Ceremony & Agile Cadence Coaching',
+      'Git Branching & Release Management Protocols',
+      'Technical Roadmap Mentorship',
     ],
     process: [
       '1. Organizational Gap & Skill Audit',
@@ -243,30 +239,61 @@ export default function Services() {
   return (
     <div className="space-y-20 sm:space-y-28 pb-20">
       {/* Full-Width Hero Header */}
-      <section className="relative w-full border-b border-slate-200/80 bg-gradient-to-b from-white via-purple-50/20 to-slate-50/70 pt-14 pb-16 sm:pt-20 sm:pb-24">
-        <div className="tech-grid absolute inset-0 opacity-30 pointer-events-none" />
+      <section className="theme-hero-section relative w-full pt-14 pb-16 sm:pt-20 sm:pb-24 overflow-hidden">
+        <div className="tech-grid absolute inset-0 opacity-20 pointer-events-none" />
+
         <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-100 px-3.5 py-1 text-xs font-semibold text-brand mb-4 shadow-2xs">
-              <Sparkles className="size-3.5" />
-              <span>End-to-End Technology Services</span>
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] items-center">
+            <div className="max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="inline-flex items-center gap-2 rounded-full bg-[#375a8a]/10 border border-[#375a8a]/30 px-3.5 py-1 text-xs font-semibold text-[#375a8a] mb-4 shadow-2xs"
+              >
+                <Sparkles className="size-3.5" />
+                <span>End-to-End Technology Services</span>
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.1 }}
+                className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight"
+              >
+                Strategic Engineering Services for Growing Businesses
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.2 }}
+                className="mt-5 text-base sm:text-lg theme-muted leading-relaxed font-normal"
+              >
+                Aqivo provides comprehensive technology capabilities across strategy, product engineering, data systems,
+                applied AI, cloud infrastructure, and technical leadership.
+              </motion.p>
             </div>
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Strategic Engineering Services for Growing Businesses
-            </h1>
-            <p className="mt-5 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
-              Aqivo provides comprehensive technology capabilities across strategy, product engineering, data systems,
-              applied AI, cloud infrastructure, and technical leadership.
-            </p>
+
+            {/* Creative Floating Robot Vanguard in Hero */}
+            <div className="flex justify-center">
+              <CreativeRobot
+                variant="floating"
+                size="md"
+                badgeText="Precision Full-Stack Engineering"
+                mascot="1"
+                showOrbits={true}
+              />
+            </div>
           </div>
 
           {/* Quick Nav Anchors */}
-          <div className="mt-8 flex flex-wrap gap-2 border-t border-slate-200/80 pt-6">
+          <div className="mt-12 flex flex-wrap gap-2 border-t border-slate-200 dark:border-white/10 pt-6">
             {SERVICE_PILLARS.map((p) => (
               <a
                 key={p.id}
                 href={`#${p.id}`}
-                className="rounded-full bg-white hover:bg-slate-100 border border-slate-200/90 px-4 py-2 text-xs font-semibold text-slate-700 transition shadow-2xs"
+                className="theme-pill-inactive rounded-full px-4 py-2 text-xs font-semibold transition shadow-2xs cursor-pointer"
               >
                 {p.title}
               </a>
@@ -280,13 +307,17 @@ export default function Services() {
         {SERVICE_PILLARS.map((pillar, idx) => {
           const Icon = pillar.icon
           return (
-            <section
+            <motion.section
               key={pillar.id}
               id={pillar.id}
-              className="scroll-mt-28 rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-12 shadow-sm"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.4 }}
+              className="theme-card scroll-mt-28 rounded-3xl p-6 sm:p-12 shadow-2xl transition-all duration-300"
             >
               {/* Header */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-white/10 pb-6">
                 <div className="flex items-center gap-4">
                   <div
                     className="grid size-14 place-items-center rounded-2xl text-white shadow-md shrink-0"
@@ -295,33 +326,33 @@ export default function Services() {
                     <Icon className="size-7" />
                   </div>
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#375a8a]">
                       Pillar 0{idx + 1}
                     </span>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">{pillar.title}</h2>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">{pillar.title}</h2>
                   </div>
                 </div>
-                <div className="rounded-full bg-purple-50 px-4 py-1.5 text-xs font-bold text-brand border border-purple-200/60">
+                <div className="rounded-full bg-[#375a8a]/10 px-4 py-1.5 text-xs font-mono font-bold text-[#375a8a] border border-[#375a8a]/30">
                   {pillar.tagline}
                 </div>
               </div>
 
               {/* The Business Problem vs How Aqivo Approaches */}
               <div className="mt-8 grid gap-6 md:grid-cols-2">
-                <div className="rounded-2xl border border-rose-200/80 bg-rose-50/40 p-6">
-                  <div className="flex items-center gap-2 text-rose-700 font-bold text-sm mb-2">
+                <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6">
+                  <div className="flex items-center gap-2 text-rose-500 font-bold text-sm mb-2 font-mono">
                     <AlertTriangle className="size-4 shrink-0" />
                     <span>The Business Problem</span>
                   </div>
-                  <p className="text-sm text-slate-700 leading-relaxed">{pillar.problem}</p>
+                  <p className="text-xs sm:text-sm theme-muted leading-relaxed font-normal">{pillar.problem}</p>
                 </div>
 
-                <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/40 p-6">
-                  <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-2">
+                <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6">
+                  <div className="flex items-center gap-2 text-emerald-500 font-bold text-sm mb-2 font-mono">
                     <ShieldCheck className="size-4 shrink-0" />
-                    <span>How Aqivo Approaches It</span>
+                    <span>How Aqivo Solves It</span>
                   </div>
-                  <p className="text-sm text-slate-700 leading-relaxed">{pillar.approach}</p>
+                  <p className="text-xs sm:text-sm theme-muted leading-relaxed font-normal">{pillar.approach}</p>
                 </div>
               </div>
 
@@ -329,16 +360,16 @@ export default function Services() {
               <div className="mt-8 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
                 {/* Services list */}
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 mb-4">
+                  <h3 className="text-xs font-mono font-bold uppercase tracking-wider theme-muted mb-4">
                     Services Offered
                   </h3>
-                  <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="grid gap-2.5 sm:grid-cols-2">
                     {pillar.services.map((item) => (
                       <div
                         key={item}
-                        className="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50/70 p-3 text-xs sm:text-sm font-medium text-slate-800"
+                        className="theme-card-subtle flex items-start gap-2.5 rounded-xl p-3 text-xs sm:text-sm font-medium"
                       >
-                        <CheckCircle2 className="size-4 text-brand shrink-0 mt-0.5" />
+                        <CheckCircle2 className="size-4 text-[#375a8a] shrink-0 mt-0.5" />
                         <span>{item}</span>
                       </div>
                     ))}
@@ -347,16 +378,16 @@ export default function Services() {
 
                 {/* Capabilities and Process */}
                 <div className="space-y-6">
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
-                      <Cpu className="size-4 text-brand" />
-                      <span>Typical Technology Capabilities</span>
+                  <div className="theme-card-subtle rounded-2xl p-5">
+                    <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-inherit mb-3 flex items-center gap-1.5">
+                      <Cpu className="size-4 text-[#375a8a]" />
+                      <span>Technology & Stack Capabilities</span>
                     </h4>
                     <div className="flex flex-wrap gap-1.5">
                       {pillar.capabilities.map((cap) => (
                         <span
                           key={cap}
-                          className="rounded-md bg-white px-2.5 py-1 text-xs font-medium text-slate-700 border border-slate-200 shadow-2xs"
+                          className="rounded-md theme-card px-2.5 py-1 text-xs font-mono"
                         >
                           {cap}
                         </span>
@@ -364,15 +395,16 @@ export default function Services() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-slate-900 p-5 text-white">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-purple-300 mb-3 flex items-center gap-1.5">
-                      <Workflow className="size-4 text-purple-400" />
-                      <span>Engagement Process</span>
+                  <div className="theme-card-subtle rounded-2xl p-5">
+                    <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#375a8a] mb-3 flex items-center gap-1.5">
+                      <Workflow className="size-4 text-[#375a8a]" />
+                      <span>Engagement Cadence</span>
                     </h4>
-                    <ul className="space-y-1.5 text-xs text-slate-300">
+                    <ul className="space-y-1.5 text-xs theme-muted font-mono">
                       {pillar.process.map((step) => (
-                        <li key={step} className="font-mono">
-                          {step}
+                        <li key={step} className="flex items-center gap-2">
+                          <span className="size-1.5 rounded-full bg-[#375a8a]" />
+                          <span>{step}</span>
                         </li>
                       ))}
                     </ul>
@@ -381,37 +413,36 @@ export default function Services() {
               </div>
 
               {/* CTA footer for section */}
-              <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-slate-100 pt-6">
-                <p className="text-xs text-slate-500">
-                  Ready to solve this challenge? Talk with an Aqivo senior engineer.
+              <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-slate-200 dark:border-white/10 pt-6">
+                <p className="text-xs theme-muted font-mono">
+                  Ready to solve this challenge? Consult directly with a senior Aqivo engineer.
                 </p>
                 <Link
                   to={`/contact?interest=${pillar.id}`}
-                  className="btn-brand inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-bold shadow-xs"
+                  className="btn-brand inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-bold shadow-lg hover:scale-105 transition"
                 >
                   <span>Engage on {pillar.title}</span>
                   <ArrowRight className="size-3.5" />
                 </Link>
               </div>
-            </section>
+            </motion.section>
           )
         })}
       </div>
 
       {/* Global Bottom CTA */}
       <section className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="rounded-3xl bg-slate-900 p-8 sm:p-14 text-center text-white">
-          <h2 className="text-2xl sm:text-4xl font-extrabold">Need a Tailored Combination of Services?</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-slate-300">
-            Most client engagements combine software development, data design, and cloud architecture in integrated
-            sprints.
+        <div className="rounded-3xl border border-slate-700/40 bg-[#0f172a] dark:bg-[#0a0f1d] p-8 sm:p-14 text-center text-white shadow-2xl relative overflow-hidden">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">Need a Tailored Combination of Services?</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-white/90 font-normal">
+            Most client engagements combine software development, data design, and cloud architecture into cohesive, high-impact sprints.
           </p>
-          <div className="mt-6 flex justify-center gap-4">
+          <div className="mt-8 flex justify-center gap-4">
             <Link
               to="/contact"
-              className="btn-brand rounded-full px-8 py-3.5 text-sm sm:text-base font-bold shadow-lg"
+              className="rounded-full bg-white text-[#09090b] px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl transition hover:bg-zinc-100 hover:scale-105 active:scale-95"
             >
-              Start a Conversation
+              Start an Architecture Discovery Call
             </Link>
           </div>
         </div>
