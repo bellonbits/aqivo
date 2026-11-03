@@ -36,7 +36,7 @@ function TemplateCard({ t }: { t: Template }) {
         </div>
         <div className="flex flex-col p-6 md:p-8">
           <p className="text-xs font-bold uppercase tracking-wider text-muted">{t.industry}</p>
-          <h2 className="mt-1 text-2xl">{t.name}</h2>
+          <h2 className="mt-1 text-2xl text-slate-900 dark:text-white">{t.name}</h2>
           <p className="mt-2 text-sm text-muted">{t.description}</p>
           <ul className="mt-5 space-y-1.5 text-sm">{t.features.map((f) => <li key={f} className="flex gap-2"><span className="mt-2 size-1.5 shrink-0 rounded-full bg-ink" />{f}</li>)}</ul>
           <div className="mt-6 flex gap-2">{[t.theme.bg, t.theme.accent, t.theme.ink].map((c, i) => <span key={i} className="size-7 rounded-full ring-1 ring-black/10" style={{ background: c }} aria-hidden />)}</div>
@@ -56,7 +56,7 @@ export default function Templates() {
   return (
     <PublicLayout>
       <main className="mx-auto max-w-7xl px-5 pb-24 pt-8 md:px-10">
-        <h1 className="max-w-3xl text-4xl md:text-6xl">Designs made for every kind of business.</h1>
+        <h1 className="max-w-3xl text-4xl md:text-6xl text-slate-900 dark:text-white">Designs made for every kind of business.</h1>
         <p className="mt-4 max-w-2xl text-muted">Every design is generated from your own business details. Pick a look — you can switch any time without losing your content. Previews use a demo business.</p>
         <div className="scrollbar-none -mx-5 mt-8 flex gap-2 overflow-x-auto px-5 md:mx-0 md:px-0">{[{ key: 'all', label: 'All' }, ...(cfg.data?.industries ?? []).filter((i) => present.has(i.key))].map((i) => <button key={i.key} onClick={() => setInd(i.key)} aria-pressed={ind === i.key} className={cn('h-10 shrink-0 rounded-full px-5 text-sm font-bold', ind === i.key ? 'btn-brand' : 'glass text-muted')}>{i.label}</button>)}</div>
         {isLoading ? <PageLoading /> : <div className="mt-6 space-y-6">{shown.map((t) => <TemplateCard key={t.key} t={t} />)}</div>}
